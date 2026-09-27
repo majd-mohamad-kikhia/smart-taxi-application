@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_bottom_nav_widget.dart';
-import '../../../../core/widgets/app_nav_helper.dart';
 import '../../../home/presentation/widgets/home_app_bar_widget.dart';
 import '../cubit/trips_cubit.dart';
 import '../cubit/trips_state.dart';
@@ -87,10 +85,6 @@ class _TripsView extends StatelessWidget {
             ],
           );
         },
-      ),
-      bottomNavigationBar: AppBottomNavWidget(
-        currentIndex: 1,
-        onTap: (i) => AppNavHelper.handleTap(context, i, current: 1),
       ),
     );
   }

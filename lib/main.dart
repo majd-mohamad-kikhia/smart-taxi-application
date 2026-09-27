@@ -4,8 +4,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/injection/injection.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'driver_features/driver_auth/data/repositories/driver_repository.dart';
+import 'driver_features/driver_auth/presentation/cubit/driver_auth_cubit.dart';
+import 'features/auth/data/repositories/auth_repository.dart';
+import 'features/auth/presentation/cubit/auth_cubit.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Force portrait mode
@@ -26,11 +30,29 @@ void main() {
   // Register all dependencies
   setupInjection();
 
-  runApp(const MshoarApp());
+  // Skip the auth flow entirely if a session was already saved locally
+  // (rider or driver — a device is only ever logged into one at a time).
+  final restoredRider = await sl<AuthRepository>().restoreSession();
+  if (restoredRider != null) {
+    sl<AuthCubit>().hydrate(restoredRider);
+    runApp(const MshoarApp(initialRoute: AppRouter.home));
+    return;
+  }
+
+  final restoredDriver = await sl<DriverRepository>().restoreSession();
+  if (restoredDriver != null) {
+    sl<DriverAuthCubit>().hydrate(restoredDriver);
+    runApp(const MshoarApp(initialRoute: AppRouter.driverHome));
+    return;
+  }
+
+  runApp(const MshoarApp(initialRoute: AppRouter.roleSelection));
 }
 
 class MshoarApp extends StatelessWidget {
-  const MshoarApp({super.key});
+  final String initialRoute;
+
+  const MshoarApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +80,17 @@ class MshoarApp extends StatelessWidget {
       ),
 
       // ── Navigation ─────────────────────────────────────
-      initialRoute: AppRouter.home,
+      initialRoute: initialRoute,
       onGenerateRoute: AppRouter.onGenerateRoute,
+      // Route names with a nested path (e.g. `/driver/home`) would
+      // otherwise have Flutter's default initial-route handling split
+      // them into one route per path segment (`/driver`, then
+      // `/driver/home`), silently pushing an extra unmatched-route
+      // fallback screen underneath the real one. Building a single route
+      // straight from the full name avoids that.
+      onGenerateInitialRoutes: (initialRouteName) {
+        return [AppRouter.onGenerateRoute(RouteSettings(name: initialRouteName))];
+      },
     );
   }
 }

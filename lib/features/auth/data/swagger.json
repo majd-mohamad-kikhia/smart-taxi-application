@@ -1,0 +1,5308 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Smart Taxi API",
+    "version": "1.0.0",
+    "description": "Backend API for **Smart Taxi**, a ride-hailing (Uber-like) application.\n\n## Overview\nCurrently exposes customer authentication, notifications, ride-ordering, and driver authentication endpoints. More modules (driver vehicles, wallets, etc.) will be added here as they ship.\n\n## Authentication\nSuccessful signup / login returns:\n- `accessToken` — short-lived JWT (default **15m**). Send as `Authorization: Bearer \u003Ctoken\u003E` on protected routes.\n- `refreshToken` — opaque token stored hashed in the DB (default **30 days**). Used to obtain a new access token without re-logging in.\n\nJWT payload claims: `sub` (owner id), `ownerType` (`customer` | `driver`), `accountTypeId` (`1` customer, `2` manager).\n\n## Common response envelope\n**Success**\n```json\n{ \"success\": true, \"message\": \"...\", \"data\": { } }\n```\n\n**Error**\n```json\n{ \"success\": false, \"message\": \"...\", \"errors\": { \"field\": \"reason\" } }\n```\n`errors` is only present for validation (422) and conflict (409) responses.",
+    "contact": {
+      "name": "Smart Taxi Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://smart-taxi.ma-core.net",
+      "description": "Current server"
+    },
+    {
+      "url": "http://localhost:5014",
+      "description": "Local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Service availability checks"
+    },
+    {
+      "name": "Customer Auth",
+      "description": "Customer registration, login, and logout. Issues and revokes access + refresh tokens."
+    },
+    {
+      "name": "Customer Notifications",
+      "description": "In-app notifications for the authenticated customer"
+    },
+    {
+      "name": "Customer Complaints",
+      "description": "Customer submits complaints (شكاوى) to managers"
+    },
+    {
+      "name": "Customer Rides",
+      "description": "Ride (\"order\") creation, listing, and status lookup for the authenticated customer"
+    },
+    {
+      "name": "Driver Auth",
+      "description": "Driver registration, login, and logout. New drivers start as pending (status_id = 1)."
+    },
+    {
+      "name": "Driver Rides",
+      "description": "Driver actions on ride orders (accept, …)"
+    },
+    {
+      "name": "Driver",
+      "description": "Driver profile / settings (search radius, …)"
+    },
+    {
+      "name": "Admin Auth",
+      "description": "Manager / admin login (account_type_id = 2)"
+    },
+    {
+      "name": "Admin",
+      "description": "Manager-only endpoints (list customers, drivers, …)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT access token from signup/login. Header: `Authorization: Bearer \u003CaccessToken\u003E`"
+      }
+    },
+    "schemas": {
+      "Customer": {
+        "type": "object",
+        "description": "Public customer profile (never includes password_hash)",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "first_name": {
+            "type": "string",
+            "example": "Ahmad"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Ali"
+          },
+          "photo_url": {
+            "type": "string",
+            "nullable": true,
+            "example": null,
+            "description": "Absolute or relative URL to the profile photo"
+          },
+          "phone_number": {
+            "type": "string",
+            "example": "0991234567",
+            "description": "Unique phone number used as the login identifier"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "format": "email",
+            "example": "ahmad@example.com"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true,
+            "example": "Damascus, Mazzeh"
+          },
+          "account_type_id": {
+            "type": "integer",
+            "enum": [1, 2],
+            "example": 1,
+            "description": "`1` = customer, `2` = manager"
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-09-27 10:15:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "example": "2026-09-27 10:15:00"
+          }
+        }
+      },
+      "AuthTokens": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "JWT access token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "accessTokenExpiresIn": {
+            "type": "string",
+            "description": "Access token lifetime (from JWT_ACCESS_EXPIRES_IN)",
+            "example": "15m"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Opaque refresh token (hex). Store securely on the client.",
+            "example": "a1b2c3d4e5f6..."
+          },
+          "refreshTokenExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 expiry of the refresh token",
+            "example": "2026-10-27T10:15:00.000Z"
+          }
+        }
+      },
+      "AuthSuccessData": {
+        "type": "object",
+        "properties": {
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "tokens": {
+            "$ref": "#/components/schemas/AuthTokens"
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Validation failed"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Per-field error messages (optional)",
+            "example": {
+              "phone_number": "phone_number is required",
+              "password": "password must contain at least one number"
+            }
+          }
+        }
+      },
+      "CustomerSignupRequest": {
+        "type": "object",
+        "required": [
+          "first_name",
+          "last_name",
+          "phone_number",
+          "password"
+        ],
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "Ahmad",
+            "description": "Letters only (any language). Spaces, hyphens and apostrophes allowed between words. No digits."
+          },
+          "last_name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "Ali",
+            "description": "Same rules as first_name"
+          },
+          "phone_number": {
+            "type": "string",
+            "example": "0991234567",
+            "description": "Must be a **string** (so leading zeros are kept). Digits only; optional leading `+`. 8–15 digits. Arabic/Persian digits are normalized. Unique."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "nullable": true,
+            "example": "ahmad@example.com",
+            "description": "Optional. Max 150 chars. Unique when provided."
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 8,
+            "maxLength": 64,
+            "example": "Passw0rd",
+            "description": "8–64 chars, no spaces, at least one letter and one number"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Damascus, Mazzeh",
+            "description": "Optional free-text address"
+          },
+          "device_info": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "iPhone 15 / iOS 18",
+            "description": "Optional. Stored with the refresh token for session tracking. Falls back to User-Agent if omitted."
+          }
+        }
+      },
+      "CustomerLoginRequest": {
+        "type": "object",
+        "required": [
+          "phone_number",
+          "password"
+        ],
+        "properties": {
+          "phone_number": {
+            "type": "string",
+            "example": "0991234567",
+            "description": "Same phone validation rules as signup"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "Passw0rd",
+            "description": "Presence check only (no strength rules) so existing accounts are not locked out"
+          },
+          "device_info": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Android 14 / Pixel 8",
+            "description": "Optional. Stored with the refresh token. Falls back to User-Agent if omitted."
+          }
+        }
+      },
+      "CustomerLogoutRequest": {
+        "type": "object",
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 512,
+            "description": "Required unless `all_devices` is true. Opaque refresh token from signup/login.",
+            "example": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+          },
+          "all_devices": {
+            "type": "boolean",
+            "default": false,
+            "description": "When true, revokes every active refresh token for this customer",
+            "example": false
+          }
+        }
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "recipient_type": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "driver"
+            ],
+            "example": "customer"
+          },
+          "recipient_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "notification_type": {
+            "type": "string",
+            "example": "ride_accepted",
+            "description": "App-defined type key used by the client for routing/UI"
+          },
+          "title": {
+            "type": "string",
+            "example": "Driver accepted your ride"
+          },
+          "body": {
+            "type": "string",
+            "nullable": true,
+            "example": "Ahmad is on the way"
+          },
+          "related_ride_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 10
+          },
+          "related_warning_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": null
+          },
+          "is_read": {
+            "type": "boolean",
+            "example": false
+          },
+          "sent_at": {
+            "type": "string",
+            "example": "2026-09-27 12:00:00"
+          },
+          "read_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "NotificationListData": {
+        "type": "object",
+        "properties": {
+          "notifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Notification"
+            }
+          },
+          "unread_count": {
+            "type": "integer",
+            "example": 3,
+            "description": "Total unread notifications for this customer (badge)"
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "example": 1
+              },
+              "limit": {
+                "type": "integer",
+                "example": 20
+              },
+              "total": {
+                "type": "integer",
+                "example": 1
+              },
+              "total_pages": {
+                "type": "integer",
+                "example": 1
+              }
+            }
+          }
+        }
+      },
+      "RideStop": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "stop_order": {
+            "type": "integer",
+            "example": 1
+          },
+          "lat": {
+            "type": "number",
+            "format": "double",
+            "example": 33.512
+          },
+          "lng": {
+            "type": "number",
+            "format": "double",
+            "example": 36.283
+          },
+          "address": {
+            "type": "string",
+            "nullable": true,
+            "example": "Pharmacy stop"
+          },
+          "fee_charged": {
+            "type": "number",
+            "format": "double",
+            "example": 500
+          },
+          "started_at": {
+            "type": "string",
+            "example": "2026-09-27 13:00:00"
+          },
+          "ended_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "Ride": {
+        "type": "object",
+        "description": "Customer-facing ride/order. Internal commission split fields are not exposed here.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "customer_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "driver_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": null,
+            "description": "Set once a driver accepts the ride"
+          },
+          "vehicle_type_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "pickup_lat": {
+            "type": "number",
+            "format": "double",
+            "example": 33.5138
+          },
+          "pickup_lng": {
+            "type": "number",
+            "format": "double",
+            "example": 36.2765
+          },
+          "pickup_address": {
+            "type": "string",
+            "nullable": true,
+            "example": "Umayyad Square, Damascus"
+          },
+          "dropoff_lat": {
+            "type": "number",
+            "format": "double",
+            "example": 33.5099
+          },
+          "dropoff_lng": {
+            "type": "number",
+            "format": "double",
+            "example": 36.2919
+          },
+          "dropoff_address": {
+            "type": "string",
+            "nullable": true,
+            "example": "Damascus University"
+          },
+          "distance_km": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": 2.14,
+            "description": "Straight-line (Haversine) distance, computed server-side"
+          },
+          "estimated_duration_min": {
+            "type": "integer",
+            "nullable": true,
+            "example": 4,
+            "description": "Heuristic ETA based on an average city speed"
+          },
+          "price_per_km_applied": {
+            "type": "number",
+            "format": "double",
+            "example": 500
+          },
+          "stops_fee_total": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "price": {
+            "type": "number",
+            "format": "double",
+            "example": 2070,
+            "description": "base_fare + distance_km * price_per_km + stops_fee_total"
+          },
+          "status_id": {
+            "type": "integer",
+            "enum": [1, 2, 3, 4, 5, 6],
+            "example": 1,
+            "description": "1=requested, 2=accepted, 3=arrived, 4=in_progress, 5=completed, 6=cancelled. See docs/ride_statuses.md"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requested",
+              "accepted",
+              "arrived",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ],
+            "example": "requested",
+            "description": "Human-readable name for status_id (from ride_statuses lookup)"
+          },
+          "requested_at": {
+            "type": "string",
+            "example": "2026-09-27 13:00:00"
+          },
+          "accepted_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "started_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "completed_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "cancelled_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "cancellation_reason": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "stops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RideStop"
+            },
+            "description": "Only included on the single-ride detail endpoint"
+          }
+        }
+      },
+      "RideStopInput": {
+        "type": "object",
+        "required": [
+          "lat",
+          "lng"
+        ],
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "double",
+            "minimum": -90,
+            "maximum": 90,
+            "example": 33.512
+          },
+          "lng": {
+            "type": "number",
+            "format": "double",
+            "minimum": -180,
+            "maximum": 180,
+            "example": 36.283
+          },
+          "address": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Pharmacy stop"
+          }
+        }
+      },
+      "CreateRideRequest": {
+        "type": "object",
+        "required": [
+          "vehicle_type_id",
+          "pickup_lat",
+          "pickup_lng",
+          "dropoff_lat",
+          "dropoff_lng"
+        ],
+        "properties": {
+          "vehicle_type_id": {
+            "type": "integer",
+            "example": 1,
+            "description": "Must reference an active row in vehicle_types"
+          },
+          "pickup_lat": {
+            "type": "number",
+            "format": "double",
+            "minimum": -90,
+            "maximum": 90,
+            "example": 33.5138
+          },
+          "pickup_lng": {
+            "type": "number",
+            "format": "double",
+            "minimum": -180,
+            "maximum": 180,
+            "example": 36.2765
+          },
+          "pickup_address": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Umayyad Square, Damascus"
+          },
+          "dropoff_lat": {
+            "type": "number",
+            "format": "double",
+            "minimum": -90,
+            "maximum": 90,
+            "example": 33.5099
+          },
+          "dropoff_lng": {
+            "type": "number",
+            "format": "double",
+            "minimum": -180,
+            "maximum": 180,
+            "example": 36.2919
+          },
+          "dropoff_address": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Damascus University"
+          },
+          "stops": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/RideStopInput"
+            },
+            "description": "Optional intermediate stops (max 5). Each adds the current stop fee."
+          }
+        }
+      },
+      "RideListData": {
+        "type": "object",
+        "properties": {
+          "rides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ride"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "example": 1
+              },
+              "limit": {
+                "type": "integer",
+                "example": 20
+              },
+              "total": {
+                "type": "integer",
+                "example": 1
+              },
+              "total_pages": {
+                "type": "integer",
+                "example": 1
+              }
+            }
+          }
+        }
+      },
+      "Driver": {
+        "type": "object",
+        "description": "Public driver profile (never includes password_hash)",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "first_name": {
+            "type": "string",
+            "example": "Karim"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Hassan"
+          },
+          "photo_url": {
+            "type": "string",
+            "nullable": true,
+            "example": "/uploads/drivers/1710000000-abc.jpg",
+            "description": "Personal photo URL (served from host ./uploads)"
+          },
+          "phone_number": {
+            "type": "string",
+            "example": "0997654321"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true,
+            "example": "Damascus, Midan"
+          },
+          "status_id": {
+            "type": "integer",
+            "enum": [1, 2, 3, 4],
+            "example": 1,
+            "description": "1=pending, 2=active, 3=suspended, 4=rejected. See docs/driver_statuses.md"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "active",
+              "suspended",
+              "rejected"
+            ],
+            "example": "pending"
+          },
+          "wallet_balance": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "search_radius_km": {
+            "type": "number",
+            "format": "double",
+            "example": 1
+          },
+          "current_lat": {
+            "type": "number",
+            "nullable": true,
+            "example": null
+          },
+          "current_lng": {
+            "type": "number",
+            "nullable": true,
+            "example": null
+          },
+          "is_online": {
+            "type": "boolean",
+            "example": false
+          },
+          "rating": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": 5
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-09-27 14:00:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "example": "2026-09-27 14:00:00"
+          }
+        }
+      },
+      "DriverVehicle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "driver_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "vehicle_type_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "vehicle_type_name": {
+            "type": "string",
+            "example": "economy"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Toyota"
+          },
+          "model": {
+            "type": "string",
+            "example": "Corolla"
+          },
+          "color": {
+            "type": "string",
+            "example": "White"
+          },
+          "plate_number": {
+            "type": "string",
+            "example": "12345-A"
+          },
+          "photo_url": {
+            "type": "string",
+            "nullable": true,
+            "example": "/uploads/vehicles/1710000000-xyz.jpg",
+            "description": "Car photo URL (served from host ./uploads)"
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-09-27 14:00:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "example": "2026-09-27 14:00:00"
+          }
+        }
+      },
+      "DriverSignupRequest": {
+        "type": "object",
+        "required": [
+          "first_name",
+          "last_name",
+          "phone_number",
+          "password",
+          "vehicle_type_id",
+          "brand",
+          "model",
+          "color",
+          "plate_number",
+          "photo",
+          "vehicle_photo"
+        ],
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "Karim"
+          },
+          "last_name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "Hassan"
+          },
+          "phone_number": {
+            "type": "string",
+            "example": "0997654321",
+            "description": "Unique among drivers"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 8,
+            "maxLength": 64,
+            "example": "Passw0rd"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Damascus, Midan"
+          },
+          "device_info": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Android 14 / Pixel 8"
+          },
+          "vehicle_type_id": {
+            "type": "integer",
+            "example": 1,
+            "description": "Active vehicle type id (1=economy, 2=comfort, 3=van)"
+          },
+          "brand": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Toyota"
+          },
+          "model": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Corolla"
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "White"
+          },
+          "plate_number": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "12345-A"
+          },
+          "photo": {
+            "type": "string",
+            "format": "binary",
+            "description": "Personal/driver photo (JPEG/PNG/WebP, max 5 MB)"
+          },
+          "vehicle_photo": {
+            "type": "string",
+            "format": "binary",
+            "description": "Car photo (JPEG/PNG/WebP, max 5 MB)"
+          }
+        }
+      },
+      "DriverLoginRequest": {
+        "type": "object",
+        "required": [
+          "phone_number",
+          "password"
+        ],
+        "properties": {
+          "phone_number": {
+            "type": "string",
+            "example": "0997654321"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "Passw0rd"
+          }
+        }
+      },
+      "DriverAuthSuccessData": {
+        "type": "object",
+        "properties": {
+          "driver": {
+            "$ref": "#/components/schemas/Driver"
+          },
+          "vehicle": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DriverVehicle"
+              }
+            ],
+            "nullable": true
+          },
+          "tokens": {
+            "$ref": "#/components/schemas/AuthTokens"
+          }
+        }
+      },
+      "DriverRide": {
+        "type": "object",
+        "description": "Driver-facing ride — includes earning/commission fields that customers do not see",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "customer_id": {
+            "type": "integer",
+            "example": 4
+          },
+          "driver_id": {
+            "type": "integer",
+            "example": 2
+          },
+          "vehicle_type_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "pickup_lat": {
+            "type": "number",
+            "example": 33.5138
+          },
+          "pickup_lng": {
+            "type": "number",
+            "example": 36.2765
+          },
+          "pickup_address": {
+            "type": "string",
+            "nullable": true
+          },
+          "dropoff_lat": {
+            "type": "number",
+            "example": 33.5099
+          },
+          "dropoff_lng": {
+            "type": "number",
+            "example": 36.2919
+          },
+          "dropoff_address": {
+            "type": "string",
+            "nullable": true
+          },
+          "distance_km": {
+            "type": "number",
+            "example": 1.49
+          },
+          "estimated_duration_min": {
+            "type": "integer",
+            "example": 3
+          },
+          "price_per_km_applied": {
+            "type": "number",
+            "example": 500
+          },
+          "stops_fee_total": {
+            "type": "number",
+            "example": 0
+          },
+          "price": {
+            "type": "number",
+            "example": 1745
+          },
+          "commission_rate_applied": {
+            "type": "number",
+            "example": 15
+          },
+          "admin_commission_amount": {
+            "type": "number",
+            "example": 261.75
+          },
+          "driver_earning_amount": {
+            "type": "number",
+            "example": 1483.25
+          },
+          "status_id": {
+            "type": "integer",
+            "enum": [1, 2, 3, 4, 5, 6],
+            "example": 2
+          },
+          "status": {
+            "type": "string",
+            "example": "accepted"
+          },
+          "requested_at": {
+            "type": "string"
+          },
+          "accepted_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "started_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "completed_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelled_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancellation_reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "stops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RideStop"
+            }
+          }
+        }
+      },
+      "AdminOrder": {
+        "type": "object",
+        "description": "Manager-facing order — full ride fields including commission / driver earning split",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 8
+          },
+          "customer_id": {
+            "type": "integer",
+            "example": 14
+          },
+          "driver_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 2
+          },
+          "vehicle_type_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "pickup_lat": {
+            "type": "number",
+            "format": "double",
+            "example": 33.51
+          },
+          "pickup_lng": {
+            "type": "number",
+            "format": "double",
+            "example": 36.27
+          },
+          "pickup_address": {
+            "type": "string",
+            "nullable": true,
+            "example": "Umayyad Square, Damascus"
+          },
+          "dropoff_lat": {
+            "type": "number",
+            "format": "double",
+            "example": 33.52
+          },
+          "dropoff_lng": {
+            "type": "number",
+            "format": "double",
+            "example": 36.28
+          },
+          "dropoff_address": {
+            "type": "string",
+            "nullable": true,
+            "example": "Damascus University"
+          },
+          "distance_km": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": 1.45
+          },
+          "estimated_duration_min": {
+            "type": "integer",
+            "nullable": true,
+            "example": 3
+          },
+          "price_per_km_applied": {
+            "type": "number",
+            "format": "double",
+            "example": 500
+          },
+          "stops_fee_total": {
+            "type": "number",
+            "format": "double",
+            "example": 0
+          },
+          "price": {
+            "type": "number",
+            "format": "double",
+            "example": 1725
+          },
+          "commission_rate_applied": {
+            "type": "number",
+            "format": "double",
+            "example": 15
+          },
+          "admin_commission_amount": {
+            "type": "number",
+            "format": "double",
+            "example": 258.75
+          },
+          "driver_earning_amount": {
+            "type": "number",
+            "format": "double",
+            "example": 1466.25
+          },
+          "status_id": {
+            "type": "integer",
+            "enum": [1, 2, 3, 4, 5, 6],
+            "example": 3
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requested",
+              "accepted",
+              "arrived",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ],
+            "example": "arrived"
+          },
+          "requested_at": {
+            "type": "string",
+            "example": "2026-09-27 11:36:12"
+          },
+          "accepted_at": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-09-27 11:36:12"
+          },
+          "started_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "completed_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "cancelled_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "cancellation_reason": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "AdminOrdersListData": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminOrder"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "example": 1
+              },
+              "limit": {
+                "type": "integer",
+                "example": 2
+              },
+              "total": {
+                "type": "integer",
+                "example": 8
+              },
+              "total_pages": {
+                "type": "integer",
+                "example": 4
+              }
+            }
+          },
+          "filters": {
+            "type": "object",
+            "properties": {
+              "from_date": {
+                "type": "string",
+                "format": "date",
+                "nullable": true,
+                "example": "2026-09-01"
+              },
+              "to_date": {
+                "type": "string",
+                "format": "date",
+                "nullable": true,
+                "example": "2026-09-27"
+              }
+            }
+          }
+        }
+      },
+      "VehicleType": {
+        "type": "object",
+        "description": "Car class / vehicle type (economy, comfort, VIP, …)",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 4
+          },
+          "name": {
+            "type": "string",
+            "example": "VIP"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Premium luxury cars"
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-09-27 14:00:00"
+          }
+        }
+      },
+      "CreateVehicleTypeRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "example": "VIP",
+            "description": "Unique display name for the car class"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Premium luxury cars"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true,
+            "example": true,
+            "description": "Defaults to true when omitted"
+          }
+        }
+      },
+      "UpdateVehicleTypeRequest": {
+        "type": "object",
+        "description": "Partial update — send at least one field",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "example": "vip"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Top-tier luxury fleet"
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true,
+            "description": "Set false to deactivate, true to re-activate"
+          }
+        }
+      },
+      "PricingTier": {
+        "type": "object",
+        "description": "Distance-band pricing for a vehicle type. Quote uses base_fare + distance_km * price_per_km.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 7
+          },
+          "vehicle_type_id": {
+            "type": "integer",
+            "example": 2
+          },
+          "min_distance_km": {
+            "type": "number",
+            "format": "double",
+            "example": 5
+          },
+          "max_distance_km": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": 8,
+            "description": "Null = open-ended upper bound (e.g. 8+ km)"
+          },
+          "price_per_km": {
+            "type": "number",
+            "format": "double",
+            "example": 800
+          },
+          "base_fare": {
+            "type": "number",
+            "format": "double",
+            "example": 1500
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-09-27 15:00:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "example": "2026-09-27 15:00:00"
+          }
+        }
+      },
+      "CreatePricingTierRequest": {
+        "type": "object",
+        "required": [
+          "vehicle_type_id",
+          "min_distance_km",
+          "price_per_km"
+        ],
+        "properties": {
+          "vehicle_type_id": {
+            "type": "integer",
+            "example": 2,
+            "description": "Target vehicle type (e.g. 2 = comfort)"
+          },
+          "min_distance_km": {
+            "type": "number",
+            "minimum": 0,
+            "example": 5,
+            "description": "Inclusive lower bound of the distance band (km)"
+          },
+          "max_distance_km": {
+            "type": "number",
+            "nullable": true,
+            "example": 8,
+            "description": "Inclusive upper bound; null / omitted = open-ended"
+          },
+          "price_per_km": {
+            "type": "number",
+            "minimum": 0,
+            "example": 800,
+            "description": "Per-km rate applied when ride distance falls in this band"
+          },
+          "base_fare": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0,
+            "example": 1500,
+            "description": "Fixed base fare for this band (defaults to 0)"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true,
+            "example": true
+          }
+        }
+      },
+      "UpdatePricingTierRequest": {
+        "type": "object",
+        "description": "Partial update — send at least one field",
+        "properties": {
+          "vehicle_type_id": {
+            "type": "integer",
+            "example": 2
+          },
+          "min_distance_km": {
+            "type": "number",
+            "minimum": 0,
+            "example": 5
+          },
+          "max_distance_km": {
+            "type": "number",
+            "nullable": true,
+            "example": 10
+          },
+          "price_per_km": {
+            "type": "number",
+            "minimum": 0,
+            "example": 850
+          },
+          "base_fare": {
+            "type": "number",
+            "minimum": 0,
+            "example": 1500
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "DriverFine": {
+        "type": "object",
+        "description": "Fine / غرامة issued by a manager against a driver",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "reason": {
+            "type": "string",
+            "example": "Cancelled ride after pickup without reason"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "example": 5000
+          },
+          "issued_by_user_id": {
+            "type": "integer",
+            "example": 15,
+            "description": "Manager customer id who issued the fine"
+          },
+          "is_read": {
+            "type": "boolean",
+            "example": false
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-09-27 16:20:00"
+          }
+        }
+      },
+      "AdminDriver": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Driver"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "fines": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DriverFine"
+                }
+              },
+              "fines_count": {
+                "type": "integer",
+                "example": 1
+              },
+              "fines_total": {
+                "type": "number",
+                "format": "double",
+                "example": 5000,
+                "description": "Sum of all fine amounts"
+              },
+              "wallet_transactions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WalletTransaction"
+                },
+                "description": "Full wallet history for this driver (newest first)"
+              },
+              "wallet_transactions_count": {
+                "type": "integer",
+                "example": 3
+              },
+              "vehicle": {
+                "nullable": true,
+                "description": "Driver vehicle (null if none registered)",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DriverVehicle"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Complaint": {
+        "type": "object",
+        "description": "Complaint (شكوى) from a customer or driver",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "complainant_type": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "driver"
+            ],
+            "example": "customer"
+          },
+          "complainant_id": {
+            "type": "integer",
+            "example": 14
+          },
+          "subject": {
+            "type": "string",
+            "nullable": true,
+            "example": "Driver was rude"
+          },
+          "message": {
+            "type": "string",
+            "example": "The driver spoke aggressively during the trip."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "in_review",
+              "resolved",
+              "closed"
+            ],
+            "example": "open"
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-09-27 16:30:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "example": "2026-09-27 16:30:00"
+          }
+        }
+      },
+      "CreateComplaintRequest": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 1000,
+            "example": "The driver spoke aggressively during the trip."
+          },
+          "subject": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 150,
+            "example": "Driver was rude"
+          }
+        }
+      },
+      "ComplaintListData": {
+        "type": "object",
+        "properties": {
+          "complaints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Complaint"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "example": 1
+              },
+              "limit": {
+                "type": "integer",
+                "example": 20
+              },
+              "total": {
+                "type": "integer",
+                "example": 2
+              },
+              "total_pages": {
+                "type": "integer",
+                "example": 1
+              }
+            }
+          }
+        }
+      },
+      "WalletTransaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 5
+          },
+          "driver_id": {
+            "type": "integer",
+            "example": 2
+          },
+          "transaction_type": {
+            "type": "string",
+            "enum": [
+              "topup",
+              "commission_deduction",
+              "penalty",
+              "compensation"
+            ],
+            "example": "topup"
+          },
+          "amount": {
+            "type": "number",
+            "example": 10000
+          },
+          "balance_after": {
+            "type": "number",
+            "example": 4000
+          },
+          "related_ride_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": null
+          },
+          "related_warning_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": null
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Bonus for high rating"
+          },
+          "created_by_user_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 15
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-09-27 13:31:17"
+          }
+        }
+      },
+      "WalletHistoryData": {
+        "type": "object",
+        "properties": {
+          "driver": {
+            "$ref": "#/components/schemas/Driver"
+          },
+          "wallet_balance": {
+            "type": "number",
+            "example": 4000
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WalletTransaction"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "example": 1
+              },
+              "limit": {
+                "type": "integer",
+                "example": 20
+              },
+              "total": {
+                "type": "integer",
+                "example": 3
+              },
+              "total_pages": {
+                "type": "integer",
+                "example": 1
+              }
+            }
+          },
+          "filters": {
+            "type": "object",
+            "properties": {
+              "transaction_type": {
+                "type": "string",
+                "nullable": true,
+                "example": null
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Malformed request (e.g. invalid JSON body)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Invalid JSON body"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Invalid credentials",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Invalid phone number or password"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Authenticated but not allowed (e.g. non-customer token)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Customer access only"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Phone or email already registered",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Account already exists",
+              "errors": {
+                "phone_number": "phone_number is already registered"
+              }
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "One or more fields failed validation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Validation failed",
+              "errors": {
+                "first_name": "first_name is required",
+                "password": "password must be between 8 and 64 characters"
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Route does not exist",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Route not found"
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Unexpected server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Internal server error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health check",
+        "description": "Returns a simple status payload confirming the service is running.",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "Service is up",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "service": {
+                      "type": "string",
+                      "example": "smart-taxi-backend"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/customers": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List all customers (paginated)",
+        "description": "Manager-only. Returns customers with `account_type_id = 1` (excludes managers),\nnewest first.\n",
+        "operationId": "adminListCustomers",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customers page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "customers": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/Customer"
+                              }
+                            },
+                            "pagination": {
+                              "type": "object",
+                              "properties": {
+                                "page": {
+                                  "type": "integer"
+                                },
+                                "limit": {
+                                  "type": "integer"
+                                },
+                                "total": {
+                                  "type": "integer"
+                                },
+                                "total_pages": {
+                                  "type": "integer"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          }
+        }
+      }
+    },
+    "/api/admin/drivers": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List all drivers (paginated)",
+        "description": "Manager-only. Returns all drivers with status name, newest first.\nEach driver includes:\n- fines (غرامات): `fines`, `fines_count`, `fines_total`\n- wallet history: `wallet_transactions`, `wallet_transactions_count`\n- vehicle: brand, model, color, plate, type, photo (or null)\n",
+        "operationId": "adminListDrivers",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Drivers page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "drivers": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/AdminDriver"
+                              }
+                            },
+                            "pagination": {
+                              "type": "object",
+                              "properties": {
+                                "page": {
+                                  "type": "integer"
+                                },
+                                "limit": {
+                                  "type": "integer"
+                                },
+                                "total": {
+                                  "type": "integer"
+                                },
+                                "total_pages": {
+                                  "type": "integer"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          }
+        }
+      }
+    },
+    "/api/admin/drivers/{id}/status": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Change a driver's status",
+        "description": "Manager-only. Sets `drivers.status_id`.\n\n| ID | Name | Meaning |\n|----|------|---------|\n| 1 | pending | Waiting for approval |\n| 2 | active | Can go online and accept rides |\n| 3 | suspended | Temporarily blocked |\n| 4 | rejected | Application rejected |\n\nWhen status is not `active`, the driver is forced offline (`is_online = false`).\n",
+        "operationId": "adminUpdateDriverStatus",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 2
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "status_id"
+                ],
+                "properties": {
+                  "status_id": {
+                    "type": "integer",
+                    "enum": [1, 2, 3, 4],
+                    "example": 2
+                  }
+                }
+              },
+              "examples": {
+                "approve": {
+                  "summary": "Approve (active)",
+                  "value": {
+                    "status_id": 2
+                  }
+                },
+                "suspend": {
+                  "summary": "Suspend",
+                  "value": {
+                    "status_id": 3
+                  }
+                },
+                "reject": {
+                  "summary": "Reject",
+                  "value": {
+                    "status_id": 4
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Driver status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Driver"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Driver status updated successfully",
+                  "data": {
+                    "id": 2,
+                    "first_name": "Karim",
+                    "last_name": "Hassan",
+                    "photo_url": "/uploads/drivers/abc.jpg",
+                    "phone_number": "0920507660",
+                    "address": "Damascus, Midan",
+                    "status_id": 2,
+                    "status": "active",
+                    "wallet_balance": 0,
+                    "search_radius_km": 1,
+                    "current_lat": null,
+                    "current_lng": null,
+                    "is_online": false,
+                    "rating": 5,
+                    "created_at": "2026-09-27 14:00:00",
+                    "updated_at": "2026-09-27 16:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Driver not found"
+          },
+          "422": {
+            "description": "Invalid status_id"
+          }
+        }
+      }
+    },
+    "/api/admin/drivers/{id}/fines": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Issue a fine (غرامة) on a driver",
+        "description": "Manager-only. Creates a fine with a **reason** and **amount**.\n\n- Stores the fine in `driver_warnings`\n- If `amount \u003E 0`, deducts from the driver's wallet and records a wallet `penalty` transaction\n- Sends an in-app notification to the driver\n",
+        "operationId": "adminAddDriverFine",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 2
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "reason",
+                  "amount"
+                ],
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 500,
+                    "example": "Cancelled ride after pickup without reason"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0,
+                    "example": 5000,
+                    "description": "Fine amount (0 allowed for warning-only)"
+                  }
+                }
+              },
+              "example": {
+                "reason": "Cancelled ride after pickup without reason",
+                "amount": 5000
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Fine issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "fine": {
+                              "$ref": "#/components/schemas/DriverFine"
+                            },
+                            "driver": {
+                              "$ref": "#/components/schemas/AdminDriver"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Fine issued successfully",
+                  "data": {
+                    "fine": {
+                      "id": 1,
+                      "reason": "Cancelled ride after pickup without reason",
+                      "amount": 5000,
+                      "issued_by_user_id": 15,
+                      "is_read": false,
+                      "created_at": "2026-09-27 16:20:00"
+                    },
+                    "driver": {
+                      "id": 2,
+                      "first_name": "Karim",
+                      "last_name": "Hassan",
+                      "status_id": 2,
+                      "status": "active",
+                      "wallet_balance": -5000,
+                      "fines_count": 1,
+                      "fines_total": 5000,
+                      "fines": [
+                        {
+                          "id": 1,
+                          "reason": "Cancelled ride after pickup without reason",
+                          "amount": 5000,
+                          "issued_by_user_id": 15,
+                          "is_read": false,
+                          "created_at": "2026-09-27 16:20:00"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Driver not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/admin/drivers/{id}/wallet": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Add amount to a driver's wallet",
+        "description": "Manager-only. Credits (top-up) the driver's `wallet_balance` and records a\n`topup` wallet transaction. Notifies the driver.\n",
+        "operationId": "adminAddDriverWallet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 2
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "amount"
+                ],
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0.01,
+                    "example": 10000,
+                    "description": "Amount to add (must be &gt; 0)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "nullable": true,
+                    "example": "Bonus for high rating"
+                  }
+                }
+              },
+              "example": {
+                "amount": 10000,
+                "description": "Bonus for high rating"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Wallet credited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "transaction": {
+                              "type": "object"
+                            },
+                            "driver": {
+                              "$ref": "#/components/schemas/AdminDriver"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Wallet credited successfully",
+                  "data": {
+                    "transaction": {
+                      "id": 3,
+                      "driver_id": 2,
+                      "transaction_type": "topup",
+                      "amount": 10000,
+                      "balance_after": 4000,
+                      "description": "Bonus for high rating",
+                      "created_by_user_id": 15,
+                      "created_at": "2026-09-27 16:40:00"
+                    },
+                    "driver": {
+                      "id": 2,
+                      "wallet_balance": 4000,
+                      "status": "active"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Driver not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get driver wallet history (paginated)",
+        "description": "Manager-only. Returns the driver's current `wallet_balance` and paginated\ntransactions from `driver_wallet_transactions` (no DB schema change needed).\n\nTypes: `topup`, `commission_deduction`, `penalty`, `compensation`.\n",
+        "operationId": "adminListDriverWalletHistory",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 2
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "transaction_type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "topup",
+                "commission_deduction",
+                "penalty",
+                "compensation"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallet history page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/WalletHistoryData"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Wallet history retrieved successfully",
+                  "data": {
+                    "driver": {
+                      "id": 2,
+                      "first_name": "Karim",
+                      "last_name": "Hassan",
+                      "photo_url": "/uploads/drivers/abc.jpg",
+                      "phone_number": "0920507660",
+                      "address": "Damascus",
+                      "status_id": 2,
+                      "status": "active",
+                      "wallet_balance": 4000,
+                      "search_radius_km": 1,
+                      "current_lat": null,
+                      "current_lng": null,
+                      "is_online": false,
+                      "rating": 5,
+                      "created_at": "2026-09-27 11:14:20",
+                      "updated_at": "2026-09-27 13:31:17"
+                    },
+                    "wallet_balance": 4000,
+                    "transactions": [
+                      {
+                        "id": 5,
+                        "driver_id": 2,
+                        "transaction_type": "topup",
+                        "amount": 10000,
+                        "balance_after": 4000,
+                        "related_ride_id": null,
+                        "related_warning_id": null,
+                        "description": "Bonus for high rating",
+                        "created_by_user_id": 15,
+                        "created_at": "2026-09-27 13:31:17"
+                      },
+                      {
+                        "id": 2,
+                        "driver_id": 2,
+                        "transaction_type": "penalty",
+                        "amount": -1000,
+                        "balance_after": -6000,
+                        "related_ride_id": null,
+                        "related_warning_id": 2,
+                        "description": "Late to pickup",
+                        "created_by_user_id": 15,
+                        "created_at": "2026-09-27 13:16:41"
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "limit": 20,
+                      "total": 3,
+                      "total_pages": 1
+                    },
+                    "filters": {
+                      "transaction_type": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Driver not found"
+          }
+        }
+      }
+    },
+    "/api/admin/orders": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List all orders / rides (paginated)",
+        "description": "Manager-only. Returns all ride orders newest-first (`requested_at` DESC).\n\nOptional inclusive date range filter on `requested_at`:\n- `from_date` — start of day (YYYY-MM-DD)\n- `to_date` — end of day (YYYY-MM-DD)\n",
+        "operationId": "adminListOrders",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "from_date",
+            "description": "Inclusive start date (YYYY-MM-DD) on requested_at",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2026-09-01"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to_date",
+            "description": "Inclusive end date (YYYY-MM-DD) on requested_at",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2026-09-27"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AdminOrdersListData"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Orders retrieved successfully",
+                  "data": {
+                    "orders": [
+                      {
+                        "id": 8,
+                        "customer_id": 14,
+                        "driver_id": 2,
+                        "vehicle_type_id": 1,
+                        "pickup_lat": 33.51,
+                        "pickup_lng": 36.27,
+                        "pickup_address": "Umayyad Square, Damascus",
+                        "dropoff_lat": 33.52,
+                        "dropoff_lng": 36.28,
+                        "dropoff_address": "Damascus University",
+                        "distance_km": 1.45,
+                        "estimated_duration_min": 3,
+                        "price_per_km_applied": 500,
+                        "stops_fee_total": 0,
+                        "price": 1725,
+                        "commission_rate_applied": 15,
+                        "admin_commission_amount": 258.75,
+                        "driver_earning_amount": 1466.25,
+                        "status_id": 3,
+                        "status": "arrived",
+                        "requested_at": "2026-09-27 11:36:12",
+                        "accepted_at": "2026-09-27 11:36:12",
+                        "started_at": null,
+                        "completed_at": null,
+                        "cancelled_at": null,
+                        "cancellation_reason": null
+                      },
+                      {
+                        "id": 7,
+                        "customer_id": 14,
+                        "driver_id": 2,
+                        "vehicle_type_id": 1,
+                        "pickup_lat": 33.51,
+                        "pickup_lng": 36.27,
+                        "pickup_address": null,
+                        "dropoff_lat": 33.52,
+                        "dropoff_lng": 36.28,
+                        "dropoff_address": null,
+                        "distance_km": 1.45,
+                        "estimated_duration_min": 3,
+                        "price_per_km_applied": 500,
+                        "stops_fee_total": 0,
+                        "price": 1725,
+                        "commission_rate_applied": 15,
+                        "admin_commission_amount": 258.75,
+                        "driver_earning_amount": 1466.25,
+                        "status_id": 6,
+                        "status": "cancelled",
+                        "requested_at": "2026-09-27 11:36:12",
+                        "accepted_at": "2026-09-27 11:36:12",
+                        "started_at": null,
+                        "completed_at": null,
+                        "cancelled_at": "2026-09-27 11:36:12",
+                        "cancellation_reason": "Found another ride"
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "limit": 2,
+                      "total": 8,
+                      "total_pages": 4
+                    },
+                    "filters": {
+                      "from_date": "2026-09-01",
+                      "to_date": "2026-09-27"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "422": {
+            "description": "Invalid query (bad dates / range)"
+          }
+        }
+      }
+    },
+    "/api/admin/vehicle-types": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a vehicle type",
+        "description": "Manager-only. Creates a car class (e.g. `comfort`, `VIP`, `economy`).\nName must be unique. New types are active by default (`is_active: true`).\n",
+        "operationId": "adminCreateVehicleType",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVehicleTypeRequest"
+              },
+              "example": {
+                "name": "VIP",
+                "description": "Premium luxury cars",
+                "is_active": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vehicle type created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/VehicleType"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle type created successfully",
+                  "data": {
+                    "id": 4,
+                    "name": "VIP",
+                    "description": "Premium luxury cars",
+                    "is_active": true,
+                    "created_at": "2026-09-27 14:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "409": {
+            "description": "Name already taken"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/admin/vehicle-types/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a vehicle type",
+        "description": "Manager-only. Partial update — send any of `name`, `description`, `is_active`.\nUse `is_active: true` to re-activate a soft-deleted type.\n",
+        "operationId": "adminUpdateVehicleType",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 255
+            },
+            "example": 4
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVehicleTypeRequest"
+              },
+              "example": {
+                "name": "vip",
+                "description": "Top-tier luxury fleet",
+                "is_active": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vehicle type updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/VehicleType"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle type updated successfully",
+                  "data": {
+                    "id": 4,
+                    "name": "vip",
+                    "description": "Top-tier luxury fleet",
+                    "is_active": true,
+                    "created_at": "2026-09-27 14:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Vehicle type not found"
+          },
+          "409": {
+            "description": "Name already taken"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Deactivate a vehicle type",
+        "description": "Manager-only. Soft-delete — sets `is_active = false` so existing rides /\ndriver vehicles keep their FK. Inactive types cannot be chosen for new\nrides or driver signup. Re-activate with PUT `is_active: true`.\n",
+        "operationId": "adminDeleteVehicleType",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 255
+            },
+            "example": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle type deactivated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/VehicleType"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle type deactivated successfully",
+                  "data": {
+                    "id": 4,
+                    "name": "VIP",
+                    "description": "Premium luxury cars",
+                    "is_active": false,
+                    "created_at": "2026-09-27 14:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Vehicle type not found"
+          },
+          "409": {
+            "description": "Already inactive"
+          }
+        }
+      }
+    },
+    "/api/admin/pricing-tiers": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a distance pricing tier",
+        "description": "Manager-only. Adds a distance band for a vehicle type, e.g. comfort:\n- 0–5 km → `price_per_km` 500\n- 5–8 km → `price_per_km` 800\n\n`max_distance_km` may be `null` for an open-ended upper band (e.g. 8+ km).\nTouching endpoints are allowed (`0–5` then `5–8`); interior overlaps return 409.\n\nQuote formula: `base_fare + distance_km * price_per_km + stops_fee`.\n",
+        "operationId": "adminCreatePricingTier",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePricingTierRequest"
+              },
+              "examples": {
+                "comfort_0_5": {
+                  "summary": "Comfort 0–5 km",
+                  "value": {
+                    "vehicle_type_id": 2,
+                    "min_distance_km": 0,
+                    "max_distance_km": 5,
+                    "price_per_km": 500,
+                    "base_fare": 1500
+                  }
+                },
+                "comfort_5_8": {
+                  "summary": "Comfort 5–8 km",
+                  "value": {
+                    "vehicle_type_id": 2,
+                    "min_distance_km": 5,
+                    "max_distance_km": 8,
+                    "price_per_km": 800,
+                    "base_fare": 1500
+                  }
+                },
+                "open_ended": {
+                  "summary": "Open-ended 8+ km",
+                  "value": {
+                    "vehicle_type_id": 2,
+                    "min_distance_km": 8,
+                    "max_distance_km": null,
+                    "price_per_km": 700,
+                    "base_fare": 1500
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pricing tier created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PricingTier"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Pricing tier created successfully",
+                  "data": {
+                    "id": 7,
+                    "vehicle_type_id": 2,
+                    "min_distance_km": 5,
+                    "max_distance_km": 8,
+                    "price_per_km": 800,
+                    "base_fare": 1500,
+                    "is_active": true,
+                    "created_at": "2026-09-27 15:00:00",
+                    "updated_at": "2026-09-27 15:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Vehicle type not found"
+          },
+          "409": {
+            "description": "Distance range overlaps another active tier"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/admin/pricing-tiers/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a pricing tier",
+        "description": "Manager-only. Partial update of distance band / rates / active flag.\nRe-activate with `is_active: true`.\n",
+        "operationId": "adminUpdatePricingTier",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 7
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePricingTierRequest"
+              },
+              "example": {
+                "price_per_km": 850,
+                "max_distance_km": 10
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pricing tier updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PricingTier"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Pricing tier updated successfully",
+                  "data": {
+                    "id": 7,
+                    "vehicle_type_id": 2,
+                    "min_distance_km": 5,
+                    "max_distance_km": 10,
+                    "price_per_km": 850,
+                    "base_fare": 1500,
+                    "is_active": true,
+                    "created_at": "2026-09-27 15:00:00",
+                    "updated_at": "2026-09-27 15:05:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Pricing tier or vehicle type not found"
+          },
+          "409": {
+            "description": "Distance range overlaps another active tier"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Deactivate a pricing tier",
+        "description": "Manager-only. Soft-delete (`is_active = false`). Inactive tiers are not\nused for new ride quotes. Re-activate with PUT `is_active: true`.\n",
+        "operationId": "adminDeletePricingTier",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 7
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pricing tier deactivated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PricingTier"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Pricing tier deactivated successfully",
+                  "data": {
+                    "id": 7,
+                    "vehicle_type_id": 2,
+                    "min_distance_km": 5,
+                    "max_distance_km": 8,
+                    "price_per_km": 800,
+                    "base_fare": 1500,
+                    "is_active": false,
+                    "created_at": "2026-09-27 15:00:00",
+                    "updated_at": "2026-09-27 15:10:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Pricing tier not found"
+          },
+          "409": {
+            "description": "Already inactive"
+          }
+        }
+      }
+    },
+    "/api/admin/complaints": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List all complaints (paginated)",
+        "description": "Manager-only. Returns all complaints from customers and drivers,\nnewest first. Optional filter by `status`.\n",
+        "operationId": "adminListComplaints",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "description": "Filter by complaint status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "in_review",
+                "resolved",
+                "closed"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complaints page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ComplaintListData"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Complaints retrieved successfully",
+                  "data": {
+                    "complaints": [
+                      {
+                        "id": 2,
+                        "complainant_type": "driver",
+                        "complainant_id": 2,
+                        "subject": "Customer no-show",
+                        "message": "Customer was not at the pickup point after waiting 10 minutes.",
+                        "status": "open",
+                        "created_at": "2026-09-27 16:35:00",
+                        "updated_at": "2026-09-27 16:35:00"
+                      },
+                      {
+                        "id": 1,
+                        "complainant_type": "customer",
+                        "complainant_id": 14,
+                        "subject": "App issue",
+                        "message": "Payment screen freezes after ride.",
+                        "status": "open",
+                        "created_at": "2026-09-27 16:30:00",
+                        "updated_at": "2026-09-27 16:30:00"
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "limit": 20,
+                      "total": 2,
+                      "total_pages": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "422": {
+            "description": "Invalid query"
+          }
+        }
+      }
+    },
+    "/api/admin/complaints/{id}/status": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Change a complaint status",
+        "description": "Manager-only. Sets complaint status to one of:\n`open`, `in_review`, `resolved`, `closed`.\n",
+        "operationId": "adminUpdateComplaintStatus",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "open",
+                      "in_review",
+                      "resolved",
+                      "closed"
+                    ],
+                    "example": "in_review"
+                  }
+                }
+              },
+              "examples": {
+                "in_review": {
+                  "value": {
+                    "status": "in_review"
+                  }
+                },
+                "resolved": {
+                  "value": {
+                    "status": "resolved"
+                  }
+                },
+                "closed": {
+                  "value": {
+                    "status": "closed"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complaint status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Complaint"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Complaint status updated successfully",
+                  "data": {
+                    "id": 1,
+                    "complainant_type": "customer",
+                    "complainant_id": 14,
+                    "subject": "Driver was rude",
+                    "message": "The driver spoke aggressively during the trip.",
+                    "status": "resolved",
+                    "created_at": "2026-09-27 16:30:00",
+                    "updated_at": "2026-09-27 17:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Complaint not found"
+          },
+          "422": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/api/admin/auth/login": {
+      "post": {
+        "tags": [
+          "Admin Auth"
+        ],
+        "summary": "Manager / admin login",
+        "description": "Login for managers (`account_type_id = 2` in `customers`).\nRegular customer accounts cannot use this endpoint.\n",
+        "operationId": "adminLogin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "phone_number",
+                  "password"
+                ],
+                "properties": {
+                  "phone_number": {
+                    "type": "string",
+                    "example": "0900000001"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "AdminPass1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in; manager + tokens"
+          },
+          "401": {
+            "description": "Invalid credentials or not a manager"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/customer/auth/signup": {
+      "post": {
+        "tags": [
+          "Customer Auth"
+        ],
+        "summary": "Register a new customer account",
+        "description": "Creates a customer account (`account_type_id = 1`), hashes the password with bcrypt,\nand immediately issues an access JWT + refresh token so the client can stay logged in.\n\n**Validation rules**\n| Field | Rules |\n|-------|-------|\n| `first_name` / `last_name` | Required, 2–100 chars, letters only (any language). Spaces, hyphens, apostrophes allowed between words. No digits. |\n| `phone_number` | Required **string**, 8–15 digits, optional leading `+`. Arabic/Persian digits normalized. Unique. |\n| `email` | Optional, valid email, max 150 chars. Unique when provided. |\n| `password` | Required, 8–64 chars, no spaces, ≥1 letter and ≥1 number. |\n| `address` | Optional, max 255 chars. |\n| `device_info` | Optional, max 255 chars. Stored with the refresh token; falls back to `User-Agent`. |\n\n**Side effects**\n- Inserts a row into `customers`\n- Inserts a hashed refresh token into `auth_refresh_tokens`\n",
+        "operationId": "customerSignup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerSignupRequest"
+              },
+              "examples": {
+                "minimal": {
+                  "summary": "Required fields only",
+                  "value": {
+                    "first_name": "Ahmad",
+                    "last_name": "Ali",
+                    "phone_number": "0991234567",
+                    "password": "Passw0rd"
+                  }
+                },
+                "full": {
+                  "summary": "All fields",
+                  "value": {
+                    "first_name": "Ahmad",
+                    "last_name": "Ali",
+                    "phone_number": "0991234567",
+                    "email": "ahmad@example.com",
+                    "password": "Passw0rd",
+                    "address": "Damascus, Mazzeh",
+                    "device_info": "iPhone 15 / iOS 18"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created and tokens issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "example": "Account created successfully"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/AuthSuccessData"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Account created successfully",
+                  "data": {
+                    "customer": {
+                      "id": 1,
+                      "first_name": "Ahmad",
+                      "last_name": "Ali",
+                      "photo_url": null,
+                      "phone_number": "0991234567",
+                      "email": "ahmad@example.com",
+                      "address": "Damascus, Mazzeh",
+                      "account_type_id": 1,
+                      "created_at": "2026-09-27 10:15:00",
+                      "updated_at": "2026-09-27 10:15:00"
+                    },
+                    "tokens": {
+                      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                      "accessTokenExpiresIn": "15m",
+                      "refreshToken": "a1b2c3d4e5f6...",
+                      "refreshTokenExpiresAt": "2026-10-27T10:15:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/customer/auth/login": {
+      "post": {
+        "tags": [
+          "Customer Auth"
+        ],
+        "summary": "Log in an existing customer",
+        "description": "Authenticates a customer by phone number + password and issues a new access JWT + refresh token.\n\n**Rules**\n- Only accounts with `account_type_id = 1` (customer) can use this endpoint\n- Wrong phone, wrong password, or non-customer account all return the **same** `401` message\n  (`Invalid phone number or password`) to avoid account enumeration\n- Password strength is **not** re-checked on login (presence only)\n\n**Validation rules**\n| Field | Rules |\n|-------|-------|\n| `phone_number` | Required string, 8–15 digits, optional leading `+` |\n| `password` | Required string, max 64 chars |\n| `device_info` | Optional, max 255 chars; falls back to `User-Agent` |\n\n**Side effects**\n- Inserts a new hashed refresh token into `auth_refresh_tokens` (previous sessions stay valid until expiry / logout)\n",
+        "operationId": "customerLogin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerLoginRequest"
+              },
+              "example": {
+                "phone_number": "0991234567",
+                "password": "Passw0rd",
+                "device_info": "Android 14 / Pixel 8"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in successfully; tokens issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "example": "Logged in successfully"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/AuthSuccessData"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Logged in successfully",
+                  "data": {
+                    "customer": {
+                      "id": 1,
+                      "first_name": "Ahmad",
+                      "last_name": "Ali",
+                      "photo_url": null,
+                      "phone_number": "0991234567",
+                      "email": "ahmad@example.com",
+                      "address": "Damascus, Mazzeh",
+                      "account_type_id": 1,
+                      "created_at": "2026-09-27 10:15:00",
+                      "updated_at": "2026-09-27 10:15:00"
+                    },
+                    "tokens": {
+                      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                      "accessTokenExpiresIn": "15m",
+                      "refreshToken": "a1b2c3d4e5f6...",
+                      "refreshTokenExpiresAt": "2026-10-27T10:15:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/customer/auth/logout": {
+      "post": {
+        "tags": [
+          "Customer Auth"
+        ],
+        "summary": "Log out the current customer session",
+        "description": "Soft-revokes refresh token(s) by setting `revoked_at` in `auth_refresh_tokens`.\nThe access JWT remains valid until it expires (short-lived by design).\n\n**Modes**\n| Body | Behavior |\n|------|----------|\n| `{ \"refresh_token\": \"...\" }` | Revoke this device session only |\n| `{ \"all_devices\": true }` | Revoke **all** active sessions for this customer |\n\nRequires a valid customer access token. The refresh token must belong to the same customer.\n",
+        "operationId": "customerLogout",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerLogoutRequest"
+              },
+              "examples": {
+                "currentDevice": {
+                  "summary": "Logout current device",
+                  "value": {
+                    "refresh_token": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+                  }
+                },
+                "allDevices": {
+                  "summary": "Logout all devices",
+                  "value": {
+                    "all_devices": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Session(s) revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "revokedCount": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "allDevices": {
+                              "type": "boolean",
+                              "example": false
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Logged out successfully",
+                  "data": {
+                    "revokedCount": 1,
+                    "allDevices": false
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid access token, or refresh token invalid/already revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/customer/complaints": {
+      "post": {
+        "tags": [
+          "Customer Complaints"
+        ],
+        "summary": "Submit a complaint",
+        "description": "Customer-only. Sends a complaint (شكوى) to managers.",
+        "operationId": "customerCreateComplaint",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateComplaintRequest"
+              },
+              "example": {
+                "subject": "Driver was rude",
+                "message": "The driver spoke aggressively during the trip."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Complaint created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Complaint"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Complaint submitted successfully",
+                  "data": {
+                    "id": 1,
+                    "complainant_type": "customer",
+                    "complainant_id": 14,
+                    "subject": "Driver was rude",
+                    "message": "The driver spoke aggressively during the trip.",
+                    "status": "open",
+                    "created_at": "2026-09-27 16:30:00",
+                    "updated_at": "2026-09-27 16:30:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a customer token"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/customer/notifications": {
+      "get": {
+        "tags": [
+          "Customer Notifications"
+        ],
+        "summary": "List notifications for the authenticated customer",
+        "description": "Returns notifications where `recipient_type = customer` and `recipient_id` matches\nthe authenticated user, newest first.\n\n**Query params**\n| Param | Default | Rules |\n|-------|---------|-------|\n| `page` | `1` | Integer ≥ 1 |\n| `limit` | `20` | Integer 1–100 |\n| `unread_only` | `false` | Boolean — when true, only unread rows |\n\nAlso returns `unread_count` for the badge (always the total unread for this user,\nindependent of the current filter/page).\n",
+        "operationId": "listCustomerNotifications",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number (1-based)"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Page size"
+          },
+          {
+            "in": "query",
+            "name": "unread_only",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "If true, return only unread notifications"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notifications page retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/NotificationListData"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Notifications retrieved successfully",
+                  "data": {
+                    "notifications": [
+                      {
+                        "id": 1,
+                        "recipient_type": "customer",
+                        "recipient_id": 1,
+                        "notification_type": "ride_accepted",
+                        "title": "Driver accepted your ride",
+                        "body": "Ahmad is on the way",
+                        "related_ride_id": 10,
+                        "related_warning_id": null,
+                        "is_read": false,
+                        "sent_at": "2026-09-27 12:00:00",
+                        "read_at": null
+                      }
+                    ],
+                    "unread_count": 1,
+                    "pagination": {
+                      "page": 1,
+                      "limit": 20,
+                      "total": 1,
+                      "total_pages": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/customer/rides": {
+      "post": {
+        "tags": [
+          "Customer Rides"
+        ],
+        "summary": "Create a ride order",
+        "description": "Creates a new ride (\"order\") for the authenticated customer. The order always\nstarts with **`status_id = 1` (`requested`)** — see `docs/ride_statuses.md`.\nLifecycle: 1 requested → 2 accepted → 3 arrived → 4 in_progress → 5 completed\n(or 6 cancelled at any point before completion).\n\n**Performance design**\n- Vehicle type, pricing tiers, commission rate and stop fee are served from an\n  in-memory cache (60s TTL, stale-while-revalidate) — **zero SELECT queries**\n  on the common path.\n- Distance and ETA are computed server-side with the Haversine formula —\n  no external maps/routing API call, sub-millisecond CPU cost.\n- Exactly one write transaction: 1 `INSERT` for the ride, plus (only if stops\n  are provided) a single multi-row `INSERT` for all stops — never more than\n  2 database round trips total.\n\n**Pricing formula**\n```\nprice = base_fare + (distance_km * price_per_km) + (stops_count * stop_fee)\n```\nThe correct pricing tier is picked by matching `distance_km` against the\nvehicle type's `[min_distance_km, max_distance_km)` bands.\n",
+        "operationId": "createRide",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRideRequest"
+              },
+              "examples": {
+                "direct": {
+                  "summary": "Pickup → dropoff, no stops",
+                  "value": {
+                    "vehicle_type_id": 1,
+                    "pickup_lat": 33.5138,
+                    "pickup_lng": 36.2765,
+                    "pickup_address": "Umayyad Square, Damascus",
+                    "dropoff_lat": 33.5099,
+                    "dropoff_lng": 36.2919,
+                    "dropoff_address": "Damascus University"
+                  }
+                },
+                "withStops": {
+                  "summary": "With one intermediate stop",
+                  "value": {
+                    "vehicle_type_id": 2,
+                    "pickup_lat": 33.5138,
+                    "pickup_lng": 36.2765,
+                    "pickup_address": "Umayyad Square, Damascus",
+                    "dropoff_lat": 33.5099,
+                    "dropoff_lng": 36.2919,
+                    "dropoff_address": "Damascus University",
+                    "stops": [
+                      {
+                        "lat": 33.512,
+                        "lng": 36.283,
+                        "address": "Pharmacy stop"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ride created with status_id = 1 (requested)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Ride"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Ride requested successfully",
+                  "data": {
+                    "id": 1,
+                    "customer_id": 1,
+                    "driver_id": null,
+                    "vehicle_type_id": 1,
+                    "pickup_lat": 33.5138,
+                    "pickup_lng": 36.2765,
+                    "pickup_address": "Umayyad Square, Damascus",
+                    "dropoff_lat": 33.5099,
+                    "dropoff_lng": 36.2919,
+                    "dropoff_address": "Damascus University",
+                    "distance_km": 2.14,
+                    "estimated_duration_min": 4,
+                    "price_per_km_applied": 500,
+                    "stops_fee_total": 0,
+                    "price": 2070,
+                    "status_id": 1,
+                    "status": "requested",
+                    "requested_at": "2026-09-27 13:00:00",
+                    "accepted_at": null,
+                    "started_at": null,
+                    "completed_at": null,
+                    "cancelled_at": null,
+                    "cancellation_reason": null,
+                    "stops": []
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "description": "Validation failed, or no active vehicle type/pricing tier for this distance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Customer Rides"
+        ],
+        "summary": "List the authenticated customer's ride orders",
+        "description": "Paginated, newest-first list of the customer's rides. Filter by `status_id` to\nshow e.g. only active or only completed orders. Uses the `idx_customer_status`\ncomposite index for fast filtered lookups.\n\nStatus IDs: 1=requested, 2=accepted, 3=arrived, 4=in_progress, 5=completed, 6=cancelled\n(full reference: `docs/ride_statuses.md`).\n",
+        "operationId": "listCustomerRides",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "status_id",
+            "schema": {
+              "type": "integer",
+              "enum": [1, 2, 3, 4, 5, 6]
+            },
+            "description": "Filter by ride status id.\n1=requested, 2=accepted, 3=arrived, 4=in_progress, 5=completed, 6=cancelled\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rides page retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/RideListData"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/customer/rides/{id}": {
+      "get": {
+        "tags": [
+          "Customer Rides"
+        ],
+        "summary": "Get a single ride order (including its current status)",
+        "description": "Returns full ride details, including its current `status` and, if any, its\nstops. Looked up by primary key — only rides belonging to the authenticated\ncustomer are returned (others → `404`, never leaked as `403`).\n",
+        "operationId": "getCustomerRideById",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Ride id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ride found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Ride"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "description": "Ride not found (or belongs to a different customer)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "id must be a positive integer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/customer/rides/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Customer Rides"
+        ],
+        "summary": "Cancel a ride before the driver arrives",
+        "description": "Customer can cancel while the ride is still **`requested` (1)** or **`accepted` (2)**.\nOnce the driver has **arrived** (3) or later, cancel is blocked (`409`).\n\nSets `status_id = 6` (`cancelled`), `cancelled_at`, and optional `cancellation_reason`.\nIf a driver was already assigned, they receive a `ride_cancelled` notification.\n",
+        "operationId": "customerCancelRide",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cancellation_reason": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "Changed my plans"
+                  }
+                }
+              },
+              "example": {
+                "cancellation_reason": "Changed my plans"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ride cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Ride"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Ride cancelled successfully",
+                  "data": {
+                    "id": 1,
+                    "status_id": 6,
+                    "status": "cancelled",
+                    "cancellation_reason": "Changed my plans"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ride not found"
+          },
+          "409": {
+            "description": "Ride already arrived / in progress / completed / cancelled"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/driver/search-radius": {
+      "put": {
+        "tags": [
+          "Driver"
+        ],
+        "summary": "Update order accept range (search radius)",
+        "description": "Driver-only. Sets how far (in km) the driver is willing to accept nearby\nride requests. New drivers default to **1 km**.\n\nAllowed range: `0.1` – `100` km.\n",
+        "operationId": "driverUpdateSearchRadius",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "search_radius_km"
+                ],
+                "properties": {
+                  "search_radius_km": {
+                    "type": "number",
+                    "minimum": 0.1,
+                    "maximum": 100,
+                    "example": 1,
+                    "description": "Accept range in kilometers"
+                  }
+                }
+              },
+              "example": {
+                "search_radius_km": 3
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search radius updated; returns full driver profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Driver"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Search radius updated successfully",
+                  "data": {
+                    "id": 2,
+                    "first_name": "Karim",
+                    "last_name": "Hassan",
+                    "photo_url": "/uploads/drivers/abc.jpg",
+                    "phone_number": "0997654321",
+                    "address": "Damascus, Midan",
+                    "status_id": 2,
+                    "status": "active",
+                    "wallet_balance": 0,
+                    "search_radius_km": 3,
+                    "current_lat": null,
+                    "current_lng": null,
+                    "is_online": false,
+                    "rating": 5,
+                    "created_at": "2026-09-27 14:00:00",
+                    "updated_at": "2026-09-27 15:30:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a driver token"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/driver/vehicle": {
+      "get": {
+        "tags": [
+          "Driver"
+        ],
+        "summary": "Get my car details",
+        "description": "Driver-only. Returns the authenticated driver's registered vehicle\n(brand, model, color, plate, type, photo, …).\n",
+        "operationId": "driverGetVehicle",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/DriverVehicle"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle retrieved successfully",
+                  "data": {
+                    "id": 1,
+                    "driver_id": 2,
+                    "vehicle_type_id": 1,
+                    "vehicle_type_name": "economy",
+                    "brand": "Toyota",
+                    "model": "Corolla",
+                    "color": "White",
+                    "plate_number": "12345-A",
+                    "photo_url": "/uploads/vehicles/abc.jpg",
+                    "created_at": "2026-09-27 14:00:00",
+                    "updated_at": "2026-09-27 14:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a driver token"
+          },
+          "404": {
+            "description": "Vehicle not registered for this driver"
+          }
+        }
+      }
+    },
+    "/api/driver/wallet": {
+      "get": {
+        "tags": [
+          "Driver"
+        ],
+        "summary": "Get my wallet history (paginated)",
+        "description": "Driver-only. Returns current `wallet_balance` and transaction history\n(topup, penalty, commission_deduction, compensation).\n",
+        "operationId": "driverListWalletHistory",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "transaction_type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "topup",
+                "commission_deduction",
+                "penalty",
+                "compensation"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallet history page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/WalletHistoryData"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a driver token"
+          }
+        }
+      }
+    },
+    "/api/driver/complaints": {
+      "post": {
+        "tags": [
+          "Driver"
+        ],
+        "summary": "Submit a complaint",
+        "description": "Driver-only. Sends a complaint (شكوى) to managers.",
+        "operationId": "driverCreateComplaint",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateComplaintRequest"
+              },
+              "example": {
+                "subject": "Customer no-show",
+                "message": "Customer was not at the pickup point after waiting 10 minutes."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Complaint created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Complaint"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Complaint submitted successfully",
+                  "data": {
+                    "id": 2,
+                    "complainant_type": "driver",
+                    "complainant_id": 2,
+                    "subject": "Customer no-show",
+                    "message": "Customer was not at the pickup point after waiting 10 minutes.",
+                    "status": "open",
+                    "created_at": "2026-09-27 16:35:00",
+                    "updated_at": "2026-09-27 16:35:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a driver token"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/driver/auth/signup": {
+      "post": {
+        "tags": [
+          "Driver Auth"
+        ],
+        "summary": "Register a new driver (with personal + car images)",
+        "description": "`multipart/form-data` signup. Creates a driver (`status_id = 1` pending) **and**\ntheir single vehicle in one transaction.\n\nImages are saved on the **host** under `./uploads/` (Docker bind-mount), not inside\nthe container filesystem:\n- personal photo → `uploads/drivers/...` → URL `/uploads/drivers/\u003Cfile\u003E`\n- car photo → `uploads/vehicles/...` → URL `/uploads/vehicles/\u003Cfile\u003E`\n\nMax image size: **5 MB**. Allowed types: JPEG, PNG, WebP.\n\n**Form fields**\n| Field | Type | Rules |\n|-------|------|-------|\n| `first_name` / `last_name` | text | Required, letters only |\n| `phone_number` | text | Required, unique among drivers |\n| `password` | text | 8–64 chars, ≥1 letter + ≥1 number |\n| `address` | text | Optional |\n| `device_info` | text | Optional |\n| `vehicle_type_id` | text/number | Required, active vehicle type |\n| `brand` / `model` / `color` | text | Required |\n| `plate_number` | text | Required, unique |\n| `photo` | file | **Required** personal image |\n| `vehicle_photo` | file | **Required** car image |\n",
+        "operationId": "driverSignup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/DriverSignupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Driver + vehicle created; tokens issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/DriverAuthSuccessData"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/driver/auth/login": {
+      "post": {
+        "tags": [
+          "Driver Auth"
+        ],
+        "summary": "Log in an existing driver",
+        "description": "Authenticates by phone + password and issues new tokens.\n**Only drivers with `status_id = 2` (active) can log in.**\nPending / suspended / rejected accounts receive **403**.\n\nResponse includes the driver profile and their vehicle (if registered).\n",
+        "operationId": "driverLogin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DriverLoginRequest"
+              },
+              "example": {
+                "phone_number": "0997654321",
+                "password": "Passw0rd"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in; tokens issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/DriverAuthSuccessData"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Driver account is not active (pending / suspended / rejected)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "pending": {
+                    "value": {
+                      "success": false,
+                      "message": "Your account is pending approval",
+                      "errors": {
+                        "status_id": "current status is pending; must be active"
+                      }
+                    }
+                  },
+                  "suspended": {
+                    "value": {
+                      "success": false,
+                      "message": "Your account is suspended",
+                      "errors": {
+                        "status_id": "current status is suspended; must be active"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/driver/auth/logout": {
+      "post": {
+        "tags": [
+          "Driver Auth"
+        ],
+        "summary": "Log out the current driver session",
+        "description": "Soft-revokes refresh token(s). Same rules as customer logout:\n- `{ \"refresh_token\": \"...\" }` → revoke this device\n- `{ \"all_devices\": true }` → revoke all sessions\n",
+        "operationId": "driverLogout",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerLogoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Session(s) revoked"
+          },
+          "401": {
+            "description": "Missing/invalid access token, or refresh token invalid/already revoked"
+          },
+          "403": {
+            "description": "Token is not a driver token"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/driver/rides/{id}/accept": {
+      "post": {
+        "tags": [
+          "Driver Rides"
+        ],
+        "summary": "Accept a requested ride order",
+        "description": "Assigns the authenticated driver to a ride that is still **`status_id = 1` (`requested`)**.\nOn success → **`accepted` (2)**. Atomic compare-and-set; notifies customer.\n",
+        "operationId": "driverAcceptRide",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ride accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/DriverRide"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Driver not active"
+          },
+          "404": {
+            "description": "Ride not found"
+          },
+          "409": {
+            "description": "Already taken / driver has active ride"
+          }
+        }
+      }
+    },
+    "/api/driver/rides/{id}/pickup": {
+      "post": {
+        "tags": [
+          "Driver Rides"
+        ],
+        "summary": "Mark arrived at pickup location",
+        "description": "Transition **`accepted` (2) → `arrived` (3)**. Notifies customer.",
+        "operationId": "driverPickupRide",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Marked as arrived",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/DriverRide"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not this driver's ride"
+          },
+          "409": {
+            "description": "Ride is not in accepted status"
+          }
+        }
+      }
+    },
+    "/api/driver/rides/{id}/start": {
+      "post": {
+        "tags": [
+          "Driver Rides"
+        ],
+        "summary": "Start the trip (passenger on board)",
+        "description": "Transition **`arrived` (3) → `in_progress` (4)**.\nSets `started_at`. Notifies customer (`ride_started`).\n",
+        "operationId": "driverStartRide",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trip started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/DriverRide"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Trip started successfully",
+                  "data": {
+                    "id": 1,
+                    "status_id": 4,
+                    "status": "in_progress",
+                    "started_at": "2026-09-27 14:30:00"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not this driver's ride"
+          },
+          "409": {
+            "description": "Ride is not in arrived status"
+          }
+        }
+      }
+    },
+    "/api/driver/rides/{id}/finish": {
+      "post": {
+        "tags": [
+          "Driver Rides"
+        ],
+        "summary": "Finish / complete the trip",
+        "description": "Transition **`in_progress` (4) → `completed` (5)**.\nSets `completed_at`. Notifies customer (`ride_completed`).\n",
+        "operationId": "driverFinishRide",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trip completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/DriverRide"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Trip completed successfully",
+                  "data": {
+                    "id": 1,
+                    "status_id": 5,
+                    "status": "completed",
+                    "completed_at": "2026-09-27 14:45:00"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not this driver's ride"
+          },
+          "409": {
+            "description": "Ride is not in in_progress status"
+          }
+        }
+      }
+    },
+    "/api/driver/rides/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Driver Rides"
+        ],
+        "summary": "Cancel an assigned ride",
+        "description": "Driver cancels a ride assigned to them.\n\nAllowed from **`accepted` / `arrived` / `in_progress`** → **`cancelled` (6)**.\nCannot cancel `requested`, `completed`, or already `cancelled` rides.\n\nSets `cancelled_at` and optional `cancellation_reason`. Notifies customer.\n",
+        "operationId": "driverCancelRide",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cancellation_reason": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "Passenger did not show up"
+                  }
+                }
+              },
+              "example": {
+                "cancellation_reason": "Passenger did not show up"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ride cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/DriverRide"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Ride cancelled successfully",
+                  "data": {
+                    "id": 1,
+                    "status_id": 6,
+                    "status": "cancelled",
+                    "cancellation_reason": "Passenger did not show up"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not this driver's ride"
+          },
+          "409": {
+            "description": "Ride cannot be cancelled in its current status"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,26 +5,17 @@ import '../../data/models/user_profile_model.dart';
 /// Grouped settings menu sections with icons, toggles, and badges.
 class SettingsSectionsWidget extends StatelessWidget {
   final List<SettingsSectionModel> sections;
-  final bool notificationsEnabled;
-  final ValueChanged<bool>? onNotificationsChanged;
   final ValueChanged<String>? onItemTapped;
 
   const SettingsSectionsWidget({
     super.key,
     required this.sections,
-    required this.notificationsEnabled,
-    this.onNotificationsChanged,
     this.onItemTapped,
   });
 
   IconData _iconFor(String id) {
     return switch (id) {
-      'payments' => Icons.credit_card_rounded,
       'favorites' => Icons.favorite_outline_rounded,
-      'notifications' => Icons.notifications_outlined,
-      'language' => Icons.language_rounded,
-      'theme' => Icons.wb_sunny_outlined,
-      'safety' => Icons.health_and_safety_outlined,
       'support' => Icons.headset_mic_outlined,
       'terms' => Icons.privacy_tip_outlined,
       _ => Icons.settings_outlined,
@@ -63,12 +54,6 @@ class SettingsSectionsWidget extends StatelessWidget {
                       _SettingsRow(
                         item: section.items[i],
                         icon: _iconFor(section.items[i].id),
-                        toggleValue: section.items[i].id == 'notifications'
-                            ? notificationsEnabled
-                            : null,
-                        onToggle: section.items[i].id == 'notifications'
-                            ? onNotificationsChanged
-                            : null,
                         onTap: () => onItemTapped?.call(section.items[i].id),
                       ),
                       if (i < section.items.length - 1)
@@ -92,22 +77,18 @@ class SettingsSectionsWidget extends StatelessWidget {
 class _SettingsRow extends StatelessWidget {
   final SettingsItemModel item;
   final IconData icon;
-  final bool? toggleValue;
-  final ValueChanged<bool>? onToggle;
   final VoidCallback? onTap;
 
   const _SettingsRow({
     required this.item,
     required this.icon,
-    this.toggleValue,
-    this.onToggle,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: item.hasToggle ? null : onTap,
+      onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -175,13 +156,7 @@ class _SettingsRow extends StatelessWidget {
                 ],
               ),
             ),
-            if (item.hasToggle && toggleValue != null)
-              Switch.adaptive(
-                value: toggleValue!,
-                activeTrackColor: AppColors.primary,
-                onChanged: onToggle,
-              )
-            else if (item.trailingAction != null)
+            if (item.trailingAction != null)
               GestureDetector(
                 onTap: onTap,
                 child: Text(

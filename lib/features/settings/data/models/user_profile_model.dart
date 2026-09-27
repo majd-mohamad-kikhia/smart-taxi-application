@@ -18,17 +18,35 @@ class UserProfileModel extends Equatable {
     required this.walletBalance,
   });
 
-  String get walletLabel => '${walletBalance.toStringAsFixed(2)} ر.س';
+  String get walletLabel => '${walletBalance.toStringAsFixed(2)} ل.س';
+
+  UserProfileModel copyWith({
+    String? id,
+    String? fullName,
+    String? phone,
+    String? email,
+    bool? isVerified,
+    double? walletBalance,
+  }) {
+    return UserProfileModel(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      isVerified: isVerified ?? this.isVerified,
+      walletBalance: walletBalance ?? this.walletBalance,
+    );
+  }
 
   @override
   List<Object?> get props => [
-        id,
-        fullName,
-        phone,
-        email,
-        isVerified,
-        walletBalance,
-      ];
+    id,
+    fullName,
+    phone,
+    email,
+    isVerified,
+    walletBalance,
+  ];
 }
 
 /// A single settings menu row.
@@ -53,14 +71,14 @@ class SettingsItemModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        subtitle,
-        badge,
-        trailingAction,
-        hasToggle,
-        hasChevron,
-      ];
+    id,
+    title,
+    subtitle,
+    badge,
+    trailingAction,
+    hasToggle,
+    hasChevron,
+  ];
 }
 
 /// Grouped settings section.
@@ -68,10 +86,7 @@ class SettingsSectionModel extends Equatable {
   final String title;
   final List<SettingsItemModel> items;
 
-  const SettingsSectionModel({
-    required this.title,
-    required this.items,
-  });
+  const SettingsSectionModel({required this.title, required this.items});
 
   @override
   List<Object?> get props => [title, items];

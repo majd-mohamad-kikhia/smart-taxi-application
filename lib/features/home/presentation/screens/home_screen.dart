@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_bottom_nav_widget.dart';
-import '../../../../core/widgets/app_nav_helper.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/home_app_bar_widget.dart';
@@ -57,11 +55,6 @@ class _HomeViewState extends State<_HomeView> {
           }
           return _HomeBody(state: state);
         },
-      ),
-      // ── Bottom Nav ──────────────────────────────────────
-      bottomNavigationBar: AppBottomNavWidget(
-        currentIndex: 0,
-        onTap: (i) => AppNavHelper.handleTap(context, i, current: 0),
       ),
     );
   }

@@ -1,14 +1,30 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
-/// Shared bottom navigation bar used across main tab screens.
+/// One tab definition for [AppBottomNavWidget].
+class AppNavItem {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+
+  const AppNavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
+}
+
+/// Shared bottom navigation bar used by every tab-based app shell
+/// (customer, driver, ...). Each shell supplies its own [items].
 class AppBottomNavWidget extends StatelessWidget {
   final int currentIndex;
+  final List<AppNavItem> items;
   final ValueChanged<int>? onTap;
 
   const AppBottomNavWidget({
     super.key,
     required this.currentIndex,
+    required this.items,
     this.onTap,
   });
 
@@ -34,38 +50,15 @@ class AppBottomNavWidget extends StatelessWidget {
           height: 60,
           child: Row(
             children: [
-              _NavItem(
-                index: 0,
-                currentIndex: currentIndex,
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home_rounded,
-                label: 'الرئيسية',
-                onTap: onTap,
-              ),
-              _NavItem(
-                index: 1,
-                currentIndex: currentIndex,
-                icon: Icons.receipt_long_outlined,
-                activeIcon: Icons.receipt_long_rounded,
-                label: 'طلباتي',
-                onTap: onTap,
-              ),
-              _NavItem(
-                index: 2,
-                currentIndex: currentIndex,
-                icon: Icons.account_balance_wallet_outlined,
-                activeIcon: Icons.account_balance_wallet_rounded,
-                label: 'المحفظة',
-                onTap: onTap,
-              ),
-              _NavItem(
-                index: 3,
-                currentIndex: currentIndex,
-                icon: Icons.settings_outlined,
-                activeIcon: Icons.settings_rounded,
-                label: 'الإعدادات',
-                onTap: onTap,
-              ),
+              for (var i = 0; i < items.length; i++)
+                _NavItem(
+                  index: i,
+                  currentIndex: currentIndex,
+                  icon: items[i].icon,
+                  activeIcon: items[i].activeIcon,
+                  label: items[i].label,
+                  onTap: onTap,
+                ),
             ],
           ),
         ),

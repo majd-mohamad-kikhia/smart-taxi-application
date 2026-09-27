@@ -1,16 +1,22 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/session/session_cubit.dart';
 import 'home_state.dart';
 
 /// Cubit managing the Home screen state.
 /// Follows the principle of keeping business logic out of the UI layer.
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit() : super(HomeState.initial());
+  final SessionCubit _sessionCubit;
+
+  HomeCubit(this._sessionCubit) : super(HomeState.initial());
 
   /// Called when the screen first loads.
   void initialize() {
-    // In production this would fetch real data.
-    // For now the initial state carries mock data.
-    if (!isClosed) emit(HomeState.initial());
+    // In production this would also fetch the rest of the home feed.
+    // For now only the greeting name comes from the real signed-in user;
+    // everything else is still mock data.
+    if (isClosed) return;
+    final user = _sessionCubit.state;
+    emit(HomeState.initial().copyWith(userName: user?.firstName));
   }
 
   /// Updates the greeting based on the current time of day.

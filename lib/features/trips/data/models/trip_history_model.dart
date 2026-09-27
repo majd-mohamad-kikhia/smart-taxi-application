@@ -53,7 +53,7 @@ class TripHistoryModel extends Equatable {
     };
   }
 
-  String get priceLabel => '${price.toStringAsFixed(2)} ر.س';
+  String get priceLabel => '${price.toStringAsFixed(2)} ل.س';
 
   String get metricsLabel {
     if (distanceKm != null && durationMinutes != null) {
@@ -67,22 +67,22 @@ class TripHistoryModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        status,
-        dateTime,
-        categoryName,
-        vehicleDetails,
-        pickupAddress,
-        destinationAddress,
-        price,
-        distanceKm,
-        durationMinutes,
-        paymentMethod,
-        captainName,
-        captainRating,
-        cancelReason,
-        isDimmed,
-      ];
+    id,
+    status,
+    dateTime,
+    categoryName,
+    vehicleDetails,
+    pickupAddress,
+    destinationAddress,
+    price,
+    distanceKm,
+    durationMinutes,
+    paymentMethod,
+    captainName,
+    captainRating,
+    cancelReason,
+    isDimmed,
+  ];
 }
 
 /// A date-grouped section of trip cards.
@@ -97,7 +97,7 @@ class TripDayGroup extends Equatable {
     required this.trips,
   });
 
-  String get totalLabel => '${totalPrice.toStringAsFixed(2)} ر.س';
+  String get totalLabel => '${totalPrice.toStringAsFixed(2)} ل.س';
 
   String get countLabel {
     final count = trips.length;

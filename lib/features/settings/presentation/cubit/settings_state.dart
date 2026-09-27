@@ -5,17 +5,11 @@ import '../../data/models/user_profile_model.dart';
 class SettingsState extends Equatable {
   final UserProfileModel profile;
   final List<SettingsSectionModel> sections;
-  final bool notificationsEnabled;
-  final String languageLabel;
-  final String themeLabel;
   final bool isLoggingOut;
 
   const SettingsState({
     required this.profile,
     required this.sections,
-    required this.notificationsEnabled,
-    required this.languageLabel,
-    required this.themeLabel,
     required this.isLoggingOut,
   });
 
@@ -34,11 +28,6 @@ class SettingsState extends Equatable {
           title: 'الحساب والمدفوعات',
           items: [
             SettingsItemModel(
-              id: 'payments',
-              title: 'طرق الدفع والبطاقات',
-              subtitle: 'Apple Pay، مدى، Visa تنتهي بـ 4022',
-            ),
-            SettingsItemModel(
               id: 'favorites',
               title: 'الأماكن المفضلة والمحفوظة',
               subtitle: 'المنزل، العمل، استراحة (3 مواقع)',
@@ -46,38 +35,8 @@ class SettingsState extends Equatable {
           ],
         ),
         SettingsSectionModel(
-          title: 'تفضيلات التطبيق',
-          items: [
-            SettingsItemModel(
-              id: 'notifications',
-              title: 'الإشعارات والتنبيهات',
-              subtitle: 'حالة الرحلة، عروض مشوار',
-              hasToggle: true,
-              hasChevron: false,
-            ),
-            SettingsItemModel(
-              id: 'language',
-              title: 'لغة التطبيق',
-              subtitle: 'العربية (السعودية)',
-              trailingAction: 'تغيير',
-              hasChevron: false,
-            ),
-            SettingsItemModel(
-              id: 'theme',
-              title: 'المظهر والسمة',
-              subtitle: 'الوضع الفاتح الافتراضي',
-            ),
-          ],
-        ),
-        SettingsSectionModel(
           title: 'الأمان والدعم',
           items: [
-            SettingsItemModel(
-              id: 'safety',
-              title: 'مركز الأمان والطوارئ',
-              subtitle: 'مشاركة المسار تلقائياً',
-              badge: 'مفعل',
-            ),
             SettingsItemModel(
               id: 'support',
               title: 'المساعدة والدعم الفني',
@@ -91,9 +50,6 @@ class SettingsState extends Equatable {
           ],
         ),
       ],
-      notificationsEnabled: true,
-      languageLabel: 'العربية (السعودية)',
-      themeLabel: 'الوضع الفاتح الافتراضي',
       isLoggingOut: false,
     );
   }
@@ -101,17 +57,11 @@ class SettingsState extends Equatable {
   SettingsState copyWith({
     UserProfileModel? profile,
     List<SettingsSectionModel>? sections,
-    bool? notificationsEnabled,
-    String? languageLabel,
-    String? themeLabel,
     bool? isLoggingOut,
   }) {
     return SettingsState(
       profile: profile ?? this.profile,
       sections: sections ?? this.sections,
-      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
-      languageLabel: languageLabel ?? this.languageLabel,
-      themeLabel: themeLabel ?? this.themeLabel,
       isLoggingOut: isLoggingOut ?? this.isLoggingOut,
     );
   }
@@ -120,9 +70,6 @@ class SettingsState extends Equatable {
   List<Object?> get props => [
         profile,
         sections,
-        notificationsEnabled,
-        languageLabel,
-        themeLabel,
         isLoggingOut,
       ];
 }

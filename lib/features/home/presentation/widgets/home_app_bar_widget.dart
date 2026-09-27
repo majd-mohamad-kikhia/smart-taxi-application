@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Custom app bar widget for the Home screen.
@@ -125,37 +126,40 @@ class _BrandLogoWidget extends StatelessWidget {
 class _NotificationBellWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: AppColors.backgroundGray,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(
-            Icons.notifications_outlined,
-            color: AppColors.textPrimary,
-            size: 22,
-          ),
-        ),
-        // Unread badge
-        Positioned(
-          top: 6,
-          right: 6,
-          child: Container(
-            width: 9,
-            height: 9,
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pushNamed(AppRouter.notifications),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: AppColors.accent,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 1.5),
+              color: AppColors.backgroundGray,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: AppColors.textPrimary,
+              size: 22,
             ),
           ),
-        ),
-      ],
+          // Unread badge
+          Positioned(
+            top: 6,
+            right: 6,
+            child: Container(
+              width: 9,
+              height: 9,
+              decoration: BoxDecoration(
+                color: AppColors.accent,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

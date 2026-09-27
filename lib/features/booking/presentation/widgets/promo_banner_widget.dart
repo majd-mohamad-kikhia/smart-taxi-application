@@ -40,7 +40,7 @@ class PromoBannerWidget extends StatelessWidget {
             ),
           ),
           Text(
-            '-${discountAmount.toStringAsFixed(2)} ر.س',
+            '-${discountAmount.toStringAsFixed(2)} ل.س',
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,

@@ -4,15 +4,13 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
-import '../../../../core/widgets/app_bottom_nav_widget.dart';
-import '../../../../core/widgets/app_nav_helper.dart';
+import '../../../../core/widgets/coming_soon_screen_widget.dart';
+import '../../../../core/widgets/logout_footer_widget.dart';
 import '../../../home/presentation/widgets/home_app_bar_widget.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
-import '../widgets/logout_footer_widget.dart';
 import '../widgets/profile_card_widget.dart';
 import '../widgets/settings_sections_widget.dart';
-import '../widgets/wallet_card_widget.dart';
 
 /// Profile / Settings screen with wallet, preferences, and logout.
 class SettingsScreen extends StatelessWidget {
@@ -49,29 +47,19 @@ class _SettingsView extends StatelessWidget {
                 onEdit: () =>
                     context.read<SettingsCubit>().onItemTapped('edit_profile'),
               ),
-              const SizedBox(height: 14),
-              WalletCardWidget(
-                balanceLabel: state.profile.walletLabel,
-                onRecharge: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('شحن الرصيد قريباً'),
-                      behavior: SnackBarBehavior.floating,
-                      backgroundColor: AppColors.primary,
-                    ),
-                  );
-                },
-              ),
               const SizedBox(height: 18),
               SettingsSectionsWidget(
                 sections: state.sections,
-                notificationsEnabled: state.notificationsEnabled,
-                onNotificationsChanged: (v) =>
-                    context.read<SettingsCubit>().toggleNotifications(v),
                 onItemTapped: (id) {
                   context.read<SettingsCubit>().onItemTapped(id);
                   if (id == 'favorites') {
-                    Navigator.of(context).pushNamed(AppRouter.favorites);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ComingSoonScreenWidget(
+                          label: 'الأماكن المفضلة',
+                        ),
+                      ),
+                    );
                   }
                 },
               ),
@@ -83,10 +71,6 @@ class _SettingsView extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: AppBottomNavWidget(
-        currentIndex: 3,
-        onTap: (i) => AppNavHelper.handleTap(context, i, current: 3),
-      ),
     );
   }
 
@@ -94,12 +78,23 @@ class _SettingsView extends StatelessWidget {
     showAppDialog(
       context: context,
       title: 'تسجيل الخروج؟',
-      message: 'هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟ ستحتاج لتسجيل الدخول مجدداً للمتابعة.',
+      message:
+          'هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟ ستحتاج لتسجيل الدخول مجدداً للمتابعة.',
       confirmLabel: 'تسجيل الخروج',
       cancelLabel: 'تراجع',
       icon: Icons.logout_rounded,
       tone: AppDialogTone.destructive,
-      onConfirm: () => context.read<SettingsCubit>().logout(),
+      onConfirm: () => _logout(context),
+    );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    final cubit = context.read<SettingsCubit>();
+    await cubit.logout();
+    if (!context.mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      AppRouter.roleSelection,
+      (route) => false,
     );
   }
 }

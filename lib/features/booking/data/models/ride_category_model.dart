@@ -33,17 +33,17 @@ class RideCategoryModel extends Equatable {
     return '$etaMinutes دقائق';
   }
 
-  String get priceLabel => '${price.toStringAsFixed(0)} ر.س';
+  String get priceLabel => '${price.toStringAsFixed(0)} ل.س';
 
   @override
   List<Object?> get props => [
-        id,
-        type,
-        name,
-        badge,
-        etaMinutes,
-        price,
-        passengerCapacity,
-        icon,
-      ];
+    id,
+    type,
+    name,
+    badge,
+    etaMinutes,
+    price,
+    passengerCapacity,
+    icon,
+  ];
 }

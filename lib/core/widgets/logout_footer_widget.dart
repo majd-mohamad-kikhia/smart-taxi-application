@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_constants.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../constants/app_constants.dart';
+import '../theme/app_colors.dart';
 
-/// Logout button + app version footer.
+/// Logout button + app version footer — shared by any account-holding
+/// feature's settings screen (customer, driver, ...).
 class LogoutFooterWidget extends StatelessWidget {
   final bool isLoading;
   final VoidCallback? onLogout;

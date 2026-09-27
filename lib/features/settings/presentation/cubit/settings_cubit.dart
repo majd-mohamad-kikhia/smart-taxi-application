@@ -1,23 +1,37 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/session/session_cubit.dart';
 import 'settings_state.dart';
 
 /// Cubit managing the Profile / Settings screen state.
 class SettingsCubit extends Cubit<SettingsState> {
-  SettingsCubit() : super(SettingsState.initial());
+  final SessionCubit _sessionCubit;
 
+  SettingsCubit(this._sessionCubit) : super(SettingsState.initial());
+
+  /// Wallet balance / verification badge stay mock data (no wallet API
+  /// yet) — only the identity fields come from the real signed-in user.
   void initialize() {
-    if (!isClosed) emit(SettingsState.initial());
-  }
-
-  void toggleNotifications(bool enabled) {
-    if (isClosed || state.notificationsEnabled == enabled) return;
-    emit(state.copyWith(notificationsEnabled: enabled));
+    if (isClosed) return;
+    final user = _sessionCubit.state;
+    final initial = SettingsState.initial();
+    if (user == null) {
+      emit(initial);
+      return;
+    }
+    emit(initial.copyWith(
+      profile: initial.profile.copyWith(
+        id: user.id.toString(),
+        fullName: user.fullName,
+        phone: user.phone,
+        email: user.email,
+      ),
+    ));
   }
 
   Future<void> logout() async {
     if (isClosed || state.isLoggingOut) return;
     emit(state.copyWith(isLoggingOut: true));
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+    await _sessionCubit.logout();
     if (!isClosed) {
       emit(state.copyWith(isLoggingOut: false));
     }

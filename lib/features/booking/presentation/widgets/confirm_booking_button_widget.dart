@@ -24,7 +24,11 @@ class ConfirmBookingButtonWidget extends StatelessWidget {
         const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.verified_user_outlined, size: 13, color: AppColors.success),
+            Icon(
+              Icons.verified_user_outlined,
+              size: 13,
+              color: AppColors.success,
+            ),
             SizedBox(width: 4),
             Text(
               'كبائن معتمدون ومرخصون',
@@ -99,7 +103,7 @@ class ConfirmBookingButtonWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          '${price.toStringAsFixed(0)} ر.س',
+                          '${price.toStringAsFixed(0)} ل.س',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,

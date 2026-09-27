@@ -27,7 +27,7 @@ class PaymentAndNotesWidget extends StatelessWidget {
             icon: Icons.account_balance_wallet_outlined,
             title: 'طريقة الدفع',
             subtitle:
-                '$paymentMethod (${walletBalance.toStringAsFixed(0)} ر.س)',
+                '$paymentMethod (${walletBalance.toStringAsFixed(0)} ل.س)',
             onTap: onPaymentTap,
             showChevron: true,
           ),

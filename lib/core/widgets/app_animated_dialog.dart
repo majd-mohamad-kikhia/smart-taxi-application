@@ -7,16 +7,22 @@ import '../theme/app_colors.dart';
 enum AppDialogTone { destructive, primary, success, warning }
 
 /// Shows a beautiful scale+fade animated dialog with brand colors.
+///
+/// Pass [content] to render custom widgets (e.g. a form) below the title
+/// instead of/alongside [message]. Set [showActions] to false to hide the
+/// built-in Cancel/Confirm row when [content] renders its own actions.
 Future<T?> showAppDialog<T>({
   required BuildContext context,
   required String title,
-  required String message,
-  required String confirmLabel,
+  String? message,
+  String? confirmLabel,
   String cancelLabel = 'تراجع',
   IconData icon = Icons.info_rounded,
   AppDialogTone tone = AppDialogTone.primary,
   VoidCallback? onConfirm,
   bool barrierDismissible = true,
+  Widget? content,
+  bool showActions = true,
 }) {
   return showGeneralDialog<T>(
     context: context,
@@ -53,6 +59,8 @@ Future<T?> showAppDialog<T>({
                 cancelLabel: cancelLabel,
                 icon: icon,
                 tone: tone,
+                content: content,
+                showActions: showActions,
                 onConfirm: () {
                   Navigator.of(context).pop();
                   onConfirm?.call();
@@ -70,24 +78,28 @@ Future<T?> showAppDialog<T>({
 /// Polished centered dialog card used by [showAppDialog].
 class AppAnimatedDialog extends StatelessWidget {
   final String title;
-  final String message;
-  final String confirmLabel;
+  final String? message;
+  final String? confirmLabel;
   final String cancelLabel;
   final IconData icon;
   final AppDialogTone tone;
   final VoidCallback? onConfirm;
   final VoidCallback? onCancel;
+  final Widget? content;
+  final bool showActions;
 
   const AppAnimatedDialog({
     super.key,
     required this.title,
-    required this.message,
-    required this.confirmLabel,
+    this.message,
+    this.confirmLabel,
     required this.cancelLabel,
     required this.icon,
     required this.tone,
     this.onConfirm,
     this.onCancel,
+    this.content,
+    this.showActions = true,
   });
 
   _DialogPalette get _palette {
@@ -183,43 +195,50 @@ class AppAnimatedDialog extends StatelessWidget {
                         height: 1.3,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      message,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        height: 1.55,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w400,
+                    if (message != null) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        message!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          height: 1.55,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    // Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _DialogButton(
-                            label: cancelLabel,
-                            filled: false,
-                            accent: palette.accent,
-                            surface: palette.surface,
-                            onTap: onCancel,
+                    ],
+                    if (content != null) ...[
+                      const SizedBox(height: 16),
+                      content!,
+                    ],
+                    if (showActions) ...[
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _DialogButton(
+                              label: cancelLabel,
+                              filled: false,
+                              accent: palette.accent,
+                              surface: palette.surface,
+                              onTap: onCancel,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _DialogButton(
-                            label: confirmLabel,
-                            filled: true,
-                            accent: palette.accent,
-                            surface: palette.surface,
-                            gradient: palette.gradient,
-                            onTap: onConfirm,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _DialogButton(
+                              label: confirmLabel ?? '',
+                              filled: true,
+                              accent: palette.accent,
+                              surface: palette.surface,
+                              gradient: palette.gradient,
+                              onTap: onConfirm,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
