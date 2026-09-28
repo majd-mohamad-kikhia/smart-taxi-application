@@ -30,14 +30,46 @@ dependencies:
 
   # Networking
   dio: ^5.7.0
+  socket_io_client: ^2.0.3+1
+
+  # Location
+  geolocator: ^13.0.2
 
   # Local storage
   shared_preferences: ^2.3.3
+  lottie: ^3.6.1
+  google_maps_flutter: ^2.18.1
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_native_splash: ^2.4.8
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - lib/core/utils/taxi-loader.json
+    - .env
+    - assets/icons/app_logo_icons/icon-master-1024.png
+    - assets/map_styles/dark_map_style.json
+
+# ── App launcher icon ──────────────────────────────────────────
+# Regenerate with: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_logo_icons/icon-master-1024.png"
+
+# ── Native splash screen (shown before Flutter's first frame) ──
+# Regenerate with: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#0F1012"
+  image: "assets/icons/app_logo_icons/icon-master-1024.png"
+  android_12:
+    image: "assets/icons/app_logo_icons/icon-master-1024.png"
+    icon_background_color: "#0F1012"
+  web: false

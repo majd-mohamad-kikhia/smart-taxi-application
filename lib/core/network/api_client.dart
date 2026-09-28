@@ -32,6 +32,17 @@ class ApiClient {
   static const String _baseUrl = 'https://smart-taxi.ma-core.net';
   static const bool _enableLogging = true;
 
+  /// Resolves a `photo_url`-style API path (relative, e.g.
+  /// `/uploads/vehicles/abc.jpg`) into a full URL. Returns `null` for a
+  /// null/empty path, and passes an already-absolute URL through as-is.
+  static String? resolveMediaUrl(String? path) {
+    if (path == null || path.isEmpty) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    return '$_baseUrl$path';
+  }
+
   /// Auth token used by [_tokenInterceptor], set by [AuthRepository] right
   /// after a successful login/signup, or when a saved session is
   /// restored at app startup (see `AuthLocalDataSource`).

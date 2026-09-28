@@ -5,6 +5,8 @@ class AppConstants {
   // ─── App Info ──────────────────────────────────────────────
   static const String appName = 'مشوار';
   static const String appVersion = '3.4.0';
+  static const String logoPath =
+      'assets/icons/app_logo_icons/icon-master-1024.png';
 
   // ─── Map ───────────────────────────────────────────────────
   static const double defaultMapLat = 24.7136;

@@ -6,7 +6,7 @@ import '../theme/app_colors.dart';
 class AuthPrimaryButtonWidget extends StatelessWidget {
   final String label;
   final bool isLoading;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const AuthPrimaryButtonWidget({
     super.key,

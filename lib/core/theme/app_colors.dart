@@ -2,47 +2,80 @@ import 'package:flutter/material.dart';
 
 /// Centralized color palette for the Mshoar app.
 /// Strictly follows the brand identity from the design specs.
+///
+/// The app runs a single (dark) theme — see [AppTheme.lightTheme], which
+/// despite its name now builds a dark `ColorScheme`. The neutral scale
+/// below defines an elevation ladder (page < surface < muted fill) so
+/// cards and inputs stay visually distinct from the page instead of both
+/// collapsing to the same black.
 class AppColors {
   AppColors._();
 
+  // ─── Brand Palette (raw) ───────────────────────────────────
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color lightGray = Color(0xFFE5E7EB);
+  static const Color gray = Color(0xFF9CA3AF);
+  static const Color darkGray = Color(0xFF374151);
+  static const Color primaryYellow = Color(0xFFFFD600);
+  static const Color goldenYellow = Color(0xFFFBBF00);
+  static const Color orangeGold = Color(0xFFF59E0B);
+
+  // ─── Dark Neutral Scale (page → surface → elevated) ────────
+  // Kept as its own ladder instead of deriving from [white]/[lightGray]
+  // so page, card and chip fills can each get a distinct value.
+  static const Color neutralPage = Color(0xFF0F1012);
+  static const Color neutralSurface = Color(0xFF1E1F22);
+  static const Color neutralMuted = Color(0xFF2A2C30);
+  static const Color neutralDivider = Color(0xFF26282C);
+  static const Color neutralBorder = Color(0xFF34363B);
+
   // ─── Brand ─────────────────────────────────────────────────
-  static const Color primary = Color(0xFF0F4C33);
-  static const Color primaryDark = Color(0xFF093323);
-  static const Color primaryLight = Color(0xFF1A6B4A);
-  static const Color primarySurface = Color(0xFFE8F5EE);
+  static const Color primary = primaryYellow;
+  static const Color primaryDark = goldenYellow;
+  static const Color primaryLight = Color(0xFFFFE566);
+  static const Color primarySurface = Color(0xFF3A3216);
 
   // ─── Accent / Orange ───────────────────────────────────────
-  static const Color accent = Color(0xFFFF6535);
-  static const Color accentDark = Color(0xFFE5521E);
-  static const Color accentSurface = Color(0xFFFFF1EC);
+  static const Color accent = orangeGold;
+  static const Color accentDark = Color(0xFFD97706);
+  static const Color accentSurface = Color(0xFF3D2A14);
 
   // ─── Neutral Backgrounds ───────────────────────────────────
-  static const Color backgroundWhite = Color(0xFFFFFFFF);
-  static const Color backgroundGray = Color(0xFFF8F9FA);
-  static const Color backgroundMuted = Color(0xFFF1F3F2);
+  /// Card / app bar / input / nav fill — one step lighter than the page.
+  static const Color backgroundWhite = neutralSurface;
+
+  /// Scaffold / page background — the darkest layer.
+  static const Color backgroundGray = neutralPage;
+
+  /// Chip, pill and inset-fill background — sits on top of a surface,
+  /// so it's a touch lighter than [backgroundWhite].
+  static const Color backgroundMuted = neutralMuted;
 
   // ─── Borders & Dividers ────────────────────────────────────
-  static const Color border = Color(0xFFE5E7EB);
-  static const Color borderLight = Color(0xFFF0F0F0);
+  static const Color border = neutralBorder;
+  static const Color borderLight = neutralDivider;
 
   // ─── Text ──────────────────────────────────────────────────
-  static const Color textPrimary = Color(0xFF111827);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color textTertiary = Color(0xFF9CA3AF);
-  static const Color textLink = Color(0xFF0F4C33);
-  static const Color textOnPrimary = Color(0xFFFFFFFF);
+  static const Color textPrimary = Color(0xFFF5F6F7);
+  static const Color textSecondary = Color(0xFFB4B8C0);
+  static const Color textTertiary = Color(0xFF7D818A);
+  static const Color textLink = orangeGold;
+
+  /// Foreground used on top of [primary]. Dark, because the brand
+  /// primary is a light yellow — white would be unreadable on it.
+  static const Color textOnPrimary = darkGray;
 
   // ─── Semantic ──────────────────────────────────────────────
   static const Color success = Color(0xFF10B981);
-  static const Color successSurface = Color(0xFFECFDF5);
+  static const Color successSurface = Color(0xFF123420);
   static const Color error = Color(0xFFEF4444);
-  static const Color errorSurface = Color(0xFFFEF2F2);
-  static const Color warning = Color(0xFFF59E0B);
+  static const Color errorSurface = Color(0xFF3B1619);
+  static const Color warning = orangeGold;
 
   // ─── Navigation ────────────────────────────────────────────
-  static const Color navBackground = Color(0xFFFFFFFF);
-  static const Color navActive = Color(0xFF0F4C33);
-  static const Color navInactive = Color(0xFFADB5BD);
+  static const Color navBackground = neutralSurface;
+  static const Color navActive = orangeGold;
+  static const Color navInactive = gray;
 
   // ─── Shadows ───────────────────────────────────────────────
   static const Color shadowLight = Color(0x0A000000);
@@ -50,13 +83,13 @@ class AppColors {
   static const Color shadowStrong = Color(0x33000000);
 
   // ─── Map ───────────────────────────────────────────────────
-  static const Color mapMarkerCar = Color(0xFF0F4C33);
-  static const Color mapMarkerUser = Color(0xFF0F4C33);
+  static const Color mapMarkerCar = primaryYellow;
+  static const Color mapMarkerUser = darkGray;
 
   // ─── Gradient helpers ──────────────────────────────────────
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF1A6B4A), Color(0xFF0A3322)],
+    colors: [primaryYellow, orangeGold],
   );
 }

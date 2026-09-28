@@ -12,12 +12,18 @@ import 'status_code.dart';
 /// ```json
 /// { "success": false, "message": "...", "errors": { "field": "reason" } }
 /// ```
-/// This handler never surfaces that raw text — every message here is an
-/// **exact, full-string match** against [ApiErrorMessages]'s tables, built
-/// directly from swagger.json's documented literals. Nothing is inferred
-/// from a substring (no `contains('already')`/`contains('required')`
-/// guessing): an undocumented sentence falls through to a deterministic
-/// status-code fallback instead of being mistaken for a similar one.
+/// This handler never surfaces that raw English text — a *reason*
+/// sentence (e.g. `"password must be ..."`) is only ever shown once
+/// translated via an **exact, full-string match** against
+/// [ApiErrorMessages.byFieldReason]/`byMessage`, built directly from
+/// swagger.json's documented literals. Nothing is inferred from a
+/// substring (no `contains('already')`/`contains('required')` guessing):
+/// an undocumented reason sentence never gets shown verbatim or guessed
+/// at. A field *name*, however (the `errors{}` object's keys), is always
+/// given verbatim by the API and is reliable, so an undocumented reason
+/// still surfaces as "which field(s) to check" via
+/// [ApiErrorMessages.fieldLabels] before falling through to the fully
+/// generic status-code fallback.
 ///
 /// Registered in the service locator (see injection.dart) so [ApiClient]
 /// and every repository share one instance instead of each rolling its
@@ -55,14 +61,30 @@ class ApiErrorHandler {
     );
   }
 
-  /// Resolution order, all exact-match:
-  /// 1. the first `errors{}` reason that is a documented literal
-  /// 2. the top-level `message` if it is a documented literal
-  /// 3. a deterministic fallback by status code + endpoint
+  /// Resolution order:
+  /// 1. the first `errors{}` reason that is a documented literal (exact
+  ///    match — the API's precise wording, so the most trustworthy)
+  /// 2. if exactly one field failed and none matched step 1, but the
+  ///    field has documented schema constraints (see
+  ///    [ApiErrorMessages.fieldGuidance]), spell out the actual
+  ///    requirement (e.g. password's length/spaces/composition rule)
+  ///    instead of just naming the field — this is what the user needs
+  ///    to fix it, not just what to "check"
+  /// 3. if there are field errors but none matched steps 1–2, and every
+  ///    flagged field is a known user-facing field (see
+  ///    [_fieldNamesMessage]), name the field(s) at fault in Arabic —
+  ///    still beats a fully generic message with zero detail. Skipped
+  ///    for an internal-only field (e.g. `status_id`), which falls
+  ///    through instead since the user can't act on it by name
+  /// 4. the top-level `message` if it is a documented literal
+  /// 5. a deterministic fallback by status code + endpoint
   ///
-  /// Field errors are checked first so a 422/409/403 shows the specific
-  /// reason (e.g. which field, or which driver status) rather than the
-  /// generic top-level message.
+  /// Field errors are checked first (steps 1–3) so a 422/409/403 shows
+  /// the specific reason rather than the generic top-level message —
+  /// steps 2–3 run *before* step 4 because swagger's generic
+  /// `"Validation failed"` is itself a documented literal that maps to a
+  /// fully generic string; without this ordering it would always win
+  /// and steps 2–3 would never run.
   String _messageFor(
     DioException error,
     int? statusCode,
@@ -74,6 +96,15 @@ class ApiErrorHandler {
         final mapped = ApiErrorMessages.byFieldReason[_normalize(reason)];
         if (mapped != null) return mapped;
       }
+      if (rawFieldErrors.length == 1) {
+        final guidance =
+            ApiErrorMessages.fieldGuidance[rawFieldErrors.keys.single];
+        if (guidance != null) return guidance;
+      }
+      if (rawFieldErrors.isNotEmpty &&
+          rawFieldErrors.keys.every(ApiErrorMessages.fieldLabels.containsKey)) {
+        return _fieldNamesMessage(rawFieldErrors.keys);
+      }
     }
     final message = _bodyMessage(body);
     if (message != null) {
@@ -81,6 +112,21 @@ class ApiErrorHandler {
       if (mapped != null) return mapped;
     }
     return _fallbackMessage(statusCode, error.requestOptions.path);
+  }
+
+  /// "تحقق من: `field labels`" — used when the API flagged specific
+  /// *user-entered* fields (every key has a known [ApiErrorMessages
+  /// .fieldLabels] entry) but didn't give a reason we have an exact
+  /// translation for. A field the app never sends as form input (e.g.
+  /// `status_id` on a driver-login rejection) is never named this way —
+  /// it's not something the user can act on, and the status-code
+  /// fallback already has bespoke handling for those cases.
+  String _fieldNamesMessage(Iterable<String> fields) {
+    final labels = fields
+        .map((field) => ApiErrorMessages.fieldLabels[field]!)
+        .toSet()
+        .join('، ');
+    return 'تحقق من: $labels';
   }
 
   /// Parses swagger's `errors: { field: reason }` map, keeping only
@@ -106,6 +152,7 @@ class ApiErrorHandler {
       (field, reason) => MapEntry(
         field,
         ApiErrorMessages.byFieldReason[_normalize(reason)] ??
+            ApiErrorMessages.fieldGuidance[field] ??
             ApiErrorMessages.unknownField,
       ),
     );
@@ -144,7 +191,8 @@ class ApiErrorHandler {
       case StatusCode.conflict:
         // 409 is also a ride-state conflict (accept/cancel), where
         // "account exists" would be nonsense — only signup gets that.
-        final isSignup = path == _endpoints.customerSignup ||
+        final isSignup =
+            path == _endpoints.customerSignup ||
             path == _endpoints.driverSignup;
         return isSignup
             ? 'الحساب موجود بالفعل'

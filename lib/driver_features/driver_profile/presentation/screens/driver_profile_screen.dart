@@ -2,20 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_brand_bar_widget.dart';
+import '../../../../core/widgets/app_loader_widget.dart';
+import '../../../../core/widgets/network_photo_widget.dart';
 import '../../../driver_auth/data/models/driver_user_model.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_state.dart';
+import '../cubit/driver_vehicle_cubit.dart';
+import '../cubit/driver_vehicle_state.dart';
 
 /// Read-only driver profile — no edit-profile endpoint is documented yet,
-/// so this only displays what login already returned.
-class DriverProfileScreen extends StatelessWidget {
+/// so the driver's own info only displays what login already returned.
+/// The vehicle card is fetched live from `GET /api/driver/vehicle` so it
+/// stays current even if the vehicle changes after login.
+class DriverProfileScreen extends StatefulWidget {
   const DriverProfileScreen({super.key});
+
+  @override
+  State<DriverProfileScreen> createState() => _DriverProfileScreenState();
+}
+
+class _DriverProfileScreenState extends State<DriverProfileScreen> {
+  late final DriverVehicleCubit _vehicleCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _vehicleCubit = sl<DriverVehicleCubit>()..load();
+  }
+
+  @override
+  void dispose() {
+    _vehicleCubit.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundGray,
-      appBar: AppBar(title: const Text('الملف الشخصي')),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: AppBrandBarWidget(),
+      ),
       body: BlocBuilder<DriverAuthCubit, DriverAuthState>(
         bloc: sl<DriverAuthCubit>(),
         builder: (context, state) {
@@ -23,7 +52,13 @@ class DriverProfileScreen extends StatelessWidget {
           if (driver == null) return const SizedBox.shrink();
           return ListView(
             padding: const EdgeInsets.all(16),
-            children: [_InfoCard(driver: driver)],
+            children: [
+              BlocBuilder<DriverVehicleCubit, DriverVehicleState>(
+                bloc: _vehicleCubit,
+                builder: (context, vehicleState) =>
+                    _InfoCard(driver: driver, vehicleState: vehicleState),
+              ),
+            ],
           );
         },
       ),
@@ -33,12 +68,13 @@ class DriverProfileScreen extends StatelessWidget {
 
 class _InfoCard extends StatelessWidget {
   final DriverUserModel driver;
+  final DriverVehicleState vehicleState;
 
-  const _InfoCard({required this.driver});
+  const _InfoCard({required this.driver, required this.vehicleState});
 
   @override
   Widget build(BuildContext context) {
-    final vehicle = driver.vehicle;
+    final vehicle = vehicleState.vehicle;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -78,13 +114,30 @@ class _InfoCard extends StatelessWidget {
             label: 'رصيد المحفظة',
             value: '${driver.walletBalance.toStringAsFixed(2)} ل.س',
           ),
-          if (vehicle != null) ...[
+          if (vehicleState.isLoading && vehicle == null) ...[
+            const Divider(height: 28),
+            const AppLoaderWidget(size: 100),
+          ] else if (vehicleState.errorMessage != null && vehicle == null) ...[
+            const Divider(height: 28),
+            Text(
+              vehicleState.errorMessage!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.error, fontSize: 13),
+            ),
+          ] else if (vehicle != null) ...[
             const Divider(height: 28),
             Text(
               'بيانات المركبة',
               style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 8),
+            NetworkPhotoWidget(
+              imagePath: vehicle.photoUrl,
+              width: double.infinity,
+              height: 160,
+              placeholderIcon: Icons.directions_car_outlined,
+            ),
+            const SizedBox(height: 12),
             _Row(
               icon: Icons.directions_car_outlined,
               label: 'النوع',

@@ -1,22 +1,22 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/session/session_cubit.dart';
+import '../../data/models/picked_location_model.dart';
+import '../../data/repositories/ride_request_repository.dart';
 import 'home_state.dart';
 
-/// Cubit managing the Home screen state.
+/// Cubit managing the "إنشاء طلب" (create request) screen state.
 /// Follows the principle of keeping business logic out of the UI layer.
 class HomeCubit extends Cubit<HomeState> {
   final SessionCubit _sessionCubit;
+  final RideRequestRepository _repository;
 
-  HomeCubit(this._sessionCubit) : super(HomeState.initial());
+  HomeCubit(this._sessionCubit, this._repository) : super(HomeState.initial());
 
   /// Called when the screen first loads.
   void initialize() {
-    // In production this would also fetch the rest of the home feed.
-    // For now only the greeting name comes from the real signed-in user;
-    // everything else is still mock data.
     if (isClosed) return;
     final user = _sessionCubit.state;
-    emit(HomeState.initial().copyWith(userName: user?.firstName));
+    emit(state.copyWith(userName: user?.firstName));
   }
 
   /// Updates the greeting based on the current time of day.
@@ -33,18 +33,30 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  /// Simulates requesting a ride from a saved destination.
-  void requestRideToDestination(String destinationId) {
-    // TODO: navigate to booking screen in next iterations
+  void setFromLocation(PickedLocationModel location) {
+    if (!isClosed) emit(state.copyWith(fromLocation: location));
   }
 
-  /// Simulates repeating the last trip.
-  void repeatLastTrip() {
-    // TODO: navigate to booking screen pre-filled
+  void setToLocation(PickedLocationModel location) {
+    if (!isClosed) emit(state.copyWith(toLocation: location));
   }
 
-  /// Applies a promo code from the offer banner.
-  void applyPromoCode(String code) {
-    // TODO: navigate to booking screen with code applied
+  Future<void> searchRide() async {
+    final from = state.fromLocation;
+    final to = state.toLocation;
+    if (!state.canSearch || from == null || to == null || isClosed) return;
+
+    emit(state.copyWith(isSearching: true, clearSearchError: true));
+    try {
+      await _repository.searchRide(from: from, to: to);
+      if (isClosed) return;
+      // TODO: backend search/matching endpoint doesn't exist yet — once it
+      // does, decide what happens next here (e.g. navigate to a
+      // driver-matching/tracking screen).
+      emit(state.copyWith(isSearching: false));
+    } on RideRequestException catch (e) {
+      if (isClosed) return;
+      emit(state.copyWith(isSearching: false, searchErrorMessage: e.message));
+    }
   }
 }

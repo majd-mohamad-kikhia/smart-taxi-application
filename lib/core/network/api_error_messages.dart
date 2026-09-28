@@ -49,4 +49,67 @@ class ApiErrorMessages {
   /// field is known to have failed, but the sentence describing why is
   /// not documented, so nothing about it is inferred.
   static const String unknownField = 'تحقق من هذا الحقل';
+
+  /// Arabic label for every request field (body or query) the app itself
+  /// ever sends, across every endpoint documented in swagger.json that
+  /// this app calls (customer + driver — the spec's `/api/admin/*`
+  /// endpoints have no UI in this app and are intentionally excluded).
+  ///
+  /// The API's exact validation-failure *wording* per field is mostly
+  /// undocumented (only [byFieldReason]'s handful of literals are
+  /// confirmed), so [ApiErrorHandler] never guesses that sentence — but
+  /// the field *name* that failed is always given verbatim in the
+  /// response's `errors` object, and is reliable. This table lets the
+  /// handler name that field in Arabic instead of falling back to a
+  /// fully generic "check your input" with no actionable detail.
+  static const Map<String, String> fieldLabels = {
+    // Auth (customer + driver share the same field names)
+    'first_name': 'الاسم الأول',
+    'last_name': 'الاسم الأخير',
+    'phone_number': 'رقم الجوال',
+    'password': 'كلمة المرور',
+    'email': 'البريد الإلكتروني',
+    'address': 'العنوان',
+    'refresh_token': 'جلسة الدخول',
+    // Complaints (customer + driver)
+    'message': 'نص الرسالة',
+    'subject': 'الموضوع',
+    // Customer rides
+    'vehicle_type_id': 'نوع المركبة',
+    'pickup_lat': 'موقع الانطلاق',
+    'pickup_lng': 'موقع الانطلاق',
+    'pickup_address': 'عنوان الانطلاق',
+    'dropoff_lat': 'موقع الوصول',
+    'dropoff_lng': 'موقع الوصول',
+    'dropoff_address': 'عنوان الوصول',
+    'cancellation_reason': 'سبب الإلغاء',
+    // Driver settings
+    'search_radius_km': 'نطاق البحث',
+  };
+
+  /// Concrete, actionable requirement text for a field, built from
+  /// swagger.json's **documented schema constraints**
+  /// (`minLength`/`maxLength`/`minimum`/`maximum`/`description`) — not
+  /// from a guessed reason sentence. Used instead of [fieldLabels]'s bare
+  /// field name whenever the field failed for a reason that isn't one of
+  /// [byFieldReason]'s exact literals, so the user is told what the
+  /// field actually requires instead of just which field to "check".
+  ///
+  /// Example: password has three documented rules (`CustomerSignupRequest
+  /// .password`'s description: "8–64 chars, no spaces, at least one
+  /// letter and one number"), but swagger only gives an example reason
+  /// for two of them (length, letter+number). A rejection for containing
+  /// a space has no matching [byFieldReason] literal, so without this it
+  /// would fall to a vague "check the password" — this spells out the
+  /// full rule instead, which covers whichever part actually failed.
+  static const Map<String, String> fieldGuidance = {
+    'password':
+        'كلمة المرور يجب أن تكون بين 8 و64 حرفاً، بدون مسافات، وتحتوي على حرف ورقم على الأقل',
+    'first_name': 'الاسم الأول يجب أن يكون بين حرفين و100 حرف',
+    'last_name': 'الاسم الأخير يجب أن يكون بين حرفين و100 حرف',
+    'message': 'نص الرسالة يجب أن يكون بين 5 و1000 حرف',
+    'subject': 'الموضوع يجب ألا يتجاوز 150 حرفاً',
+    'search_radius_km': 'نطاق البحث يجب أن يكون بين 0.1 و100 كم',
+    'cancellation_reason': 'سبب الإلغاء يجب ألا يتجاوز 255 حرفاً',
+  };
 }

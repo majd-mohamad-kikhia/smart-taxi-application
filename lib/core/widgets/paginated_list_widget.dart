@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import 'app_loader_widget.dart';
 
 /// Generic infinite-scroll list used everywhere the app shows a server-
 /// paginated collection (wallet history, ride history, admin lists, ...).
@@ -105,9 +106,7 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
 
   Widget _buildBody() {
     if (widget.isLoading && widget.items.isEmpty) {
-      return _fillWithScroll(
-        const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-      );
+      return _fillWithScroll(const AppLoaderWidget());
     }
     if (widget.errorMessage != null && widget.items.isEmpty) {
       return _fillWithScroll(

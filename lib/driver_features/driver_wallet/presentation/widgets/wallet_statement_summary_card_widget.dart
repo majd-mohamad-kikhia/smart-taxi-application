@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Hero card at the top of the wallet statement — net amount owed to the
-/// company plus the carried-over previous balance.
+/// Hero card at the top of the wallet statement — the driver's current
+/// wallet balance.
 class WalletStatementSummaryCardWidget extends StatelessWidget {
   final String amountOwed;
-  final String previousBalance;
 
-  const WalletStatementSummaryCardWidget({
-    super.key,
-    required this.amountOwed,
-    required this.previousBalance,
-  });
+  const WalletStatementSummaryCardWidget({super.key, required this.amountOwed});
 
   @override
   Widget build(BuildContext context) {

@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_endpoints.dart';
+import '../models/driver_financial_report_model.dart';
 import '../models/wallet_history_model.dart';
 import '../models/wallet_transaction_model.dart';
 
 /// Remote data source for the Driver Wallet feature — talks to
-/// `GET /api/driver/wallet` (see swagger.json).
+/// `GET /api/driver/wallet` and `GET /api/driver/financial-report`
+/// (see swagger.json).
 class DriverWalletRemoteDataSource {
   final Dio _dio;
   final ApiEndpoints _endpoints;
@@ -25,6 +27,22 @@ class DriverWalletRemoteDataSource {
       },
     );
     return WalletHistoryModel.fromJson(
+      response.data['data'] as Map<String, dynamic>,
+    );
+  }
+
+  Future<DriverFinancialReportModel> fetchFinancialReport({
+    int? year,
+    int? month,
+  }) async {
+    final response = await _dio.get(
+      _endpoints.driverFinancialReport,
+      queryParameters: {
+        'year': ?year,
+        'month': ?month,
+      },
+    );
+    return DriverFinancialReportModel.fromJson(
       response.data['data'] as Map<String, dynamic>,
     );
   }

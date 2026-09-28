@@ -20,9 +20,9 @@ class AppTheme {
         onSurface: AppColors.textPrimary,
         error: AppColors.error,
         onError: AppColors.textOnPrimary,
-        brightness: Brightness.light,
+        brightness: Brightness.dark,
       ),
-      scaffoldBackgroundColor: AppColors.backgroundWhite,
+      scaffoldBackgroundColor: AppColors.backgroundGray,
     );
 
     return base.copyWith(
@@ -108,7 +108,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0.5,
         shadowColor: AppColors.shadowLight,
-        systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+        systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
           statusBarColor: Colors.transparent,
         ),
         titleTextStyle: GoogleFonts.tajawal(
@@ -153,8 +153,8 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary, width: 1.5),
+          foregroundColor: AppColors.accent,
+          side: const BorderSide(color: AppColors.accent, width: 1.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_brand_bar_widget.dart';
+import '../../../driver_auth/data/models/driver_status.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_state.dart';
+import '../widgets/driver_online_toggle_widget.dart';
 import '../widgets/driver_status_card_widget.dart';
 
 /// Driver home tab.
@@ -19,7 +22,10 @@ class DriverHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundGray,
-      appBar: AppBar(title: const Text('الرئيسية')),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: AppBrandBarWidget(),
+      ),
       body: BlocBuilder<DriverAuthCubit, DriverAuthState>(
         bloc: sl<DriverAuthCubit>(),
         builder: (context, state) {
@@ -29,6 +35,8 @@ class DriverHomeScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               DriverStatusCardWidget(driver: driver),
+              const SizedBox(height: 12),
+              DriverOnlineToggleWidget(enabled: driver.status == DriverStatus.active),
               const SizedBox(height: 20),
               const _RideRequestsPlaceholder(),
             ],

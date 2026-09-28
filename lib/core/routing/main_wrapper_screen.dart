@@ -27,7 +27,7 @@ class _MainWrapperScreenState extends State<MainWrapperScreen> {
   ];
 
   static const List<AppNavItem> _navItems = [
-    AppNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'الرئيسية'),
+    AppNavItem(icon: Icons.add_location_alt_outlined, activeIcon: Icons.add_location_alt_rounded, label: 'انشاء طلب'),
     AppNavItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long_rounded, label: 'طلباتي'),
     AppNavItem(icon: Icons.account_balance_wallet_outlined, activeIcon: Icons.account_balance_wallet_rounded, label: 'المحفظة'),
     AppNavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: 'الإعدادات'),

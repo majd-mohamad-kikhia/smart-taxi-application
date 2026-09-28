@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/injection/injection.dart';
 import 'core/routing/app_router.dart';
@@ -12,18 +13,21 @@ import 'features/auth/presentation/cubit/auth_cubit.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Load environment variables (API keys, etc.)
+  await dotenv.load(fileName: '.env');
+
   // Force portrait mode
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Transparent status bar
+  // Transparent status bar — light icons for the app's dark theme.
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
     ),
   );
 
@@ -63,10 +67,7 @@ class MshoarApp extends StatelessWidget {
 
       // ── RTL Arabic localization ────────────────────────
       locale: const Locale('ar', 'SA'),
-      supportedLocales: const [
-        Locale('ar', 'SA'),
-        Locale('en', 'US'),
-      ],
+      supportedLocales: const [Locale('ar', 'SA'), Locale('en', 'US')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -74,10 +75,8 @@ class MshoarApp extends StatelessWidget {
       ],
 
       // ── Force RTL text direction globally ─────────────
-      builder: (context, child) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: child!,
-      ),
+      builder: (context, child) =>
+          Directionality(textDirection: TextDirection.rtl, child: child!),
 
       // ── Navigation ─────────────────────────────────────
       initialRoute: initialRoute,
@@ -89,7 +88,9 @@ class MshoarApp extends StatelessWidget {
       // fallback screen underneath the real one. Building a single route
       // straight from the full name avoids that.
       onGenerateInitialRoutes: (initialRouteName) {
-        return [AppRouter.onGenerateRoute(RouteSettings(name: initialRouteName))];
+        return [
+          AppRouter.onGenerateRoute(RouteSettings(name: initialRouteName)),
+        ];
       },
     );
   }

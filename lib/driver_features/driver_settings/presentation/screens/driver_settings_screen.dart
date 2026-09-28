@@ -5,6 +5,7 @@ import '../../../../core/routing/app_router.dart';
 import '../../../../core/session/session_cubit.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
+import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/logout_footer_widget.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_cubit.dart';
@@ -84,7 +85,10 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundGray,
-      appBar: AppBar(title: const Text('الإعدادات')),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: AppBrandBarWidget(),
+      ),
       body: BlocBuilder<DriverAuthCubit, DriverAuthState>(
         bloc: sl<DriverAuthCubit>(),
         builder: (context, state) {

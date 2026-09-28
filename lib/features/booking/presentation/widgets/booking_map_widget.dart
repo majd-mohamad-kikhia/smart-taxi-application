@@ -217,10 +217,7 @@ class _EtaCard extends StatelessWidget {
   final String durationLabel;
   final String distanceLabel;
 
-  const _EtaCard({
-    required this.durationLabel,
-    required this.distanceLabel,
-  });
+  const _EtaCard({required this.durationLabel, required this.distanceLabel});
 
   @override
   Widget build(BuildContext context) {

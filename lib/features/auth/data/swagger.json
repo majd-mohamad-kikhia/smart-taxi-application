@@ -1677,7 +1677,8 @@
               "topup",
               "commission_deduction",
               "penalty",
-              "compensation"
+              "compensation",
+              "reward"
             ],
             "example": "topup"
           },
@@ -1912,7 +1913,7 @@
           "Admin"
         ],
         "summary": "List all customers (paginated)",
-        "description": "Manager-only. Returns customers with `account_type_id = 1` (excludes managers),\nnewest first.\n",
+        "description": "Manager-only. Returns customers with `account_type_id = 1` (excludes managers),\nnewest first.\n\nEach customer includes a **paginated** `orders` list (newest first) plus\n`orders_count` / `orders_pagination`. Nested page size is controlled by\n`orders_page` / `orders_limit` (same values applied to every customer on\nthe page — loaded in one batched SQL query for performance).\n",
         "operationId": "adminListCustomers",
         "security": [
           {
@@ -1927,7 +1928,8 @@
               "type": "integer",
               "minimum": 1,
               "default": 1
-            }
+            },
+            "description": "Customers page"
           },
           {
             "in": "query",
@@ -1937,12 +1939,34 @@
               "minimum": 1,
               "maximum": 100,
               "default": 20
-            }
+            },
+            "description": "Customers per page"
+          },
+          {
+            "in": "query",
+            "name": "orders_page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Orders page for each customer"
+          },
+          {
+            "in": "query",
+            "name": "orders_limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            },
+            "description": "Orders per customer on this response"
           }
         ],
         "responses": {
           "200": {
-            "description": "Customers page",
+            "description": "Customers page with nested orders",
             "content": {
               "application/json": {
                 "schema": {
@@ -1959,7 +1983,7 @@
                             "customers": {
                               "type": "array",
                               "items": {
-                                "$ref": "#/components/schemas/Customer"
+                                "type": "object"
                               }
                             },
                             "pagination": {
@@ -1984,6 +2008,49 @@
                       }
                     }
                   ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Customers retrieved successfully",
+                  "data": {
+                    "customers": [
+                      {
+                        "id": 14,
+                        "first_name": "Sara",
+                        "last_name": "Ali",
+                        "photo_url": null,
+                        "phone_number": "0912345678",
+                        "email": null,
+                        "address": "Tripoli",
+                        "account_type_id": 1,
+                        "created_at": "2026-09-27 12:00:00",
+                        "updated_at": "2026-09-27 12:00:00",
+                        "orders_count": 2,
+                        "orders_pagination": {
+                          "page": 1,
+                          "limit": 10,
+                          "total": 2,
+                          "total_pages": 1
+                        },
+                        "orders": [
+                          {
+                            "id": 5,
+                            "customer_id": 14,
+                            "driver_id": 2,
+                            "price": 1725,
+                            "status": "completed",
+                            "requested_at": "2026-09-27 14:00:00"
+                          }
+                        ]
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "limit": 20,
+                      "total": 1,
+                      "total_pages": 1
+                    }
+                  }
                 }
               }
             }
@@ -1993,6 +2060,141 @@
           },
           "403": {
             "description": "Not a manager token"
+          },
+          "422": {
+            "description": "Invalid query params"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a customer account",
+        "description": "Manager-only. Creates a customer (`account_type_id = 1`) with a bcrypt-hashed\npassword. Does **not** issue tokens — the customer signs in later via\n`POST /api/customer/auth/login`.\n\n**Validation rules** (same as customer signup)\n| Field | Rules |\n|-------|-------|\n| `first_name` / `last_name` | Required, 2–100 chars, letters only |\n| `phone_number` | Required string, 8–15 digits, unique |\n| `email` | Optional, valid email, unique when provided |\n| `password` | Required, 8–64 chars, ≥1 letter and ≥1 number |\n| `address` | Optional, max 255 chars |\n",
+        "operationId": "adminCreateCustomer",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "first_name",
+                  "last_name",
+                  "phone_number",
+                  "password"
+                ],
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "example": "Ahmad"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Ali"
+                  },
+                  "phone_number": {
+                    "type": "string",
+                    "example": "0991234567"
+                  },
+                  "email": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "ahmad@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "Passw0rd"
+                  },
+                  "address": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Tripoli"
+                  }
+                }
+              },
+              "examples": {
+                "minimal": {
+                  "summary": "Required fields only",
+                  "value": {
+                    "first_name": "Ahmad",
+                    "last_name": "Ali",
+                    "phone_number": "0991234567",
+                    "password": "Passw0rd"
+                  }
+                },
+                "full": {
+                  "summary": "All fields",
+                  "value": {
+                    "first_name": "Ahmad",
+                    "last_name": "Ali",
+                    "phone_number": "0991234567",
+                    "email": "ahmad@example.com",
+                    "password": "Passw0rd",
+                    "address": "Tripoli"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Customer created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Customer"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Customer created successfully",
+                  "data": {
+                    "id": 20,
+                    "first_name": "Ahmad",
+                    "last_name": "Ali",
+                    "photo_url": null,
+                    "phone_number": "0991234567",
+                    "email": "ahmad@example.com",
+                    "address": "Tripoli",
+                    "account_type_id": 1,
+                    "created_at": "2026-09-28 12:00:00",
+                    "updated_at": "2026-09-28 12:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "409": {
+            "description": "Phone or email already registered"
+          },
+          "422": {
+            "description": "Validation failed"
           }
         }
       }
@@ -2003,7 +2205,7 @@
           "Admin"
         ],
         "summary": "List all drivers (paginated)",
-        "description": "Manager-only. Returns all drivers with status name, newest first.\nEach driver includes:\n- fines (غرامات): `fines`, `fines_count`, `fines_total`\n- wallet history: `wallet_transactions`, `wallet_transactions_count`\n- vehicle: brand, model, color, plate, type, photo (or null)\n",
+        "description": "Manager-only. Returns all drivers with status name, newest first.\nEach driver includes:\n- fines (غرامات): `fines`, `fines_count`, `fines_total`\n- wallet history: `wallet_transactions`, `wallet_transactions_count`\n- vehicle: brand, model, color, plate, type, photo (or null)\n- **paginated** `orders` (newest first) plus `orders_count` /\n  `orders_pagination` — controlled by `orders_page` / `orders_limit`\n  (same values for every driver on the page; one batched SQL query)\n",
         "operationId": "adminListDrivers",
         "security": [
           {
@@ -2018,7 +2220,8 @@
               "type": "integer",
               "minimum": 1,
               "default": 1
-            }
+            },
+            "description": "Drivers page"
           },
           {
             "in": "query",
@@ -2028,12 +2231,34 @@
               "minimum": 1,
               "maximum": 100,
               "default": 20
-            }
+            },
+            "description": "Drivers per page"
+          },
+          {
+            "in": "query",
+            "name": "orders_page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Orders page for each driver"
+          },
+          {
+            "in": "query",
+            "name": "orders_limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            },
+            "description": "Orders per driver on this response"
           }
         ],
         "responses": {
           "200": {
-            "description": "Drivers page",
+            "description": "Drivers page with nested orders",
             "content": {
               "application/json": {
                 "schema": {
@@ -2050,7 +2275,7 @@
                             "drivers": {
                               "type": "array",
                               "items": {
-                                "$ref": "#/components/schemas/AdminDriver"
+                                "type": "object"
                               }
                             },
                             "pagination": {
@@ -2075,6 +2300,44 @@
                       }
                     }
                   ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Drivers retrieved successfully",
+                  "data": {
+                    "drivers": [
+                      {
+                        "id": 2,
+                        "first_name": "Omar",
+                        "last_name": "Hassan",
+                        "phone_number": "0911111111",
+                        "status": "active",
+                        "wallet_balance": 150.5,
+                        "orders_count": 3,
+                        "orders_pagination": {
+                          "page": 1,
+                          "limit": 10,
+                          "total": 3,
+                          "total_pages": 1
+                        },
+                        "orders": [
+                          {
+                            "id": 8,
+                            "customer_id": 14,
+                            "driver_id": 2,
+                            "price": 1725,
+                            "status": "arrived"
+                          }
+                        ]
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "limit": 20,
+                      "total": 5,
+                      "total_pages": 1
+                    }
+                  }
                 }
               }
             }
@@ -2477,7 +2740,7 @@
           "Admin"
         ],
         "summary": "Get driver wallet history (paginated)",
-        "description": "Manager-only. Returns the driver's current `wallet_balance` and paginated\ntransactions from `driver_wallet_transactions` (no DB schema change needed).\n\nTypes: `topup`, `commission_deduction`, `penalty`, `compensation`.\n",
+        "description": "Manager-only. Returns the driver's current `wallet_balance` and paginated\ntransactions from `driver_wallet_transactions` (no DB schema change needed).\n\nTypes: `topup`, `commission_deduction`, `penalty`, `compensation`, `reward`.\n",
         "operationId": "adminListDriverWalletHistory",
         "security": [
           {
@@ -2523,7 +2786,8 @@
                 "topup",
                 "commission_deduction",
                 "penalty",
-                "compensation"
+                "compensation",
+                "reward"
               ]
             }
           }
@@ -2619,6 +2883,129 @@
           },
           "404": {
             "description": "Driver not found"
+          }
+        }
+      }
+    },
+    "/api/admin/drivers/{id}/reward": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Add a reward to a driver's wallet",
+        "description": "Manager-only. Credits the driver's `wallet_balance` and records a\n`reward` wallet transaction (مكافأة). Notifies the driver.\nDistinct from wallet top-up (`topup`).\n",
+        "operationId": "adminAddDriverReward",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 2
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "amount"
+                ],
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0.01,
+                    "example": 5000,
+                    "description": "Reward amount (must be &gt; 0)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "nullable": true,
+                    "example": "Weekly performance bonus"
+                  }
+                }
+              },
+              "example": {
+                "amount": 5000,
+                "description": "Weekly performance bonus"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reward added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "transaction": {
+                              "type": "object"
+                            },
+                            "driver": {
+                              "$ref": "#/components/schemas/AdminDriver"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Reward added successfully",
+                  "data": {
+                    "transaction": {
+                      "id": 12,
+                      "driver_id": 2,
+                      "transaction_type": "reward",
+                      "amount": 5000,
+                      "balance_after": 9000,
+                      "description": "Weekly performance bonus",
+                      "created_by_user_id": 15,
+                      "created_at": "2026-09-27 18:00:00"
+                    },
+                    "driver": {
+                      "id": 2,
+                      "wallet_balance": 9000,
+                      "status": "active"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Driver not found"
+          },
+          "422": {
+            "description": "Validation failed"
           }
         }
       }
@@ -2787,6 +3174,90 @@
       }
     },
     "/api/admin/vehicle-types": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List vehicle types",
+        "description": "Manager-only. Returns all car classes (economy, comfort, …), active and inactive,\nordered by `id`. Optional `is_active` filter.\n",
+        "operationId": "adminListVehicleTypes",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "is_active",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "If set, only return active (`true`) or inactive (`false`) types",
+            "example": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle types list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "vehicle_types": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/VehicleType"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle types retrieved successfully",
+                  "data": {
+                    "vehicle_types": [
+                      {
+                        "id": 1,
+                        "name": "economy",
+                        "description": "Affordable everyday rides",
+                        "is_active": true,
+                        "created_at": "2026-09-27 10:00:00"
+                      },
+                      {
+                        "id": 2,
+                        "name": "comfort",
+                        "description": "Newer cars, extra legroom",
+                        "is_active": true,
+                        "created_at": "2026-09-27 10:00:00"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          }
+        }
+      },
       "post": {
         "tags": [
           "Admin"
@@ -3030,6 +3501,77 @@
       }
     },
     "/api/admin/pricing-tiers": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List pricing tiers",
+        "description": "Manager-only. Returns saved distance pricing bands (all vehicle types),\nordered by vehicle type then `min_distance_km`.\nOptional filters: `vehicle_type_id`, `is_active`.\n",
+        "operationId": "adminListPricingTiers",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "vehicle_type_id",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 255
+            },
+            "description": "Only tiers for this vehicle type",
+            "example": 1
+          },
+          {
+            "in": "query",
+            "name": "is_active",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Filter active / inactive tiers",
+            "example": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pricing tiers list",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Pricing tiers retrieved successfully",
+                  "data": {
+                    "pricing_tiers": [
+                      {
+                        "id": 10,
+                        "vehicle_type_id": 1,
+                        "vehicle_type_name": "economy",
+                        "min_distance_km": 0,
+                        "max_distance_km": 10,
+                        "price_per_km": 5000,
+                        "base_fare": 0,
+                        "is_active": true
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "422": {
+            "description": "Invalid query params"
+          }
+        }
+      },
       "post": {
         "tags": [
           "Admin"
@@ -3307,6 +3849,188 @@
           },
           "409": {
             "description": "Already inactive"
+          }
+        }
+      }
+    },
+    "/api/admin/commission": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get current commission percentage",
+        "description": "Manager-only. Returns the platform / manager commission `%` taken from\neach order price when a ride is created.\n\nExample: `rate_percentage = 10` and order price `1000` →\nmanager gets `100`, driver gets `900`.\n",
+        "operationId": "adminGetCommission",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current commission setting",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "nullable": true,
+                              "example": 1
+                            },
+                            "rate_percentage": {
+                              "type": "number",
+                              "example": 15
+                            },
+                            "set_by_user_id": {
+                              "type": "integer",
+                              "nullable": true,
+                              "example": 15
+                            },
+                            "effective_from": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Commission rate retrieved successfully",
+                  "data": {
+                    "id": 1,
+                    "rate_percentage": 15,
+                    "set_by_user_id": 15,
+                    "effective_from": "2026-09-27 10:39:31",
+                    "created_at": "2026-09-27 10:39:31"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Set commission percentage",
+        "description": "Manager-only. Sets the platform / manager commission `%` for **new** orders.\nInserts a history row (old rates stay for past rides). Cache is invalidated\nimmediately so the next order uses the new rate.\n\nAllowed range: `0` – `100`.\n",
+        "operationId": "adminSetCommission",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "rate_percentage"
+                ],
+                "properties": {
+                  "rate_percentage": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "example": 10,
+                    "description": "Percent of order price taken by manager / platform"
+                  }
+                }
+              },
+              "example": {
+                "rate_percentage": 10
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Commission rate updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "example": 2
+                            },
+                            "rate_percentage": {
+                              "type": "number",
+                              "example": 10
+                            },
+                            "set_by_user_id": {
+                              "type": "integer",
+                              "example": 15
+                            },
+                            "effective_from": {
+                              "type": "string"
+                            },
+                            "created_at": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Commission rate updated successfully",
+                  "data": {
+                    "id": 2,
+                    "rate_percentage": 10,
+                    "set_by_user_id": 15,
+                    "effective_from": "2026-09-27 21:00:00",
+                    "created_at": "2026-09-27 21:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "422": {
+            "description": "Validation failed"
           }
         }
       }
@@ -4645,7 +5369,7 @@
           "Driver"
         ],
         "summary": "Get my wallet history (paginated)",
-        "description": "Driver-only. Returns current `wallet_balance` and transaction history\n(topup, penalty, commission_deduction, compensation).\n",
+        "description": "Driver-only. Returns current `wallet_balance` and transaction history\n(topup, penalty, commission_deduction, compensation, reward).\n",
         "operationId": "driverListWalletHistory",
         "security": [
           {
@@ -4681,7 +5405,8 @@
                 "topup",
                 "commission_deduction",
                 "penalty",
-                "compensation"
+                "compensation",
+                "reward"
               ]
             }
           }
@@ -4714,6 +5439,162 @@
           },
           "403": {
             "description": "Not a driver token"
+          }
+        }
+      }
+    },
+    "/api/driver/financial-report": {
+      "get": {
+        "tags": [
+          "Driver"
+        ],
+        "summary": "Monthly financial status",
+        "description": "Driver-only. Returns the authenticated driver's financial summary for a month:\n- completed orders count\n- total order amount (what customers paid)\n- driver earnings (after commission)\n- manager / platform commission from those orders\n- rewards (مكافآت) and fines (غرامات) totals\n\nExample: order `price` = 1000 with 10% commission →\n`driver_earnings` = 900, `manager_earnings` = 100.\n\nDefaults to the current year/month when query params are omitted.\n",
+        "operationId": "driverMonthlyFinancialReport",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "schema": {
+              "type": "integer",
+              "minimum": 2020,
+              "maximum": 2100
+            },
+            "example": 2026,
+            "description": "Report year (default = current year)"
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "example": 9,
+            "description": "Report month 1–12 (default = current month)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Monthly financial report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "year": {
+                              "type": "integer",
+                              "example": 2026
+                            },
+                            "month": {
+                              "type": "integer",
+                              "example": 9
+                            },
+                            "orders_count": {
+                              "type": "integer",
+                              "example": 12
+                            },
+                            "orders_total_amount": {
+                              "type": "number",
+                              "example": 12000
+                            },
+                            "driver_earnings": {
+                              "type": "number",
+                              "example": 10800
+                            },
+                            "manager_earnings": {
+                              "type": "number",
+                              "example": 1200
+                            },
+                            "avg_commission_rate": {
+                              "type": "number",
+                              "nullable": true,
+                              "example": 10
+                            },
+                            "rewards_total": {
+                              "type": "number",
+                              "example": 5000
+                            },
+                            "rewards_count": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "fines_total": {
+                              "type": "number",
+                              "example": 2500
+                            },
+                            "fines_count": {
+                              "type": "integer",
+                              "example": 2
+                            },
+                            "compensations_total": {
+                              "type": "number",
+                              "example": 0
+                            },
+                            "compensations_count": {
+                              "type": "integer",
+                              "example": 0
+                            },
+                            "net_income": {
+                              "type": "number",
+                              "example": 13300
+                            },
+                            "wallet_balance": {
+                              "type": "number",
+                              "example": 4000
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Financial report retrieved successfully",
+                  "data": {
+                    "year": 2026,
+                    "month": 9,
+                    "orders_count": 12,
+                    "orders_total_amount": 12000,
+                    "driver_earnings": 10800,
+                    "manager_earnings": 1200,
+                    "avg_commission_rate": 10,
+                    "rewards_total": 5000,
+                    "rewards_count": 1,
+                    "fines_total": 2500,
+                    "fines_count": 2,
+                    "compensations_total": 0,
+                    "compensations_count": 0,
+                    "net_income": 13300,
+                    "wallet_balance": 4000
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a driver token"
+          },
+          "422": {
+            "description": "Invalid year/month"
           }
         }
       }

@@ -42,7 +42,11 @@ class ApiEndpoints {
 
   // ─── Driver Wallet ─────────────────────────────────────────
   String get driverWallet => '/api/driver/wallet';
+  String get driverFinancialReport => '/api/driver/financial-report';
 
   // ─── Driver Complaints ─────────────────────────────────────
   String get driverComplaints => '/api/driver/complaints';
+
+  // ─── Driver Profile ────────────────────────────────────────
+  String get driverVehicle => '/api/driver/vehicle';
 }

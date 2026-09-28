@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_exception.dart';
 import '../datasources/driver_wallet_remote_data_source.dart';
+import '../models/driver_financial_report_model.dart';
 import '../models/wallet_history_model.dart';
 import '../models/wallet_transaction_model.dart';
 
@@ -30,6 +31,23 @@ class DriverWalletRepository {
       return await _remoteDataSource.fetchWalletHistory(
         page: page,
         transactionType: transactionType,
+      );
+    } on DioException catch (e) {
+      final error = e.error;
+      throw DriverWalletException(
+        error is ApiException ? error.message : 'تعذر الاتصال بالخادم',
+      );
+    }
+  }
+
+  Future<DriverFinancialReportModel> getFinancialReport({
+    int? year,
+    int? month,
+  }) async {
+    try {
+      return await _remoteDataSource.fetchFinancialReport(
+        year: year,
+        month: month,
       );
     } on DioException catch (e) {
       final error = e.error;

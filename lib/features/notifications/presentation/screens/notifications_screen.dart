@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_loader_widget.dart';
 import '../cubit/notifications_cubit.dart';
 import '../cubit/notifications_state.dart';
 import '../widgets/notification_card_widget.dart';
@@ -40,11 +41,7 @@ class _NotificationsView extends StatelessWidget {
                 ),
                 Expanded(
                   child: state.isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary,
-                          ),
-                        )
+                      ? const AppLoaderWidget()
                       : state.errorMessage != null
                       ? _ErrorView(
                           message: state.errorMessage!,

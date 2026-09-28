@@ -229,7 +229,9 @@ void main() {
     });
 
     test('undocumented reason containing "number" is NOT matched as the '
-        'password-strength message', () {
+        'password-strength message, but password has documented schema '
+        'constraints, so the actual requirement is spelled out instead '
+        'of a generic placeholder', () {
       final result = handle(
         path: endpoints.customerSignup,
         statusCode: 422,
@@ -239,7 +241,10 @@ void main() {
           'errors': {'password': 'password is too weak, add a number'},
         },
       );
-      expect(result.fieldErrors, {'password': 'تحقق من هذا الحقل'});
+      const guidance =
+          'كلمة المرور يجب أن تكون بين 8 و64 حرفاً، بدون مسافات، وتحتوي على حرف ورقم على الأقل';
+      expect(result.fieldErrors, {'password': guidance});
+      expect(result.message, guidance);
     });
 
     test('undocumented reason falls through to the field-agnostic '
@@ -254,6 +259,123 @@ void main() {
         },
       );
       expect(result.fieldErrors, {'email': 'تحقق من هذا الحقل'});
+    });
+  });
+
+  group('undocumented reason, single field with documented constraints '
+      '-> spell out the requirement', () {
+    test('search_radius_km (min/max documented, no example reason)', () {
+      final result = handle(
+        path: endpoints.driverSearchRadius,
+        statusCode: 422,
+        data: {
+          'success': false,
+          'message': 'Validation failed',
+          'errors': {'search_radius_km': 'search_radius_km out of range'},
+        },
+      );
+      expect(result.message, 'نطاق البحث يجب أن يكون بين 0.1 و100 كم');
+    });
+
+    test('guidance wins over the plain field-name fallback', () {
+      final result = handle(
+        path: endpoints.customerSignup,
+        statusCode: 422,
+        data: {
+          'success': false,
+          'message': 'Validation failed',
+          'errors': {'message': 'message too short'},
+        },
+      );
+      // 'message' is in both fieldLabels and fieldGuidance — guidance
+      // ("5 to 1000 chars") must win over the bare label ("check: نص
+      // الرسالة") since it's strictly more actionable.
+      expect(result.message, 'نص الرسالة يجب أن يكون بين 5 و1000 حرف');
+    });
+
+    test('two fields at once -> guidance is skipped (single-field only), '
+        'falls to the field-name fallback', () {
+      final result = handle(
+        path: endpoints.customerSignup,
+        statusCode: 422,
+        data: {
+          'success': false,
+          'message': 'Validation failed',
+          'errors': {
+            'password': 'password is too weak',
+            'email': 'email domain not allowed',
+          },
+        },
+      );
+      // email has no fieldGuidance entry, so the all-known-fields
+      // field-name fallback also doesn't fire here (not all fields have
+      // a fieldLabels entry needed for guidance specifically) — this
+      // documents guidance is a single-field-only refinement.
+      expect(result.message, 'تحقق من: كلمة المرور، البريد الإلكتروني');
+    });
+  });
+
+  group('undocumented reason, known field -> field-name fallback', () {
+    test('single unmapped reason on a known field names that field', () {
+      final result = handle(
+        path: endpoints.customerRides,
+        statusCode: 422,
+        data: {
+          'success': false,
+          'message': 'Validation failed',
+          'errors': {'pickup_lat': 'pickup_lat must be a valid latitude'},
+        },
+      );
+      expect(result.message, 'تحقق من: موقع الانطلاق');
+    });
+
+    test('two unmapped reasons on two known fields names both, deduped', () {
+      final result = handle(
+        path: endpoints.customerRides,
+        statusCode: 422,
+        data: {
+          'success': false,
+          'message': 'Validation failed',
+          'errors': {
+            'pickup_lat': 'pickup_lat must be a valid latitude',
+            'pickup_lng': 'pickup_lng must be a valid longitude',
+          },
+        },
+      );
+      // pickup_lat and pickup_lng share the same Arabic label
+      // ("موقع الانطلاق"), so it appears once, not twice.
+      expect(result.message, 'تحقق من: موقع الانطلاق');
+    });
+
+    test('an unmapped field (never sent by this app) falls back to the '
+        'status-code message instead of leaking the raw key', () {
+      final result = handle(
+        path: endpoints.driverSignup,
+        statusCode: 422,
+        data: {
+          'success': false,
+          'message': 'Validation failed',
+          'errors': {'plate_number': 'plate_number already in use'},
+        },
+      );
+      expect(result.message, 'تحقق من البيانات المدخلة');
+    });
+
+    test('a mix of one known and one unmapped field skips the field-name '
+        'fallback entirely (all-or-nothing, avoids a half-answer)', () {
+      final result = handle(
+        path: endpoints.customerRides,
+        statusCode: 422,
+        data: {
+          'success': false,
+          'message': 'Validation failed',
+          'errors': {
+            'pickup_lat': 'pickup_lat must be a valid latitude',
+            'vehicle_type_id_typo': 'unknown field',
+          },
+        },
+      );
+      expect(result.message, 'تحقق من البيانات المدخلة');
     });
   });
 

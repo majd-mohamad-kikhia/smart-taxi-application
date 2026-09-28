@@ -3,6 +3,12 @@ import '../../driver_features/driver_auth/data/datasources/driver_local_data_sou
 import '../../driver_features/driver_auth/data/datasources/driver_remote_data_source.dart';
 import '../../driver_features/driver_auth/data/repositories/driver_repository.dart';
 import '../../driver_features/driver_auth/presentation/cubit/driver_auth_cubit.dart';
+import '../../driver_features/driver_home/data/datasources/driver_socket_service.dart';
+import '../../driver_features/driver_home/data/location_ticker.dart';
+import '../../driver_features/driver_home/presentation/cubit/driver_presence_cubit.dart';
+import '../../driver_features/driver_profile/data/datasources/driver_vehicle_remote_data_source.dart';
+import '../../driver_features/driver_profile/data/repositories/driver_vehicle_repository.dart';
+import '../../driver_features/driver_profile/presentation/cubit/driver_vehicle_cubit.dart';
 import '../../driver_features/driver_settings/data/datasources/driver_complaints_remote_data_source.dart';
 import '../../driver_features/driver_settings/data/repositories/driver_complaints_repository.dart';
 import '../../driver_features/driver_settings/presentation/cubit/driver_complaint_cubit.dart';
@@ -10,6 +16,7 @@ import '../../driver_features/driver_settings/presentation/cubit/driver_settings
 import '../../driver_features/driver_wallet/data/datasources/driver_wallet_remote_data_source.dart';
 import '../../driver_features/driver_wallet/data/models/wallet_transaction_model.dart';
 import '../../driver_features/driver_wallet/data/repositories/driver_wallet_repository.dart';
+import '../../driver_features/driver_wallet/presentation/cubit/driver_financial_report_cubit.dart';
 import '../../driver_features/driver_wallet/presentation/cubit/driver_wallet_cubit.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
@@ -20,8 +27,13 @@ import '../enums/user_role.dart';
 import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
 import '../network/api_error_handler.dart';
+import '../services/current_location_service.dart';
 import '../session/session_cubit.dart';
 import '../../features/favorites/presentation/cubit/favorites_cubit.dart';
+import '../../features/home/data/datasources/places_remote_data_source.dart';
+import '../../features/home/data/datasources/ride_request_remote_data_source.dart';
+import '../../features/home/data/repositories/places_repository.dart';
+import '../../features/home/data/repositories/ride_request_repository.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/notifications/data/datasources/notifications_remote_data_source.dart';
 import '../../features/notifications/data/repositories/notifications_repository.dart';
@@ -45,6 +57,11 @@ void setupInjection() {
 
   // ─── Core Session ───────────────────────────────────────────
   sl.registerLazySingleton<SessionCubit>(() => SessionCubit());
+
+  // ─── Core Services ──────────────────────────────────────────
+  sl.registerLazySingleton<CurrentLocationService>(
+    () => CurrentLocationService(),
+  );
 
   // ─── Auth Feature ───────────────────────────────────────────
   sl.registerLazySingleton<AuthLocalDataSource>(
@@ -85,7 +102,19 @@ void setupInjection() {
   );
   sl<SessionCubit>().registerLogoutHandler(
     UserRole.driver,
-    () => sl<DriverAuthCubit>().logout(),
+    () async {
+      await sl<DriverPresenceCubit>().goOffline();
+      await sl<DriverAuthCubit>().logout();
+    },
+  );
+
+  // ─── Driver Home Feature ────────────────────────────────────
+  sl.registerFactory<DriverSocketService>(() => DriverSocketService());
+  sl.registerFactory<LocationTicker>(() => LocationTicker());
+  // Singleton so the live-location connection survives tab switches in
+  // `DriverMainWrapperScreen`'s `IndexedStack`.
+  sl.registerLazySingleton<DriverPresenceCubit>(
+    () => DriverPresenceCubit(sl<DriverSocketService>(), sl<LocationTicker>()),
   );
 
   // ─── Driver Settings Feature ────────────────────────────────
@@ -117,9 +146,37 @@ void setupInjection() {
       transactionType: transactionType,
     ),
   );
+  sl.registerFactory<DriverFinancialReportCubit>(
+    () => DriverFinancialReportCubit(sl<DriverWalletRepository>()),
+  );
+
+  // ─── Driver Profile Feature ─────────────────────────────────
+  sl.registerLazySingleton<DriverVehicleRemoteDataSource>(
+    () => DriverVehicleRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+  );
+  sl.registerLazySingleton<DriverVehicleRepository>(
+    () => DriverVehicleRepository(sl<DriverVehicleRemoteDataSource>()),
+  );
+  sl.registerFactory<DriverVehicleCubit>(
+    () => DriverVehicleCubit(sl<DriverVehicleRepository>()),
+  );
 
   // ─── Home Feature ───────────────────────────────────────────
-  sl.registerFactory<HomeCubit>(() => HomeCubit(sl<SessionCubit>()));
+  sl.registerLazySingleton<RideRequestRemoteDataSource>(
+    () => RideRequestRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+  );
+  sl.registerLazySingleton<RideRequestRepository>(
+    () => RideRequestRepository(sl<RideRequestRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<PlacesRemoteDataSource>(
+    () => PlacesRemoteDataSource(),
+  );
+  sl.registerLazySingleton<PlacesRepository>(
+    () => PlacesRepository(sl<PlacesRemoteDataSource>()),
+  );
+  sl.registerFactory<HomeCubit>(
+    () => HomeCubit(sl<SessionCubit>(), sl<RideRequestRepository>()),
+  );
 
   // ─── Booking Feature ────────────────────────────────────────
   sl.registerFactory<BookingCubit>(() => BookingCubit());
