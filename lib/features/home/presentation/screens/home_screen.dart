@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../data/models/picked_location_model.dart';
+import '../../data/models/ride_quote_model.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
+import '../widgets/active_ride_card_widget.dart';
 import '../widgets/home_app_bar_widget.dart';
 import '../widgets/location_select_button_widget.dart';
+import '../widgets/vehicle_type_sheet_widget.dart';
 import 'location_picker_screen.dart';
 
 /// Entry point for the "إنشاء طلب" (create request) feature.
@@ -36,10 +41,33 @@ class _HomeView extends StatelessWidget {
         preferredSize: Size.fromHeight(60),
         child: HomeAppBarWidget(),
       ),
-      body: BlocBuilder<HomeCubit, HomeState>(
+      body: BlocConsumer<HomeCubit, HomeState>(
+        // A fresh quote is the signal to let the customer pick a vehicle.
+        listenWhen: (previous, current) =>
+            previous.quote != current.quote && current.quote != null,
+        listener: (context, state) => _openVehicleSheet(context, state.quote!),
         builder: (context, state) => _HomeBody(state: state),
       ),
     );
+  }
+
+  Future<void> _openVehicleSheet(
+    BuildContext context,
+    RideQuoteModel quote,
+  ) async {
+    final cubit = context.read<HomeCubit>();
+    final vehicleTypeId = await showModalBottomSheet<int>(
+      context: context,
+      backgroundColor: AppColors.neutralSurface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppConstants.radiusXL),
+        ),
+      ),
+      builder: (_) => VehicleTypeSheetWidget(quote: quote),
+    );
+    if (vehicleTypeId != null) await cubit.chooseVehicle(vehicleTypeId);
   }
 }
 
@@ -50,74 +78,105 @@ class _HomeBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasActiveRide = state.hasActiveRide;
+
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppConstants.paddingXL),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Welcome message ───────────────────────────
-            Text(
-              '${state.greeting}${state.userName.isNotEmpty ? '، ${state.userName}' : ''} 👋',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-                height: 1.2,
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ── Welcome message ───────────────────────────
+                    Text(
+                      '${state.greeting}${state.userName.isNotEmpty ? '، ${state.userName}' : ''} 👋',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: AppConstants.paddingS),
+                    Text(
+                      hasActiveRide
+                          ? 'طلبك قيد التنفيذ الآن'
+                          : 'إلى أين تريد الذهاب اليوم؟',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    // ── From / To pick cards ──────────────────────
+                    LocationSelectButtonWidget(
+                      label: 'من',
+                      icon: Icons.trip_origin_rounded,
+                      accentColor: AppColors.primary,
+                      value: state.fromLocation,
+                      placeholder: 'اختر نقطة الانطلاق',
+                      onTap: hasActiveRide
+                          ? null
+                          : () => _pickLocation(
+                              context,
+                              title: 'اختر نقطة الانطلاق',
+                              initial: state.fromLocation,
+                              onPicked: context
+                                  .read<HomeCubit>()
+                                  .setFromLocation,
+                            ),
+                    ),
+                    const SizedBox(height: 14),
+                    LocationSelectButtonWidget(
+                      label: 'إلى',
+                      icon: Icons.location_on_rounded,
+                      accentColor: AppColors.accent,
+                      value: state.toLocation,
+                      placeholder: 'اختر وجهتك',
+                      onTap: hasActiveRide
+                          ? null
+                          : () => _pickLocation(
+                              context,
+                              title: 'اختر وجهتك',
+                              initial: state.toLocation,
+                              onPicked: context.read<HomeCubit>().setToLocation,
+                            ),
+                    ),
+                    // ── Active ride summary ────────────────────────
+                    if (state.activeRide != null) ...[
+                      const SizedBox(height: AppConstants.paddingXL),
+                      ActiveRideCardWidget(ride: state.activeRide!),
+                    ],
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'إلى أين تريد الذهاب اليوم؟',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 32),
-            // ── From / To pick cards ──────────────────────
-            LocationSelectButtonWidget(
-              label: 'من',
-              icon: Icons.trip_origin_rounded,
-              accentColor: AppColors.primary,
-              value: state.fromLocation,
-              placeholder: 'اختر نقطة الانطلاق',
-              onTap: () => _pickLocation(
-                context,
-                title: 'اختر نقطة الانطلاق',
-                initial: state.fromLocation,
-                onPicked: context.read<HomeCubit>().setFromLocation,
-              ),
-            ),
-            const SizedBox(height: 14),
-            LocationSelectButtonWidget(
-              label: 'إلى',
-              icon: Icons.location_on_rounded,
-              accentColor: AppColors.accent,
-              value: state.toLocation,
-              placeholder: 'اختر وجهتك',
-              onTap: () => _pickLocation(
-                context,
-                title: 'اختر وجهتك',
-                initial: state.toLocation,
-                onPicked: context.read<HomeCubit>().setToLocation,
-              ),
-            ),
-            const Spacer(),
+            const SizedBox(height: AppConstants.paddingL),
             // ── Error banner ───────────────────────────────
-            if (state.searchErrorMessage != null) ...[
-              AuthErrorBannerWidget(message: state.searchErrorMessage!),
-              const SizedBox(height: 12),
+            if (state.errorMessage != null) ...[
+              AuthErrorBannerWidget(message: state.errorMessage!),
+              const SizedBox(height: AppConstants.paddingM),
             ],
-            // ── Search button ──────────────────────────────
-            AuthPrimaryButtonWidget(
-              label: 'بحث',
-              isLoading: state.isSearching,
-              onPressed: state.canSearch
-                  ? () => context.read<HomeCubit>().searchRide()
-                  : null,
-            ),
+            // ── Primary action ─────────────────────────────
+            if (hasActiveRide)
+              AppDestructiveButtonWidget(
+                label: 'إلغاء الطلب',
+                isLoading: state.isCancelling,
+                onPressed: () => context.read<HomeCubit>().cancelRide(),
+              )
+            else
+              AuthPrimaryButtonWidget(
+                label: 'بحث',
+                isLoading: state.isSearching || state.isBooking,
+                onPressed: state.canSearch
+                    ? () => context.read<HomeCubit>().searchRide()
+                    : null,
+              ),
           ],
         ),
       ),

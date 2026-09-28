@@ -3,10 +3,11 @@ import '../constants/app_constants.dart';
 import '../routing/app_router.dart';
 import '../theme/app_colors.dart';
 
-/// Shared brand top bar — a centered Mshoar logo, used as the app bar for
-/// both the rider and driver apps so the two look alike. `showNotifications`
-/// is the only difference between them: the rider bar shows the bell, the
-/// driver bar doesn't.
+/// Shared brand top bar — the Mshoar logo pinned to the physical right
+/// edge — used as the app bar for both the rider and driver apps so the
+/// two look alike. `showNotifications` is the only difference between
+/// them: the rider bar shows the bell (physical left edge), the driver
+/// bar doesn't.
 ///
 /// Lives in `core/widgets` (not `features/home`) because both
 /// `features/home` and `driver_features` render it — per the project's
@@ -28,14 +29,16 @@ class AppBrandBarWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Mirrors the trailing slot's width so the logo stays centered
-          // whether or not the notification bell is shown.
-          const SizedBox(width: 44),
-          const Expanded(child: Center(child: _BrandLogoWidget())),
-          if (showNotifications)
-            const _NotificationBellWidget()
-          else
-            const SizedBox(width: 44),
+          // Alignment.centerRight is a physical (non-directional)
+          // alignment, so the brand mark sits at the screen's right
+          // edge regardless of the app's RTL layout direction.
+          const Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _BrandLogoWidget(),
+            ),
+          ),
+          if (showNotifications) const _NotificationBellWidget(),
         ],
       ),
     );
@@ -52,22 +55,25 @@ class _BrandLogoWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(9),
           child: Image.asset(
             AppConstants.logoPath,
-            width: 30,
-            height: 30,
+            width: 38,
+            height: 38,
             fit: BoxFit.cover,
           ),
         ),
         const SizedBox(width: 8),
-        const Text(
-          'مشوار',
-          style: TextStyle(
-            color: AppColors.primary,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.3,
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: const Text(
+            'Smart Taxi',
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: 30,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.3,
+            ),
           ),
         ),
       ],

@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/picked_location_model.dart';
+import '../../data/models/ride_model.dart';
+import '../../data/models/ride_quote_model.dart';
 
 /// Immutable state for the "إنشاء طلب" (create request) screen.
 class HomeState extends Equatable {
@@ -7,8 +9,22 @@ class HomeState extends Equatable {
   final String userName;
   final PickedLocationModel? fromLocation;
   final PickedLocationModel? toLocation;
+
+  /// Step 1 in flight — resolving the two pins into a price quote.
   final bool isSearching;
-  final String? searchErrorMessage;
+
+  /// Step 1 result: distance/ETA + a price per vehicle type.
+  final RideQuoteModel? quote;
+
+  /// Step 2 in flight — creating the ride with the chosen vehicle.
+  final bool isBooking;
+
+  /// The created ride. While this is set the screen shows "إلغاء الطلب"
+  /// instead of "بحث".
+  final RideModel? activeRide;
+
+  final bool isCancelling;
+  final String? errorMessage;
 
   const HomeState({
     required this.greeting,
@@ -16,7 +32,11 @@ class HomeState extends Equatable {
     this.fromLocation,
     this.toLocation,
     required this.isSearching,
-    this.searchErrorMessage,
+    this.quote,
+    required this.isBooking,
+    this.activeRide,
+    required this.isCancelling,
+    this.errorMessage,
   });
 
   factory HomeState.initial() {
@@ -31,11 +51,18 @@ class HomeState extends Equatable {
       greeting: greeting,
       userName: '',
       isSearching: false,
+      isBooking: false,
+      isCancelling: false,
     );
   }
 
   /// Both pickup and dropoff must be picked before "بحث" is enabled.
   bool get canSearch => fromLocation != null && toLocation != null;
+
+  /// A ride exists, so the primary action becomes cancelling it.
+  bool get hasActiveRide => activeRide != null;
+
+  bool get isBusy => isSearching || isBooking || isCancelling;
 
   HomeState copyWith({
     String? greeting,
@@ -43,8 +70,14 @@ class HomeState extends Equatable {
     PickedLocationModel? fromLocation,
     PickedLocationModel? toLocation,
     bool? isSearching,
-    String? searchErrorMessage,
-    bool clearSearchError = false,
+    RideQuoteModel? quote,
+    bool? isBooking,
+    RideModel? activeRide,
+    bool? isCancelling,
+    String? errorMessage,
+    bool clearError = false,
+    bool clearQuote = false,
+    bool clearActiveRide = false,
   }) {
     return HomeState(
       greeting: greeting ?? this.greeting,
@@ -52,9 +85,11 @@ class HomeState extends Equatable {
       fromLocation: fromLocation ?? this.fromLocation,
       toLocation: toLocation ?? this.toLocation,
       isSearching: isSearching ?? this.isSearching,
-      searchErrorMessage: clearSearchError
-          ? null
-          : (searchErrorMessage ?? this.searchErrorMessage),
+      quote: clearQuote ? null : (quote ?? this.quote),
+      isBooking: isBooking ?? this.isBooking,
+      activeRide: clearActiveRide ? null : (activeRide ?? this.activeRide),
+      isCancelling: isCancelling ?? this.isCancelling,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 
@@ -65,6 +100,10 @@ class HomeState extends Equatable {
         fromLocation,
         toLocation,
         isSearching,
-        searchErrorMessage,
+        quote,
+        isBooking,
+        activeRide,
+        isCancelling,
+        errorMessage,
       ];
 }

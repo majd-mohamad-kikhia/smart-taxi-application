@@ -22,6 +22,8 @@ class ApiEndpoints {
 
   // ─── Customer Rides ────────────────────────────────────────
   String get customerRides => '/api/customer/rides';
+  String get customerRideLocations => '/api/customer/rides/locations';
+  String get customerRideChooseVehicle => '/api/customer/rides/choose-vehicle';
   String customerRideById(int id) => '/api/customer/rides/$id';
   String customerRideCancel(int id) => '/api/customer/rides/$id/cancel';
 

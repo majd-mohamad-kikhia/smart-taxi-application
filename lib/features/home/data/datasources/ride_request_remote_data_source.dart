@@ -1,29 +1,76 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../models/picked_location_model.dart';
+import '../models/ride_model.dart';
+import '../models/ride_quote_model.dart';
 
-/// Remote data source for creating a ride search/match request.
+/// Remote data source for the customer order flow (see swagger.json,
+/// tag "Customer Rides").
 ///
-/// The backend does not expose this endpoint yet (confirmed against
-/// `lib/features/auth/data/swagger.json`). `ApiEndpoints.customerRides` /
-/// `customerRideById` are a *separate* order-creation step and must not be
-/// used here — do not wire this method to them once the search endpoint
-/// exists; ask for the actual path/body/response shape first.
+/// Flow: [resolveLocations] (step 1, creates nothing — returns a price
+/// quote per vehicle type) → [chooseVehicle] (step 2, *creates* the ride
+/// with `status_id = 1`) → [cancelRide].
+///
+/// `POST /api/customer/rides` is deliberately NOT used: swagger gives it
+/// the same `CreateRideRequest` body and it also creates a ride with
+/// `status_id = 1`, so calling it after [chooseVehicle] would create a
+/// duplicate order.
 class RideRequestRemoteDataSource {
-  // ignore: unused_field
   final Dio _dio;
-  // ignore: unused_field
   final ApiEndpoints _endpoints;
 
   const RideRequestRemoteDataSource(this._dio, this._endpoints);
 
-  Future<void> searchRide({
-    required PickedLocationModel from,
-    required PickedLocationModel to,
+  Future<RideQuoteModel> resolveLocations({
+    required PickedLocationModel pickup,
+    required PickedLocationModel dropoff,
   }) async {
-    throw UnimplementedError(
-      'RideRequestRemoteDataSource.searchRide: backend endpoint not '
-      'defined yet — see swagger.json.',
+    final response = await _dio.post(
+      _endpoints.customerRideLocations,
+      data: _locationsBody(pickup: pickup, dropoff: dropoff),
     );
+    return RideQuoteModel.fromJson(
+      response.data['data'] as Map<String, dynamic>,
+    );
+  }
+
+  Future<RideModel> chooseVehicle({
+    required int vehicleTypeId,
+    required PickedLocationModel pickup,
+    required PickedLocationModel dropoff,
+  }) async {
+    final response = await _dio.post(
+      _endpoints.customerRideChooseVehicle,
+      data: {
+        'vehicle_type_id': vehicleTypeId,
+        ..._locationsBody(pickup: pickup, dropoff: dropoff),
+      },
+    );
+    return RideModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<RideModel> cancelRide({
+    required int rideId,
+    String? cancellationReason,
+  }) async {
+    final response = await _dio.post(
+      _endpoints.customerRideCancel(rideId),
+      data: {'cancellation_reason': ?cancellationReason},
+    );
+    return RideModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Map<String, dynamic> _locationsBody({
+    required PickedLocationModel pickup,
+    required PickedLocationModel dropoff,
+  }) {
+    return {
+      'pickup_lat': pickup.latitude,
+      'pickup_lng': pickup.longitude,
+      'pickup_address': ?pickup.address,
+      'dropoff_lat': dropoff.latitude,
+      'dropoff_lng': dropoff.longitude,
+      'dropoff_address': ?dropoff.address,
+    };
   }
 }

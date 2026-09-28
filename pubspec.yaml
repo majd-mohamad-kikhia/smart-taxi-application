@@ -52,9 +52,10 @@ flutter:
   uses-material-design: true
 
   assets:
-    - lib/core/utils/taxi-loader.json
+    - assets/loader/taxi_loader_yellow.json
     - .env
     - assets/icons/app_logo_icons/icon-master-1024.png
+    - assets/icons/app_logo_icons/icon-splash-android12.png
     - assets/map_styles/dark_map_style.json
 
 # ── App launcher icon ──────────────────────────────────────────
@@ -67,9 +68,16 @@ flutter_launcher_icons:
 # ── Native splash screen (shown before Flutter's first frame) ──
 # Regenerate with: dart run flutter_native_splash:create
 flutter_native_splash:
-  color: "#0F1012"
+  # Matches the logo image's own baked-in background exactly (it has no
+  # transparency — every pixel outside the mark is pure black), so the
+  # image blends into the splash canvas with no visible seam/rectangle.
+  color: "#000000"
   image: "assets/icons/app_logo_icons/icon-master-1024.png"
   android_12:
-    image: "assets/icons/app_logo_icons/icon-master-1024.png"
-    icon_background_color: "#0F1012"
+    # Android 12's SplashScreen API masks/zooms into the center ~66%
+    # "safe zone" of whatever icon you give it — the flat, edge-to-edge
+    # master logo got its speed-lines and corners cropped off under that
+    # mask. This variant pre-pads the logo down to fit inside that zone.
+    image: "assets/icons/app_logo_icons/icon-splash-android12.png"
+    icon_background_color: "#000000"
   web: false

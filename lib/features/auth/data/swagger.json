@@ -4805,13 +4805,234 @@
         }
       }
     },
+    "/api/customer/rides/locations": {
+      "post": {
+        "tags": [
+          "Customer Rides"
+        ],
+        "summary": "Submit start/end lat/lng (order flow step 1)",
+        "description": "First step of the order flow. Client sends **pickup** and **dropoff**\ncoordinates (from the map). Server validates them and returns the same\npoints plus Haversine `distance_km` / ETA, and an **estimated** price\nfor every active vehicle type using the manager's pricing tiers:\n`estimated_price = base_fare + (distance_km × price_per_km)`.\n\n**These prices are not final** — they use straight-line distance. The\nfinal fare may change if the driver takes a different route.\n\nOptional `pickup_address` / `dropoff_address` are echoed back unchanged.\nDoes **not** create a ride — next call `POST /choose-vehicle`.\n",
+        "operationId": "resolveRideLocations",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "pickup_lat",
+                  "pickup_lng",
+                  "dropoff_lat",
+                  "dropoff_lng"
+                ],
+                "properties": {
+                  "pickup_lat": {
+                    "type": "number",
+                    "format": "double",
+                    "example": 32.8951
+                  },
+                  "pickup_lng": {
+                    "type": "number",
+                    "format": "double",
+                    "example": 13.1807
+                  },
+                  "pickup_address": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Martyrs Square",
+                    "Tripoli": null
+                  },
+                  "dropoff_lat": {
+                    "type": "number",
+                    "format": "double",
+                    "example": 32.8944
+                  },
+                  "dropoff_lng": {
+                    "type": "number",
+                    "format": "double",
+                    "example": 13.2795
+                  },
+                  "dropoff_address": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Mitiga Airport"
+                  }
+                }
+              },
+              "example": {
+                "pickup_lat": 32.8951,
+                "pickup_lng": 13.1807,
+                "pickup_address": "Martyrs Square, Tripoli",
+                "dropoff_lat": 32.8944,
+                "dropoff_lng": 13.2795,
+                "dropoff_address": "Mitiga Airport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Locations accepted with per-vehicle-type estimated prices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Locations resolved successfully",
+                  "data": {
+                    "pickup": {
+                      "lat": 32.8951,
+                      "lng": 13.1807,
+                      "address": "Martyrs Square, Tripoli"
+                    },
+                    "dropoff": {
+                      "lat": 32.8944,
+                      "lng": 13.2795,
+                      "address": "Mitiga Airport"
+                    },
+                    "distance_km": 9.25,
+                    "estimated_duration_min": 19,
+                    "price_is_estimate": true,
+                    "price_note": "Price is an estimate based on straight-line distance. Final fare may change if the driver takes a different route.",
+                    "vehicle_types": [
+                      {
+                        "vehicle_type_id": 1,
+                        "name": "economy",
+                        "description": "Affordable everyday rides",
+                        "available": true,
+                        "estimated_price": 4700,
+                        "base_fare": 1000,
+                        "price_per_km": 400,
+                        "stops_fee_total": 0,
+                        "price_is_estimate": true
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/customer/rides/choose-vehicle": {
+      "post": {
+        "tags": [
+          "Customer Rides"
+        ],
+        "summary": "Choose vehicle type and request the ride (order flow step 2)",
+        "description": "Second step of the order flow. Customer picks a `vehicle_type_id` from\nstep 1 (`vehicle_types`) and sends the same pickup/dropoff coordinates.\n\nCreates a ride with **`status_id = 1` (`requested`)**.\n\nThe returned `estimated_price` / `price` is **not the final fare** —\nit is computed from straight-line distance using manager pricing tiers.\nFinal fare may change if the driver takes a different route.\n",
+        "operationId": "chooseRideVehicle",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRideRequest"
+              },
+              "example": {
+                "vehicle_type_id": 1,
+                "pickup_lat": 32.8951,
+                "pickup_lng": 13.1807,
+                "pickup_address": "Martyrs Square, Tripoli",
+                "dropoff_lat": 32.8944,
+                "dropoff_lng": 13.2795,
+                "dropoff_address": "Mitiga Airport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vehicle chosen; ride requested with estimated price",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle selected and ride requested. Shown price is an estimate and may change if the driver takes a different route.",
+                  "data": {
+                    "id": 12,
+                    "vehicle_type_id": 1,
+                    "distance_km": 9.25,
+                    "price": 4700,
+                    "estimated_price": 4700,
+                    "price_is_estimate": true,
+                    "price_note": "Price is an estimate based on straight-line distance. Final fare may change if the driver takes a different route.",
+                    "status_id": 1,
+                    "status": "requested",
+                    "stops": []
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "description": "Validation failed or no pricing tier for this distance/type"
+          }
+        }
+      }
+    },
     "/api/customer/rides": {
       "post": {
         "tags": [
           "Customer Rides"
         ],
         "summary": "Create a ride order",
-        "description": "Creates a new ride (\"order\") for the authenticated customer. The order always\nstarts with **`status_id = 1` (`requested`)** — see `docs/ride_statuses.md`.\nLifecycle: 1 requested → 2 accepted → 3 arrived → 4 in_progress → 5 completed\n(or 6 cancelled at any point before completion).\n\n**Performance design**\n- Vehicle type, pricing tiers, commission rate and stop fee are served from an\n  in-memory cache (60s TTL, stale-while-revalidate) — **zero SELECT queries**\n  on the common path.\n- Distance and ETA are computed server-side with the Haversine formula —\n  no external maps/routing API call, sub-millisecond CPU cost.\n- Exactly one write transaction: 1 `INSERT` for the ride, plus (only if stops\n  are provided) a single multi-row `INSERT` for all stops — never more than\n  2 database round trips total.\n\n**Pricing formula**\n```\nprice = base_fare + (distance_km * price_per_km) + (stops_count * stop_fee)\n```\nThe correct pricing tier is picked by matching `distance_km` against the\nvehicle type's `[min_distance_km, max_distance_km)` bands.\n",
+        "description": "Creates a new ride (\"order\") for the authenticated customer. The order always\nstarts with **`status_id = 1` (`requested`)** — see `docs/ride_statuses.md`.\nLifecycle: 1 requested → 2 accepted → 3 arrived → 4 in_progress → 5 completed\n(or 6 cancelled at any point before completion).\n\n**Order flow**\n1. `POST /api/customer/rides/locations` — start/end lat/lng + estimated prices\n2. `POST /api/customer/rides/choose-vehicle` — pick vehicle type (preferred)\n3. Or this endpoint — same create behaviour (legacy alias)\n\n**Performance design**\n- Vehicle type, pricing tiers, commission rate and stop fee are served from an\n  in-memory cache (60s TTL, stale-while-revalidate) — **zero SELECT queries**\n  on the common path.\n- Distance and ETA are computed server-side with the Haversine formula —\n  no external maps/routing API call, sub-millisecond CPU cost.\n- Exactly one write transaction: 1 `INSERT` for the ride, plus (only if stops\n  are provided) a single multi-row `INSERT` for all stops — never more than\n  2 database round trips total.\n\n**Pricing formula**\n```\nprice = base_fare + (distance_km * price_per_km) + (stops_count * stop_fee)\n```\nThe correct pricing tier is picked by matching `distance_km` against the\nvehicle type's `[min_distance_km, max_distance_km)` bands.\nShown price is an **estimate** (straight-line); final may differ by route.\n",
         "operationId": "createRide",
         "security": [
           {

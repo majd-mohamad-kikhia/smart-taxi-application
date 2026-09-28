@@ -57,7 +57,15 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         ? LatLng(initial.latitude, initial.longitude)
         : _defaultCenter;
     _pickedAddress = initial?.address;
-    if (_pickedAddress != null) _searchController.text = _pickedAddress!;
+    if (_pickedAddress != null) {
+      _searchController.text = _pickedAddress!;
+    } else {
+      // `onCameraIdle` never fires for the initial camera position, only
+      // after a user-triggered move — without this, confirming the
+      // default/untouched pin would carry a null address and fall back
+      // to raw coordinates.
+      _reverseGeocodeCenter();
+    }
     _loadMapStyle();
   }
 

@@ -13,7 +13,10 @@ class LocationSelectButtonWidget extends StatelessWidget {
   final Color accentColor;
   final PickedLocationModel? value;
   final String placeholder;
-  final VoidCallback onTap;
+
+  /// `null` disables the card — e.g. while a ride order is already live
+  /// and its pickup/dropoff can no longer be changed.
+  final VoidCallback? onTap;
 
   const LocationSelectButtonWidget({
     super.key,
@@ -27,67 +30,70 @@ class LocationSelectButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.neutralSurface,
-      borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-      child: InkWell(
-        onTap: onTap,
+    return Opacity(
+      opacity: onTap == null ? 0.55 : 1,
+      child: Material(
+        color: AppColors.neutralSurface,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        child: Container(
-          padding: const EdgeInsets.all(AppConstants.paddingL),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-            border: Border.all(
-              color: value != null
-                  ? accentColor.withValues(alpha: 0.5)
-                  : AppColors.border,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+          child: Container(
+            padding: const EdgeInsets.all(AppConstants.paddingL),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+              border: Border.all(
+                color: value != null
+                    ? accentColor.withValues(alpha: 0.5)
+                    : AppColors.border,
+              ),
             ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: accentColor, size: 22),
                 ),
-                child: Icon(icon, color: accentColor, size: 22),
-              ),
-              const SizedBox(width: AppConstants.paddingM),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
+                const SizedBox(width: AppConstants.paddingM),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      value?.displayLabel ?? placeholder,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: value != null
-                            ? AppColors.textPrimary
-                            : AppColors.textTertiary,
+                      const SizedBox(height: 3),
+                      Text(
+                        value?.displayLabel ?? placeholder,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: value != null
+                              ? AppColors.textPrimary
+                              : AppColors.textTertiary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.keyboard_arrow_left_rounded,
-                color: AppColors.textTertiary,
-              ),
-            ],
+                const Icon(
+                  Icons.keyboard_arrow_left_rounded,
+                  color: AppColors.textTertiary,
+                ),
+              ],
+            ),
           ),
         ),
       ),
