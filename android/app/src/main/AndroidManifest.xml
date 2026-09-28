@@ -41,6 +41,12 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${GOOGLE_MAPS_API_KEY}" />
+        <!-- Must match LocalNotificationService's channel id, so pushes the
+             system displays while the app is backgrounded use the same
+             high-importance channel as the ones shown in the foreground. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="mshoar_notifications" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

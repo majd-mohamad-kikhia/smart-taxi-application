@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_it/get_it.dart';
 import '../../driver_features/driver_auth/data/datasources/driver_local_data_source.dart';
 import '../../driver_features/driver_auth/data/datasources/driver_remote_data_source.dart';
@@ -28,6 +29,8 @@ import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
 import '../network/api_error_handler.dart';
 import '../services/current_location_service.dart';
+import '../services/local_notification_service.dart';
+import '../services/push_notification_service.dart';
 import '../session/session_cubit.dart';
 import '../../features/favorites/presentation/cubit/favorites_cubit.dart';
 import '../../features/home/data/datasources/places_remote_data_source.dart';
@@ -62,13 +65,26 @@ void setupInjection() {
   sl.registerLazySingleton<CurrentLocationService>(
     () => CurrentLocationService(),
   );
+  sl.registerLazySingleton<LocalNotificationService>(
+    () => LocalNotificationService(),
+  );
+  sl.registerLazySingleton<PushNotificationService>(
+    () => PushNotificationService(
+      FirebaseMessaging.instance,
+      sl<LocalNotificationService>(),
+    ),
+  );
 
   // ─── Auth Feature ───────────────────────────────────────────
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => const AuthLocalDataSource(),
   );
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+    () => AuthRemoteDataSource(
+      sl<ApiClient>().dio,
+      sl<ApiEndpoints>(),
+      sl<PushNotificationService>(),
+    ),
   );
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepository(sl<AuthRemoteDataSource>(), sl<AuthLocalDataSource>()),
@@ -90,7 +106,11 @@ void setupInjection() {
     () => const DriverLocalDataSource(),
   );
   sl.registerLazySingleton<DriverRemoteDataSource>(
-    () => DriverRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+    () => DriverRemoteDataSource(
+      sl<ApiClient>().dio,
+      sl<ApiEndpoints>(),
+      sl<PushNotificationService>(),
+    ),
   );
   sl.registerLazySingleton<DriverRepository>(
     () => DriverRepository(sl<DriverRemoteDataSource>(), sl<DriverLocalDataSource>()),

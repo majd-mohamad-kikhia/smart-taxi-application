@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_endpoints.dart';
+import '../../../../core/services/push_notification_service.dart';
 import '../models/driver_user_model.dart';
 
 /// Remote data source for the Driver feature. Talks to the Driver Auth
@@ -10,8 +11,13 @@ import '../models/driver_user_model.dart';
 class DriverRemoteDataSource {
   final Dio _dio;
   final ApiEndpoints _endpoints;
+  final PushNotificationService _pushNotifications;
 
-  const DriverRemoteDataSource(this._dio, this._endpoints);
+  const DriverRemoteDataSource(
+    this._dio,
+    this._endpoints,
+    this._pushNotifications,
+  );
 
   Future<DriverUserModel> login({
     required String phone,
@@ -19,7 +25,11 @@ class DriverRemoteDataSource {
   }) async {
     final response = await _dio.post(
       _endpoints.driverLogin,
-      data: {'phone_number': phone, 'password': password},
+      data: {
+        'phone_number': phone,
+        'password': password,
+        ...await _pushNotifications.deviceTokenFields(),
+      },
     );
     return DriverUserModel.fromApiData(
       response.data['data'] as Map<String, dynamic>,

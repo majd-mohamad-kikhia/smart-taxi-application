@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/network/api_endpoints.dart';
+import '../../../../core/services/push_notification_service.dart';
 import '../models/auth_user_model.dart';
 
 /// Remote data source for the Auth feature. Talks to the Customer Auth
@@ -8,8 +9,13 @@ import '../models/auth_user_model.dart';
 class AuthRemoteDataSource {
   final Dio _dio;
   final ApiEndpoints _endpoints;
+  final PushNotificationService _pushNotifications;
 
-  const AuthRemoteDataSource(this._dio, this._endpoints);
+  const AuthRemoteDataSource(
+    this._dio,
+    this._endpoints,
+    this._pushNotifications,
+  );
 
   Future<AuthUserModel> login({
     required String phone,
@@ -18,7 +24,11 @@ class AuthRemoteDataSource {
   }) async {
     final response = await _dio.post(
       _endpoints.customerLogin,
-      data: {'phone_number': phone, 'password': password},
+      data: {
+        'phone_number': phone,
+        'password': password,
+        ...await _pushNotifications.deviceTokenFields(),
+      },
     );
     return AuthUserModel.fromApiData(
       response.data['data'] as Map<String, dynamic>,
@@ -40,6 +50,7 @@ class AuthRemoteDataSource {
         'last_name': lastName,
         'phone_number': phone,
         'password': password,
+        ...await _pushNotifications.deviceTokenFields(),
       },
     );
     return AuthUserModel.fromApiData(

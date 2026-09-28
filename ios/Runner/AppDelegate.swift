@@ -11,6 +11,7 @@ import UIKit
     if let apiKey = Bundle.main.object(forInfoDictionaryKey: "GMSApiKey") as? String {
       GMSServices.provideAPIKey(apiKey)
     }
+    UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 

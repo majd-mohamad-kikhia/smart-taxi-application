@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "883040604768",
+    "project_id": "samrt-taxi",
+    "storage_bucket": "samrt-taxi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883040604768:android:167440b0b8b2c00f8ea905",
+        "android_client_info": {
+          "package_name": "com.ma.smarttaxi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZbSGh43l_ZakqZkbSSh_lZumoz2PI9XI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

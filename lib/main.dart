@@ -1,20 +1,28 @@
+import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/injection/injection.dart';
 import 'core/routing/app_router.dart';
+import 'core/services/push_notification_service.dart';
 import 'core/theme/app_theme.dart';
 import 'driver_features/driver_auth/data/repositories/driver_repository.dart';
 import 'driver_features/driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables (API keys, etc.)
   await dotenv.load(fileName: '.env');
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   // Force portrait mode
   SystemChrome.setPreferredOrientations([
@@ -33,6 +41,9 @@ Future<void> main() async {
 
   // Register all dependencies
   setupInjection();
+
+  // Not awaited: the permission prompt shouldn't hold back the first frame.
+  unawaited(sl<PushNotificationService>().initialize());
 
   // Skip the auth flow entirely if a session was already saved locally
   // (rider or driver — a device is only ever logged into one at a time).
