@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/live_trip_model.dart';
 
@@ -63,7 +64,7 @@ class TrackingMapWidget extends StatelessWidget {
                     point: trip.captainLatLng,
                     width: 70,
                     height: 64,
-                    child: _CaptainMarker(etaLabel: trip.etaShortLabel),
+                    child: _CaptainMarker(etaLabel: trip.etaShortLabel(context.l10n)),
                   ),
                   Marker(
                     point: trip.pickupLatLng,
@@ -76,21 +77,21 @@ class TrackingMapWidget extends StatelessWidget {
             ],
           ),
           // Locate FAB
-          Positioned(
-            left: 12,
+          PositionedDirectional(
+            end: 12,
             top: MediaQuery.of(context).padding.top + 60,
             child: const _MapFab(icon: Icons.my_location_rounded),
           ),
           // ETA status card
-          Positioned(
+          PositionedDirectional(
             top: MediaQuery.of(context).padding.top + 56,
-            left: 60,
-            right: 16,
+            end: 60,
+            start: 16,
             child: _EtaStatusCard(trip: trip),
           ),
           // Safety chip
-          Positioned(
-            left: 12,
+          PositionedDirectional(
+            end: 12,
             bottom: 16,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -105,18 +106,18 @@ class TrackingMapWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.shield_outlined,
                     color: AppColors.primary,
                     size: 16,
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Text(
-                    'أمان الرحلة',
-                    style: TextStyle(
+                    context.l10n.tripSafety,
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -268,7 +269,7 @@ class _EtaStatusCard extends StatelessWidget {
                 const Icon(Icons.schedule_rounded, color: Colors.white, size: 14),
                 const SizedBox(width: 4),
                 Text(
-                  trip.etaShortLabel,
+                  trip.etaShortLabel(context.l10n),
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -284,7 +285,7 @@ class _EtaStatusCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  trip.statusTitle,
+                  trip.statusTitle(context.l10n),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -293,7 +294,7 @@ class _EtaStatusCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  trip.statusSubtitle,
+                  trip.statusSubtitle(context.l10n),
                   style: const TextStyle(
                     fontSize: 11,
                     color: AppColors.textSecondary,

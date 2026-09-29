@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../data/models/favorite_address_model.dart';
 import 'favorites_state.dart';
 
@@ -32,7 +33,7 @@ class FavoritesCubit extends Cubit<FavoritesState> {
 
     final newPlace = FavoriteAddressModel(
       id: 'loc_${DateTime.now().millisecondsSinceEpoch}',
-      name: 'موقعي الحالي',
+      name: AppStrings.current.favMyCurrentLocation,
       address: state.currentAreaLabel,
       type: FavoritePlaceType.custom,
     );

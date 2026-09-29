@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
 import '../../features/home/presentation/widgets/home_app_bar_widget.dart';
 
@@ -15,19 +16,19 @@ class WalletPlaceholderWidget extends StatelessWidget {
         preferredSize: Size.fromHeight(60),
         child: HomeAppBarWidget(),
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.account_balance_wallet_outlined,
               size: 48,
               color: AppColors.textTertiary,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
-              'المحفظة قريباً',
-              style: TextStyle(
+              context.l10n.walletComingSoon,
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textSecondary,

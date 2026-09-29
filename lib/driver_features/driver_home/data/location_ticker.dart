@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../../core/localization/app_strings.dart';
 
 /// Why [LocationTicker.start] couldn't get a GPS fix.
 enum LocationFailureReason {
@@ -73,10 +74,10 @@ class LocationTicker {
           accuracy: LocationAccuracy.high,
           distanceFilter: _distanceFilterMeters,
           intervalDuration: _heartbeatInterval,
-          foregroundNotificationConfig: const ForegroundNotificationConfig(
-            notificationTitle: 'أنت متاح لاستقبال الرحلات',
-            notificationText: 'يتم مشاركة موقعك مع الإدارة أثناء توفرك',
-            notificationChannelName: 'مشاركة الموقع',
+          foregroundNotificationConfig: ForegroundNotificationConfig(
+            notificationTitle: AppStrings.current.locationSharingTitle,
+            notificationText: AppStrings.current.locationSharingText,
+            notificationChannelName: AppStrings.current.locationSharingChannel,
             enableWakeLock: true,
             enableWifiLock: true,
             setOngoing: true,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Overlay header for the booking screen: avatar, brand, title, back button.
@@ -52,18 +53,18 @@ class BookingHeaderWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.directions_car_rounded,
                     color: AppColors.primary,
                     size: 16,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
-                    'مشوار',
-                    style: TextStyle(
+                    context.l10n.appName,
+                    style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -87,9 +88,9 @@ class BookingHeaderWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Text(
-                'تأكيد الطلب',
-                style: TextStyle(
+              child: Text(
+                context.l10n.bookingHeaderConfirm,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -115,7 +116,7 @@ class BookingHeaderWidget extends StatelessWidget {
                   ],
                 ),
                 child: const Icon(
-                  Icons.arrow_forward_ios_rounded,
+                  Icons.arrow_back_ios_new_rounded,
                   color: AppColors.textPrimary,
                   size: 16,
                 ),

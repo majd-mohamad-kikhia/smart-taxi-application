@@ -18,14 +18,17 @@ class SettingsCubit extends Cubit<SettingsState> {
       emit(initial);
       return;
     }
-    emit(initial.copyWith(
-      profile: initial.profile.copyWith(
-        id: user.id.toString(),
-        fullName: user.fullName,
-        phone: user.phone,
-        email: user.email,
+    emit(
+      initial.copyWith(
+        profile: initial.profile.copyWith(
+          id: user.id.toString(),
+          fullName: user.fullName,
+          phone: user.phone,
+          photoUrl: user.photoUrl,
+          email: user.email ?? '',
+        ),
       ),
-    ));
+    );
   }
 
   Future<void> logout() async {

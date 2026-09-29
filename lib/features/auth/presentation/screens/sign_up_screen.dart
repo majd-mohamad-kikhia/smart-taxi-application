@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/validators/auth_validators.dart';
+import '../../../../core/widgets/terms_dialog_widget.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_footer_link_widget.dart';
+import '../widgets/terms_checkbox_field_widget.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -86,30 +89,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
       bloc: _cubit,
       listener: _onStateChanged,
       builder: (context, state) {
+        final l10n = context.l10n;
         return AuthFormLayoutWidget(
           formKey: _formKey,
-          title: 'إنشاء حساب',
-          subtitle: 'أدخل بياناتك لإنشاء حساب جديد في مشوار',
+          title: l10n.signUp,
+          subtitle: l10n.signUpSubtitle,
           role: state.selectedRole,
           onChangeRole: _changeRole,
           fields: [
             AuthTextFieldWidget(
               controller: _firstNameController,
-              label: 'الاسم',
-              hint: 'مثال: محمد',
+              label: l10n.firstNameLabel,
+              hint: l10n.firstNameHint,
               prefixIcon: Icons.person_outline,
               validator: AuthValidators.name,
             ),
             AuthTextFieldWidget(
               controller: _lastNameController,
-              label: 'الكنية',
-              hint: 'مثال: العتيبي',
+              label: l10n.lastNameLabel,
+              hint: l10n.lastNameHint,
               prefixIcon: Icons.badge_outlined,
               validator: AuthValidators.name,
             ),
             AuthTextFieldWidget(
               controller: _phoneController,
-              label: 'رقم الجوال',
+              label: l10n.phoneNumber,
               hint: '05xxxxxxxx',
               prefixIcon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
@@ -117,7 +121,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             AuthTextFieldWidget(
               controller: _passwordController,
-              label: 'كلمة المرور',
+              label: l10n.password,
               hint: '••••••••',
               prefixIcon: Icons.lock_outline,
               isPassword: true,
@@ -125,7 +129,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             AuthTextFieldWidget(
               controller: _confirmPasswordController,
-              label: 'تأكيد كلمة المرور',
+              label: l10n.confirmPassword,
               hint: '••••••••',
               prefixIcon: Icons.lock_outline,
               isPassword: true,
@@ -135,16 +139,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 _passwordController.text,
               ),
             ),
+            TermsCheckboxFieldWidget(
+              onOpenTerms: () => showTermsDialog(context, role: UserRole.rider),
+            ),
           ],
           errorMessage: state.status == AuthStatus.failure
               ? state.errorMessage
               : null,
-          submitLabel: 'إنشاء حساب',
+          submitLabel: l10n.signUp,
           isSubmitting: state.status == AuthStatus.submitting,
           onSubmit: _submit,
           footer: AuthFooterLinkWidget(
-            text: 'لديك حساب بالفعل؟',
-            actionLabel: 'تسجيل الدخول',
+            text: l10n.hasAccount,
+            actionLabel: l10n.signIn,
             onTap: _goToSignIn,
           ),
         );

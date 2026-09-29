@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
 import 'app_loader_widget.dart';
 
@@ -19,7 +20,8 @@ class PaginatedListWidget<T> extends StatefulWidget {
   final VoidCallback? onLoadMore;
   final String? errorMessage;
   final VoidCallback? onRetry;
-  final String emptyMessage;
+  /// Defaults to the localized "No data" text.
+  final String? emptyMessage;
   final IconData emptyIcon;
   final EdgeInsetsGeometry padding;
   final Widget separator;
@@ -39,7 +41,7 @@ class PaginatedListWidget<T> extends StatefulWidget {
     this.onLoadMore,
     this.errorMessage,
     this.onRetry,
-    this.emptyMessage = 'لا توجد بيانات',
+    this.emptyMessage,
     this.emptyIcon = Icons.inbox_outlined,
     this.padding = const EdgeInsets.fromLTRB(16, 14, 16, 8),
     this.separator = const SizedBox(height: 10),
@@ -115,7 +117,10 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
     }
     if (widget.items.isEmpty) {
       return _fillWithScroll(
-        _EmptyState(message: widget.emptyMessage, icon: widget.emptyIcon),
+        _EmptyState(
+          message: widget.emptyMessage ?? context.l10n.noData,
+          icon: widget.emptyIcon,
+        ),
       );
     }
     final itemCount = widget.items.length + (widget.isLoadingMore ? 1 : 0);
@@ -197,14 +202,14 @@ class _ErrorState extends StatelessWidget {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.refresh_rounded, size: 16, color: AppColors.textOnPrimary),
-                      SizedBox(width: 6),
+                      const Icon(Icons.refresh_rounded, size: 16, color: AppColors.textOnPrimary),
+                      const SizedBox(width: 6),
                       Text(
-                        'إعادة المحاولة',
-                        style: TextStyle(
+                        context.l10n.retry,
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textOnPrimary,

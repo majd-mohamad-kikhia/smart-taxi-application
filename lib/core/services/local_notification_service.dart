@@ -1,13 +1,17 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../localization/app_strings.dart';
 
 /// Shows system notifications through flutter_local_notifications.
 class LocalNotificationService {
   /// Its id must match the `default_notification_channel_id` meta-data in
   /// `AndroidManifest.xml`.
-  static const _channel = AndroidNotificationChannel(
+  ///
+  /// Named in the language active when it is created (Android lets the
+  /// name be updated on the next launch).
+  AndroidNotificationChannel get _channel => AndroidNotificationChannel(
     'mshoar_notifications',
-    'الإشعارات',
-    description: 'تحديثات الرحلات والعروض والتنبيهات',
+    AppStrings.current.notificationsChannelName,
+    description: AppStrings.current.notificationsChannelDescription,
     importance: Importance.high,
   );
 

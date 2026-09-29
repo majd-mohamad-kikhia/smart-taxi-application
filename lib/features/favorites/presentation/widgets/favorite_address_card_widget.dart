@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/favorite_address_model.dart';
 
@@ -81,9 +82,9 @@ class FavoriteAddressCardWidget extends StatelessWidget {
                                 color: AppColors.primarySurface,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text(
-                                'افتراضي',
-                                style: TextStyle(
+                              child: Text(
+                                context.l10n.favDefault,
+                                style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.primary,
@@ -151,18 +152,18 @@ class FavoriteAddressCardWidget extends StatelessWidget {
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 11),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.directions_car_rounded,
                     size: 16,
                     color: AppColors.primary,
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Text(
-                    'طلب مشوار إلى هنا الآن',
-                    style: TextStyle(
+                    context.l10n.favOrderRideHere,
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primary,
@@ -170,7 +171,7 @@ class FavoriteAddressCardWidget extends StatelessWidget {
                   ),
                   SizedBox(width: 4),
                   Icon(
-                    Icons.arrow_back_ios_new_rounded,
+                    Icons.arrow_forward_ios_rounded,
                     size: 12,
                     color: AppColors.primary,
                   ),

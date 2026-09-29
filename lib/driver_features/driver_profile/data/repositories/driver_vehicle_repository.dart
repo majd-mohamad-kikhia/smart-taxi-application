@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/status_code.dart';
 import '../../../driver_auth/data/models/driver_vehicle_model.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../datasources/driver_vehicle_remote_data_source.dart';
 
 /// Structured failure thrown by [DriverVehicleRepository], so the Cubit
@@ -33,7 +34,7 @@ class DriverVehicleRepository {
         return null;
       }
       throw DriverVehicleException(
-        error is ApiException ? error.message : 'تعذر الاتصال بالخادم',
+        error is ApiException ? error.message : AppStrings.current.errServerUnreachable,
       );
     }
   }

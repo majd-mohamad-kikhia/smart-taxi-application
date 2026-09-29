@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 
 /// Available ride category tiers shown on the booking screen.
 enum RideCategoryType { economy, comfort, familyXl }
@@ -26,14 +27,15 @@ class RideCategoryModel extends Equatable {
     required this.icon,
   });
 
-  String get etaLabel {
+  String etaLabel(AppLocalizations l10n) {
     if (passengerCapacity != null) {
-      return '$passengerCapacity ركاب • $etaMinutes د';
+      return l10n.bookingCapacityEta('$passengerCapacity', '$etaMinutes');
     }
-    return '$etaMinutes دقائق';
+    return l10n.bookingEtaMinutes('$etaMinutes');
   }
 
-  String get priceLabel => '${price.toStringAsFixed(0)} ل.س';
+  String priceLabel(AppLocalizations l10n) =>
+      l10n.priceSyp(price.toStringAsFixed(0));
 
   @override
   List<Object?> get props => [

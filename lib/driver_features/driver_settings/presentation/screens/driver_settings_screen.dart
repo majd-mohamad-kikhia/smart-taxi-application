@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/complaints/complaint_cubit.dart';
+import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/session/session_cubit.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
+import '../../../../core/widgets/complaint_button_widget.dart';
+import '../../../../core/widgets/complaint_dialog_widget.dart';
+import '../../../../core/widgets/language_dropdown_widget.dart';
 import '../../../../core/widgets/logout_footer_widget.dart';
+import '../../../../core/widgets/terms_button_widget.dart';
+import '../../../../core/widgets/terms_dialog_widget.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_state.dart';
 import '../cubit/driver_settings_cubit.dart';
 import '../cubit/driver_settings_state.dart';
-import '../widgets/complaint_dialog_widget.dart';
 import '../widgets/search_radius_slider_widget.dart';
 
 /// Driver settings tab — search radius control plus the logout action,
@@ -41,12 +48,13 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
   }
 
   void _confirmLogout(BuildContext context) {
+    final l10n = context.l10n;
     showAppDialog(
       context: context,
-      title: 'تسجيل الخروج؟',
-      message: 'هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟',
-      confirmLabel: 'تسجيل الخروج',
-      cancelLabel: 'تراجع',
+      title: l10n.logoutTitle,
+      message: l10n.logoutMessageDriver,
+      confirmLabel: l10n.logoutConfirm,
+      cancelLabel: l10n.goBack,
       icon: Icons.logout_rounded,
       tone: AppDialogTone.destructive,
       onConfirm: () => _logout(context),
@@ -57,20 +65,25 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
     setState(() => _isLoggingOut = true);
     await sl<SessionCubit>().logout();
     if (!context.mounted) return;
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRouter.roleSelection,
-      (route) => false,
-    );
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(AppRouter.roleSelection, (route) => false);
   }
 
   void _openComplaintDialog(BuildContext context) {
     showComplaintDialog(
       context,
-      onSubmitted: () => _showSnackBar(context, 'تم إرسال البلاغ بنجاح ✓'),
+      createCubit: () => sl<ComplaintCubit>(instanceName: 'driver'),
+      onSubmitted: () =>
+          _showSnackBar(context, '${context.l10n.complaintSent} ✓'),
     );
   }
 
-  void _showSnackBar(BuildContext context, String message, {bool isError = false}) {
+  void _showSnackBar(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -96,11 +109,13 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
             bloc: _settingsCubit,
             listener: (context, settingsState) {
               if (settingsState.saveStatus == SearchRadiusSaveStatus.success) {
-                _showSnackBar(context, 'تم حفظ نطاق البحث ✓');
-              } else if (settingsState.saveStatus == SearchRadiusSaveStatus.failure) {
+                _showSnackBar(context, '${context.l10n.searchRadiusSaved} ✓');
+              } else if (settingsState.saveStatus ==
+                  SearchRadiusSaveStatus.failure) {
                 _showSnackBar(
                   context,
-                  settingsState.errorMessage ?? 'تعذر حفظ نطاق البحث',
+                  settingsState.errorMessage ??
+                      context.l10n.searchRadiusSaveFailed,
                   isError: true,
                 );
               }
@@ -109,29 +124,28 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  const LanguageDropdownWidget(),
+                  const SizedBox(height: 12),
                   SearchRadiusSliderWidget(
                     valueKm: settingsState.searchRadiusKm,
                     onChanged: _settingsCubit.setSearchRadius,
                   ),
                   const SizedBox(height: 12),
                   AuthPrimaryButtonWidget(
-                    label: 'حفظ',
-                    isLoading: settingsState.saveStatus == SearchRadiusSaveStatus.saving,
+                    label: context.l10n.save,
+                    isLoading:
+                        settingsState.saveStatus ==
+                        SearchRadiusSaveStatus.saving,
                     onPressed: _settingsCubit.saveSearchRadius,
                   ),
                   const SizedBox(height: 20),
-                  OutlinedButton.icon(
+                  TermsButtonWidget(
+                    onPressed: () =>
+                        showTermsDialog(context, role: UserRole.driver),
+                  ),
+                  const SizedBox(height: 12),
+                  ComplaintButtonWidget(
                     onPressed: () => _openComplaintDialog(context),
-                    icon: const Icon(Icons.report_gmailerrorred_rounded, size: 20),
-                    label: const Text('إرسال بلاغ'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.accent,
-                      side: const BorderSide(color: AppColors.accent),
-                      minimumSize: const Size.fromHeight(48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 24),
                   LogoutFooterWidget(

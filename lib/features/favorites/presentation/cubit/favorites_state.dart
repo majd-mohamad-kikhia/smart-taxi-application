@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../data/models/favorite_address_model.dart';
 
 /// Immutable state for the Favorite Addresses screen.
@@ -18,37 +19,39 @@ class FavoritesState extends Equatable {
   int get count => addresses.length;
 
   factory FavoritesState.initial() {
-    return const FavoritesState(
+    // Sample data, worded in the language active when the state is created.
+    final l10n = AppStrings.current;
+    return FavoritesState(
       addresses: [
         FavoriteAddressModel(
           id: 'home',
-          name: 'المنزل',
-          address: 'حي العليا، شارع الأمير سلطان، فيلا 14، الرياض',
-          note: 'البوابة الجانبية الرمادية',
+          name: l10n.favMockHomeName,
+          address: l10n.favMockHomeAddress,
+          note: l10n.favMockHomeNote,
           type: FavoritePlaceType.home,
           isDefault: true,
         ),
         FavoriteAddressModel(
           id: 'work',
-          name: 'العمل',
-          address: 'برج المملكة، طريق الملك فهد، الرياض',
-          note: 'موقف قبو P2',
+          name: l10n.favMockWorkName,
+          address: l10n.favMockWorkAddress,
+          note: l10n.favMockWorkNote,
           type: FavoritePlaceType.work,
         ),
         FavoriteAddressModel(
           id: 'gym',
-          name: 'النادي الرياضي',
-          address: 'حي الملقا، شارع أنس بن مالك، الرياض',
+          name: l10n.favMockGymName,
+          address: l10n.favMockGymAddress,
           type: FavoritePlaceType.gym,
         ),
         FavoriteAddressModel(
           id: 'mom',
-          name: 'بيت الوالدة',
-          address: 'حي الياسمين، شارع التخصصي، الرياض',
+          name: l10n.favMockMomName,
+          address: l10n.favMockMomAddress,
           type: FavoritePlaceType.family,
         ),
       ],
-      currentAreaLabel: 'مجمع السدرة، الرياض',
+      currentAreaLabel: l10n.favMockCurrentArea,
       isSavingCurrent: false,
     );
   }

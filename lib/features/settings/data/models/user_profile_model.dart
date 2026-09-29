@@ -6,6 +6,7 @@ class UserProfileModel extends Equatable {
   final String fullName;
   final String phone;
   final String email;
+  final String? photoUrl;
   final bool isVerified;
   final double walletBalance;
 
@@ -14,17 +15,17 @@ class UserProfileModel extends Equatable {
     required this.fullName,
     required this.phone,
     required this.email,
+    this.photoUrl,
     required this.isVerified,
     required this.walletBalance,
   });
-
-  String get walletLabel => '${walletBalance.toStringAsFixed(2)} ل.س';
 
   UserProfileModel copyWith({
     String? id,
     String? fullName,
     String? phone,
     String? email,
+    String? photoUrl,
     bool? isVerified,
     double? walletBalance,
   }) {
@@ -33,6 +34,7 @@ class UserProfileModel extends Equatable {
       fullName: fullName ?? this.fullName,
       phone: phone ?? this.phone,
       email: email ?? this.email,
+      photoUrl: photoUrl ?? this.photoUrl,
       isVerified: isVerified ?? this.isVerified,
       walletBalance: walletBalance ?? this.walletBalance,
     );
@@ -44,16 +46,16 @@ class UserProfileModel extends Equatable {
     fullName,
     phone,
     email,
+    photoUrl,
     isVerified,
     walletBalance,
   ];
 }
 
-/// A single settings menu row.
+/// A single settings menu row. Its title/subtitle are looked up by [id] in
+/// the presentation layer so they follow the active language.
 class SettingsItemModel extends Equatable {
   final String id;
-  final String title;
-  final String subtitle;
   final String? badge;
   final String? trailingAction;
   final bool hasToggle;
@@ -61,8 +63,6 @@ class SettingsItemModel extends Equatable {
 
   const SettingsItemModel({
     required this.id,
-    required this.title,
-    required this.subtitle,
     this.badge,
     this.trailingAction,
     this.hasToggle = false,
@@ -70,24 +70,17 @@ class SettingsItemModel extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-    id,
-    title,
-    subtitle,
-    badge,
-    trailingAction,
-    hasToggle,
-    hasChevron,
-  ];
+  List<Object?> get props => [id, badge, trailingAction, hasToggle, hasChevron];
 }
 
-/// Grouped settings section.
+/// Grouped settings section. Its heading is looked up by [id] in the
+/// presentation layer so it follows the active language.
 class SettingsSectionModel extends Equatable {
-  final String title;
+  final String id;
   final List<SettingsItemModel> items;
 
-  const SettingsSectionModel({required this.title, required this.items});
+  const SettingsSectionModel({required this.id, required this.items});
 
   @override
-  List<Object?> get props => [title, items];
+  List<Object?> get props => [id, items];
 }

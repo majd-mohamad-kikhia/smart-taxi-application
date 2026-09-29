@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/ride_category_model.dart';
 
@@ -22,9 +23,9 @@ class RideCategorySelectorWidget extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text(
-              'اختر نوع المشوار',
-              style: TextStyle(
+            Text(
+              context.l10n.bookingChooseType,
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -38,7 +39,7 @@ class RideCategorySelectorWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                '${categories.length} فئات متوفرة',
+                context.l10n.bookingCategoriesAvailable('${categories.length}'),
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -47,9 +48,9 @@ class RideCategorySelectorWidget extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            const Text(
-              'مقارنة المواصفات',
-              style: TextStyle(
+            Text(
+              context.l10n.bookingCompareSpecs,
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textLink,
@@ -174,7 +175,7 @@ class _CategoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              category.etaLabel,
+              category.etaLabel(context.l10n),
               style: const TextStyle(
                 fontSize: 10,
                 color: AppColors.textSecondary,
@@ -182,7 +183,7 @@ class _CategoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              category.priceLabel,
+              category.priceLabel(context.l10n),
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,

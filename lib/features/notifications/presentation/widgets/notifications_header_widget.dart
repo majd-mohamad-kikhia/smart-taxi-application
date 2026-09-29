@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Simple header with a back button and the screen title.
@@ -29,16 +30,16 @@ class NotificationsHeaderWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(11),
               ),
               child: const Icon(
-                Icons.arrow_forward_rounded,
+                Icons.arrow_back_rounded,
                 color: AppColors.textPrimary,
                 size: 20,
               ),
             ),
           ),
           const SizedBox(width: 12),
-          const Text(
-            'الإشعارات',
-            style: TextStyle(
+          Text(
+            context.l10n.notificationsTitle,
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,

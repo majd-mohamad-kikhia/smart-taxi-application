@@ -1,5 +1,5 @@
 name: mshoar
-description: "مشوار - تطبيق رحلات ذكي"
+description: "Smart Taxi - تطبيق رحلات ذكي"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -11,6 +11,9 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  # Required by the generated AppLocalizations (already resolved
+  # transitively through flutter_localizations at this version).
+  intl: ^0.20.2
 
   cupertino_icons: ^1.0.8
 
@@ -53,6 +56,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
 
   assets:
     - assets/loader/taxi_loader_yellow.json

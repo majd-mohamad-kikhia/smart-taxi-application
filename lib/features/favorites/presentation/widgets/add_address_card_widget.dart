@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Card with actions to add a new address via map or search.
@@ -46,22 +47,22 @@ class AddAddressCardWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'إضافة عنوان جديد',
-                      style: TextStyle(
+                      context.l10n.favAddNew,
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    SizedBox(height: 3),
+                    const SizedBox(height: 3),
                     Text(
-                      'احفظ وجهاتك المتكررة للوصول السريع',
-                      style: TextStyle(
+                      context.l10n.favAddNewSubtitle,
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
                       ),
@@ -76,7 +77,7 @@ class AddAddressCardWidget extends StatelessWidget {
             children: [
               Expanded(
                 child: _ActionBtn(
-                  label: 'التحديد على الخريطة',
+                  label: context.l10n.favSelectOnMap,
                   icon: Icons.map_rounded,
                   filled: true,
                   onTap: onSelectOnMap,
@@ -85,7 +86,7 @@ class AddAddressCardWidget extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _ActionBtn(
-                  label: 'البحث بالاسم',
+                  label: context.l10n.favSearchByName,
                   icon: Icons.search_rounded,
                   filled: false,
                   onTap: onSearchByName,

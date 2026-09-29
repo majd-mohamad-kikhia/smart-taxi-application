@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 
 /// Model representing pickup → destination route details for a booking.
 class BookingRouteModel extends Equatable {
@@ -21,10 +22,11 @@ class BookingRouteModel extends Equatable {
     required this.viaRoad,
   });
 
-  String get durationLabel => '$durationMinutes دقيقة';
+  String durationLabel(AppLocalizations l10n) =>
+      l10n.durationMinutes('$durationMinutes');
 
-  String get distanceLabel =>
-      '${distanceKm.toStringAsFixed(1)} كم عبر $viaRoad';
+  String distanceLabel(AppLocalizations l10n) =>
+      l10n.distanceKmVia(distanceKm.toStringAsFixed(1), viaRoad);
 
   BookingRouteModel swap() {
     return BookingRouteModel(

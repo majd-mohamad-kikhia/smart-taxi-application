@@ -1,35 +1,66 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../data/models/trip_history_model.dart';
+import '../../data/models/ride_history_model.dart';
+import '../../data/repositories/trips_repository.dart';
 import 'trips_state.dart';
 
-/// Cubit managing the My Trips screen state.
+/// Loads the customer's rides page by page (`GET /api/customer/rides`).
 class TripsCubit extends Cubit<TripsState> {
-  TripsCubit() : super(TripsState.initial());
+  final TripsRepository _repository;
 
-  void initialize() {
-    if (!isClosed) emit(TripsState.initial());
+  TripsCubit(this._repository) : super(const TripsState());
+
+  Future<void> initialize() => _load(1, replace: true);
+
+  Future<void> refresh() => _load(1, replace: true);
+
+  /// Filters by [status]; `null` shows every ride.
+  Future<void> selectStatus(RideStatus? status) {
+    if (state.selectedStatus == status) return Future.value();
+    emit(state.copyWith(
+      rides: const [],
+      selectedStatus: status,
+      clearStatus: status == null,
+      page: 0,
+      totalPages: 1,
+    ));
+    return _load(1, replace: true);
   }
 
-  void selectTab(TripsTab tab) {
-    if (isClosed || state.selectedTab == tab) return;
-    emit(state.copyWith(selectedTab: tab));
+  Future<void> loadMore() {
+    if (!state.hasMore || state.isLoadingMore || state.isLoading) {
+      return Future.value();
+    }
+    return _load(state.page + 1, replace: false);
   }
 
-  void selectFilter(TripFilter filter) {
-    if (isClosed || state.selectedFilter == filter) return;
-    emit(state.copyWith(selectedFilter: filter));
-  }
-
-  void updateSearch(String query) {
+  Future<void> _load(int page, {required bool replace}) async {
     if (isClosed) return;
-    emit(state.copyWith(searchQuery: query));
-  }
-
-  void reorderTrip(String tripId) {
-    // Navigate to booking – handled by UI layer
-  }
-
-  void showInvoice(String tripId) {
-    // Placeholder for invoice screen
+    emit(state.copyWith(
+      isLoading: replace && state.rides.isEmpty,
+      isLoadingMore: !replace,
+      clearError: true,
+    ));
+    try {
+      final requested = state.selectedStatus;
+      final result = await _repository.getRides(
+        page: page,
+        statusId: requested?.id,
+      );
+      if (isClosed || requested != state.selectedStatus) return;
+      emit(state.copyWith(
+        rides: replace ? result.rides : [...state.rides, ...result.rides],
+        page: result.page,
+        totalPages: result.totalPages,
+        isLoading: false,
+        isLoadingMore: false,
+      ));
+    } on TripsException catch (e) {
+      if (isClosed) return;
+      emit(state.copyWith(
+        isLoading: false,
+        isLoadingMore: false,
+        errorMessage: e.message,
+      ));
+    }
   }
 }

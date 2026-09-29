@@ -36,6 +36,10 @@
       "description": "Customer submits complaints (شكاوى) to managers"
     },
     {
+      "name": "Customer Profile",
+      "description": "Customer views and edits their own information"
+    },
+    {
       "name": "Customer Rides",
       "description": "Ride (\"order\") creation, listing, and status lookup for the authenticated customer"
     },
@@ -58,6 +62,10 @@
     {
       "name": "Admin",
       "description": "Manager-only endpoints (list customers, drivers, …)"
+    },
+    {
+      "name": "Terms",
+      "description": "Terms and conditions text (public read, manager edit), per app and language"
     }
   ],
   "components": {
@@ -107,6 +115,15 @@
             "type": "string",
             "nullable": true,
             "example": "Damascus, Mazzeh"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "ar",
+              "en"
+            ],
+            "example": "ar",
+            "description": "App language — notifications are sent in it. Set via PUT /api/customer/profile/language"
           },
           "account_type_id": {
             "type": "integer",
@@ -256,6 +273,23 @@
             "maxLength": 255,
             "example": "iPhone 15 / iOS 18",
             "description": "Optional. Stored with the refresh token for session tracking. Falls back to User-Agent if omitted."
+          },
+          "fcm_token": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500,
+            "example": "dXyz...FCM_DEVICE_TOKEN",
+            "description": "Optional Firebase Cloud Messaging device token. Stored in `device_tokens` for push notifications."
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "ios",
+              "android"
+            ],
+            "nullable": true,
+            "example": "android",
+            "description": "Optional. Required context for FCM; defaults to `android` when `fcm_token` is sent."
           }
         }
       },
@@ -283,6 +317,23 @@
             "maxLength": 255,
             "example": "Android 14 / Pixel 8",
             "description": "Optional. Stored with the refresh token. Falls back to User-Agent if omitted."
+          },
+          "fcm_token": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500,
+            "example": "dXyz...FCM_DEVICE_TOKEN",
+            "description": "Optional Firebase Cloud Messaging device token. Upserted into `device_tokens`."
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "ios",
+              "android"
+            ],
+            "nullable": true,
+            "example": "android",
+            "description": "Optional. Defaults to `android` when `fcm_token` is sent."
           }
         }
       },
@@ -464,6 +515,16 @@
             "type": "integer",
             "example": 1
           },
+          "order_source": {
+            "type": "string",
+            "enum": [
+              "app",
+              "whatsapp",
+              "call"
+            ],
+            "example": "app",
+            "description": "Static order channel. Customer app flow always stores `app` (do not send it). `whatsapp` / `call` for manager-created orders."
+          },
           "pickup_lat": {
             "type": "number",
             "format": "double",
@@ -499,7 +560,14 @@
             "format": "double",
             "nullable": true,
             "example": 2.14,
-            "description": "Straight-line (Haversine) distance, computed server-side"
+            "description": "Estimated straight-line (Haversine) distance at order time"
+          },
+          "actual_distance_km": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": null,
+            "description": "Distance the driver reported at finish (null until completed)"
           },
           "estimated_duration_min": {
             "type": "integer",
@@ -521,7 +589,62 @@
             "type": "number",
             "format": "double",
             "example": 2070,
-            "description": "base_fare + distance_km * price_per_km + stops_fee_total"
+            "description": "Estimated price until the ride is completed; after finish = final price (base_fare + actual_distance_km × price_per_km + stops_fee_total)"
+          },
+          "estimated_price": {
+            "type": "number",
+            "format": "double",
+            "example": 2070,
+            "description": "Price quoted at order time (never changes)"
+          },
+          "final_price": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": null,
+            "description": "Amount due, set once the ride is completed (= price); null before that"
+          },
+          "payment_status": {
+            "type": "string",
+            "enum": [
+              "unpaid",
+              "paid"
+            ],
+            "example": "unpaid",
+            "description": "Becomes `paid` when the driver confirms the customer paid (or a manager marks it paid). completed + unpaid = customer still has to pay the driver"
+          },
+          "paid_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "payment_confirmed_by": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "driver",
+              "manager",
+              null],
+            "example": null
+          },
+          "has_route": {
+            "type": "boolean",
+            "example": true,
+            "description": "The driver uploaded the driven GPS route for this ride"
+          },
+          "route_distance_km": {
+            "type": "number",
+            "nullable": true,
+            "example": 12.31,
+            "description": "Length of the uploaded route (sum of point-to-point distances); null if no route"
+          },
+          "route": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/RoutePoint"
+            },
+            "description": "Driven GPS path in time order, or null if none was uploaded. Only on the single-ride detail endpoints (never in lists). With ?simplify=true the path is thinned (~10 m tolerance)."
           },
           "status_id": {
             "type": "integer",
@@ -570,6 +693,17 @@
             "type": "string",
             "nullable": true,
             "example": null
+          },
+          "cancelled_by": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "customer",
+              "driver",
+              "manager",
+              null],
+            "example": null,
+            "description": "Who cancelled the ride (null unless cancelled)"
           },
           "stops": {
             "type": "array",
@@ -736,6 +870,15 @@
             "type": "string",
             "nullable": true,
             "example": "Damascus, Midan"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "ar",
+              "en"
+            ],
+            "example": "ar",
+            "description": "App language — notifications are sent in it. Set via PUT /api/driver/language"
           },
           "status_id": {
             "type": "integer",
@@ -948,6 +1091,23 @@
             "type": "string",
             "format": "password",
             "example": "Passw0rd"
+          },
+          "fcm_token": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500,
+            "example": "dXyz...FCM_DEVICE_TOKEN",
+            "description": "Optional Firebase Cloud Messaging device token. Stored for push notifications. (Not collected on driver signup.)"
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "ios",
+              "android"
+            ],
+            "nullable": true,
+            "example": "android",
+            "description": "Optional. Defaults to `android` when `fcm_token` is sent."
           }
         }
       },
@@ -990,6 +1150,15 @@
             "type": "integer",
             "example": 1
           },
+          "order_source": {
+            "type": "string",
+            "enum": [
+              "app",
+              "whatsapp",
+              "call"
+            ],
+            "example": "app"
+          },
           "pickup_lat": {
             "type": "number",
             "example": 33.5138
@@ -1018,6 +1187,15 @@
             "type": "number",
             "example": 1.49
           },
+          "actual_distance_km": {
+            "type": "number",
+            "nullable": true,
+            "example": null
+          },
+          "estimated_price": {
+            "type": "number",
+            "example": 1745
+          },
           "estimated_duration_min": {
             "type": "integer",
             "example": 3
@@ -1045,6 +1223,48 @@
           "driver_earning_amount": {
             "type": "number",
             "example": 1483.25
+          },
+          "payment_status": {
+            "type": "string",
+            "enum": [
+              "unpaid",
+              "paid"
+            ],
+            "example": "unpaid",
+            "description": "Set to `paid` by POST /api/driver/rides/{id}/confirm-payment"
+          },
+          "paid_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "payment_confirmed_by": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "driver",
+              "manager",
+              null],
+            "example": null
+          },
+          "has_route": {
+            "type": "boolean",
+            "example": true,
+            "description": "The driver uploaded the driven GPS route for this ride"
+          },
+          "route_distance_km": {
+            "type": "number",
+            "nullable": true,
+            "example": 12.31,
+            "description": "Length of the uploaded route (sum of point-to-point distances); null if no route"
+          },
+          "payment": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RidePayment"
+              }
+            ],
+            "description": "Only in the confirm-payment response"
           },
           "status_id": {
             "type": "integer",
@@ -1078,6 +1298,15 @@
             "type": "string",
             "nullable": true
           },
+          "cancelled_by": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "customer",
+              "driver",
+              "manager",
+              null]
+          },
           "stops": {
             "type": "array",
             "items": {
@@ -1106,6 +1335,16 @@
           "vehicle_type_id": {
             "type": "integer",
             "example": 1
+          },
+          "order_source": {
+            "type": "string",
+            "enum": [
+              "app",
+              "whatsapp",
+              "call"
+            ],
+            "example": "app",
+            "description": "Order channel: app | whatsapp | call"
           },
           "pickup_lat": {
             "type": "number",
@@ -1143,6 +1382,17 @@
             "nullable": true,
             "example": 1.45
           },
+          "actual_distance_km": {
+            "type": "number",
+            "format": "double",
+            "nullable": true,
+            "example": null
+          },
+          "estimated_price": {
+            "type": "number",
+            "format": "double",
+            "example": 1725
+          },
           "estimated_duration_min": {
             "type": "integer",
             "nullable": true,
@@ -1177,6 +1427,48 @@
             "type": "number",
             "format": "double",
             "example": 1466.25
+          },
+          "payment_status": {
+            "type": "string",
+            "enum": [
+              "unpaid",
+              "paid"
+            ],
+            "example": "unpaid",
+            "description": "paid = customer paid and the commission was deducted from the driver wallet"
+          },
+          "paid_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "payment_confirmed_by": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "driver",
+              "manager",
+              null],
+            "example": null
+          },
+          "has_route": {
+            "type": "boolean",
+            "example": true,
+            "description": "The driver uploaded the driven GPS route for this ride"
+          },
+          "route_distance_km": {
+            "type": "number",
+            "nullable": true,
+            "example": 12.31,
+            "description": "Length of the uploaded route (sum of point-to-point distances); null if no route"
+          },
+          "route": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/RoutePoint"
+            },
+            "description": "Driven GPS path in time order, or null if none was uploaded. Only on the single-ride detail endpoints (never in lists). With ?simplify=true the path is thinned (~10 m tolerance)."
           },
           "status_id": {
             "type": "integer",
@@ -1223,6 +1515,17 @@
             "type": "string",
             "nullable": true,
             "example": null
+          },
+          "cancelled_by": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "customer",
+              "driver",
+              "manager",
+              null],
+            "example": null,
+            "description": "Who cancelled the ride (null unless cancelled)"
           }
         }
       },
@@ -1554,10 +1857,51 @@
                     "$ref": "#/components/schemas/DriverVehicle"
                   }
                 ]
+              },
+              "live_status": {
+                "type": "string",
+                "enum": [
+                  "offline",
+                  "free",
+                  "on_the_way",
+                  "arrived",
+                  "in_progress"
+                ],
+                "example": "on_the_way",
+                "description": "What the driver is doing now (derived from active ride + socket presence). Separate from account `status`. Realtime: socket `manager:driver_status`."
+              },
+              "active_ride_id": {
+                "type": "integer",
+                "nullable": true,
+                "example": 8,
+                "description": "Current ride (accepted / arrived / in_progress), else null"
               }
             }
           }
         ]
+      },
+      "CustomerLiveStatus": {
+        "type": "object",
+        "properties": {
+          "live_status": {
+            "type": "string",
+            "enum": [
+              "idle",
+              "searching",
+              "driver_on_the_way",
+              "driver_arrived",
+              "in_progress"
+            ],
+            "example": "driver_on_the_way",
+            "description": "What the customer is doing now (derived from active ride). Realtime: socket `manager:customer_status`."
+          },
+          "active_ride_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 41,
+            "description": "Current ride (requested / accepted / arrived / in_progress), else null"
+          }
+        }
       },
       "Complaint": {
         "type": "object",
@@ -1764,6 +2108,364 @@
             }
           }
         }
+      },
+      "Terms": {
+        "type": "object",
+        "properties": {
+          "audience": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "driver"
+            ],
+            "example": "customer"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "ar",
+              "en"
+            ],
+            "example": "ar"
+          },
+          "content": {
+            "type": "string",
+            "example": "1. باستخدامك التطبيق فإنك توافق على هذه الشروط.",
+            "description": "Exactly as saved (line breaks kept); empty string until set"
+          },
+          "updated_at": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-09-29 17:00:00"
+          }
+        }
+      },
+      "TermsAllLanguages": {
+        "type": "object",
+        "properties": {
+          "audience": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "driver"
+            ],
+            "example": "customer"
+          },
+          "ar": {
+            "$ref": "#/components/schemas/Terms"
+          },
+          "en": {
+            "$ref": "#/components/schemas/Terms"
+          }
+        }
+      },
+      "RoutePoint": {
+        "type": "object",
+        "required": [
+          "lat",
+          "lng",
+          "recorded_at"
+        ],
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "example": 33.5138
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "example": 36.2765
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-29T12:30:00Z",
+            "description": "ISO-8601 with timezone; returned normalized to UTC (…Z)"
+          }
+        }
+      },
+      "RidePayment": {
+        "type": "object",
+        "description": "Payment settlement returned by driver confirm-payment (`data.payment`) and admin mark-paid (`data`). The driver keeps the cash (`driver_share`); `manager_share` is deducted from the driver wallet.",
+        "properties": {
+          "ride_id": {
+            "type": "integer",
+            "example": 42
+          },
+          "driver_id": {
+            "type": "integer",
+            "example": 7
+          },
+          "customer_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "payment_status": {
+            "type": "string",
+            "enum": [
+              "paid"
+            ],
+            "example": "paid"
+          },
+          "paid_at": {
+            "type": "string",
+            "example": "2026-09-29 15:10:00"
+          },
+          "confirmed_by": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "manager"
+            ],
+            "example": "driver"
+          },
+          "final_price": {
+            "type": "number",
+            "example": 12400
+          },
+          "total_paid": {
+            "type": "number",
+            "example": 12400
+          },
+          "driver_share": {
+            "type": "number",
+            "example": 11780
+          },
+          "manager_share": {
+            "type": "number",
+            "example": 620
+          },
+          "commission_rate": {
+            "type": "number",
+            "example": 5
+          },
+          "wallet_balance_after": {
+            "type": "number",
+            "example": 3380,
+            "description": "Driver wallet after the deduction"
+          },
+          "wallet_transaction_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 57,
+            "description": "null when the commission is 0 (no wallet movement)"
+          }
+        }
+      },
+      "SocketCustomerRideStatus": {
+        "type": "object",
+        "description": "Socket event `customer:ride_status` (server → customer). Also sent as `driver:ride_status` to the driver. Extra fields depend on status: `completed` adds final_price / estimated_price / actual_distance_km / payment_status (always `unpaid` at finish); `cancelled` adds cancellation_reason / cancelled_by.",
+        "required": [
+          "ride_id",
+          "status_id",
+          "status",
+          "driver_id",
+          "customer_id"
+        ],
+        "properties": {
+          "ride_id": {
+            "type": "integer",
+            "example": 42
+          },
+          "status_id": {
+            "type": "integer",
+            "enum": [3, 4, 5, 6],
+            "example": 5
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "arrived",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ],
+            "example": "completed"
+          },
+          "driver_id": {
+            "type": "integer",
+            "example": 7
+          },
+          "customer_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "final_price": {
+            "type": "number",
+            "example": 12400,
+            "description": "completed only"
+          },
+          "estimated_price": {
+            "type": "number",
+            "example": 10200,
+            "description": "completed only"
+          },
+          "actual_distance_km": {
+            "type": "number",
+            "example": 12.4,
+            "description": "completed only"
+          },
+          "payment_status": {
+            "type": "string",
+            "enum": [
+              "unpaid"
+            ],
+            "example": "unpaid",
+            "description": "completed only"
+          },
+          "cancellation_reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "cancelled only"
+          },
+          "cancelled_by": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "driver"
+            ],
+            "description": "cancelled only"
+          }
+        }
+      },
+      "SocketCustomerRidePaid": {
+        "type": "object",
+        "description": "Socket event `customer:ride_paid` (server → customer). Sent live when the driver confirms payment or a manager marks the order paid, and **replayed on every customer socket connect** for the latest completed ride if it was paid within the last 24 h. Also replayed after `customer:track_ride` on a paid ride. Idempotent — match by `ride_id`.",
+        "required": [
+          "ride_id",
+          "payment_status",
+          "paid_at",
+          "total_paid"
+        ],
+        "properties": {
+          "ride_id": {
+            "type": "integer",
+            "example": 42
+          },
+          "driver_id": {
+            "type": "integer",
+            "example": 7
+          },
+          "customer_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "payment_status": {
+            "type": "string",
+            "enum": [
+              "paid"
+            ],
+            "example": "paid"
+          },
+          "paid_at": {
+            "type": "string",
+            "example": "2026-09-29 15:10:00"
+          },
+          "confirmed_by": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "manager"
+            ],
+            "example": "driver"
+          },
+          "final_price": {
+            "type": "number",
+            "example": 12400
+          },
+          "total_paid": {
+            "type": "number",
+            "example": 12400
+          }
+        }
+      },
+      "SocketCustomerActiveRide": {
+        "type": "object",
+        "description": "Socket event `customer:active_ride` (server → customer), sent on every customer connect and after `customer:track_ride`. `ride` is, in order: the live trip (accepted / arrived / in_progress), else the latest **completed ride with payment_status = unpaid** (show \"pay the driver\"), else `null`. A paid ride is never returned here on connect — its state comes via the `customer:ride_paid` replay.",
+        "properties": {
+          "ride": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 42
+              },
+              "customer_id": {
+                "type": "integer",
+                "example": 5
+              },
+              "driver_id": {
+                "type": "integer",
+                "example": 7
+              },
+              "status_id": {
+                "type": "integer",
+                "example": 5
+              },
+              "status": {
+                "type": "string",
+                "example": "completed"
+              },
+              "price": {
+                "type": "number",
+                "example": 12400
+              },
+              "estimated_price": {
+                "type": "number",
+                "nullable": true,
+                "example": 10200
+              },
+              "actual_distance_km": {
+                "type": "number",
+                "nullable": true,
+                "example": 12.4
+              },
+              "final_price": {
+                "type": "number",
+                "nullable": true,
+                "example": 12400,
+                "description": "null until completed"
+              },
+              "payment_status": {
+                "type": "string",
+                "enum": [
+                  "unpaid",
+                  "paid"
+                ],
+                "example": "unpaid"
+              },
+              "paid_at": {
+                "type": "string",
+                "nullable": true,
+                "example": null
+              },
+              "completed_at": {
+                "type": "string",
+                "nullable": true,
+                "example": "2026-09-29 15:05:00"
+              }
+            }
+          },
+          "driver": {
+            "type": "object",
+            "nullable": true,
+            "description": "id, first_name, last_name, photo_url, phone_number, rating"
+          },
+          "vehicle": {
+            "type": "object",
+            "nullable": true,
+            "description": "brand, model, color, plate_number, …"
+          },
+          "location": {
+            "type": "object",
+            "nullable": true,
+            "description": "Last driver GPS; always null for a completed ride"
+          }
+        }
       }
     },
     "responses": {
@@ -1913,7 +2615,7 @@
           "Admin"
         ],
         "summary": "List all customers (paginated)",
-        "description": "Manager-only. Returns customers with `account_type_id = 1` (excludes managers),\nnewest first.\n\nEach customer includes a **paginated** `orders` list (newest first) plus\n`orders_count` / `orders_pagination`. Nested page size is controlled by\n`orders_page` / `orders_limit` (same values applied to every customer on\nthe page — loaded in one batched SQL query for performance).\n",
+        "description": "Manager-only. Returns customers with `account_type_id = 1` (excludes managers),\nnewest first.\n\nEach customer includes a live **`live_status`** + `active_ride_id`:\n`idle` | `searching` (waiting for a driver) | `driver_on_the_way` |\n`driver_arrived` | `in_progress`. Realtime updates: socket `manager:customer_status`.\n\nEach customer includes a **paginated** `orders` list (newest first) plus\n`orders_count` / `orders_pagination`. Nested page size is controlled by\n`orders_page` / `orders_limit` (same values applied to every customer on\nthe page — loaded in one batched SQL query for performance).\n",
         "operationId": "adminListCustomers",
         "security": [
           {
@@ -1983,7 +2685,14 @@
                             "customers": {
                               "type": "array",
                               "items": {
-                                "type": "object"
+                                "allOf": [
+                                  {
+                                    "$ref": "#/components/schemas/Customer"
+                                  },
+                                  {
+                                    "$ref": "#/components/schemas/CustomerLiveStatus"
+                                  }
+                                ]
                               }
                             },
                             "pagination": {
@@ -2023,6 +2732,8 @@
                         "email": null,
                         "address": "Tripoli",
                         "account_type_id": 1,
+                        "live_status": "driver_on_the_way",
+                        "active_ride_id": 41,
                         "created_at": "2026-09-27 12:00:00",
                         "updated_at": "2026-09-27 12:00:00",
                         "orders_count": 2,
@@ -2199,13 +2910,138 @@
         }
       }
     },
+    "/api/admin/customers/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a customer",
+        "description": "Manager-only. Partial update — send any of `first_name`, `last_name`,\n`phone_number`, `email`, `address`, `password`.\nOnly customers (`account_type_id = 1`) can be updated.\n",
+        "operationId": "adminUpdateCustomer",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 20
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "example": "Ahmad"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Ali"
+                  },
+                  "phone_number": {
+                    "type": "string",
+                    "example": "0991234567"
+                  },
+                  "email": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "ahmad@example.com"
+                  },
+                  "address": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Tripoli"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "Passw0rd"
+                  }
+                }
+              },
+              "example": {
+                "first_name": "Ahmad",
+                "address": "Benghazi"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Customer updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Customer"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Customer updated successfully",
+                  "data": {
+                    "id": 20,
+                    "first_name": "Ahmad",
+                    "last_name": "Created",
+                    "photo_url": null,
+                    "phone_number": "0990593098",
+                    "email": "mgr.0990593098@example.com",
+                    "address": "Benghazi",
+                    "account_type_id": 1,
+                    "created_at": "2026-09-28 10:58:19",
+                    "updated_at": "2026-09-28 15:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Customer not found"
+          },
+          "409": {
+            "description": "Phone or email already registered"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
     "/api/admin/drivers": {
       "get": {
         "tags": [
           "Admin"
         ],
         "summary": "List all drivers (paginated)",
-        "description": "Manager-only. Returns all drivers with status name, newest first.\nEach driver includes:\n- fines (غرامات): `fines`, `fines_count`, `fines_total`\n- wallet history: `wallet_transactions`, `wallet_transactions_count`\n- vehicle: brand, model, color, plate, type, photo (or null)\n- **paginated** `orders` (newest first) plus `orders_count` /\n  `orders_pagination` — controlled by `orders_page` / `orders_limit`\n  (same values for every driver on the page; one batched SQL query)\n",
+        "description": "Manager-only. Returns all drivers with status name, newest first.\n\n`status` = **account** status (pending / active / suspended / rejected).\n`live_status` = **what the driver is doing now**:\n`offline` | `free` | `on_the_way` (heading to pickup) | `arrived` | `in_progress`,\nplus `is_online` and `active_ride_id`. A driver on a trip keeps the trip status\neven if their app disconnects. Realtime updates: socket `manager:driver_status`.\n\nEach driver includes:\n- fines (غرامات): `fines`, `fines_count`, `fines_total`\n- wallet history: `wallet_transactions`, `wallet_transactions_count`\n- vehicle: brand, model, color, plate, type, photo (or null)\n- **paginated** `orders` (newest first) plus `orders_count` /\n  `orders_pagination` — controlled by `orders_page` / `orders_limit`\n  (same values for every driver on the page; one batched SQL query)\n",
         "operationId": "adminListDrivers",
         "security": [
           {
@@ -2275,7 +3111,7 @@
                             "drivers": {
                               "type": "array",
                               "items": {
-                                "type": "object"
+                                "$ref": "#/components/schemas/AdminDriver"
                               }
                             },
                             "pagination": {
@@ -2313,6 +3149,9 @@
                         "phone_number": "0911111111",
                         "status": "active",
                         "wallet_balance": 150.5,
+                        "is_online": true,
+                        "live_status": "on_the_way",
+                        "active_ride_id": 8,
                         "orders_count": 3,
                         "orders_pagination": {
                           "page": 1,
@@ -3115,7 +3954,8 @@
                         "started_at": null,
                         "completed_at": null,
                         "cancelled_at": null,
-                        "cancellation_reason": null
+                        "cancellation_reason": null,
+                        "cancelled_by": null
                       },
                       {
                         "id": 7,
@@ -3143,7 +3983,8 @@
                         "started_at": null,
                         "completed_at": null,
                         "cancelled_at": "2026-09-27 11:36:12",
-                        "cancellation_reason": "Found another ride"
+                        "cancellation_reason": "Found another ride",
+                        "cancelled_by": "customer"
                       }
                     ],
                     "pagination": {
@@ -3169,6 +4010,157 @@
           },
           "422": {
             "description": "Invalid query (bad dates / range)"
+          }
+        }
+      }
+    },
+    "/api/admin/orders/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get any order with its stops and driven route",
+        "description": "Full `AdminOrder` for one ride (any customer / driver), plus `stops` and `route`.\n\n`route` is the GPS path the driver uploaded after the trip\n(`[{ lat, lng, recorded_at }]` in time order), or `null` if none was uploaded —\nthe same points `GET /api/customer/rides/{id}` returns to the ride's customer.\nCompare `route_distance_km` (from the points) with `actual_distance_km`\n(what the driver reported at finish) to spot fare disputes.\n\n`?simplify=true` drops near-collinear points (~10 m tolerance) for small maps.\n",
+        "operationId": "adminGetOrder",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "simplify",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AdminOrder"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Order retrieved successfully",
+                  "data": {
+                    "id": 42,
+                    "status_id": 5,
+                    "status": "completed",
+                    "price": 12400,
+                    "actual_distance_km": 12.4,
+                    "route_distance_km": 12.31,
+                    "has_route": true,
+                    "stops": [],
+                    "route": [
+                      {
+                        "lat": 33.5138,
+                        "lng": 36.2765,
+                        "recorded_at": "2026-09-29T12:30:00.000Z"
+                      },
+                      {
+                        "lat": 33.5141,
+                        "lng": 36.277,
+                        "recorded_at": "2026-09-29T12:30:05.000Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Order not found"
+          },
+          "422": {
+            "description": "Invalid id or query"
+          }
+        }
+      }
+    },
+    "/api/admin/orders/{id}/mark-paid": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Mark a completed order as paid (driver never tapped \"Payment received\")",
+        "description": "Manager-only fallback for a finished ride that is still `payment_status = unpaid`.\nRuns exactly the same settlement as the driver's\n`POST /api/driver/rides/{id}/confirm-payment`:\n- ride `payment_status` → `paid`, `paid_at` set, `payment_confirmed_by` → `manager`\n- the commission (`manager_share`) is deducted from the driver's wallet as a\n  `commission_deduction` transaction (`created_by_user_id` = this manager)\n- emits the same `customer:ride_paid` (so the customer app closes its\n  \"pay the driver\" dialog), `driver:ride_paid`, `manager:ride_paid`\n- push notification to the customer and the driver\n",
+        "operationId": "adminMarkOrderPaid",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order marked paid and money split",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/RidePayment"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Order not found"
+          },
+          "409": {
+            "description": "Order is not completed, or already paid"
           }
         }
       }
@@ -4035,6 +5027,166 @@
         }
       }
     },
+    "/api/admin/notifications": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Send notification to a customer or driver",
+        "description": "Manager-only. Creates an in-app notification and pushes via Firebase FCM\nto the recipient's registered device tokens (`fcm_token` from login/signup).\n\n`notification_type` is always stored as `manager_message`.\n\n**Language:** the recipient gets the text in their saved app language (`ar` / `en`).\nSend `title_ar` / `body_ar` and `title_en` / `body_en` to provide both versions;\na missing version falls back to `title` / `body`. `title` / `body` can be omitted\nonly when both language versions are sent. The response shows the text actually sent.\n",
+        "operationId": "adminSendNotification",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "recipient_type",
+                  "recipient_id"
+                ],
+                "properties": {
+                  "title_ar": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "example": "تحديث النظام"
+                  },
+                  "body_ar": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "example": "يرجى تحديث التطبيق إلى آخر إصدار."
+                  },
+                  "title_en": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "example": "System update"
+                  },
+                  "body_en": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "example": "Please update the app to the latest version."
+                  },
+                  "recipient_type": {
+                    "type": "string",
+                    "enum": [
+                      "customer",
+                      "driver"
+                    ],
+                    "example": "driver"
+                  },
+                  "recipient_id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 2
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "example": "System update"
+                  },
+                  "body": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "example": "Please update the app to the latest version."
+                  },
+                  "related_ride_id": {
+                    "type": "integer",
+                    "nullable": true,
+                    "example": null
+                  }
+                }
+              },
+              "examples": {
+                "bilingual": {
+                  "summary": "Both languages — recipient gets their own",
+                  "value": {
+                    "recipient_type": "driver",
+                    "recipient_id": 2,
+                    "title_ar": "تحديث النظام",
+                    "body_ar": "يرجى تحديث التطبيق إلى آخر إصدار.",
+                    "title_en": "System update",
+                    "body_en": "Please update the app to the latest version."
+                  }
+                },
+                "toDriver": {
+                  "summary": "Notify a driver (same text for any language)",
+                  "value": {
+                    "recipient_type": "driver",
+                    "recipient_id": 2,
+                    "title": "System update",
+                    "body": "Please update the app to the latest version."
+                  }
+                },
+                "toCustomer": {
+                  "summary": "Notify a customer",
+                  "value": {
+                    "recipient_type": "customer",
+                    "recipient_id": 14,
+                    "title": "Promo",
+                    "body": "Enjoy 10% off your next ride this week."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Notification created and FCM push attempted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Notification sent successfully",
+                  "data": {
+                    "id": 42,
+                    "recipient_type": "driver",
+                    "recipient_id": 2,
+                    "notification_type": "manager_message",
+                    "language": "ar",
+                    "title": "تحديث النظام",
+                    "body": "يرجى تحديث التطبيق إلى آخر إصدار.",
+                    "related_ride_id": null
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "404": {
+            "description": "Recipient not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
     "/api/admin/complaints": {
       "get": {
         "tags": [
@@ -4323,7 +5475,7 @@
           "Customer Auth"
         ],
         "summary": "Register a new customer account",
-        "description": "Creates a customer account (`account_type_id = 1`), hashes the password with bcrypt,\nand immediately issues an access JWT + refresh token so the client can stay logged in.\n\n**Validation rules**\n| Field | Rules |\n|-------|-------|\n| `first_name` / `last_name` | Required, 2–100 chars, letters only (any language). Spaces, hyphens, apostrophes allowed between words. No digits. |\n| `phone_number` | Required **string**, 8–15 digits, optional leading `+`. Arabic/Persian digits normalized. Unique. |\n| `email` | Optional, valid email, max 150 chars. Unique when provided. |\n| `password` | Required, 8–64 chars, no spaces, ≥1 letter and ≥1 number. |\n| `address` | Optional, max 255 chars. |\n| `device_info` | Optional, max 255 chars. Stored with the refresh token; falls back to `User-Agent`. |\n\n**Side effects**\n- Inserts a row into `customers`\n- Inserts a hashed refresh token into `auth_refresh_tokens`\n",
+        "description": "Creates a customer account (`account_type_id = 1`), hashes the password with bcrypt,\nand immediately issues an access JWT + refresh token so the client can stay logged in.\n\n**Validation rules**\n| Field | Rules |\n|-------|-------|\n| `first_name` / `last_name` | Required, 2–100 chars, letters only (any language). Spaces, hyphens, apostrophes allowed between words. No digits. |\n| `phone_number` | Required **string**, 8–15 digits, optional leading `+`. Arabic/Persian digits normalized. Unique. |\n| `email` | Optional, valid email, max 150 chars. Unique when provided. |\n| `password` | Required, 8–64 chars, no spaces, ≥1 letter and ≥1 number. |\n| `address` | Optional, max 255 chars. |\n| `device_info` | Optional, max 255 chars. Stored with the refresh token; falls back to `User-Agent`. |\n| `fcm_token` | Optional, max 500 chars. Firebase device token → `device_tokens`. |\n| `platform` | Optional `ios` \\| `android` (defaults to `android` if token sent). |\n\n**Side effects**\n- Inserts a row into `customers`\n- Inserts a hashed refresh token into `auth_refresh_tokens`\n- Upserts `device_tokens` when `fcm_token` is provided\n",
         "operationId": "customerSignup",
         "requestBody": {
           "required": true,
@@ -4351,7 +5503,9 @@
                     "email": "ahmad@example.com",
                     "password": "Passw0rd",
                     "address": "Damascus, Mazzeh",
-                    "device_info": "iPhone 15 / iOS 18"
+                    "device_info": "iPhone 15 / iOS 18",
+                    "fcm_token": "dXyz...FCM_DEVICE_TOKEN",
+                    "platform": "ios"
                   }
                 }
               }
@@ -4429,7 +5583,7 @@
           "Customer Auth"
         ],
         "summary": "Log in an existing customer",
-        "description": "Authenticates a customer by phone number + password and issues a new access JWT + refresh token.\n\n**Rules**\n- Only accounts with `account_type_id = 1` (customer) can use this endpoint\n- Wrong phone, wrong password, or non-customer account all return the **same** `401` message\n  (`Invalid phone number or password`) to avoid account enumeration\n- Password strength is **not** re-checked on login (presence only)\n\n**Validation rules**\n| Field | Rules |\n|-------|-------|\n| `phone_number` | Required string, 8–15 digits, optional leading `+` |\n| `password` | Required string, max 64 chars |\n| `device_info` | Optional, max 255 chars; falls back to `User-Agent` |\n\n**Side effects**\n- Inserts a new hashed refresh token into `auth_refresh_tokens` (previous sessions stay valid until expiry / logout)\n",
+        "description": "Authenticates a customer by phone number + password and issues a new access JWT + refresh token.\n\n**Rules**\n- Only accounts with `account_type_id = 1` (customer) can use this endpoint\n- Wrong phone, wrong password, or non-customer account all return the **same** `401` message\n  (`Invalid phone number or password`) to avoid account enumeration\n- Password strength is **not** re-checked on login (presence only)\n\n**Validation rules**\n| Field | Rules |\n|-------|-------|\n| `phone_number` | Required string, 8–15 digits, optional leading `+` |\n| `password` | Required string, max 64 chars |\n| `device_info` | Optional, max 255 chars; falls back to `User-Agent` |\n| `fcm_token` | Optional Firebase device token → upserted into `device_tokens` |\n| `platform` | Optional `ios` \\| `android` (default `android`) |\n\n**Side effects**\n- Inserts a new hashed refresh token into `auth_refresh_tokens` (previous sessions stay valid until expiry / logout)\n- Upserts `device_tokens` when `fcm_token` is provided\n",
         "operationId": "customerLogin",
         "requestBody": {
           "required": true,
@@ -4441,7 +5595,9 @@
               "example": {
                 "phone_number": "0991234567",
                 "password": "Passw0rd",
-                "device_info": "Android 14 / Pixel 8"
+                "device_info": "Android 14 / Pixel 8",
+                "fcm_token": "dXyz...FCM_DEVICE_TOKEN",
+                "platform": "android"
               }
             }
           }
@@ -4805,6 +5961,366 @@
         }
       }
     },
+    "/api/customer/profile": {
+      "get": {
+        "tags": [
+          "Customer Profile"
+        ],
+        "summary": "Get my profile",
+        "description": "Customer-only. Returns the authenticated customer's own information.",
+        "operationId": "customerGetProfile",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Customer"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Profile retrieved successfully",
+                  "data": {
+                    "id": 24,
+                    "first_name": "Ahmad",
+                    "last_name": "Ali",
+                    "photo_url": "/uploads/customers/1759140000000-ab12cd34ef56ab78.jpg",
+                    "phone_number": "0991234567",
+                    "email": "ahmad@example.com",
+                    "address": "Tripoli",
+                    "language": "ar",
+                    "account_type_id": 1,
+                    "created_at": "2026-09-28 10:00:00",
+                    "updated_at": "2026-09-29 09:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a customer token"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Customer Profile"
+        ],
+        "summary": "Edit my profile",
+        "description": "Customer-only. **Partial update** — send only the fields you want to change.\n\nEditable: `first_name`, `last_name`, `phone_number`, `email`, `address`, `photo`.\n\n- Send **JSON** for text fields only, or **multipart/form-data** to also upload `photo`\n  (JPEG / PNG / WebP, max 5 MB). The old photo is replaced.\n- `phone_number` is the login identifier — after changing it, log in with the new number.\n- Send `email: \"\"` or `address: \"\"` to clear them.\n- Password is **not** changed here → use `PUT /api/customer/profile/password`.\n",
+        "operationId": "customerUpdateProfile",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "example": "Ahmad"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Ali"
+                  },
+                  "phone_number": {
+                    "type": "string",
+                    "example": "0991234567"
+                  },
+                  "email": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "ahmad@example.com"
+                  },
+                  "address": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Benghazi"
+                  }
+                }
+              },
+              "example": {
+                "first_name": "Ahmad",
+                "address": "Benghazi"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "phone_number": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "photo": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Profile photo (JPEG/PNG/WebP, max 5 MB)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated — returns the full profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Customer"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Profile updated successfully",
+                  "data": {
+                    "id": 24,
+                    "first_name": "Ahmad",
+                    "last_name": "Ali",
+                    "photo_url": "/uploads/customers/1759140000000-ab12cd34ef56ab78.jpg",
+                    "phone_number": "0991234567",
+                    "email": "ahmad@example.com",
+                    "address": "Benghazi",
+                    "account_type_id": 1,
+                    "created_at": "2026-09-28 10:00:00",
+                    "updated_at": "2026-09-29 09:05:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a customer token"
+          },
+          "409": {
+            "description": "Phone or email already registered by another account"
+          },
+          "422": {
+            "description": "Validation failed, bad image, or nothing to update"
+          }
+        }
+      }
+    },
+    "/api/customer/profile/password": {
+      "put": {
+        "tags": [
+          "Customer Profile"
+        ],
+        "summary": "Change my password",
+        "description": "Customer-only. Requires the current password.\n\nOn success **all devices are signed out** and new tokens are returned for\nthis device — replace the stored `accessToken` / `refreshToken` (and reconnect the socket).\n",
+        "operationId": "customerChangePassword",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "current_password",
+                  "new_password"
+                ],
+                "properties": {
+                  "current_password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "OldPassw0rd"
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "NewPassw0rd",
+                    "description": "8–64 chars, at least one letter and one number, no spaces"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed — new tokens for this device",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "tokens": {
+                              "$ref": "#/components/schemas/AuthTokens"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token, or current password is incorrect"
+          },
+          "403": {
+            "description": "Not a customer token"
+          },
+          "422": {
+            "description": "Validation failed (weak password / same as current)"
+          }
+        }
+      }
+    },
+    "/api/customer/profile/language": {
+      "put": {
+        "tags": [
+          "Customer Profile"
+        ],
+        "summary": "Save my app language",
+        "description": "Customer-only. Saves the app language (`ar` or `en`). Every push and in-app\nnotification is sent to this customer in that language (new users default to `ar`).\nCall it after login and whenever the user switches language in the app.\n",
+        "operationId": "customerUpdateLanguage",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "language"
+                ],
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "ar",
+                      "en"
+                    ],
+                    "example": "en"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Language saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "language": {
+                              "type": "string",
+                              "enum": [
+                                "ar",
+                                "en"
+                              ],
+                              "example": "en"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Language updated successfully",
+                  "data": {
+                    "language": "en"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a customer token"
+          },
+          "422": {
+            "description": "language must be one of ar, en"
+          }
+        }
+      }
+    },
     "/api/customer/rides/locations": {
       "post": {
         "tags": [
@@ -4949,7 +6465,7 @@
           "Customer Rides"
         ],
         "summary": "Choose vehicle type and request the ride (order flow step 2)",
-        "description": "Second step of the order flow. Customer picks a `vehicle_type_id` from\nstep 1 (`vehicle_types`) and sends the same pickup/dropoff coordinates.\n\nCreates a ride with **`status_id = 1` (`requested`)**.\n\nThe returned `estimated_price` / `price` is **not the final fare** —\nit is computed from straight-line distance using manager pricing tiers.\nFinal fare may change if the driver takes a different route.\n",
+        "description": "Second step of the order flow. Customer picks a `vehicle_type_id` from\nstep 1 (`vehicle_types`) and sends the same pickup/dropoff coordinates.\n\nCreates a ride with **`status_id = 1` (`requested`)**.\n\nEligible drivers are then offered the ride on socket (`driver:order_offer` cards + optional FCM) when:\n1. They are **not** on an active order (accepted / arrived / in_progress)\n2. Pickup is within their `search_radius_km`\n3. Their registered vehicle type matches `vehicle_type_id`\n(also: active, online, has GPS — live socket location preferred)\n\nResponse includes `notified_drivers_count` and `notify_stats` so you can\nsee how many drivers matched each filter.\n",
         "operationId": "chooseRideVehicle",
         "security": [
           {
@@ -5008,7 +6524,14 @@
                     "price_note": "Price is an estimate based on straight-line distance. Final fare may change if the driver takes a different route.",
                     "status_id": 1,
                     "status": "requested",
-                    "stops": []
+                    "stops": [],
+                    "notified_drivers_count": 2,
+                    "notify_stats": {
+                      "same_vehicle_and_free": 5,
+                      "online_with_gps": 3,
+                      "within_radius": 2,
+                      "notified_driver_ids": [2, 4]
+                    }
                   }
                 }
               }
@@ -5027,142 +6550,6 @@
       }
     },
     "/api/customer/rides": {
-      "post": {
-        "tags": [
-          "Customer Rides"
-        ],
-        "summary": "Create a ride order",
-        "description": "Creates a new ride (\"order\") for the authenticated customer. The order always\nstarts with **`status_id = 1` (`requested`)** — see `docs/ride_statuses.md`.\nLifecycle: 1 requested → 2 accepted → 3 arrived → 4 in_progress → 5 completed\n(or 6 cancelled at any point before completion).\n\n**Order flow**\n1. `POST /api/customer/rides/locations` — start/end lat/lng + estimated prices\n2. `POST /api/customer/rides/choose-vehicle` — pick vehicle type (preferred)\n3. Or this endpoint — same create behaviour (legacy alias)\n\n**Performance design**\n- Vehicle type, pricing tiers, commission rate and stop fee are served from an\n  in-memory cache (60s TTL, stale-while-revalidate) — **zero SELECT queries**\n  on the common path.\n- Distance and ETA are computed server-side with the Haversine formula —\n  no external maps/routing API call, sub-millisecond CPU cost.\n- Exactly one write transaction: 1 `INSERT` for the ride, plus (only if stops\n  are provided) a single multi-row `INSERT` for all stops — never more than\n  2 database round trips total.\n\n**Pricing formula**\n```\nprice = base_fare + (distance_km * price_per_km) + (stops_count * stop_fee)\n```\nThe correct pricing tier is picked by matching `distance_km` against the\nvehicle type's `[min_distance_km, max_distance_km)` bands.\nShown price is an **estimate** (straight-line); final may differ by route.\n",
-        "operationId": "createRide",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateRideRequest"
-              },
-              "examples": {
-                "direct": {
-                  "summary": "Pickup → dropoff, no stops",
-                  "value": {
-                    "vehicle_type_id": 1,
-                    "pickup_lat": 33.5138,
-                    "pickup_lng": 36.2765,
-                    "pickup_address": "Umayyad Square, Damascus",
-                    "dropoff_lat": 33.5099,
-                    "dropoff_lng": 36.2919,
-                    "dropoff_address": "Damascus University"
-                  }
-                },
-                "withStops": {
-                  "summary": "With one intermediate stop",
-                  "value": {
-                    "vehicle_type_id": 2,
-                    "pickup_lat": 33.5138,
-                    "pickup_lng": 36.2765,
-                    "pickup_address": "Umayyad Square, Damascus",
-                    "dropoff_lat": 33.5099,
-                    "dropoff_lng": 36.2919,
-                    "dropoff_address": "Damascus University",
-                    "stops": [
-                      {
-                        "lat": 33.512,
-                        "lng": 36.283,
-                        "address": "Pharmacy stop"
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Ride created with status_id = 1 (requested)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/SuccessResponse"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "$ref": "#/components/schemas/Ride"
-                        }
-                      }
-                    }
-                  ]
-                },
-                "example": {
-                  "success": true,
-                  "message": "Ride requested successfully",
-                  "data": {
-                    "id": 1,
-                    "customer_id": 1,
-                    "driver_id": null,
-                    "vehicle_type_id": 1,
-                    "pickup_lat": 33.5138,
-                    "pickup_lng": 36.2765,
-                    "pickup_address": "Umayyad Square, Damascus",
-                    "dropoff_lat": 33.5099,
-                    "dropoff_lng": 36.2919,
-                    "dropoff_address": "Damascus University",
-                    "distance_km": 2.14,
-                    "estimated_duration_min": 4,
-                    "price_per_km_applied": 500,
-                    "stops_fee_total": 0,
-                    "price": 2070,
-                    "status_id": 1,
-                    "status": "requested",
-                    "requested_at": "2026-09-27 13:00:00",
-                    "accepted_at": null,
-                    "started_at": null,
-                    "completed_at": null,
-                    "cancelled_at": null,
-                    "cancellation_reason": null,
-                    "stops": []
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid access token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "422": {
-            "description": "Validation failed, or no active vehicle type/pricing tier for this distance",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalError"
-          }
-        }
-      },
       "get": {
         "tags": [
           "Customer Rides"
@@ -5256,7 +6643,7 @@
           "Customer Rides"
         ],
         "summary": "Get a single ride order (including its current status)",
-        "description": "Returns full ride details, including its current `status` and, if any, its\nstops. Looked up by primary key — only rides belonging to the authenticated\ncustomer are returned (others → `404`, never leaked as `403`).\n",
+        "description": "Returns full ride details, including its current `status` and, if any, its\nstops. Looked up by primary key — only rides belonging to the authenticated\ncustomer are returned (others → `404`, never leaked as `403`).\n\nPayment check (fallback on app resume / reconnect): a ride with\n`status = completed` and `payment_status = unpaid` still needs to be paid —\namount due is `final_price`. Once `payment_status = paid`, `paid_at` is set.\n\nDriven route: `route` is the GPS path the driver uploaded after the trip\n(`[{ lat, lng, recorded_at }]` in time order), or `null` if none was uploaded.\nOnly this detail endpoint returns it — lists carry `has_route` / `route_distance_km`.\n`?simplify=true` drops near-collinear points (~10 m tolerance) for small maps.\n",
         "operationId": "getCustomerRideById",
         "security": [
           {
@@ -5272,6 +6659,16 @@
               "type": "integer"
             },
             "description": "Ride id"
+          },
+          {
+            "in": "query",
+            "name": "simplify",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Return a thinned route (fewer points, same shape)"
           }
         ],
         "responses": {
@@ -5293,6 +6690,37 @@
                       }
                     }
                   ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Ride retrieved successfully",
+                  "data": {
+                    "id": 42,
+                    "status_id": 5,
+                    "status": "completed",
+                    "estimated_price": 10200,
+                    "price": 12400,
+                    "final_price": 12400,
+                    "actual_distance_km": 12.4,
+                    "payment_status": "unpaid",
+                    "paid_at": null,
+                    "payment_confirmed_by": null,
+                    "completed_at": "2026-09-29 15:05:00",
+                    "has_route": true,
+                    "route_distance_km": 12.31,
+                    "route": [
+                      {
+                        "lat": 33.5138,
+                        "lng": 36.2765,
+                        "recorded_at": "2026-09-29T12:30:00.000Z"
+                      },
+                      {
+                        "lat": 33.5141,
+                        "lng": 36.277,
+                        "recorded_at": "2026-09-29T12:30:05.000Z"
+                      }
+                    ]
+                  }
                 }
               }
             }
@@ -5515,6 +6943,94 @@
           },
           "422": {
             "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/driver/language": {
+      "put": {
+        "tags": [
+          "Driver"
+        ],
+        "summary": "Save my app language",
+        "description": "Driver-only. Saves the app language (`ar` or `en`). Every push and in-app\nnotification is sent to this driver in that language (new drivers default to `ar`).\nCall it after login and whenever the driver switches language in the app.\n",
+        "operationId": "driverUpdateLanguage",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "language"
+                ],
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "ar",
+                      "en"
+                    ],
+                    "example": "ar"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Language saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "language": {
+                              "type": "string",
+                              "enum": [
+                                "ar",
+                                "en"
+                              ],
+                              "example": "ar"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Language updated successfully",
+                  "data": {
+                    "language": "ar"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a driver token"
+          },
+          "422": {
+            "description": "language must be one of ar, en"
           }
         }
       }
@@ -5955,7 +7471,7 @@
           "Driver Auth"
         ],
         "summary": "Log in an existing driver",
-        "description": "Authenticates by phone + password and issues new tokens.\n**Only drivers with `status_id = 2` (active) can log in.**\nPending / suspended / rejected accounts receive **403**.\n\nResponse includes the driver profile and their vehicle (if registered).\n",
+        "description": "Authenticates by phone + password and issues new tokens.\n**Only drivers with `status_id = 2` (active) can log in.**\nPending / suspended / rejected accounts receive **403**.\n\nResponse includes the driver profile and their vehicle (if registered).\n\nOptional `fcm_token` (+ `platform`) is stored for Firebase push.\n**Not collected on driver signup** — only on login.\n",
         "operationId": "driverLogin",
         "requestBody": {
           "required": true,
@@ -5966,7 +7482,9 @@
               },
               "example": {
                 "phone_number": "0997654321",
-                "password": "Passw0rd"
+                "password": "Passw0rd",
+                "fcm_token": "dXyz...FCM_DEVICE_TOKEN",
+                "platform": "android"
               }
             }
           }
@@ -6193,8 +7711,8 @@
         "tags": [
           "Driver Rides"
         ],
-        "summary": "Start the trip (passenger on board)",
-        "description": "Transition **`arrived` (3) → `in_progress` (4)**.\nSets `started_at`. Notifies customer (`ride_started`).\n",
+        "summary": "Start the trip (driver taps \"Start ride\" at pickup)",
+        "description": "Transition **`accepted` (2) or `arrived` (3) → `in_progress` (4)**.\nThe driver can start straight from `accepted` — calling `/pickup` first is optional.\n\nSets `started_at` and updates everything in one step:\n- order status → `in_progress`\n- driver `live_status` → `in_progress`, customer `live_status` → `in_progress`\n- socket: `customer:ride_status`, `driver:ride_status`, `manager:driver_status`,\n  `manager:customer_status`\n- push notification to the customer (`ride_started`)\n\nSocket alternative: emit `driver:ride_start` `{ ride_id }` with an ack.\n",
         "operationId": "driverStartRide",
         "security": [
           {
@@ -6248,7 +7766,7 @@
             "description": "Not this driver's ride"
           },
           "409": {
-            "description": "Ride is not in arrived status"
+            "description": "Ride is not in accepted or arrived status"
           }
         }
       }
@@ -6258,8 +7776,8 @@
         "tags": [
           "Driver Rides"
         ],
-        "summary": "Finish / complete the trip",
-        "description": "Transition **`in_progress` (4) → `completed` (5)**.\nSets `completed_at`. Notifies customer (`ride_completed`).\n",
+        "summary": "Finish the trip — send real distance, get the final price",
+        "description": "Transition **`in_progress` (4) → `completed` (5)**.\n\nThe driver sends the **distance actually driven** (`distance_km`). The server\nrecalculates the fare and returns the **final price** to show the driver/customer:\n\n`final_price = base_fare + distance_km × price_per_km + stops_fee_total`\n\n- Pricing tier = the tier of this vehicle type that covers `distance_km`\n  (if none covers it, the closest tier below is used — finishing never fails on pricing).\n- `stops_fee_total` and `commission_rate` stay as locked when the order was created.\n- `price` on the ride becomes the final price; the original quote is kept in `estimated_price`.\n\nAlso: sets `completed_at`, driver → `free`, customer → `idle`, sends\n`customer:ride_status` (with `final_price`) + push notification with the total.\n\nSocket alternative: emit `driver:ride_finish` `{ ride_id, distance_km }` with an ack.\n",
         "operationId": "driverFinishRide",
         "security": [
           {
@@ -6276,6 +7794,31 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "distance_km"
+                ],
+                "properties": {
+                  "distance_km": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 2000,
+                    "example": 12.4,
+                    "description": "Distance actually driven during the trip, in km"
+                  }
+                }
+              },
+              "example": {
+                "distance_km": 12.4
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Trip completed",
@@ -6303,7 +7846,25 @@
                     "id": 1,
                     "status_id": 5,
                     "status": "completed",
-                    "completed_at": "2026-09-27 14:45:00"
+                    "distance_km": 10.2,
+                    "actual_distance_km": 12.4,
+                    "estimated_price": 10200,
+                    "price": 12400,
+                    "completed_at": "2026-09-27 14:45:00",
+                    "fare": {
+                      "final_price": 12400,
+                      "estimated_price": 10200,
+                      "difference": 2200,
+                      "actual_distance_km": 12.4,
+                      "estimated_distance_km": 10.2,
+                      "base_fare": 0,
+                      "price_per_km": 1000,
+                      "distance_fare": 12400,
+                      "stops_fee_total": 0,
+                      "commission_rate": 10,
+                      "admin_commission_amount": 1240,
+                      "driver_earning_amount": 11160
+                    }
                   }
                 }
               }
@@ -6314,6 +7875,217 @@
           },
           "409": {
             "description": "Ride is not in in_progress status"
+          },
+          "422": {
+            "description": "distance_km missing or invalid"
+          }
+        }
+      }
+    },
+    "/api/driver/rides/{id}/route": {
+      "put": {
+        "tags": [
+          "Driver Rides"
+        ],
+        "summary": "Upload the driven GPS route after the trip (idempotent)",
+        "description": "The driver app records `lat`, `lng`, `recorded_at` every ~5 s from Start to Finish\nand uploads the list **after** finish succeeds. Separate from finish on purpose —\nit never changes ride status, price, payment or wallet.\n\nPUT = replace: retries overwrite the earlier route (one stored route per ride).\n\nAllowed when the ride has `started_at` and is `completed` (5), or `cancelled` (6)\nafter it started, up to **72 h** after it ended (late retries). Otherwise `409`.\n\nThe server computes `distance_km` from the points (haversine sum). The body limit\nfor this endpoint is 2 MB (5,000 points ≈ 350 KB).\n",
+        "operationId": "driverUploadRideRoute",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "points"
+                ],
+                "properties": {
+                  "points": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 5000,
+                    "description": "In time order (recorded_at non-decreasing)",
+                    "items": {
+                      "$ref": "#/components/schemas/RoutePoint"
+                    }
+                  }
+                }
+              },
+              "example": {
+                "points": [
+                  {
+                    "lat": 33.5138,
+                    "lng": 36.2765,
+                    "recorded_at": "2026-09-29T12:30:00Z"
+                  },
+                  {
+                    "lat": 33.5141,
+                    "lng": 36.277,
+                    "recorded_at": "2026-09-29T12:30:05Z"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Route stored (or replaced)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "ride_id": {
+                              "type": "integer",
+                              "example": 42
+                            },
+                            "point_count": {
+                              "type": "integer",
+                              "example": 720
+                            },
+                            "distance_km": {
+                              "type": "number",
+                              "example": 12.3
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Route saved successfully",
+                  "data": {
+                    "ride_id": 42,
+                    "point_count": 720,
+                    "distance_km": 12.3
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not this driver's ride"
+          },
+          "404": {
+            "description": "Ride not found"
+          },
+          "409": {
+            "description": "Ride not started / not finished yet / upload window (72 h) closed"
+          },
+          "413": {
+            "description": "Body larger than 2 MB"
+          },
+          "422": {
+            "description": "Validation failed — 2 to 5000 points, lat -90..90, lng -180..180,\nrecorded_at ISO-8601 with timezone, points in time order. The error names the first bad point.\n"
+          }
+        }
+      }
+    },
+    "/api/driver/rides/{id}/confirm-payment": {
+      "post": {
+        "tags": [
+          "Driver Rides"
+        ],
+        "summary": "Customer paid — split the money between driver and manager",
+        "description": "The driver taps **\"Payment received\"** after finishing the trip (customer paid cash).\n\nAllowed only on a **`completed` (5)** ride with `payment_status = unpaid`.\nIn one transaction:\n- ride `payment_status` → `paid`, `paid_at` set\n- the driver keeps the cash (`driver_share = driver_earning_amount`)\n- the manager's commission (`manager_share = admin_commission_amount`) is deducted\n  from the driver's `wallet_balance` and recorded as a `commission_deduction`\n  wallet transaction linked to the ride\n\nCan only succeed once per ride (a second call returns 409, nothing is deducted twice).\nThe same settlement is available to managers as `POST /api/admin/orders/{id}/mark-paid`\nwhen the driver never confirms. `data.payment` is the `RidePayment` schema.\n\nAlso: socket `customer:ride_paid`, `driver:ride_paid` (driver's other devices),\n`manager:ride_paid`, push notification to the customer and the driver.\n\nSocket alternative: emit `driver:ride_confirm_payment` `{ ride_id }` with an ack.\n",
+        "operationId": "driverConfirmPayment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment confirmed and money split",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/DriverRide"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Payment confirmed successfully",
+                  "data": {
+                    "id": 1,
+                    "status_id": 5,
+                    "status": "completed",
+                    "price": 12400,
+                    "payment_status": "paid",
+                    "paid_at": "2026-09-27 14:47:00",
+                    "payment_confirmed_by": "driver",
+                    "payment": {
+                      "ride_id": 1,
+                      "driver_id": 7,
+                      "customer_id": 5,
+                      "payment_status": "paid",
+                      "paid_at": "2026-09-27 14:47:00",
+                      "confirmed_by": "driver",
+                      "final_price": 12400,
+                      "total_paid": 12400,
+                      "driver_share": 11780,
+                      "manager_share": 620,
+                      "commission_rate": 5,
+                      "wallet_balance_after": 3380,
+                      "wallet_transaction_id": 57
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not this driver's ride"
+          },
+          "409": {
+            "description": "Ride is not completed, or payment already confirmed"
           }
         }
       }
@@ -6402,6 +8174,220 @@
           },
           "422": {
             "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/terms/{audience}": {
+      "get": {
+        "tags": [
+          "Terms"
+        ],
+        "summary": "Get terms and conditions (public)",
+        "description": "No token needed, so it can be shown on the signup screen.\n`audience` = which app: `customer` or `driver`.\n\nLanguage: `?lang=ar|en`, else the `Accept-Language` header, else `ar`.\n`content` is stored exactly as the manager wrote it (line breaks kept); it is\nan empty string with `updated_at: null` until a manager sets it.\n",
+        "operationId": "getTerms",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "audience",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "customer",
+                "driver"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ar",
+                "en"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Terms text",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Terms"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Terms and conditions retrieved successfully",
+                  "data": {
+                    "audience": "customer",
+                    "language": "ar",
+                    "content": "1. باستخدامك التطبيق فإنك توافق على...\n2. ...",
+                    "updated_at": "2026-09-29 17:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid audience or lang"
+          }
+        }
+      }
+    },
+    "/api/admin/terms/{audience}": {
+      "get": {
+        "tags": [
+          "Terms"
+        ],
+        "summary": "Get terms and conditions in both languages (manager)",
+        "operationId": "adminGetTerms",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "audience",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "customer",
+                "driver"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Both languages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/TermsAllLanguages"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Terms"
+        ],
+        "summary": "Update terms and conditions (manager)",
+        "description": "Replaces the text for the languages sent. Send `content_ar`, `content_en`, or both\n(at least one). Line breaks and spacing are kept; max 100,000 characters each.\nSending an empty string clears that language.\n",
+        "operationId": "adminUpdateTerms",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "audience",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "customer",
+                "driver"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content_ar": {
+                    "type": "string",
+                    "maxLength": 100000
+                  },
+                  "content_en": {
+                    "type": "string",
+                    "maxLength": 100000
+                  }
+                }
+              },
+              "example": {
+                "content_ar": "1. باستخدامك التطبيق فإنك توافق على هذه الشروط.\n2. ...",
+                "content_en": "1. By using the app you agree to these terms.\n2. ..."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved — returns both languages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/TermsAllLanguages"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid token"
+          },
+          "403": {
+            "description": "Not a manager token"
+          },
+          "422": {
+            "description": "Invalid audience, no content sent, or text too long"
           }
         }
       }

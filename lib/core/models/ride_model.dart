@@ -6,6 +6,10 @@ import 'package:equatable/equatable.dart';
 /// [price] is an *estimate* based on straight-line distance — swagger is
 /// explicit that the final fare can differ if the driver takes another
 /// route (see [priceIsEstimate]).
+///
+/// Lives in `core` (not `features/home`, which created it) because the
+/// ride-tracking feature also needs it once the order moves past
+/// `choose-vehicle` — see the "move to core" rule for cross-feature types.
 class RideModel extends Equatable {
   final int id;
   final int vehicleTypeId;

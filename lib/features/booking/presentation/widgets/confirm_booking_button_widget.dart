@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Primary CTA to confirm the selected ride category booking.
@@ -21,25 +22,25 @@ class ConfirmBookingButtonWidget extends StatelessWidget {
     return Column(
       children: [
         // Trust badges
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.verified_user_outlined,
               size: 13,
               color: AppColors.success,
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(
-              'كبائن معتمدون ومرخصون',
-              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+              context.l10n.bookingCertifiedCaptains,
+              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
             ),
-            SizedBox(width: 12),
-            Icon(Icons.bolt_rounded, size: 13, color: AppColors.primary),
-            SizedBox(width: 4),
+            const SizedBox(width: 12),
+            const Icon(Icons.bolt_rounded, size: 13, color: AppColors.primary),
+            const SizedBox(width: 4),
             Text(
-              'تأكيد ومطابقة فورية',
-              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+              context.l10n.bookingInstantMatch,
+              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -85,7 +86,7 @@ class ConfirmBookingButtonWidget extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'تأكيد طلب مشوار $categoryName',
+                          context.l10n.bookingConfirmRide(categoryName),
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -103,7 +104,7 @@ class ConfirmBookingButtonWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          '${price.toStringAsFixed(0)} ل.س',
+                          context.l10n.priceSyp(price.toStringAsFixed(0)),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
@@ -113,7 +114,7 @@ class ConfirmBookingButtonWidget extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       const Icon(
-                        Icons.arrow_back_ios_new_rounded,
+                        Icons.arrow_forward_ios_rounded,
                         color: Colors.white,
                         size: 14,
                       ),
@@ -130,26 +131,26 @@ class ConfirmBookingButtonWidget extends StatelessWidget {
               color: AppColors.textTertiary,
               height: 1.4,
             ),
-            children: const [
-              TextSpan(text: 'بالضغط على تأكيد، أنت توافق على '),
+            children: [
+              TextSpan(text: context.l10n.bookingAgreePrefix),
               TextSpan(
-                text: 'شروط الخدمة',
-                style: TextStyle(
+                text: context.l10n.bookingTerms,
+                style: const TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                   decoration: TextDecoration.underline,
                 ),
               ),
-              TextSpan(text: ' و'),
+              TextSpan(text: context.l10n.bookingAgreeAnd),
               TextSpan(
-                text: 'سياسة الخصوصية',
-                style: TextStyle(
+                text: context.l10n.bookingPrivacy,
+                style: const TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                   decoration: TextDecoration.underline,
                 ),
               ),
-              TextSpan(text: ' لمشوار'),
+              TextSpan(text: context.l10n.bookingAgreeSuffix),
             ],
           ),
           textAlign: TextAlign.center,

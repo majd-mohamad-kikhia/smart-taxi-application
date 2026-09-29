@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../cubit/booking_cubit.dart';
@@ -40,7 +41,7 @@ class _BookingView extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'تم تأكيد طلب مشوار ${state.selectedCategory.name} بنجاح ✓',
+                '${context.l10n.bookingConfirmed(state.selectedCategory.name)} ✓',
               ),
               backgroundColor: AppColors.primary,
               behavior: SnackBarBehavior.floating,

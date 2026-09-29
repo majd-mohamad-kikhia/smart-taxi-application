@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/enums/user_role.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// A selectable card representing one [UserRole] on the role-selection
@@ -54,9 +55,9 @@ class RoleOptionCardWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(role.label, style: Theme.of(context).textTheme.titleMedium),
+                  Text(role.label(context.l10n), style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 2),
-                  Text(role.description, style: Theme.of(context).textTheme.bodySmall),
+                  Text(role.description(context.l10n), style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
             ),

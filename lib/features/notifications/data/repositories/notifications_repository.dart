@@ -1,3 +1,4 @@
+import '../../../../core/localization/app_strings.dart';
 import '../datasources/notifications_remote_data_source.dart';
 import '../models/notification_model.dart';
 
@@ -25,7 +26,7 @@ class NotificationsRepository {
   Future<List<NotificationModel>> getNotifications() async {
     final response = await _remoteDataSource.fetchNotifications();
     if (response.statusCode != 200) {
-      throw const NotificationsException('تعذر تحميل الإشعارات');
+      throw NotificationsException(AppStrings.current.errNotificationsLoad);
     }
     return response.data;
   }

@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
+import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/models/ride_model.dart';
 import '../../../../core/network/api_exception.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../datasources/ride_request_remote_data_source.dart';
-import '../models/picked_location_model.dart';
-import '../models/ride_model.dart';
 import '../models/ride_quote_model.dart';
 
 /// Structured failure thrown by [RideRequestRepository], so the Cubit
@@ -78,7 +79,7 @@ class RideRequestRepository {
   RideRequestException _mapDioException(DioException e) {
     final error = e.error;
     return RideRequestException(
-      error is ApiException ? error.message : 'تعذر الاتصال بالخادم',
+      error is ApiException ? error.message : AppStrings.current.errServerUnreachable,
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
+import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/models/ride_model.dart';
 import '../../../../core/network/api_endpoints.dart';
-import '../models/picked_location_model.dart';
-import '../models/ride_model.dart';
 import '../models/ride_quote_model.dart';
 
 /// Remote data source for the customer order flow (see swagger.json,

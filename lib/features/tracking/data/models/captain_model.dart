@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 
 /// Model representing the assigned captain for a live trip.
 class CaptainModel extends Equatable {
@@ -26,8 +27,8 @@ class CaptainModel extends Equatable {
 
   String get vehicleLabel => '$vehicleModel • $vehicleColor';
 
-  String get tripsLabel =>
-      'كابتن معتمد • $completedTrips+ رحلة';
+  String tripsLabel(AppLocalizations l10n) =>
+      l10n.captainCertified('$completedTrips');
 
   @override
   List<Object?> get props => [

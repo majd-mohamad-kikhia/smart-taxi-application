@@ -84,6 +84,8 @@ class AppColors {
 
   // ─── Map ───────────────────────────────────────────────────
   static const Color mapMarkerCar = primaryYellow;
+  static const Color mapRoutePlanned = primaryYellow;
+  static const Color mapRouteDriven = Color(0xFF3B82F6);
   static const Color mapMarkerUser = darkGray;
 
   // ─── Gradient helpers ──────────────────────────────────────

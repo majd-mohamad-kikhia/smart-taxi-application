@@ -3,7 +3,7 @@ class AppConstants {
   AppConstants._();
 
   // ─── App Info ──────────────────────────────────────────────
-  static const String appName = 'مشوار';
+  static const String appName = 'Smart Taxi';
   static const String appVersion = '3.4.0';
   static const String logoPath =
       'assets/icons/app_logo_icons/icon-master-1024.png';
@@ -15,6 +15,11 @@ class AppConstants {
   static const String osmTileUrl =
       'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   static const String userAgentPackage = 'com.mshoar.app';
+
+  /// Road-routing service for the live trip map (OSRM's `route` API). The
+  /// public demo server is fine for development; point this at a
+  /// self-hosted OSRM (or a compatible provider) for production traffic.
+  static const String routingBaseUrl = 'https://router.project-osrm.org';
 
   // ─── UI ────────────────────────────────────────────────────
   static const double radiusSmall = 8.0;

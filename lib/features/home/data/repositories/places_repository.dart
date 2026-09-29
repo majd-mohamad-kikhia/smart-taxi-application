@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../datasources/places_remote_data_source.dart';
 import '../models/place_suggestion_model.dart';
 
@@ -37,7 +38,7 @@ class PlacesRepository {
         nearLongitude: nearLongitude,
       );
     } on DioException {
-      throw const PlacesException('تعذر البحث حالياً، حاول مرة أخرى');
+      throw PlacesException(AppStrings.current.errPlacesSearch);
     }
   }
 

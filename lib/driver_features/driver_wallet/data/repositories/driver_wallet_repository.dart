@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_exception.dart';
 import '../datasources/driver_wallet_remote_data_source.dart';
 import '../models/driver_financial_report_model.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../models/wallet_history_model.dart';
 import '../models/wallet_transaction_model.dart';
 
@@ -35,7 +36,7 @@ class DriverWalletRepository {
     } on DioException catch (e) {
       final error = e.error;
       throw DriverWalletException(
-        error is ApiException ? error.message : 'تعذر الاتصال بالخادم',
+        error is ApiException ? error.message : AppStrings.current.errServerUnreachable,
       );
     }
   }
@@ -52,7 +53,7 @@ class DriverWalletRepository {
     } on DioException catch (e) {
       final error = e.error;
       throw DriverWalletException(
-        error is ApiException ? error.message : 'تعذر الاتصال بالخادم',
+        error is ApiException ? error.message : AppStrings.current.errServerUnreachable,
       );
     }
   }

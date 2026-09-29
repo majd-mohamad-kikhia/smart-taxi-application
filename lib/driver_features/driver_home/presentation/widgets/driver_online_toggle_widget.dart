@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/location_ticker.dart';
 import '../cubit/driver_presence_cubit.dart';
@@ -38,7 +39,7 @@ class DriverOnlineToggleWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _title(state.status),
+                      _title(context, state.status),
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -59,9 +60,9 @@ class DriverOnlineToggleWidget extends StatelessWidget {
                                   LocationFailureReason.serviceDisabled
                               ? Geolocator.openLocationSettings()
                               : Geolocator.openAppSettings(),
-                          child: const Text(
-                            'فتح الإعدادات',
-                            style: TextStyle(
+                          child: Text(
+                            context.l10n.openSettings,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: AppColors.primary,
@@ -72,9 +73,9 @@ class DriverOnlineToggleWidget extends StatelessWidget {
                       ],
                     ] else if (!enabled) ...[
                       const SizedBox(height: 4),
-                      const Text(
-                        'الظهور كمتاح متوقف حتى تفعيل الحساب',
-                        style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                      Text(
+                        context.l10n.driverAvailabilityPaused,
+                        style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
                       ),
                     ],
                   ],
@@ -101,10 +102,13 @@ class DriverOnlineToggleWidget extends StatelessWidget {
     );
   }
 
-  String _title(DriverPresenceStatus status) => switch (status) {
-        DriverPresenceStatus.online => 'متاح لاستقبال الرحلات',
-        DriverPresenceStatus.connecting => 'جاري الاتصال...',
-        DriverPresenceStatus.offline => 'غير متاح',
-        DriverPresenceStatus.error => 'غير متاح',
-      };
+  String _title(BuildContext context, DriverPresenceStatus status) {
+    final l10n = context.l10n;
+    return switch (status) {
+      DriverPresenceStatus.online => l10n.presenceOnline,
+      DriverPresenceStatus.connecting => l10n.presenceConnecting,
+      DriverPresenceStatus.offline => l10n.presenceOffline,
+      DriverPresenceStatus.error => l10n.presenceOffline,
+    };
+  }
 }

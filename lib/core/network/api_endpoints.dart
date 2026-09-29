@@ -12,10 +12,21 @@ class ApiEndpoints {
   // ─── Health ────────────────────────────────────────────────
   String get health => '/';
 
+  // ─── Terms (public) ────────────────────────────────────────
+  /// [audience] is `customer` or `driver`.
+  String terms(String audience) => '/api/terms/$audience';
+
   // ─── Customer Auth ─────────────────────────────────────────
   String get customerSignup => '/api/customer/auth/signup';
   String get customerLogin => '/api/customer/auth/login';
   String get customerLogout => '/api/customer/auth/logout';
+
+  // ─── Customer Profile ──────────────────────────────────────
+  String get customerProfile => '/api/customer/profile';
+  String get customerLanguage => '/api/customer/profile/language';
+
+  // ─── Customer Complaints ───────────────────────────────────
+  String get customerComplaints => '/api/customer/complaints';
 
   // ─── Customer Notifications ────────────────────────────────
   String get customerNotifications => '/api/customer/notifications';
@@ -31,6 +42,7 @@ class ApiEndpoints {
   String get driverSignup => '/api/driver/auth/signup';
   String get driverLogin => '/api/driver/auth/login';
   String get driverLogout => '/api/driver/auth/logout';
+  String get driverLanguage => '/api/driver/language';
 
   // ─── Driver Rides ──────────────────────────────────────────
   String driverRideAccept(int id) => '/api/driver/rides/$id/accept';
@@ -38,6 +50,9 @@ class ApiEndpoints {
   String driverRideStart(int id) => '/api/driver/rides/$id/start';
   String driverRideFinish(int id) => '/api/driver/rides/$id/finish';
   String driverRideCancel(int id) => '/api/driver/rides/$id/cancel';
+  String driverRideRoute(int id) => '/api/driver/rides/$id/route';
+  String driverRideConfirmPayment(int id) =>
+      '/api/driver/rides/$id/confirm-payment';
 
   // ─── Driver Settings ───────────────────────────────────────
   String get driverSearchRadius => '/api/driver/search-radius';

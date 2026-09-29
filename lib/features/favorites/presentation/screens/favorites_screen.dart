@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
@@ -37,7 +38,7 @@ class _FavoritesView extends StatelessWidget {
         listener: (context, state) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('تم حذف العنوان'),
+              content: Text(context.l10n.favAddressDeleted),
               backgroundColor: AppColors.primary,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -62,7 +63,7 @@ class _FavoritesView extends StatelessWidget {
                       onSelectOnMap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: const Text('تحديد على الخريطة قريباً'),
+                            content: Text(context.l10n.favSelectOnMapSoon),
                             behavior: SnackBarBehavior.floating,
                             backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
@@ -74,7 +75,7 @@ class _FavoritesView extends StatelessWidget {
                       onSearchByName: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: const Text('البحث بالاسم قريباً'),
+                            content: Text(context.l10n.favSearchByNameSoon),
                             behavior: SnackBarBehavior.floating,
                             backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
@@ -88,9 +89,9 @@ class _FavoritesView extends StatelessWidget {
                     // Section header
                     Row(
                       children: [
-                        const Text(
-                          'العناوين المفضلة',
-                          style: TextStyle(
+                        Text(
+                          context.l10n.favoriteAddresses,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textPrimary,
@@ -107,7 +108,7 @@ class _FavoritesView extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            '${state.count} أماكن',
+                            context.l10n.favPlacesCount('${state.count}'),
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -119,17 +120,17 @@ class _FavoritesView extends StatelessWidget {
                         GestureDetector(
                           onTap: () =>
                               context.read<FavoritesCubit>().sortByName(),
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.swap_vert_rounded,
                                 size: 16,
                                 color: AppColors.primary,
                               ),
-                              SizedBox(width: 3),
+                              const SizedBox(width: 3),
                               Text(
-                                'ترتيب',
-                                style: TextStyle(
+                                context.l10n.favSort,
+                                style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.primary,
@@ -142,12 +143,12 @@ class _FavoritesView extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     if (state.addresses.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 32),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 32),
                         child: Center(
                           child: Text(
-                            'لا توجد عناوين محفوظة',
-                            style: TextStyle(
+                            context.l10n.favEmpty,
+                            style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 14,
                             ),
@@ -161,7 +162,7 @@ class _FavoritesView extends StatelessWidget {
                           onEdit: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('تعديل ${address.name} قريباً'),
+                                content: Text(context.l10n.favEditSoon(address.name)),
                                 behavior: SnackBarBehavior.floating,
                                 backgroundColor: AppColors.primary,
                               ),
@@ -184,7 +185,7 @@ class _FavoritesView extends StatelessWidget {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text('تم حفظ الموقع الحالي ✓'),
+                              content: Text('${context.l10n.favCurrentSaved} ✓'),
                               backgroundColor: AppColors.primary,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
@@ -206,12 +207,13 @@ class _FavoritesView extends StatelessWidget {
   }
 
   void _confirmDelete(BuildContext context, String id, String name) {
+    final l10n = context.l10n;
     showAppDialog(
       context: context,
-      title: 'حذف العنوان؟',
-      message: 'هل تريد حذف "$name" من عناوينك المفضلة؟ لا يمكن التراجع عن هذا الإجراء.',
-      confirmLabel: 'حذف',
-      cancelLabel: 'تراجع',
+      title: l10n.favDeleteTitle,
+      message: l10n.favDeleteMessage(name),
+      confirmLabel: l10n.delete,
+      cancelLabel: l10n.goBack,
       icon: Icons.delete_rounded,
       tone: AppDialogTone.destructive,
       onConfirm: () => context.read<FavoritesCubit>().deleteAddress(id),

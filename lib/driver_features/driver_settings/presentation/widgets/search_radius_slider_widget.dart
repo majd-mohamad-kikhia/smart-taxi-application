@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Draggable control for the driver's ride-search radius. Whole
@@ -19,6 +20,7 @@ class SearchRadiusSliderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -38,10 +40,10 @@ class SearchRadiusSliderWidget extends StatelessWidget {
                 size: 20,
               ),
               const SizedBox(width: 8),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'نطاق البحث عن الرحلات',
-                  style: TextStyle(
+                  l10n.searchRadiusTitle,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
@@ -55,7 +57,7 @@ class SearchRadiusSliderWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(100),
                 ),
                 child: Text(
-                  '$valueKm كم',
+                  l10n.distanceKm('$valueKm'),
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -66,9 +68,9 @@ class SearchRadiusSliderWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            'أقصى مسافة لاستقبال طلبات الرحلات القريبة منك',
-            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+          Text(
+            l10n.searchRadiusDescription,
+            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
           ),
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
@@ -87,7 +89,7 @@ class SearchRadiusSliderWidget extends StatelessWidget {
               min: minKm.toDouble(),
               max: maxKm.toDouble(),
               divisions: maxKm - minKm,
-              label: '$valueKm كم',
+              label: l10n.distanceKm('$valueKm'),
               onChanged: (v) => onChanged(v.round()),
             ),
           ),
@@ -97,11 +99,11 @@ class SearchRadiusSliderWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '$minKm كم',
+                  l10n.distanceKm('$minKm'),
                   style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
                 ),
                 Text(
-                  '$maxKm كم',
+                  l10n.distanceKm('$maxKm'),
                   style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
                 ),
               ],

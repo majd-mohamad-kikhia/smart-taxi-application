@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Orange promo strip showing applied discount code and savings amount.
@@ -40,7 +41,7 @@ class PromoBannerWidget extends StatelessWidget {
             ),
           ),
           Text(
-            '-${discountAmount.toStringAsFixed(2)} ل.س',
+            '-${context.l10n.priceSyp(discountAmount.toStringAsFixed(2))}',
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,

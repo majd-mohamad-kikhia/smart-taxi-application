@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Call / Chat / Share action row for contacting the captain.
@@ -21,7 +22,7 @@ class TrackingActionsWidget extends StatelessWidget {
         Expanded(
           flex: 3,
           child: _ActionButton(
-            label: 'اتصال',
+            label: context.l10n.actionCall,
             icon: Icons.phone_rounded,
             background: AppColors.primary,
             foreground: Colors.white,
@@ -32,7 +33,7 @@ class TrackingActionsWidget extends StatelessWidget {
         Expanded(
           flex: 3,
           child: _ActionButton(
-            label: 'محادثة',
+            label: context.l10n.actionChat,
             icon: Icons.chat_bubble_outline_rounded,
             background: const Color(0xFFE8EEF8),
             foreground: AppColors.primary,
@@ -43,7 +44,7 @@ class TrackingActionsWidget extends StatelessWidget {
         Expanded(
           flex: 3,
           child: _ActionButton(
-            label: 'مشاركة',
+            label: context.l10n.actionShare,
             icon: Icons.ios_share_rounded,
             background: const Color(0xFFE8EEF8),
             foreground: AppColors.primary,

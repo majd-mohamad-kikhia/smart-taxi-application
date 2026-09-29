@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/wallet_transaction_model.dart';
 
@@ -53,7 +54,7 @@ class WalletTransactionRowWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  transaction.type.label,
+                  transaction.type.label(context.l10n),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -85,7 +86,7 @@ class WalletTransactionRowWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            '${_isCredit ? '+' : ''}${transaction.amount.toStringAsFixed(2)} ل.س',
+            '${_isCredit ? '+' : ''}${context.l10n.priceSyp(transaction.amount.toStringAsFixed(2))}',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,

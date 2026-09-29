@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/booking_route_model.dart';
 
@@ -82,9 +83,9 @@ class BookingMapWidget extends StatelessWidget {
               ),
             ],
           ),
-          // Map FABs (left side in RTL visual = physical left)
-          Positioned(
-            left: 12,
+          // Map FABs sit on the end side (physical left in RTL).
+          PositionedDirectional(
+            end: 12,
             top: MediaQuery.of(context).padding.top + 60,
             child: const Column(
               children: [
@@ -100,8 +101,8 @@ class BookingMapWidget extends StatelessWidget {
             right: 12,
             bottom: 16,
             child: _EtaCard(
-              durationLabel: route.durationLabel,
-              distanceLabel: route.distanceLabel,
+              durationLabel: route.durationLabel(context.l10n),
+              distanceLabel: route.distanceLabel(context.l10n),
             ),
           ),
         ],
@@ -131,9 +132,9 @@ class _PickupMarker extends StatelessWidget {
               ),
             ],
           ),
-          child: const Text(
-            'اسحب الخريطة لتعديل نقطة الالتقاء بدقة',
-            style: TextStyle(
+          child: Text(
+            context.l10n.bookingDragMap,
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,

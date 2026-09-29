@@ -25,28 +25,14 @@ class SettingsState extends Equatable {
       ),
       sections: [
         SettingsSectionModel(
-          title: 'الحساب والمدفوعات',
-          items: [
-            SettingsItemModel(
-              id: 'favorites',
-              title: 'الأماكن المفضلة والمحفوظة',
-              subtitle: 'المنزل، العمل، استراحة (3 مواقع)',
-            ),
-          ],
+          id: 'account',
+          items: [SettingsItemModel(id: 'favorites')],
         ),
         SettingsSectionModel(
-          title: 'الأمان والدعم',
+          id: 'safety',
           items: [
-            SettingsItemModel(
-              id: 'support',
-              title: 'المساعدة والدعم الفني',
-              subtitle: 'محادثة مباشرة أو اتصال على مدار الساعة',
-            ),
-            SettingsItemModel(
-              id: 'terms',
-              title: 'الشروط والخصوصية',
-              subtitle: 'سياسة الاستخدام وحماية البيانات',
-            ),
+            SettingsItemModel(id: 'support'),
+            SettingsItemModel(id: 'terms'),
           ],
         ),
       ],

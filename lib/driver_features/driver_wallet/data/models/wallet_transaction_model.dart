@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 
 /// Kind of wallet movement — mirrors `WalletTransaction.transaction_type`
 /// in swagger.json.
@@ -23,11 +24,11 @@ enum WalletTransactionType {
     WalletTransactionType.compensation => 'compensation',
   };
 
-  String get label => switch (this) {
-    WalletTransactionType.topup => 'شحن رصيد',
-    WalletTransactionType.commissionDeduction => 'عمولة',
-    WalletTransactionType.penalty => 'غرامة',
-    WalletTransactionType.compensation => 'تعويض',
+  String label(AppLocalizations l10n) => switch (this) {
+    WalletTransactionType.topup => l10n.txTopup,
+    WalletTransactionType.commissionDeduction => l10n.txCommission,
+    WalletTransactionType.penalty => l10n.txPenalty,
+    WalletTransactionType.compensation => l10n.txCompensation,
   };
 }
 

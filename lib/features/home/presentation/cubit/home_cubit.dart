@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/session/session_cubit.dart';
-import '../../data/models/picked_location_model.dart';
 import '../../data/repositories/ride_request_repository.dart';
 import 'home_state.dart';
 
-/// Cubit driving the "إنشاء طلب" (create request) order flow:
+/// Cubit driving the "create request" order flow:
 /// pick two points → resolve a price quote per vehicle type → choose a
 /// vehicle (which creates the ride) → cancel it.
 class HomeCubit extends Cubit<HomeState> {
@@ -22,12 +22,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   /// Updates the greeting based on the current time of day.
   void refreshGreeting() {
-    final hour = DateTime.now().hour;
-    final greeting = hour < 12
-        ? 'صباح الخير'
-        : hour < 17
-            ? 'مساء الخير'
-            : 'مساء النور';
+    final greeting = GreetingPeriod.fromHour(DateTime.now().hour);
 
     if (!isClosed && state.greeting != greeting) {
       emit(state.copyWith(greeting: greeting));
@@ -86,6 +81,14 @@ class HomeCubit extends Cubit<HomeState> {
       if (isClosed) return;
       emit(state.copyWith(isBooking: false, errorMessage: e.message));
     }
+  }
+
+  /// Resets the order flow once `RideTrackingScreen` has ended the ride
+  /// (completed/cancelled) — no REST call here, that already happened
+  /// server-side via the tracking screen's socket events.
+  void resetAfterRideEnded() {
+    if (isClosed) return;
+    emit(state.copyWith(clearActiveRide: true, clearQuote: true, clearLocations: true));
   }
 
   Future<void> cancelRide() async {

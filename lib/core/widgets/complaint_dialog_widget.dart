@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/injection/injection.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_animated_dialog.dart';
-import '../../../../core/widgets/auth_primary_button_widget.dart';
-import '../cubit/driver_complaint_cubit.dart';
-import '../cubit/driver_complaint_state.dart';
+import '../complaints/complaint_cubit.dart';
+import '../complaints/complaint_state.dart';
+import '../localization/l10n_context_extension.dart';
+import '../theme/app_colors.dart';
+import 'app_animated_dialog.dart';
+import 'auth_primary_button_widget.dart';
 
 /// Opens the app's shared [showAppDialog] shell with a complaint form as
 /// its content, reporting success back through [onSubmitted] once the
-/// driver's complaint reaches the server.
+/// complaint reaches the server. [createCubit] supplies the role-specific
+/// [ComplaintCubit].
 Future<void> showComplaintDialog(
   BuildContext context, {
+  required ComplaintCubit Function() createCubit,
   required VoidCallback onSubmitted,
 }) {
   return showAppDialog<void>(
     context: context,
-    title: 'إرسال بلاغ',
+    title: context.l10n.complaintSend,
     icon: Icons.report_gmailerrorred_rounded,
     tone: AppDialogTone.warning,
     showActions: false,
-    content: BlocProvider<DriverComplaintCubit>(
-      create: (_) => sl<DriverComplaintCubit>(),
+    content: BlocProvider<ComplaintCubit>(
+      create: (_) => createCubit(),
       child: _ComplaintFormWidget(onSubmitted: onSubmitted),
     ),
   );
@@ -52,15 +54,15 @@ class _ComplaintFormWidgetState extends State<_ComplaintFormWidget> {
 
   void _submit(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
-    context.read<DriverComplaintCubit>().submit(
-          message: _messageController.text.trim(),
-          subject: _subjectController.text.trim(),
-        );
+    context.read<ComplaintCubit>().submit(
+      message: _messageController.text.trim(),
+      subject: _subjectController.text.trim(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<DriverComplaintCubit, DriverComplaintState>(
+    return BlocConsumer<ComplaintCubit, ComplaintState>(
       listener: (context, state) {
         if (state.submitStatus == ComplaintSubmitStatus.success) {
           Navigator.of(context).pop();
@@ -68,7 +70,9 @@ class _ComplaintFormWidgetState extends State<_ComplaintFormWidget> {
         }
       },
       builder: (context, state) {
-        final isSubmitting = state.submitStatus == ComplaintSubmitStatus.submitting;
+        final l10n = context.l10n;
+        final isSubmitting =
+            state.submitStatus == ComplaintSubmitStatus.submitting;
         return Form(
           key: _formKey,
           child: Column(
@@ -79,9 +83,9 @@ class _ComplaintFormWidgetState extends State<_ComplaintFormWidget> {
                 controller: _subjectController,
                 enabled: !isSubmitting,
                 maxLength: 150,
-                decoration: const InputDecoration(
-                  labelText: 'الموضوع (اختياري)',
-                  hintText: 'عنوان مختصر للبلاغ',
+                decoration: InputDecoration(
+                  labelText: l10n.complaintSubjectLabel,
+                  hintText: l10n.complaintSubjectHint,
                 ),
               ),
               const SizedBox(height: 4),
@@ -90,22 +94,22 @@ class _ComplaintFormWidgetState extends State<_ComplaintFormWidget> {
                 enabled: !isSubmitting,
                 maxLines: 4,
                 maxLength: 1000,
-                decoration: const InputDecoration(
-                  labelText: 'التفاصيل',
-                  hintText: 'اكتب تفاصيل البلاغ هنا...',
+                decoration: InputDecoration(
+                  labelText: l10n.complaintDetailsLabel,
+                  hintText: l10n.complaintDetailsHint,
                   alignLabelWithHint: true,
                 ),
                 validator: (value) {
                   final text = value?.trim() ?? '';
-                  if (text.length < 5) return 'يرجى كتابة 5 أحرف على الأقل';
-                  if (text.length > 1000) return 'الحد الأقصى 1000 حرف';
+                  if (text.length < 5) return l10n.complaintMinLength;
+                  if (text.length > 1000) return l10n.complaintMaxLength;
                   return null;
                 },
               ),
               if (state.submitStatus == ComplaintSubmitStatus.failure) ...[
                 const SizedBox(height: 4),
                 Text(
-                  state.errorMessage ?? 'تعذر إرسال البلاغ',
+                  state.errorMessage ?? l10n.complaintSendFailed,
                   style: const TextStyle(fontSize: 13, color: AppColors.error),
                 ),
               ],
@@ -114,14 +118,16 @@ class _ComplaintFormWidgetState extends State<_ComplaintFormWidget> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: isSubmitting ? null : () => Navigator.of(context).pop(),
-                      child: const Text('إلغاء'),
+                      onPressed: isSubmitting
+                          ? null
+                          : () => Navigator.of(context).pop(),
+                      child: Text(l10n.cancel),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: AuthPrimaryButtonWidget(
-                      label: 'إرسال',
+                      label: l10n.send,
                       isLoading: isSubmitting,
                       onPressed: () => _submit(context),
                     ),

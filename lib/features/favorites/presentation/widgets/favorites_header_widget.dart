@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Top bar for favorites: back + title + profile avatar.
@@ -30,9 +31,9 @@ class FavoritesHeaderWidget extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            const Text(
-              'العناوين المفضلة',
-              style: TextStyle(
+            Text(
+              context.l10n.favoriteAddresses,
+              style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
@@ -50,7 +51,7 @@ class FavoritesHeaderWidget extends StatelessWidget {
                   border: Border.all(color: AppColors.border),
                 ),
                 child: const Icon(
-                  Icons.arrow_forward_ios_rounded,
+                  Icons.arrow_back_ios_new_rounded,
                   color: AppColors.textPrimary,
                   size: 16,
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/validators/auth_validators.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
@@ -61,16 +62,17 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
       bloc: _cubit,
       listener: _onStateChanged,
       builder: (context, state) {
+        final l10n = context.l10n;
         return AuthFormLayoutWidget(
           formKey: _formKey,
-          title: 'تسجيل دخول الكباتن',
-          subtitle: 'أدخل بياناتك للمتابعة إلى مشوار',
+          title: l10n.driverSignInTitle,
+          subtitle: l10n.signInSubtitle,
           role: UserRole.driver,
           onChangeRole: _changeRole,
           fields: [
             AuthTextFieldWidget(
               controller: _phoneController,
-              label: 'رقم الجوال',
+              label: l10n.phoneNumber,
               hint: '05xxxxxxxx',
               prefixIcon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
@@ -78,7 +80,7 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
             ),
             AuthTextFieldWidget(
               controller: _passwordController,
-              label: 'كلمة المرور',
+              label: l10n.password,
               hint: '••••••••',
               prefixIcon: Icons.lock_outline,
               isPassword: true,
@@ -89,7 +91,7 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
           errorMessage: state.status == DriverAuthStatus.failure
               ? state.errorMessage
               : null,
-          submitLabel: 'تسجيل الدخول',
+          submitLabel: l10n.signIn,
           isSubmitting: state.status == DriverAuthStatus.submitting,
           onSubmit: _submit,
         );

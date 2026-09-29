@@ -1,3 +1,4 @@
+import '../../../../core/localization/app_strings.dart';
 import '../models/notification_model.dart';
 
 /// Minimal stand-in for a future Dio [Response] until the real
@@ -24,48 +25,52 @@ class NotificationsRemoteDataSource {
     return NotificationsApiResponse(statusCode: 200, data: _mockNotifications);
   }
 
-  static final List<NotificationModel> _mockNotifications = [
-    NotificationModel(
-      id: 'n1',
-      title: 'الكابتن ماجد في الطريق إليك',
-      message: 'سيصل كابتنك خلال 3 دقائق تقريباً، جهّز نفسك للانطلاق.',
-      type: NotificationType.tripUpdate,
-      dateTime: DateTime(2025, 10, 24, 14, 10),
-    ),
-    NotificationModel(
-      id: 'n2',
-      title: 'خصم 20% على مشاويرك',
-      message: 'استخدم الرمز الترويجي "مشوار20" عند الحجز هذا الأسبوع.',
-      type: NotificationType.promo,
-      dateTime: DateTime(2025, 10, 24, 10, 0),
-    ),
-    NotificationModel(
-      id: 'n3',
-      title: 'تم خصم المبلغ بنجاح',
-      message: 'تم خصم 38.50 ل.س من محفظتك مقابل رحلتك الأخيرة.',
-      type: NotificationType.payment,
-      dateTime: DateTime(2025, 10, 24, 8, 45),
-    ),
-    NotificationModel(
-      id: 'n4',
-      title: 'وصلت إلى وجهتك بنجاح',
-      message: 'نتمنى أن تكون قد استمتعت برحلتك معنا. لا تنسَ تقييم الكابتن.',
-      type: NotificationType.tripUpdate,
-      dateTime: DateTime(2025, 10, 23, 20, 30),
-    ),
-    NotificationModel(
-      id: 'n5',
-      title: 'عرض خاص لعملاء مشوار',
-      message: 'احصل على رحلة مجانية عند دعوة 3 أصدقاء للتطبيق.',
-      type: NotificationType.promo,
-      dateTime: DateTime(2025, 10, 19, 12, 0),
-    ),
-    NotificationModel(
-      id: 'n6',
-      title: 'تحديث سياسة الخصوصية',
-      message: 'قمنا بتحديث سياسة الخصوصية وشروط الاستخدام الخاصة بالتطبيق.',
-      type: NotificationType.system,
-      dateTime: DateTime(2025, 10, 19, 9, 0),
-    ),
-  ];
+  /// Sample data, worded in the language active at fetch time.
+  static List<NotificationModel> get _mockNotifications {
+    final l10n = AppStrings.current;
+    return [
+      NotificationModel(
+        id: 'n1',
+        title: l10n.mockNotif1Title,
+        message: l10n.mockNotif1Message,
+        type: NotificationType.tripUpdate,
+        dateTime: DateTime(2025, 10, 24, 14, 10),
+      ),
+      NotificationModel(
+        id: 'n2',
+        title: l10n.mockNotif2Title,
+        message: l10n.mockNotif2Message,
+        type: NotificationType.promo,
+        dateTime: DateTime(2025, 10, 24, 10, 0),
+      ),
+      NotificationModel(
+        id: 'n3',
+        title: l10n.mockNotif3Title,
+        message: l10n.mockNotif3Message,
+        type: NotificationType.payment,
+        dateTime: DateTime(2025, 10, 24, 8, 45),
+      ),
+      NotificationModel(
+        id: 'n4',
+        title: l10n.mockNotif4Title,
+        message: l10n.mockNotif4Message,
+        type: NotificationType.tripUpdate,
+        dateTime: DateTime(2025, 10, 23, 20, 30),
+      ),
+      NotificationModel(
+        id: 'n5',
+        title: l10n.mockNotif5Title,
+        message: l10n.mockNotif5Message,
+        type: NotificationType.promo,
+        dateTime: DateTime(2025, 10, 19, 12, 0),
+      ),
+      NotificationModel(
+        id: 'n6',
+        title: l10n.mockNotif6Title,
+        message: l10n.mockNotif6Message,
+        type: NotificationType.system,
+        dateTime: DateTime(2025, 10, 19, 9, 0),
+      ),
+    ];
+  }
 }

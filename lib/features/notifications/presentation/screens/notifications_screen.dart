@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
 import '../cubit/notifications_cubit.dart';
@@ -111,14 +112,14 @@ class _ErrorView extends StatelessWidget {
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.refresh_rounded, size: 16, color: Colors.white),
-                    SizedBox(width: 6),
+                    const Icon(Icons.refresh_rounded, size: 16, color: Colors.white),
+                    const SizedBox(width: 6),
                     Text(
-                      'إعادة المحاولة',
-                      style: TextStyle(
+                      context.l10n.retry,
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -140,19 +141,19 @@ class _EmptyNotifications extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.notifications_off_outlined,
             size: 48,
             color: AppColors.textTertiary,
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
-            'لا توجد إشعارات',
-            style: TextStyle(
+            context.l10n.notificationsEmpty,
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,

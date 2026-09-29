@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/paginated_list_widget.dart';
 import '../../data/models/wallet_transaction_model.dart';
@@ -31,7 +32,7 @@ class _DriverWalletFinesView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundGray,
-      appBar: AppBar(title: const Text('الغرامات الإدارية')),
+      appBar: AppBar(title: Text(context.l10n.walletFines)),
       body: BlocBuilder<DriverWalletCubit, DriverWalletState>(
         builder: (context, state) {
           return PaginatedListWidget<WalletTransactionModel>(
@@ -40,7 +41,7 @@ class _DriverWalletFinesView extends StatelessWidget {
             isLoadingMore: state.isLoadingMore,
             hasMore: state.hasMore,
             errorMessage: state.errorMessage,
-            emptyMessage: 'لا توجد غرامات',
+            emptyMessage: context.l10n.walletNoFines,
             emptyIcon: Icons.verified_outlined,
             onRetry: () => context.read<DriverWalletCubit>().initialize(),
             onRefresh: () => context.read<DriverWalletCubit>().refresh(),

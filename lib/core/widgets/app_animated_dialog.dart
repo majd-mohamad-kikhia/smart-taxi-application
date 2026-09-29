@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
 
 /// Visual tone for branded dialogs.
@@ -16,7 +17,7 @@ Future<T?> showAppDialog<T>({
   required String title,
   String? message,
   String? confirmLabel,
-  String cancelLabel = 'تراجع',
+  String? cancelLabel,
   IconData icon = Icons.info_rounded,
   AppDialogTone tone = AppDialogTone.primary,
   VoidCallback? onConfirm,
@@ -56,7 +57,7 @@ Future<T?> showAppDialog<T>({
                 title: title,
                 message: message,
                 confirmLabel: confirmLabel,
-                cancelLabel: cancelLabel,
+                cancelLabel: cancelLabel ?? context.l10n.goBack,
                 icon: icon,
                 tone: tone,
                 content: content,

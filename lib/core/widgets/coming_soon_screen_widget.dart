@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
 import '../../features/home/presentation/widgets/home_app_bar_widget.dart';
 
@@ -28,7 +29,7 @@ class ComingSoonScreenWidget extends StatelessWidget {
             Icon(icon, size: 48, color: AppColors.textTertiary),
             const SizedBox(height: 12),
             Text(
-              '$label قريباً',
+              context.l10n.comingSoon(label),
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,

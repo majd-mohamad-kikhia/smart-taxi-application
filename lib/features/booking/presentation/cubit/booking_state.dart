@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../data/models/booking_route_model.dart';
 import '../../data/models/ride_category_model.dart';
 
@@ -37,22 +38,24 @@ class BookingState extends Equatable {
       (selectedCategory.price - promoDiscount).clamp(0, double.infinity);
 
   factory BookingState.initial() {
+    // Sample data, worded in the language active when the state is created.
+    final l10n = AppStrings.current;
     return BookingState(
       route: BookingRouteModel(
-        pickupAddress: 'حي الصحافة، طريق العليا العام',
-        destinationAddress: 'واجهة الرياض (Riyadh Front) - بوابة 4',
+        pickupAddress: l10n.bookingMockPickup,
+        destinationAddress: l10n.bookingMockDestination,
         pickupLatLng: const LatLng(24.7550, 46.6550),
         destinationLatLng: const LatLng(24.7800, 46.6200),
         durationMinutes: 18,
         distanceKm: 14.2,
-        viaRoad: 'طريق الثمامة',
+        viaRoad: l10n.bookingMockViaRoad,
       ),
-      categories: const [
+      categories: [
         RideCategoryModel(
           id: 'economy',
           type: RideCategoryType.economy,
-          name: 'اقتصادي',
-          badge: 'الأكثر توفيراً',
+          name: l10n.catEconomy,
+          badge: l10n.catEconomyBadge,
           etaMinutes: 3,
           price: 28,
           icon: Icons.directions_car_rounded,
@@ -60,7 +63,7 @@ class BookingState extends Equatable {
         RideCategoryModel(
           id: 'comfort',
           type: RideCategoryType.comfort,
-          name: 'مريح',
+          name: l10n.catComfort,
           etaMinutes: 5,
           price: 42,
           icon: Icons.airline_seat_recline_extra_rounded,
@@ -68,7 +71,7 @@ class BookingState extends Equatable {
         RideCategoryModel(
           id: 'family_xl',
           type: RideCategoryType.familyXl,
-          name: 'عائلي XL',
+          name: l10n.catFamilyXl,
           etaMinutes: 7,
           price: 65,
           passengerCapacity: 6,
@@ -76,11 +79,11 @@ class BookingState extends Equatable {
         ),
       ],
       selectedCategoryId: 'economy',
-      paymentMethod: 'محفظة',
+      paymentMethod: l10n.bookingPaymentWallet,
       walletBalance: 120,
-      captainNote: 'بدون اتصال - التك...',
+      captainNote: l10n.bookingMockNote,
       promoDiscount: 5,
-      promoLabel: 'تم تطبيق كود ترحيبي مشوار (خصم 15%)',
+      promoLabel: l10n.bookingMockPromo,
       isConfirming: false,
       isConfirmed: false,
     );

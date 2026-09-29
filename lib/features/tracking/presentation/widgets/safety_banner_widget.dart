@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Safety banner confirming path tracking and location sharing are active.
@@ -36,9 +37,9 @@ class SafetyBannerWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'رحلة آمنة وموثقة',
-                  style: TextStyle(
+                Text(
+                  context.l10n.safeTripTitle,
+                  style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
@@ -47,8 +48,8 @@ class SafetyBannerWidget extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   isTrackingEnabled && isSharingEnabled
-                      ? 'تتبع المسار ومشاركة الموقع مفعلين'
-                      : 'ميزات الأمان قيد التفعيل',
+                      ? context.l10n.safeTripActive
+                      : context.l10n.safeTripActivating,
                   style: const TextStyle(
                     fontSize: 11,
                     color: AppColors.textSecondary,

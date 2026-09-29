@@ -2,12 +2,13 @@ import 'package:equatable/equatable.dart';
 
 /// A single location picked on the map (pickup or dropoff).
 ///
-/// Field names deliberately echo the future request body's
-/// `pickup_lat`/`pickup_lng`/`pickup_address` shape, so wiring this into
-/// the real search/matching endpoint later is a mechanical rename, not a
-/// redesign. [address] is resolved client-side via Google's
-/// Geocoding/Places APIs (`PlacesRepository`) — the backend itself still
-/// has no reverse-geocoding endpoint.
+/// Field names deliberately echo the request body's
+/// `pickup_lat`/`pickup_lng`/`pickup_address` shape used by both the
+/// customer order flow (`features/home`) and ride tracking
+/// (`features/tracking`) — shared across features, so it lives in `core`.
+/// [address] is resolved client-side via Google's Geocoding/Places APIs
+/// (`PlacesRepository`) — the backend itself still has no
+/// reverse-geocoding endpoint.
 class PickedLocationModel extends Equatable {
   final double latitude;
   final double longitude;

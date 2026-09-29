@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/widgets/auth_header_widget.dart';
 import '../cubit/auth_cubit.dart';
@@ -40,9 +41,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
           child: Column(
             children: [
               const Spacer(),
-              const AuthHeaderWidget(
-                title: 'أهلاً بك في مشوار',
-                subtitle: 'اختر نوع حسابك للمتابعة',
+              AuthHeaderWidget(
+                title: context.l10n.welcomeToApp,
+                subtitle: context.l10n.chooseAccountType,
               ),
               const SizedBox(height: AppConstants.paddingXXL),
               RoleOptionCardWidget(
@@ -63,7 +64,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _selected == null ? null : _continue,
-                  child: const Text('متابعة'),
+                  child: Text(context.l10n.continueLabel),
                 ),
               ),
             ],

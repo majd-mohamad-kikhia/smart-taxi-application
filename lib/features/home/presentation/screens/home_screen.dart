@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
-import '../../data/models/picked_location_model.dart';
 import '../../data/models/ride_quote_model.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
@@ -16,7 +19,7 @@ import '../widgets/location_select_button_widget.dart';
 import '../widgets/vehicle_type_sheet_widget.dart';
 import 'location_picker_screen.dart';
 
-/// Entry point for the "إنشاء طلب" (create request) feature.
+/// Entry point for the "create request" feature.
 /// Provides the [HomeCubit] and renders [_HomeView].
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -41,12 +44,26 @@ class _HomeView extends StatelessWidget {
         preferredSize: Size.fromHeight(60),
         child: HomeAppBarWidget(),
       ),
-      body: BlocConsumer<HomeCubit, HomeState>(
-        // A fresh quote is the signal to let the customer pick a vehicle.
-        listenWhen: (previous, current) =>
-            previous.quote != current.quote && current.quote != null,
-        listener: (context, state) => _openVehicleSheet(context, state.quote!),
-        builder: (context, state) => _HomeBody(state: state),
+      body: MultiBlocListener(
+        listeners: [
+          // A fresh quote is the signal to let the customer pick a vehicle.
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.quote != current.quote && current.quote != null,
+            listener: (context, state) => _openVehicleSheet(context, state.quote!),
+          ),
+          // The ride was just created — hand off to the live tracking
+          // screen, which owns everything from here (accept, GPS, status,
+          // cancel) until the ride ends.
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.activeRide == null && current.activeRide != null,
+            listener: (context, state) => _openTracking(context, state),
+          ),
+        ],
+        child: BlocBuilder<HomeCubit, HomeState>(
+          builder: (context, state) => _HomeBody(state: state),
+        ),
       ),
     );
   }
@@ -69,6 +86,20 @@ class _HomeView extends StatelessWidget {
     );
     if (vehicleTypeId != null) await cubit.chooseVehicle(vehicleTypeId);
   }
+
+  Future<void> _openTracking(BuildContext context, HomeState state) async {
+    final ride = state.activeRide;
+    final pickup = state.fromLocation;
+    final dropoff = state.toLocation;
+    if (ride == null || pickup == null || dropoff == null) return;
+
+    final cubit = context.read<HomeCubit>();
+    await Navigator.of(context).pushNamed(
+      AppRouter.rideTracking,
+      arguments: RideTrackingRouteArgs(initialRide: ride, pickup: pickup, dropoff: dropoff),
+    );
+    cubit.resetAfterRideEnded();
+  }
 }
 
 class _HomeBody extends StatelessWidget {
@@ -76,8 +107,20 @@ class _HomeBody extends StatelessWidget {
 
   const _HomeBody({required this.state});
 
+  String _greetingText(AppLocalizations l10n) {
+    final greeting = switch (state.greeting) {
+      GreetingPeriod.morning => l10n.greetingMorning,
+      GreetingPeriod.afternoon => l10n.greetingAfternoon,
+      GreetingPeriod.evening => l10n.greetingEvening,
+    };
+    return state.userName.isNotEmpty
+        ? l10n.greetingWithName(greeting, state.userName)
+        : l10n.greetingOnly(greeting);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final hasActiveRide = state.hasActiveRide;
 
     return SafeArea(
@@ -93,7 +136,7 @@ class _HomeBody extends StatelessWidget {
                   children: [
                     // ── Welcome message ───────────────────────────
                     Text(
-                      '${state.greeting}${state.userName.isNotEmpty ? '، ${state.userName}' : ''} 👋',
+                      _greetingText(l10n),
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
@@ -104,8 +147,8 @@ class _HomeBody extends StatelessWidget {
                     const SizedBox(height: AppConstants.paddingS),
                     Text(
                       hasActiveRide
-                          ? 'طلبك قيد التنفيذ الآن'
-                          : 'إلى أين تريد الذهاب اليوم؟',
+                          ? l10n.homeRequestInProgress
+                          : l10n.homeWhereTo,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
@@ -115,16 +158,17 @@ class _HomeBody extends StatelessWidget {
                     const SizedBox(height: 32),
                     // ── From / To pick cards ──────────────────────
                     LocationSelectButtonWidget(
-                      label: 'من',
+                      label: l10n.fromLabel,
                       icon: Icons.trip_origin_rounded,
                       accentColor: AppColors.primary,
                       value: state.fromLocation,
-                      placeholder: 'اختر نقطة الانطلاق',
+                      placeholder: l10n.pickPickupPoint,
                       onTap: hasActiveRide
                           ? null
                           : () => _pickLocation(
                               context,
-                              title: 'اختر نقطة الانطلاق',
+                              title: l10n.pickPickupPoint,
+                              isPickup: true,
                               initial: state.fromLocation,
                               onPicked: context
                                   .read<HomeCubit>()
@@ -133,16 +177,17 @@ class _HomeBody extends StatelessWidget {
                     ),
                     const SizedBox(height: 14),
                     LocationSelectButtonWidget(
-                      label: 'إلى',
+                      label: l10n.toLabel,
                       icon: Icons.location_on_rounded,
                       accentColor: AppColors.accent,
                       value: state.toLocation,
-                      placeholder: 'اختر وجهتك',
+                      placeholder: l10n.pickDestination,
                       onTap: hasActiveRide
                           ? null
                           : () => _pickLocation(
                               context,
-                              title: 'اختر وجهتك',
+                              title: l10n.pickDestination,
+                              isPickup: false,
                               initial: state.toLocation,
                               onPicked: context.read<HomeCubit>().setToLocation,
                             ),
@@ -165,13 +210,13 @@ class _HomeBody extends StatelessWidget {
             // ── Primary action ─────────────────────────────
             if (hasActiveRide)
               AppDestructiveButtonWidget(
-                label: 'إلغاء الطلب',
+                label: l10n.cancelRequest,
                 isLoading: state.isCancelling,
                 onPressed: () => context.read<HomeCubit>().cancelRide(),
               )
             else
               AuthPrimaryButtonWidget(
-                label: 'بحث',
+                label: l10n.search,
                 isLoading: state.isSearching || state.isBooking,
                 onPressed: state.canSearch
                     ? () => context.read<HomeCubit>().searchRide()
@@ -186,13 +231,17 @@ class _HomeBody extends StatelessWidget {
   Future<void> _pickLocation(
     BuildContext context, {
     required String title,
+    required bool isPickup,
     required PickedLocationModel? initial,
     required void Function(PickedLocationModel) onPicked,
   }) async {
     final result = await Navigator.of(context).push<PickedLocationModel>(
       MaterialPageRoute(
-        builder: (_) =>
-            LocationPickerScreen(title: title, initialLocation: initial),
+        builder: (_) => LocationPickerScreen(
+          title: title,
+          isPickup: isPickup,
+          initialLocation: initial,
+        ),
       ),
     );
     if (result != null) onPicked(result);

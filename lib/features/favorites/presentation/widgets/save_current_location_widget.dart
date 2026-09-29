@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Map preview + one-tap CTA to save the user's current location.
@@ -86,9 +87,9 @@ class SaveCurrentLocationWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                Positioned(
+                PositionedDirectional(
                   top: 10,
-                  left: 10,
+                  end: 10,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -105,18 +106,18 @@ class SaveCurrentLocationWidget extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.favorite_rounded,
                           size: 12,
                           color: AppColors.accent,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
-                          'موقع مفضل',
-                          style: TextStyle(
+                          context.l10n.favFavoritePlace,
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary,
@@ -153,9 +154,9 @@ class SaveCurrentLocationWidget extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'حفظ موقعك الحالي',
-                            style: TextStyle(
+                          Text(
+                            context.l10n.favSaveCurrent,
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: AppColors.textPrimary,
@@ -163,7 +164,7 @@ class SaveCurrentLocationWidget extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'أنت الآن بالقرب من: $areaLabel',
+                            context.l10n.favNearYou(areaLabel),
                             style: const TextStyle(
                               fontSize: 11,
                               color: AppColors.textSecondary,
@@ -205,18 +206,18 @@ class SaveCurrentLocationWidget extends StatelessWidget {
                               ),
                             ),
                           )
-                        : const Row(
+                        : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.bookmark_add_rounded,
                                 color: Colors.white,
                                 size: 18,
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
-                                'احفظ موقعي الحالي بنقرة واحدة',
-                                style: TextStyle(
+                                context.l10n.favSaveOneTap,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,

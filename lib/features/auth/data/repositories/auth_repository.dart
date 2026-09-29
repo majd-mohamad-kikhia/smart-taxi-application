@@ -3,6 +3,7 @@ import '../../../../core/enums/user_role.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
 import '../datasources/auth_local_data_source.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../models/auth_user_model.dart';
 
@@ -97,6 +98,30 @@ class AuthRepository {
     }
   }
 
+  /// Keeps the locally-saved session's profile fields in sync after an
+  /// edit made elsewhere in the app, so a restart doesn't show stale data.
+  Future<void> syncStoredProfile({
+    required String fullName,
+    required String phone,
+    required String? email,
+    required String? photoUrl,
+    String? address,
+  }) async {
+    final session = await _localDataSource.loadSession();
+    if (session == null) return;
+    await _localDataSource.saveSession(AuthUserModel(
+      id: session.id,
+      fullName: fullName,
+      phone: phone,
+      email: email,
+      photoUrl: photoUrl,
+      address: address ?? session.address,
+      role: session.role,
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+    ));
+  }
+
   Future<void> _persistSession(AuthUserModel user) async {
     ApiClient.authToken = user.accessToken;
     await _localDataSource.saveSession(user);
@@ -105,7 +130,7 @@ class AuthRepository {
   AuthException _mapDioException(DioException e) {
     final error = e.error;
     return AuthException(
-      error is ApiException ? error.message : 'تعذر الاتصال بالخادم',
+      error is ApiException ? error.message : AppStrings.current.errServerUnreachable,
     );
   }
 }

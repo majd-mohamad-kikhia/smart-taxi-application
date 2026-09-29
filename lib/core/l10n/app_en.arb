@@ -1,0 +1,602 @@
+{
+  "@@locale": "en",
+  "appName": "Smart Taxi",
+  "appTagline": "Smart Taxi — your ride, easy and safe",
+  "appVersionFooter": "Smart Taxi version {version} (2026)",
+  "@appVersionFooter": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "language": "Language",
+  "retry": "Retry",
+  "cancel": "Cancel",
+  "goBack": "Go back",
+  "save": "Save",
+  "send": "Send",
+  "delete": "Delete",
+  "all": "All",
+  "change": "Change",
+  "continueLabel": "Continue",
+  "confirmCancellation": "Confirm cancellation",
+  "comingSoon": "{label} coming soon",
+  "@comingSoon": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "noData": "No data",
+  "navHome": "Home",
+  "navWallet": "Wallet",
+  "navProfile": "Profile",
+  "navSettings": "Settings",
+  "navCreateRequest": "New ride",
+  "navMyRequests": "My rides",
+  "distanceKm": "{value} km",
+  "@distanceKm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceKmToPickup": "{value} km to pickup",
+  "@distanceKmToPickup": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceKmVia": "{value} km via {road}",
+  "@distanceKmVia": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "road": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMinutesShort": "{minutes} min",
+  "@durationMinutesShort": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMinutes": "{minutes} minutes",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "priceSyp": "{amount} SYP",
+  "@priceSyp": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "priceLyd": "{amount} LYD",
+  "@priceLyd": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "priceSar": "{amount} SAR",
+  "@priceSar": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "phoneNumber": "Phone number",
+  "password": "Password",
+  "confirmPassword": "Confirm password",
+  "email": "Email",
+  "address": "Address",
+  "monthJan": "January",
+  "monthFeb": "February",
+  "monthMar": "March",
+  "monthApr": "April",
+  "monthMay": "May",
+  "monthJun": "June",
+  "monthJul": "July",
+  "monthAug": "August",
+  "monthSep": "September",
+  "monthOct": "October",
+  "monthNov": "November",
+  "monthDec": "December",
+  "timeAm": "AM",
+  "timePm": "PM",
+  "errTimeout": "The connection to the server timed out",
+  "errNoInternet": "Couldn't reach the internet, check your connection",
+  "errRequestCancelled": "The request was cancelled",
+  "errUnexpected": "An unexpected error occurred",
+  "errServerUnreachable": "Couldn't connect to the server",
+  "errNotConnected": "Not connected to the server",
+  "errInvalidRequest": "Invalid request",
+  "errWrongCredentials": "Incorrect phone number or password",
+  "errSessionExpired": "Your session has expired, please sign in again",
+  "errAccountInactive": "You can't sign in, your account is not active right now",
+  "errNotAllowed": "You aren't allowed to do this",
+  "errNotFound": "The requested item was not found",
+  "errAccountExists": "This account already exists",
+  "errActionUnavailable": "This action can't be performed right now",
+  "errCheckInput": "Check the entered data",
+  "errServer": "A server error occurred, try again later",
+  "errCheckFields": "Check: {fields}",
+  "@errCheckFields": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "listSeparator": ", ",
+  "errCheckThisField": "Check this field",
+  "errAccountNotForApp": "This account isn't meant for this app",
+  "errServiceUnavailable": "The requested service is not available",
+  "errAccountPending": "Your account is under review and will be activated once approved",
+  "errAccountSuspended": "Your account has been suspended, please contact support",
+  "errFieldRequired": "This field is required",
+  "errPhoneRequired": "Phone number is required",
+  "errPhoneRegistered": "This phone number is already registered",
+  "errPasswordLength": "Password must be between 8 and 64 characters",
+  "errPasswordNeedsNumber": "Password must contain at least one letter and one number",
+  "fieldFirstName": "First name",
+  "fieldLastName": "Last name",
+  "fieldSession": "Login session",
+  "fieldMessage": "Message text",
+  "fieldSubject": "Subject",
+  "fieldVehicleType": "Vehicle type",
+  "fieldPickupLocation": "Pickup location",
+  "fieldPickupAddress": "Pickup address",
+  "fieldDropoffLocation": "Drop-off location",
+  "fieldDropoffAddress": "Drop-off address",
+  "fieldCancelReason": "Cancellation reason",
+  "fieldSearchRadius": "Search radius",
+  "guidePassword": "Password must be 8–64 characters, with no spaces, and include at least one letter and one number",
+  "guideFirstName": "First name must be between 2 and 100 characters",
+  "guideLastName": "Last name must be between 2 and 100 characters",
+  "guideMessage": "Message must be between 5 and 1000 characters",
+  "guideSubject": "Subject must not exceed 150 characters",
+  "guideSearchRadius": "Search radius must be between 0.1 and 100 km",
+  "guideCancelReason": "Cancellation reason must not exceed 255 characters",
+  "valPhone": "Enter a valid phone number",
+  "valPasswordRequired": "Enter your password",
+  "valPasswordRule": "Password must be at least 8 characters and contain a letter and a number",
+  "valPasswordMismatch": "Passwords don't match",
+  "valNameLetters": "Letters only, at least 2 characters",
+  "valEmailInvalid": "Enter a valid email address",
+  "errLocationServiceOff": "Location services are turned off on your device",
+  "errLocationDenied": "Location permission was denied",
+  "errEnableGps": "Please turn on location services (GPS) in your device settings",
+  "errEnableLocationPermission": "Please allow the app to use your location in your device settings",
+  "roleRider": "Rider",
+  "roleDriver": "Captain",
+  "roleRiderDescription": "Book your rides and get around easily and safely",
+  "roleDriverDescription": "Join as a driver and start receiving rides",
+  "logoutTitle": "Log out?",
+  "logoutConfirm": "Log out",
+  "logoutFromAccount": "Log out of account",
+  "logoutMessageDriver": "Are you sure you want to log out of your account?",
+  "logoutMessageRider": "Are you sure you want to log out of your account? You'll need to sign in again to continue.",
+  "complaintSend": "Send a report",
+  "complaintSubjectLabel": "Subject (optional)",
+  "complaintSubjectHint": "A short title for the report",
+  "complaintDetailsLabel": "Details",
+  "complaintDetailsHint": "Write the report details here...",
+  "complaintMinLength": "Please write at least 5 characters",
+  "complaintMaxLength": "Maximum 1000 characters",
+  "complaintSendFailed": "Couldn't send the report",
+  "complaintSent": "Report sent successfully",
+  "cancelTrip": "Cancel trip",
+  "cancelTripReasonPrompt": "Please write the reason for cancelling the trip",
+  "cancelReasonRequired": "Please write the cancellation reason",
+  "cancelReasonHint": "Write the reason here...",
+  "tripCancelled": "The trip was cancelled",
+  "walletComingSoon": "Wallet coming soon",
+  "notificationsChannelName": "Notifications",
+  "notificationsChannelDescription": "Ride updates, offers and alerts",
+  "welcomeToApp": "Welcome to Smart Taxi",
+  "chooseAccountType": "Choose your account type to continue",
+  "signIn": "Sign in",
+  "signInSubtitle": "Enter your details to continue to Smart Taxi",
+  "driverSignInTitle": "Captain sign in",
+  "signUp": "Create account",
+  "signUpSubtitle": "Enter your details to create a new Smart Taxi account",
+  "noAccount": "Don't have an account?",
+  "hasAccount": "Already have an account?",
+  "firstNameLabel": "First name",
+  "firstNameHint": "e.g. Mohammed",
+  "lastNameLabel": "Last name",
+  "lastNameHint": "e.g. Alotaibi",
+  "driverStatusPending": "Under review",
+  "driverStatusActive": "Active",
+  "driverStatusSuspended": "Suspended",
+  "driverStatusRejected": "Rejected",
+  "searchRadiusTitle": "Trip search radius",
+  "searchRadiusDescription": "The maximum distance for receiving nearby trip requests",
+  "searchRadiusSaved": "Search radius saved",
+  "searchRadiusSaveFailed": "Couldn't save the search radius",
+  "driverAcceptTrip": "Accept trip",
+  "driverAcceptTripFailed": "Couldn't accept the trip",
+  "driverGoOnlineHint": "Go online to see trip requests",
+  "driverWaitingForOrders": "Waiting for new trip requests...",
+  "openSettings": "Open settings",
+  "driverAvailabilityPaused": "Going online is disabled until your account is activated",
+  "presenceOnline": "Available for trips",
+  "presenceConnecting": "Connecting...",
+  "presenceOffline": "Unavailable",
+  "locationSharingTitle": "You're available for trips",
+  "locationSharingText": "Your location is shared with the dispatcher while you're available",
+  "locationSharingChannel": "Location sharing",
+  "driverGoToPickup": "Head to the pickup point",
+  "driverStartedTheTrip": "Start the trip",
+  "driverArrivalReported": "Arrival reported",
+  "paymentReceived": "Payment received",
+  "paymentConfirmedTitle": "Payment confirmed",
+  "paymentTotalPaid": "Total paid",
+  "paymentYourShare": "Your share",
+  "paymentCommissionDeducted": "Commission deducted from wallet",
+  "paymentWalletBalance": "Wallet balance",
+  "fareSummaryTitle": "Trip completed",
+  "fareFinalPrice": "Final price",
+  "fareEstimatedPrice": "Estimated price",
+  "fareDifference": "Difference",
+  "fareDistanceDriven": "Distance driven",
+  "fareCommission": "Commission",
+  "fareYourEarning": "Your earnings",
+  "done": "Done",
+  "driverReportArrival": "I've arrived",
+  "driverFinishTrip": "Finish trip",
+  "walletFines": "Administrative fines",
+  "walletNoFines": "No fines",
+  "walletTotalCommissions": "Total commissions",
+  "walletBonuses": "Bonuses",
+  "walletCompletedTrips": "Completed trips",
+  "walletTripsCount": "{count} trips",
+  "@walletTripsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "walletMonthlyIncome": "Total income this month",
+  "txTopup": "Top-up",
+  "txCommission": "Commission",
+  "txPenalty": "Penalty",
+  "txCompensation": "Compensation",
+  "profileName": "Name",
+  "profileRating": "Rating",
+  "profileNoRatingYet": "None yet",
+  "profileWalletBalance": "Wallet balance",
+  "vehicleInfo": "Vehicle details",
+  "vehicleType": "Type",
+  "vehicleModel": "Model",
+  "vehicleColor": "Color",
+  "vehiclePlate": "Plate number",
+  "settingsSectionAccount": "Account & payments",
+  "settingsSectionSafety": "Safety & support",
+  "settingsFavoritesTitle": "Favorite & saved places",
+  "settingsFavoritesSubtitle": "Home, work, retreat (3 places)",
+  "settingsSupportTitle": "Help & technical support",
+  "settingsSupportSubtitle": "Live chat or phone, around the clock",
+  "settingsTermsTitle": "Terms & privacy",
+  "settingsTermsSubtitle": "Usage policy and data protection",
+  "favoritePlaces": "Favorite places",
+  "editPersonalInfo": "Edit personal info",
+  "profileSaved": "Your details were saved successfully",
+  "errLoadData": "Couldn't load the data",
+  "saveChanges": "Save changes",
+  "firstNameEditHint": "Enter your first name",
+  "familyNameLabel": "Family name",
+  "familyNameHint": "Enter your family name",
+  "phoneEditHint": "Enter your phone number",
+  "emailOptionalLabel": "Email (optional)",
+  "addressOptionalLabel": "Address (optional)",
+  "addressHint": "City or neighborhood",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "greetingWithName": "{greeting}, {name} 👋",
+  "@greetingWithName": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingOnly": "{greeting} 👋",
+  "@greetingOnly": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      }
+    }
+  },
+  "homeRequestInProgress": "Your request is in progress",
+  "homeWhereTo": "Where do you want to go today?",
+  "fromLabel": "From",
+  "toLabel": "To",
+  "pickPickupPoint": "Choose pickup point",
+  "pickDestination": "Choose your destination",
+  "cancelRequest": "Cancel request",
+  "search": "Search",
+  "pickVehicleType": "Choose vehicle type",
+  "priceEstimateNote": "The price is an estimate and may differ with the actual route",
+  "notAvailableNow": "Currently unavailable",
+  "confirmLocation": "Confirm location",
+  "searchPlaceHint": "Search for a place...",
+  "mapLocationFallback": "Location on the map",
+  "priceEstimateTag": "(estimated price)",
+  "rideAwaitingDriver": "Waiting for a driver to accept",
+  "rideAccepted": "Your request was accepted",
+  "rideDriverArrived": "The driver has arrived",
+  "rideInProgress": "Trip in progress",
+  "rideCompleted": "Trip completed",
+  "rideRequestCancelled": "Request cancelled",
+  "trackDriverOnTheWay": "The driver is on the way to you",
+  "trackDriverAtPickup": "The driver reached the pickup point",
+  "tripCompletedSuccess": "Trip completed successfully",
+  "termsAndConditions": "Terms and conditions",
+  "termsAgreePrefix": "I agree to the ",
+  "termsRequired": "You need to accept the terms and conditions to create an account",
+  "termsEmpty": "The terms and conditions have not been published yet.",
+  "close": "Close",
+  "payDriverTitle": "Trip completed",
+  "payDriverMessage": "Please pay the driver",
+  "payDriverWaiting": "Waiting for the driver to confirm your payment",
+  "trackTrip": "Track trip",
+  "cancelTripQuestion": "Cancel the trip?",
+  "cancelTripMessage": "Are you sure you want to cancel this trip? You won't be charged if you cancel within two minutes.",
+  "tripSafety": "Trip safety",
+  "actionCall": "Call",
+  "actionChat": "Chat",
+  "actionShare": "Share",
+  "safeTripTitle": "Safe, verified trip",
+  "safeTripActive": "Route tracking and location sharing are on",
+  "safeTripActivating": "Safety features are being activated",
+  "connectionErrorRetrying": "Couldn't reach the server — retrying",
+  "connecting": "Connecting...",
+  "errLoginRequired": "You must sign in",
+  "pickupPointSelected": "Selected pickup point",
+  "paymentMethodValue": "Payment method: {method}",
+  "@paymentMethodValue": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "captainCertified": "Certified captain • {trips}+ trips",
+  "@captainCertified": {
+    "placeholders": {
+      "trips": {
+        "type": "String"
+      }
+    }
+  },
+  "liveCaptainOnTheWay": "The captain is on the way",
+  "liveArrived": "The captain reached the pickup point",
+  "liveInProgress": "You're on your way to the destination",
+  "liveCompleted": "You've arrived at your destination",
+  "liveEtaOnly": "Estimated arrival: only {minutes} minutes",
+  "@liveEtaOnly": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "liveArrivedSub": "The captain is waiting for you at the pickup point",
+  "liveRemaining": "Time remaining: {minutes} minutes",
+  "@liveRemaining": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "liveThanks": "Thanks for riding with Smart Taxi",
+  "mockCaptainName": "Abdulrahman Alshammari",
+  "mockVehicleModel": "Toyota Camry 2024",
+  "mockVehicleColor": "Gray",
+  "mockPlateLetters": "A B C",
+  "mockPickupTitle": "In front of the main compound gate",
+  "mockPickupSubtitle": "King Fahd Road, opposite the fountain",
+  "mockPaymentWallet": "Smart Taxi wallet",
+  "rideStatusPending": "Pending",
+  "rideStatusAcceptedHist": "Accepted",
+  "rideStatusArrivedHist": "Driver arrived",
+  "rideStatusInProgressHist": "In progress",
+  "rideStatusCompletedHist": "Completed",
+  "rideStatusCancelledHist": "Cancelled",
+  "rideDetailsTitle": "Ride details #{id}",
+  "@rideDetailsTitle": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "rideDrivenRouteTitle": "Route driven",
+  "errLoadDetails": "Couldn't load the details",
+  "cancelledByCustomer": "Customer",
+  "cancelledByDriver": "Driver",
+  "cancelledByManager": "Management",
+  "detailRequestedAt": "Requested on",
+  "detailAcceptedAt": "Accepted at",
+  "detailStartedAt": "Trip started",
+  "detailCompletedAt": "Trip ended",
+  "detailCancelledAt": "Cancelled at",
+  "detailCancelledBy": "Cancelled by",
+  "detailDistance": "Distance",
+  "detailEstimatedDuration": "Estimated duration",
+  "detailStopsFee": "Stop fees",
+  "noRidesYet": "No rides yet",
+  "favoriteAddresses": "Favorite addresses",
+  "favAddressDeleted": "Address deleted",
+  "favSelectOnMapSoon": "Select on map coming soon",
+  "favSearchByNameSoon": "Search by name coming soon",
+  "favPlacesCount": "{count} places",
+  "@favPlacesCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "favSort": "Sort",
+  "favEmpty": "No saved addresses",
+  "favEditSoon": "Editing {name} coming soon",
+  "@favEditSoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "favCurrentSaved": "Current location saved",
+  "favDeleteTitle": "Delete address?",
+  "favDeleteMessage": "Delete \"{name}\" from your favorite addresses? This can't be undone.",
+  "@favDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "favMyCurrentLocation": "My current location",
+  "favDefault": "Default",
+  "favOrderRideHere": "Request a ride here now",
+  "favFavoritePlace": "Favorite place",
+  "favSaveCurrent": "Save your current location",
+  "favNearYou": "You're now near: {area}",
+  "@favNearYou": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "favSaveOneTap": "Save my current location in one tap",
+  "favAddNew": "Add a new address",
+  "favAddNewSubtitle": "Save your frequent destinations for quick access",
+  "favSelectOnMap": "Select on map",
+  "favSearchByName": "Search by name",
+  "favMockHomeName": "Home",
+  "favMockHomeAddress": "Al Olaya, Prince Sultan St, Villa 14, Riyadh",
+  "favMockHomeNote": "The gray side gate",
+  "favMockWorkName": "Work",
+  "favMockWorkAddress": "Kingdom Tower, King Fahd Rd, Riyadh",
+  "favMockWorkNote": "Basement parking P2",
+  "favMockGymName": "Gym",
+  "favMockGymAddress": "Al Malqa, Anas Bin Malik St, Riyadh",
+  "favMockMomName": "Mom's house",
+  "favMockMomAddress": "Al Yasmin, Specialist St, Riyadh",
+  "favMockCurrentArea": "Sidra Complex, Riyadh",
+  "notificationsTitle": "Notifications",
+  "notificationsEmpty": "No notifications",
+  "errNotificationsLoad": "Couldn't load notifications",
+  "errPlacesSearch": "Search is unavailable right now, please try again",
+  "mockNotif1Title": "Captain Majed is on the way",
+  "mockNotif1Message": "Your captain will arrive in about 3 minutes, get ready to go.",
+  "mockNotif2Title": "20% off your rides",
+  "mockNotif2Message": "Use the promo code \"SMARTTAXI20\" when booking this week.",
+  "mockNotif3Title": "Payment deducted",
+  "mockNotif3Message": "38.50 SYP was deducted from your wallet for your last trip.",
+  "mockNotif4Title": "You arrived at your destination",
+  "mockNotif4Message": "We hope you enjoyed your ride. Don't forget to rate the captain.",
+  "mockNotif5Title": "Special offer for Smart Taxi riders",
+  "mockNotif5Message": "Get a free ride when you invite 3 friends to the app.",
+  "mockNotif6Title": "Privacy policy update",
+  "mockNotif6Message": "We've updated the app's privacy policy and terms of use.",
+  "bookingHeaderConfirm": "Confirm request",
+  "bookingCertifiedCaptains": "Certified & licensed captains",
+  "bookingInstantMatch": "Instant confirmation & matching",
+  "bookingConfirmRide": "Confirm {category} ride",
+  "@bookingConfirmRide": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "bookingAgreePrefix": "By tapping confirm, you agree to Smart Taxi's ",
+  "bookingTerms": "Terms of Service",
+  "bookingAgreeAnd": " and ",
+  "bookingPrivacy": "Privacy Policy",
+  "bookingAgreeSuffix": "",
+  "bookingConfirmed": "Your {category} ride was confirmed",
+  "@bookingConfirmed": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "bookingChooseType": "Choose ride type",
+  "bookingCategoriesAvailable": "{count} categories available",
+  "@bookingCategoriesAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bookingCompareSpecs": "Compare specs",
+  "bookingPaymentMethod": "Payment method",
+  "bookingCaptainNote": "Note for the captain",
+  "bookingAddNote": "Add a note...",
+  "bookingDragMap": "Drag the map to fine-tune the pickup point",
+  "bookingCapacityEta": "{capacity} seats • {minutes} min",
+  "@bookingCapacityEta": {
+    "placeholders": {
+      "capacity": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "bookingEtaMinutes": "{minutes} min",
+  "@bookingEtaMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "bookingMockPickup": "Al Sahafa, Olaya Main Road",
+  "bookingMockDestination": "Riyadh Front - Gate 4",
+  "bookingMockViaRoad": "Thumama Road",
+  "catEconomy": "Economy",
+  "catEconomyBadge": "Best value",
+  "catComfort": "Comfort",
+  "catFamilyXl": "Family XL",
+  "bookingPaymentWallet": "Wallet",
+  "bookingMockNote": "No calls - text...",
+  "bookingMockPromo": "Smart Taxi welcome code applied (15% off)",
+  "locationResolving": "Finding the address...",
+  "locationUnresolved": "No address found for this spot. Move the pin and try again."
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../cubit/tracking_cubit.dart';
@@ -38,7 +39,7 @@ class _TrackingView extends StatelessWidget {
         listener: (context, state) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('تم إلغاء الرحلة'),
+              content: Text(context.l10n.tripCancelled),
               backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -142,13 +143,13 @@ class _TrackingSheet extends StatelessWidget {
   }
 
   void _showCancelDialog(BuildContext context) {
+    final l10n = context.l10n;
     showAppDialog(
       context: context,
-      title: 'إلغاء الرحلة؟',
-      message:
-          'هل أنت متأكد من رغبتك في إلغاء هذه الرحلة؟ لن يتم خصم أي رسوم إذا ألغيت خلال دقيقتين.',
-      confirmLabel: 'تأكيد الإلغاء',
-      cancelLabel: 'تراجع',
+      title: l10n.cancelTripQuestion,
+      message: l10n.cancelTripMessage,
+      confirmLabel: l10n.confirmCancellation,
+      cancelLabel: l10n.goBack,
       icon: Icons.cancel_rounded,
       tone: AppDialogTone.destructive,
       onConfirm: () => context.read<TrackingCubit>().cancelTrip(),
@@ -185,14 +186,14 @@ class _CancelTripButton extends StatelessWidget {
                   ),
                 ),
               )
-            : const Row(
+            : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.close_rounded, color: AppColors.error, size: 18),
-                  SizedBox(width: 6),
+                  const Icon(Icons.close_rounded, color: AppColors.error, size: 18),
+                  const SizedBox(width: 6),
                   Text(
-                    'إلغاء الرحلة',
-                    style: TextStyle(
+                    context.l10n.cancelTrip,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: AppColors.error,

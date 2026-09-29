@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/captain_model.dart';
 
@@ -49,7 +50,7 @@ class CaptainInfoWidget extends StatelessWidget {
               ),
               const SizedBox(height: 3),
               Text(
-                captain.tripsLabel,
+                captain.tripsLabel(context.l10n),
                 style: const TextStyle(
                   fontSize: 11,
                   color: AppColors.textSecondary,

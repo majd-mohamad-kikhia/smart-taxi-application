@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
+import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
 
 /// Logout button + app version footer — shared by any account-holding
@@ -16,6 +17,7 @@ class LogoutFooterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: [
         GestureDetector(
@@ -41,18 +43,18 @@ class LogoutFooterWidget extends StatelessWidget {
                       ),
                     ),
                   )
-                : const Row(
+                : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.logout_rounded,
                         color: AppColors.error,
                         size: 18,
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
-                        'تسجيل الخروج من الحساب',
-                        style: TextStyle(
+                        l10n.logoutFromAccount,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: AppColors.error,
@@ -63,16 +65,16 @@ class LogoutFooterWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
-          'مشوار — مشوارك براحة وأمان',
-          style: TextStyle(
+        Text(
+          l10n.appTagline,
+          style: const TextStyle(
             fontSize: 12,
             color: AppColors.textTertiary,
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          'مشوار الإصدار ${AppConstants.appVersion} (2026)',
+          l10n.appVersionFooter(AppConstants.appVersion),
           style: const TextStyle(
             fontSize: 11,
             color: AppColors.textTertiary,

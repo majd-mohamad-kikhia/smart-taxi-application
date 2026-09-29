@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../data/models/picked_location_model.dart';
 
-/// One of the "من" / "إلى" location-pick cards on the create-request
+/// One of the "From" / "To" location-pick cards on the create-request
 /// screen. Styled as a distinct rounded card (icon chip + label + chosen
 /// value + chevron) rather than a generic list row, so the pair reads as
 /// a deliberate, unique pair of actions.
@@ -89,7 +89,7 @@ class LocationSelectButtonWidget extends StatelessWidget {
                   ),
                 ),
                 const Icon(
-                  Icons.keyboard_arrow_left_rounded,
+                  Icons.chevron_right_rounded,
                   color: AppColors.textTertiary,
                 ),
               ],

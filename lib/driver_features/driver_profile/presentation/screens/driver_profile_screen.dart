@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
@@ -74,6 +75,7 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final vehicle = vehicleState.vehicle;
     return Container(
       width: double.infinity,
@@ -88,31 +90,31 @@ class _InfoCard extends StatelessWidget {
         children: [
           _Row(
             icon: Icons.person_outline,
-            label: 'الاسم',
+            label: l10n.profileName,
             value: driver.fullName,
           ),
           _Row(
             icon: Icons.phone_outlined,
-            label: 'رقم الجوال',
+            label: l10n.phoneNumber,
             value: driver.phone,
           ),
           if (driver.address != null)
             _Row(
               icon: Icons.location_on_outlined,
-              label: 'العنوان',
+              label: l10n.address,
               value: driver.address!,
             ),
           _Row(
             icon: Icons.star_outline_rounded,
-            label: 'التقييم',
+            label: l10n.profileRating,
             value: driver.rating != null
                 ? driver.rating!.toStringAsFixed(1)
-                : 'لا يوجد بعد',
+                : l10n.profileNoRatingYet,
           ),
           _Row(
             icon: Icons.account_balance_wallet_outlined,
-            label: 'رصيد المحفظة',
-            value: '${driver.walletBalance.toStringAsFixed(2)} ل.س',
+            label: l10n.profileWalletBalance,
+            value: l10n.priceSyp(driver.walletBalance.toStringAsFixed(2)),
           ),
           if (vehicleState.isLoading && vehicle == null) ...[
             const Divider(height: 28),
@@ -127,7 +129,7 @@ class _InfoCard extends StatelessWidget {
           ] else if (vehicle != null) ...[
             const Divider(height: 28),
             Text(
-              'بيانات المركبة',
+              l10n.vehicleInfo,
               style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 8),
@@ -140,22 +142,22 @@ class _InfoCard extends StatelessWidget {
             const SizedBox(height: 12),
             _Row(
               icon: Icons.directions_car_outlined,
-              label: 'النوع',
+              label: l10n.vehicleType,
               value: vehicle.vehicleTypeName,
             ),
             _Row(
               icon: Icons.local_taxi_outlined,
-              label: 'الموديل',
+              label: l10n.vehicleModel,
               value: '${vehicle.brand} ${vehicle.model}',
             ),
             _Row(
               icon: Icons.palette_outlined,
-              label: 'اللون',
+              label: l10n.vehicleColor,
               value: vehicle.color,
             ),
             _Row(
               icon: Icons.pin_outlined,
-              label: 'رقم اللوحة',
+              label: l10n.vehiclePlate,
               value: vehicle.plateNumber,
             ),
           ],

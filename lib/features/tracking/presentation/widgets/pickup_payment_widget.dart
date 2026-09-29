@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/live_trip_model.dart';
 
@@ -25,9 +26,9 @@ class PickupPaymentWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'نقطة الالتقاء المحددة',
-                      style: TextStyle(
+                    Text(
+                      context.l10n.pickupPointSelected,
+                      style: const TextStyle(
                         fontSize: 11,
                         color: AppColors.textSecondary,
                       ),
@@ -80,7 +81,7 @@ class PickupPaymentWidget extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                'طريقة الدفع: ${trip.paymentMethod}',
+                context.l10n.paymentMethodValue(trip.paymentMethod),
                 style: const TextStyle(
                   fontSize: 12,
                   color: AppColors.textSecondary,
@@ -88,7 +89,7 @@ class PickupPaymentWidget extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                trip.fareLabel,
+                trip.fareLabel(context.l10n),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,

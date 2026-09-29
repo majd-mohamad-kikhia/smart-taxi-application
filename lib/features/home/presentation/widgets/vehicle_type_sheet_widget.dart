@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/vehicle_type_icon_widget.dart';
 import '../../data/models/ride_quote_model.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
 
@@ -32,9 +34,9 @@ class VehicleTypeSheetWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppConstants.paddingXL),
-            const Text(
-              'اختر نوع المركبة',
-              style: TextStyle(
+            Text(
+              context.l10n.pickVehicleType,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
@@ -63,10 +65,10 @@ class VehicleTypeSheetWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppConstants.paddingM),
-            const Text(
-              'السعر تقديري وقد يختلف حسب المسار الفعلي للرحلة',
+            Text(
+              context.l10n.priceEstimateNote,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+              style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
             ),
           ],
         ),
@@ -108,19 +110,7 @@ class _VehicleTypeTileWidget extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.local_taxi_rounded,
-                    color: AppColors.primary,
-                    size: 22,
-                  ),
-                ),
+                VehicleTypeIconWidget(name: vehicleType.name),
                 const SizedBox(width: AppConstants.paddingM),
                 Expanded(
                   child: Column(
@@ -148,9 +138,9 @@ class _VehicleTypeTileWidget extends StatelessWidget {
                       ],
                       if (!isAvailable) ...[
                         const SizedBox(height: 2),
-                        const Text(
-                          'غير متاح حالياً',
-                          style: TextStyle(
+                        Text(
+                          context.l10n.notAvailableNow,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.error,
                           ),
@@ -161,7 +151,7 @@ class _VehicleTypeTileWidget extends StatelessWidget {
                 ),
                 if (price != null)
                   Text(
-                    '${price.toStringAsFixed(0)} ل.س',
+                    context.l10n.priceSyp(price.toStringAsFixed(0)),
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,

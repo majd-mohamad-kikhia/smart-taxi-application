@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Side-by-side payment method and captain note action cards.
@@ -25,9 +26,9 @@ class PaymentAndNotesWidget extends StatelessWidget {
         Expanded(
           child: _ActionCard(
             icon: Icons.account_balance_wallet_outlined,
-            title: 'طريقة الدفع',
+            title: context.l10n.bookingPaymentMethod,
             subtitle:
-                '$paymentMethod (${walletBalance.toStringAsFixed(0)} ل.س)',
+                '$paymentMethod (${context.l10n.priceSyp(walletBalance.toStringAsFixed(0))})',
             onTap: onPaymentTap,
             showChevron: true,
           ),
@@ -36,8 +37,8 @@ class PaymentAndNotesWidget extends StatelessWidget {
         Expanded(
           child: _ActionCard(
             icon: Icons.chat_bubble_outline_rounded,
-            title: 'ملاحظة للكابتن',
-            subtitle: captainNote ?? 'أضف ملاحظة...',
+            title: context.l10n.bookingCaptainNote,
+            subtitle: captainNote ?? context.l10n.bookingAddNote,
             onTap: onNoteTap,
           ),
         ),

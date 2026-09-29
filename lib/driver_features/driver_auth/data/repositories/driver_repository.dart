@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
 import '../datasources/driver_local_data_source.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../datasources/driver_remote_data_source.dart';
 import '../models/driver_user_model.dart';
 
@@ -95,7 +96,7 @@ class DriverRepository {
   DriverAuthException _mapDioException(DioException e) {
     final error = e.error;
     return DriverAuthException(
-      error is ApiException ? error.message : 'تعذر الاتصال بالخادم',
+      error is ApiException ? error.message : AppStrings.current.errServerUnreachable,
     );
   }
 }

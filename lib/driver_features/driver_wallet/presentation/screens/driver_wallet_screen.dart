@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import 'driver_wallet_fines_screen.dart';
@@ -9,22 +11,28 @@ import '../cubit/driver_financial_report_state.dart';
 import '../widgets/wallet_stat_card_widget.dart';
 import '../widgets/wallet_statement_summary_card_widget.dart';
 
-const _arabicMonths = [
-  'يناير',
-  'فبراير',
-  'مارس',
-  'أبريل',
-  'مايو',
-  'يونيو',
-  'يوليو',
-  'أغسطس',
-  'سبتمبر',
-  'أكتوبر',
-  'نوفمبر',
-  'ديسمبر',
+List<String> _monthNames(AppLocalizations l10n) => [
+  l10n.monthJan,
+  l10n.monthFeb,
+  l10n.monthMar,
+  l10n.monthApr,
+  l10n.monthMay,
+  l10n.monthJun,
+  l10n.monthJul,
+  l10n.monthAug,
+  l10n.monthSep,
+  l10n.monthOct,
+  l10n.monthNov,
+  l10n.monthDec,
 ];
 
-String _formatAmount(num value, {String suffix = ' ل.س'}) {
+/// Groups [value] in thousands ("12,500"); with [withCurrency] the amount
+/// is wrapped in the localized currency label.
+String _formatAmount(
+  AppLocalizations l10n,
+  num value, {
+  bool withCurrency = true,
+}) {
   final isNegative = value < 0;
   final digits = value.abs().round().toString();
   final buffer = StringBuffer();
@@ -32,7 +40,8 @@ String _formatAmount(num value, {String suffix = ' ل.س'}) {
     if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(',');
     buffer.write(digits[i]);
   }
-  return '${isNegative ? '-' : ''}$buffer$suffix';
+  final amount = '${isNegative ? '-' : ''}$buffer';
+  return withCurrency ? l10n.priceSyp(amount) : amount;
 }
 
 /// Driver wallet tab — monthly financial statement, backed entirely by
@@ -70,9 +79,9 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
     return (year, month);
   }
 
-  String get _monthLabel {
+  String _monthLabel(AppLocalizations l10n) {
     final (year, month) = _selectedYearMonth;
-    return '${_arabicMonths[month - 1]} $year';
+    return '${_monthNames(l10n)[month - 1]} $year';
   }
 
   void _loadReport() {
@@ -107,6 +116,7 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
       body: BlocBuilder<DriverFinancialReportCubit, DriverFinancialReportState>(
         bloc: _reportCubit,
         builder: (context, state) {
+          final l10n = context.l10n;
           final report = state.report;
           return RefreshIndicator(
             color: AppColors.primary,
@@ -119,17 +129,18 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Start side = previous month, end side = next month.
+                    // These icons mirror themselves in RTL, so the arrows
+                    // point the right way in both languages.
                     IconButton(
                       icon: const Icon(Icons.chevron_left_rounded),
                       color: AppColors.textSecondary,
-                      onPressed: _monthOffset < 0
-                          ? () => _changeMonth(1)
-                          : null,
+                      onPressed: () => _changeMonth(-1),
                     ),
                     SizedBox(
                       width: 140,
                       child: Text(
-                        _monthLabel,
+                        _monthLabel(l10n),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 15,
@@ -141,7 +152,9 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
                     IconButton(
                       icon: const Icon(Icons.chevron_right_rounded),
                       color: AppColors.textSecondary,
-                      onPressed: () => _changeMonth(-1),
+                      onPressed: _monthOffset < 0
+                          ? () => _changeMonth(1)
+                          : null,
                     ),
                   ],
                 ),
@@ -157,17 +170,18 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
                   )
                 else ...[
                   WalletStatementSummaryCardWidget(
-                    amountOwed: _formatAmount(report?.walletBalance ?? 0),
+                    amountOwed: _formatAmount(l10n, report?.walletBalance ?? 0),
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
                         child: WalletStatCardWidget(
-                          label: 'الغرامات الإدارية',
+                          label: l10n.walletFines,
                           value: _formatAmount(
+                            l10n,
                             report?.finesTotal ?? 0,
-                            suffix: '',
+                            withCurrency: false,
                           ),
                           icon: Icons.warning_amber_rounded,
                           iconColor: AppColors.error,
@@ -178,10 +192,11 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: WalletStatCardWidget(
-                          label: 'العمولات الكلية',
+                          label: l10n.walletTotalCommissions,
                           value: _formatAmount(
+                            l10n,
                             report?.managerEarnings ?? 0,
-                            suffix: '',
+                            withCurrency: false,
                           ),
                           icon: Icons.percent_rounded,
                           iconColor: AppColors.primary,
@@ -192,8 +207,12 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
                   ),
                   const SizedBox(height: 12),
                   WalletStatCardWidget(
-                    label: 'المكافآت',
-                    value: _formatAmount(report?.rewardsTotal ?? 0, suffix: ''),
+                    label: l10n.walletBonuses,
+                    value: _formatAmount(
+                      l10n,
+                      report?.rewardsTotal ?? 0,
+                      withCurrency: false,
+                    ),
                     icon: Icons.card_giftcard_rounded,
                     iconColor: AppColors.accent,
                     iconBackground: AppColors.accentSurface,
@@ -203,16 +222,18 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
                     children: [
                       Expanded(
                         child: WalletStatCardWidget(
-                          label: 'عدد المشاوير المكتملة',
-                          value: '${report?.ordersCount ?? 0} رحلة',
+                          label: l10n.walletCompletedTrips,
+                          value: l10n.walletTripsCount(
+                            '${report?.ordersCount ?? 0}',
+                          ),
                           valueColor: AppColors.accent,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: WalletStatCardWidget(
-                          label: 'إجمالي دخل الشهر',
-                          value: _formatAmount(report?.netIncome ?? 0),
+                          label: l10n.walletMonthlyIncome,
+                          value: _formatAmount(l10n, report?.netIncome ?? 0),
                           valueColor: AppColors.primary,
                         ),
                       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../enums/user_role.dart';
+import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
 
 /// Small chip showing the role picked on the role-selection screen, with
@@ -32,14 +33,14 @@ class RoleBadgeWidget extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            role.label,
+            role.label(context.l10n),
             style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primary),
           ),
           const SizedBox(width: 8),
           GestureDetector(
             onTap: onChange,
             child: Text(
-              'تغيير',
+              context.l10n.change,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: AppColors.accent,
                     fontWeight: FontWeight.w700,

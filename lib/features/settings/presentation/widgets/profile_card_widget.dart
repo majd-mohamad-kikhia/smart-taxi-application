@@ -1,127 +1,112 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/network_photo_widget.dart';
 import '../../data/models/user_profile_model.dart';
 
-/// Profile card with avatar, contact info, and edit button.
+/// Profile card: avatar, name, contact chips, and a tappable
+/// "edit personal info" row.
 class ProfileCardWidget extends StatelessWidget {
   final UserProfileModel profile;
   final VoidCallback? onEdit;
 
-  const ProfileCardWidget({
-    super.key,
-    required this.profile,
-    this.onEdit,
-  });
+  const ProfileCardWidget({super.key, required this.profile, this.onEdit});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.backgroundWhite,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.border),
         boxShadow: const [
           BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: AppColors.shadowMedium,
+            blurRadius: 12,
+            offset: Offset(0, 4),
           ),
         ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          Row(
-            children: [
-              // Avatar + verified
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.backgroundMuted,
-                      border: Border.all(color: AppColors.border, width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.person_rounded,
-                      color: AppColors.textSecondary,
-                      size: 34,
-                    ),
-                  ),
-                  if (profile.isVerified)
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: AppColors.success,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(
-                          Icons.check_rounded,
-                          color: Colors.white,
-                          size: 12,
+          Container(
+            height: 6,
+            decoration: const BoxDecoration(
+              gradient: AppColors.primaryGradient,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                _Avatar(profile: profile),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        profile.fullName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      _ContactRow(
+                        icon: Icons.phone_outlined,
+                        text: profile.phone,
+                      ),
+                      if (profile.email.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        _ContactRow(
+                          icon: Icons.email_outlined,
+                          text: profile.email,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderLight),
+          InkWell(
+            onTap: onEdit,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primarySurface,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                ],
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      profile.fullName,
+                    child: const Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      context.l10n.editPersonalInfo,
                       style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    _ContactRow(
-                      icon: Icons.phone_outlined,
-                      text: profile.phone,
-                    ),
-                    const SizedBox(height: 4),
-                    _ContactRow(
-                      icon: Icons.email_outlined,
-                      text: profile.email,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          GestureDetector(
-            onTap: onEdit,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 11),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8EEF8),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.edit_outlined, size: 16, color: AppColors.primary),
-                  SizedBox(width: 6),
-                  Text(
-                    'تعديل البيانات الشخصية',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
-                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textTertiary,
                   ),
                 ],
               ),
@@ -129,6 +114,54 @@ class ProfileCardWidget extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _Avatar extends StatelessWidget {
+  final UserProfileModel profile;
+
+  const _Avatar({required this.profile});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(2),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: AppColors.primaryGradient,
+          ),
+          child: NetworkPhotoWidget(
+            imagePath: profile.photoUrl,
+            width: 64,
+            height: 64,
+            borderRadius: 32,
+            placeholderIcon: Icons.person_rounded,
+          ),
+        ),
+        if (profile.isVerified)
+          PositionedDirectional(
+            bottom: 0,
+            end: 0,
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: AppColors.success,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.backgroundWhite, width: 2),
+              ),
+              child: const Icon(
+                Icons.check_rounded,
+                color: Colors.white,
+                size: 12,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -148,12 +181,12 @@ class _ContactRow extends StatelessWidget {
         Expanded(
           child: Text(
             text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 12,
               color: AppColors.textSecondary,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],

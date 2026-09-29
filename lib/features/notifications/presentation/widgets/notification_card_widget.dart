@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/notification_model.dart';
 
@@ -60,7 +62,7 @@ class NotificationCardWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _formatTime(notification.dateTime),
+                  _formatTime(context.l10n, notification.dateTime),
                   style: const TextStyle(
                     fontSize: 11,
                     color: AppColors.textTertiary,
@@ -74,9 +76,9 @@ class NotificationCardWidget extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime dt) {
+  String _formatTime(AppLocalizations l10n, DateTime dt) {
     final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
-    final period = dt.hour >= 12 ? 'م' : 'ص';
+    final period = dt.hour >= 12 ? l10n.timePm : l10n.timeAm;
     final minute = dt.minute.toString().padLeft(2, '0');
     return '$hour:$minute $period';
   }

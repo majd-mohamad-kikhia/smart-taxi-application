@@ -1,16 +1,47 @@
 import 'package:flutter/material.dart';
 import '../../driver_features/driver_auth/presentation/screens/driver_sign_in_screen.dart';
 import '../../driver_features/driver_main_wrapper_screen.dart';
+import '../../driver_features/driver_trip/presentation/screens/driver_trip_screen.dart';
 import '../../features/auth/presentation/screens/role_selection_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/booking/presentation/screens/booking_screen.dart';
 import '../../features/favorites/presentation/screens/favorites_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
+import '../../features/settings/presentation/screens/edit_profile_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/tracking/presentation/screens/ride_tracking_screen.dart';
 import '../../features/tracking/presentation/screens/tracking_screen.dart';
+import '../../features/trips/presentation/screens/ride_details_screen.dart';
 import '../../features/trips/presentation/screens/trips_screen.dart';
+import '../models/order_offer_model.dart';
+import '../models/picked_location_model.dart';
+import '../models/ride_model.dart';
 import 'main_wrapper_screen.dart';
+
+/// Arguments for [AppRouter.rideTracking] — a route that (unlike the
+/// others here) needs constructor data, passed via `RouteSettings.arguments`
+/// so `features/home` doesn't have to import a screen from
+/// `features/tracking` directly (no cross-feature imports).
+class RideTrackingRouteArgs {
+  final RideModel initialRide;
+  final PickedLocationModel pickup;
+  final PickedLocationModel dropoff;
+
+  const RideTrackingRouteArgs({
+    required this.initialRide,
+    required this.pickup,
+    required this.dropoff,
+  });
+}
+
+/// Arguments for [AppRouter.driverTrip] — same reasoning as
+/// [RideTrackingRouteArgs], on the driver side.
+class DriverTripRouteArgs {
+  final OrderOfferModel order;
+
+  const DriverTripRouteArgs({required this.order});
+}
 
 /// Centralized route definitions for the Mshoar app.
 class AppRouter {
@@ -21,11 +52,15 @@ class AppRouter {
   static const String signUp = '/sign-up';
   static const String driverSignIn = '/driver/sign-in';
   static const String driverHome = '/driver/home';
+  static const String driverTrip = '/driver/trip';
   static const String home = '/';
   static const String booking = '/booking';
   static const String tracking = '/tracking';
+  static const String rideTracking = '/ride-tracking';
   static const String trips = '/trips';
+  static const String rideDetails = '/trips/details';
   static const String settings = '/settings';
+  static const String editProfile = '/settings/edit-profile';
   static const String favorites = '/favorites';
   static const String notifications = '/notifications';
 
@@ -41,16 +76,34 @@ class AppRouter {
         return _buildRoute(const DriverSignInScreen());
       case driverHome:
         return _buildRoute(const DriverMainWrapperScreen());
+      case driverTrip:
+        final args = settings.arguments! as DriverTripRouteArgs;
+        return _buildRoute(DriverTripScreen(order: args.order));
       case home:
         return _buildRoute(const MainWrapperScreen());
       case booking:
         return _buildRoute(const BookingScreen());
       case tracking:
         return _buildRoute(const TrackingScreen());
+      case rideTracking:
+        final args = settings.arguments! as RideTrackingRouteArgs;
+        return _buildRoute(
+          RideTrackingScreen(
+            initialRide: args.initialRide,
+            pickup: args.pickup,
+            dropoff: args.dropoff,
+          ),
+        );
+      case rideDetails:
+        return _buildRoute(
+          RideDetailsScreen(rideId: settings.arguments! as int),
+        );
       case trips:
         return _buildRoute(const TripsScreen());
       case AppRouter.settings:
         return _buildRoute(const SettingsScreen());
+      case editProfile:
+        return _buildRoute(const EditProfileScreen());
       case favorites:
         return _buildRoute(const FavoritesScreen());
       case notifications:
@@ -61,8 +114,6 @@ class AppRouter {
   }
 
   static MaterialPageRoute<T> _buildRoute<T>(Widget page) {
-    return MaterialPageRoute<T>(
-      builder: (_) => page,
-    );
+    return MaterialPageRoute<T>(builder: (_) => page);
   }
 }

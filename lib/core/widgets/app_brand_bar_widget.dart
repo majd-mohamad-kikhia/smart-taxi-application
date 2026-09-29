@@ -29,12 +29,11 @@ class AppBrandBarWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Alignment.centerRight is a physical (non-directional)
-          // alignment, so the brand mark sits at the screen's right
-          // edge regardless of the app's RTL layout direction.
+          // The brand mark sits at the start edge: right in Arabic (RTL),
+          // left in English (LTR).
           const Expanded(
             child: Align(
-              alignment: Alignment.centerRight,
+              alignment: AlignmentDirectional.centerStart,
               child: _BrandLogoWidget(),
             ),
           ),
@@ -103,20 +102,6 @@ class _NotificationBellWidget extends StatelessWidget {
               Icons.notifications_outlined,
               color: AppColors.textPrimary,
               size: 22,
-            ),
-          ),
-          // Unread badge
-          Positioned(
-            top: 6,
-            right: 6,
-            child: Container(
-              width: 9,
-              height: 9,
-              decoration: BoxDecoration(
-                color: AppColors.accent,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.backgroundGray, width: 1.5),
-              ),
             ),
           ),
         ],

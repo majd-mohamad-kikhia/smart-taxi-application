@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 
 /// Status of an active live trip.
 enum LiveTripStatus { captainOnTheWay, arrived, inProgress, completed }
@@ -32,28 +33,29 @@ class LiveTripModel extends Equatable {
     required this.isLocationSharingEnabled,
   });
 
-  String get statusTitle {
+  String statusTitle(AppLocalizations l10n) {
     return switch (status) {
-      LiveTripStatus.captainOnTheWay => 'الكابتن في الطريق إليك',
-      LiveTripStatus.arrived => 'الكابتن وصل لنقطة الالتقاء',
-      LiveTripStatus.inProgress => 'أنت في الطريق إلى الوجهة',
-      LiveTripStatus.completed => 'وصلت إلى وجهتك',
+      LiveTripStatus.captainOnTheWay => l10n.liveCaptainOnTheWay,
+      LiveTripStatus.arrived => l10n.liveArrived,
+      LiveTripStatus.inProgress => l10n.liveInProgress,
+      LiveTripStatus.completed => l10n.liveCompleted,
     };
   }
 
-  String get statusSubtitle {
+  String statusSubtitle(AppLocalizations l10n) {
     return switch (status) {
-      LiveTripStatus.captainOnTheWay =>
-        'الوصول المتوقع: $etaMinutes دقائق فقط',
-      LiveTripStatus.arrived => 'الكابتن بانتظارك عند نقطة الالتقاء',
-      LiveTripStatus.inProgress => 'المدة المتبقية: $etaMinutes دقائق',
-      LiveTripStatus.completed => 'شكراً لاستخدامك مشوار',
+      LiveTripStatus.captainOnTheWay => l10n.liveEtaOnly('$etaMinutes'),
+      LiveTripStatus.arrived => l10n.liveArrivedSub,
+      LiveTripStatus.inProgress => l10n.liveRemaining('$etaMinutes'),
+      LiveTripStatus.completed => l10n.liveThanks,
     };
   }
 
-  String get etaShortLabel => '$etaMinutes د';
+  String etaShortLabel(AppLocalizations l10n) =>
+      l10n.durationMinutesShort('$etaMinutes');
 
-  String get fareLabel => '${fare.toStringAsFixed(2)} ريال';
+  String fareLabel(AppLocalizations l10n) =>
+      l10n.priceSar(fare.toStringAsFixed(2));
 
   LiveTripModel copyWith({
     String? id,

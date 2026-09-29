@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/app_localizations.dart';
+import '../localization/l10n_context_extension.dart';
 import '../widgets/app_bottom_nav_widget.dart';
 import '../widgets/wallet_placeholder_widget.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
@@ -26,11 +28,11 @@ class _MainWrapperScreenState extends State<MainWrapperScreen> {
     SettingsScreen(),
   ];
 
-  static const List<AppNavItem> _navItems = [
-    AppNavItem(icon: Icons.add_location_alt_outlined, activeIcon: Icons.add_location_alt_rounded, label: 'انشاء طلب'),
-    AppNavItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long_rounded, label: 'طلباتي'),
-    AppNavItem(icon: Icons.account_balance_wallet_outlined, activeIcon: Icons.account_balance_wallet_rounded, label: 'المحفظة'),
-    AppNavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: 'الإعدادات'),
+  List<AppNavItem> _navItems(AppLocalizations l10n) => [
+    AppNavItem(icon: Icons.add_location_alt_outlined, activeIcon: Icons.add_location_alt_rounded, label: l10n.navCreateRequest),
+    AppNavItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long_rounded, label: l10n.navMyRequests),
+    AppNavItem(icon: Icons.account_balance_wallet_outlined, activeIcon: Icons.account_balance_wallet_rounded, label: l10n.navWallet),
+    AppNavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: l10n.navSettings),
   ];
 
   @override
@@ -39,7 +41,7 @@ class _MainWrapperScreenState extends State<MainWrapperScreen> {
       body: IndexedStack(index: _currentIndex, children: _tabs),
       bottomNavigationBar: AppBottomNavWidget(
         currentIndex: _currentIndex,
-        items: _navItems,
+        items: _navItems(context.l10n),
         onTap: (index) => setState(() => _currentIndex = index),
       ),
     );
