@@ -12,6 +12,9 @@ class ApiEndpoints {
   // ─── Privacy policy (public) ───────────────────────────────
   String get privacyPolicy => '/api/privacy-policy';
 
+  // ─── Contact us numbers (public) ───────────────────────────
+  String get contactNumbers => '/api/contact-numbers';
+
   // ─── App version (public) ──────────────────────────────────
   String get appVersionCheck => '/api/app/version-check';
 

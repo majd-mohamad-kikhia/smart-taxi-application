@@ -2174,6 +2174,30 @@ abstract class AppLocalizations {
   /// **'Reason: {reason}'**
   String accountBlockedReason(String reason);
 
+  /// No description provided for @contactUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact us'**
+  String get contactUs;
+
+  /// No description provided for @noContactNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'No contact numbers yet.'**
+  String get noContactNumbers;
+
+  /// No description provided for @whatsappNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp isn\'t available on this device'**
+  String get whatsappNotAvailable;
+
+  /// No description provided for @callNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Calls aren\'t supported on this device'**
+  String get callNotAvailable;
+
   /// No description provided for @accountBlockedStrikes.
   ///
   /// In en, this message translates to:

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../app_version/data/models/app_version_model.dart';
 import '../app_version/presentation/screens/force_update_screen.dart';
 import '../app_version/presentation/screens/maintenance_screen.dart';
+import '../contact_us/presentation/screens/contact_us_screen.dart';
 import '../enums/user_role.dart';
 import '../session/app_user.dart';
 import '../../driver_features/driver_auth/presentation/screens/driver_sign_in_screen.dart';
@@ -66,6 +67,10 @@ class AppRouter {
   static const String settings = '/settings';
   static const String editProfile = '/settings/edit-profile';
   static const String notifications = '/notifications';
+
+  /// Takes the caller's [UserRole] as `RouteSettings.arguments` — it decides
+  /// which app's numbers are listed.
+  static const String contactUs = '/contact-us';
 
   /// Full-screen blockers from the app version check. Both take the
   /// [AppVersionModel] as `RouteSettings.arguments`.
@@ -133,6 +138,10 @@ class AppRouter {
         return _buildRoute(const EditProfileScreen());
       case notifications:
         return _buildRoute(const NotificationsScreen());
+      case contactUs:
+        return _buildRoute(
+          ContactUsScreen(role: settings.arguments! as UserRole),
+        );
       default:
         return _buildRoute(const MainWrapperScreen());
     }

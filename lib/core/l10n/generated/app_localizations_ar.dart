@@ -1117,6 +1117,18 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get contactUs => 'تواصل معنا';
+
+  @override
+  String get noContactNumbers => 'لا توجد أرقام تواصل بعد.';
+
+  @override
+  String get whatsappNotAvailable => 'واتساب غير متاح على هذا الجهاز';
+
+  @override
+  String get callNotAvailable => 'الاتصال غير مدعوم على هذا الجهاز';
+
+  @override
   String accountBlockedStrikes(int count, int limit) {
     return 'الإلغاءات: $count من $limit';
   }

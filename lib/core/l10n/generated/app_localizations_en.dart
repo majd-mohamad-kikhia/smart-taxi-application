@@ -1135,6 +1135,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get contactUs => 'Contact us';
+
+  @override
+  String get noContactNumbers => 'No contact numbers yet.';
+
+  @override
+  String get whatsappNotAvailable => 'WhatsApp isn\'t available on this device';
+
+  @override
+  String get callNotAvailable => 'Calls aren\'t supported on this device';
+
+  @override
   String accountBlockedStrikes(int count, int limit) {
     return 'Cancellations: $count of $limit';
   }

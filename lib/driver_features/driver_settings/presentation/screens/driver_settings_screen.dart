@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/complaints/complaint_cubit.dart';
+import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
@@ -11,6 +12,7 @@ import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/complaint_button_widget.dart';
+import '../../../../core/widgets/contact_us_button_widget.dart';
 import '../../../../core/widgets/complaint_dialog_widget.dart';
 import '../../../../core/widgets/language_dropdown_widget.dart';
 import '../../../../core/widgets/logout_footer_widget.dart';
@@ -135,6 +137,13 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
                   const SizedBox(height: 20),
                   PrivacyPolicyButtonWidget(
                     onPressed: () => showPrivacyPolicyDialog(context),
+                  ),
+                  const SizedBox(height: 12),
+                  ContactUsButtonWidget(
+                    onPressed: () => Navigator.of(context).pushNamed(
+                      AppRouter.contactUs,
+                      arguments: UserRole.driver,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   ComplaintButtonWidget(

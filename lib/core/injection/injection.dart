@@ -21,6 +21,10 @@ import '../app_version/data/datasources/app_version_remote_datasource.dart';
 import '../app_version/data/repositories/app_version_repository.dart';
 import '../app_version/presentation/cubit/app_version_cubit.dart';
 import '../complaints/complaint_cubit.dart';
+import '../contact_us/data/datasources/contact_us_remote_datasource.dart';
+import '../contact_us/data/models/contact_number_model.dart';
+import '../contact_us/data/repositories/contact_us_repository.dart';
+import '../contact_us/presentation/cubit/contact_us_cubit.dart';
 import '../../driver_features/driver_settings/presentation/cubit/driver_settings_cubit.dart';
 import '../../driver_features/driver_gps_guard/data/datasources/gps_status_service.dart';
 import '../../driver_features/driver_gps_guard/presentation/cubit/gps_status_cubit.dart';
@@ -122,6 +126,32 @@ void setupInjection() {
   sl.registerFactory<PrivacyPolicyCubit>(
     () => PrivacyPolicyCubit(sl<PrivacyPolicyRepository>()),
   );
+
+  // ─── Core Contact Us ────────────────────────────────────────
+  // One data source per app side, as singletons so each keeps its ETag cache
+  // between visits; the cubit is created per screen.
+  for (final app in ContactUsApp.values) {
+    sl.registerLazySingleton<ContactUsRemoteDataSource>(
+      () => ContactUsRemoteDataSource(
+        sl<ApiClient>().dio,
+        sl<ApiEndpoints>(),
+        app: app,
+      ),
+      instanceName: app.wireValue,
+    );
+    sl.registerLazySingleton<ContactUsRepository>(
+      () => ContactUsRepository(
+        sl<ContactUsRemoteDataSource>(instanceName: app.wireValue),
+      ),
+      instanceName: app.wireValue,
+    );
+    sl.registerFactory<ContactUsCubit>(
+      () => ContactUsCubit(
+        sl<ContactUsRepository>(instanceName: app.wireValue),
+      ),
+      instanceName: app.wireValue,
+    );
+  }
 
   // ─── Core Session ───────────────────────────────────────────
   sl.registerLazySingleton<SessionCubit>(() => SessionCubit());

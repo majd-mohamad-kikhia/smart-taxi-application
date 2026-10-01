@@ -346,5 +346,9 @@
   "accountBlockedDriverMessage": "لن تصلك عروض رحلات جديدة أثناء الحظر. الرحلة الجارية حاليًا لا تتأثر.",
   "accountBlockedUntil": "محظور حتى {date}",
   "accountBlockedReason": "السبب: {reason}",
+  "contactUs": "تواصل معنا",
+  "noContactNumbers": "لا توجد أرقام تواصل بعد.",
+  "whatsappNotAvailable": "واتساب غير متاح على هذا الجهاز",
+  "callNotAvailable": "الاتصال غير مدعوم على هذا الجهاز",
   "accountBlockedStrikes": "الإلغاءات: {count} من {limit}"
 }
