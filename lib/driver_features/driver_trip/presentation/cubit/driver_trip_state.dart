@@ -1,8 +1,11 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/models/order_offer_model.dart';
+import '../../../../core/models/ride_pause_model.dart';
+import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../data/models/driver_trip_fare_model.dart';
 import '../../data/models/driver_trip_payment_model.dart';
+import '../../data/models/ride_cancellation_model.dart';
 
 /// Where the driver is in the ride after accepting it:
 /// accepted (2) → arrived (3, optional) → inProgress (4) → completed (5).
@@ -17,6 +20,10 @@ class DriverTripState extends Equatable {
 
   final bool isCancelling;
   final bool isCancelled;
+
+  /// Who cancelled, when the server said so (null for a cancel this device
+  /// made itself).
+  final RideCancelledBy? cancelledBy;
   final String? errorMessage;
 
   /// The driver's own position, streamed once the ride is in progress.
@@ -28,6 +35,16 @@ class DriverTripState extends Equatable {
 
   /// The path the car has actually driven since the ride started.
   final List<RoutePointModel> drivenPath;
+
+  /// Waiting at pickup, as last reported by the server: running after
+  /// "arrived", final (with the fee) once the trip has started. Null when
+  /// the driver never tapped arrived.
+  final RideWaitingModel? waiting;
+
+  /// Pauses during the trip, as last reported by the server: the running
+  /// pause while paused, the closed pauses' totals otherwise. Null until the
+  /// first pause.
+  final RidePauseModel? pause;
 
   /// The server's final fare — set once the ride is finished.
   final DriverTripFareModel? fare;
@@ -44,21 +61,31 @@ class DriverTripState extends Equatable {
     required this.isUpdating,
     required this.isCancelling,
     required this.isCancelled,
+    this.cancelledBy,
     this.errorMessage,
     this.carLat,
     this.carLng,
     this.routePoints = const [],
     this.drivenPath = const [],
+    this.waiting,
+    this.pause,
     this.fare,
     this.isConfirmingPayment = false,
     this.isPaid = false,
     this.payment,
   });
 
-  factory DriverTripState.initial(OrderOfferModel order) {
+  factory DriverTripState.initial(
+    OrderOfferModel order, {
+    DriverTripStatus status = DriverTripStatus.accepted,
+    RideWaitingModel? waiting,
+    RidePauseModel? pause,
+  }) {
     return DriverTripState(
       order: order,
-      status: DriverTripStatus.accepted,
+      status: status,
+      waiting: waiting,
+      pause: pause,
       isUpdating: false,
       isCancelling: false,
       isCancelled: false,
@@ -67,16 +94,22 @@ class DriverTripState extends Equatable {
 
   bool get isBusy => isUpdating || isCancelling;
 
+  /// The trip is in progress but stopped (e.g. for a coffee).
+  bool get isPaused => status == DriverTripStatus.inProgress && (pause?.isPaused ?? false);
+
   DriverTripState copyWith({
     DriverTripStatus? status,
     bool? isUpdating,
     bool? isCancelling,
     bool? isCancelled,
+    RideCancelledBy? cancelledBy,
     String? errorMessage,
     double? carLat,
     double? carLng,
     List<RoutePointModel>? routePoints,
     List<RoutePointModel>? drivenPath,
+    RideWaitingModel? waiting,
+    RidePauseModel? pause,
     DriverTripFareModel? fare,
     bool? isConfirmingPayment,
     bool? isPaid,
@@ -89,11 +122,14 @@ class DriverTripState extends Equatable {
       isUpdating: isUpdating ?? this.isUpdating,
       isCancelling: isCancelling ?? this.isCancelling,
       isCancelled: isCancelled ?? this.isCancelled,
+      cancelledBy: cancelledBy ?? this.cancelledBy,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       carLat: carLat ?? this.carLat,
       carLng: carLng ?? this.carLng,
       routePoints: routePoints ?? this.routePoints,
       drivenPath: drivenPath ?? this.drivenPath,
+      waiting: waiting ?? this.waiting,
+      pause: pause ?? this.pause,
       fare: fare ?? this.fare,
       isConfirmingPayment: isConfirmingPayment ?? this.isConfirmingPayment,
       isPaid: isPaid ?? this.isPaid,
@@ -108,11 +144,14 @@ class DriverTripState extends Equatable {
     isUpdating,
     isCancelling,
     isCancelled,
+    cancelledBy,
     errorMessage,
     carLat,
     carLng,
     routePoints,
     drivenPath,
+    waiting,
+    pause,
     fare,
     isConfirmingPayment,
     isPaid,

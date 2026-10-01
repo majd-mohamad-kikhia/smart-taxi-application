@@ -4,6 +4,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../data/models/customer_profile_model.dart';
@@ -38,8 +39,10 @@ class _EditProfileView extends StatelessWidget {
             prev.status != curr.status &&
             curr.status == EditProfileStatus.saved,
         listener: (context, state) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.profileSaved)),
+          showAppSnackBar(
+            context,
+            context.l10n.profileSaved,
+            type: AppSnackBarType.success,
           );
           Navigator.of(context).pop(true);
         },

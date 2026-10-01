@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/ride_history_model.dart';
 import '../../data/repositories/trips_repository.dart';
 
-/// State for the ride details screen.
 class RideDetailsState extends Equatable {
   final RideHistoryModel? ride;
   final bool isLoading;

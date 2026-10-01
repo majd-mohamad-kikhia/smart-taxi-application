@@ -3,7 +3,6 @@ import '../constants/app_constants.dart';
 import '../localization/app_strings.dart';
 import '../models/route_point_model.dart';
 
-/// Structured failure thrown by [RouteService].
 class RouteException implements Exception {
   final String message;
 

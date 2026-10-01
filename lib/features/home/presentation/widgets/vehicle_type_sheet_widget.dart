@@ -65,6 +65,29 @@ class VehicleTypeSheetWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppConstants.paddingM),
+            if (quote.waitingFee?.isCharged ?? false) ...[
+              Text(
+                '${context.l10n.waitingAtPickup}: ${context.l10n.waitingRules(
+                  '${quote.waitingFee!.freeMinutes}',
+                  context.l10n.priceSyp(quote.waitingFee!.pricePerMinute.toStringAsFixed(0)),
+                )}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: AppConstants.paddingS),
+            ],
+            if (quote.pauseFee?.isCharged ?? false) ...[
+              Text(
+                '${context.l10n.pauseStopLabel}: ${context.l10n.pauseRules(
+                  context.l10n.priceSyp(quote.pauseFee!.baseFee.toStringAsFixed(0)),
+                  '${quote.pauseFee!.includedMinutes}',
+                  context.l10n.priceSyp(quote.pauseFee!.pricePerMinute.toStringAsFixed(0)),
+                )}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: AppConstants.paddingS),
+            ],
             Text(
               context.l10n.priceEstimateNote,
               textAlign: TextAlign.center,
@@ -77,7 +100,6 @@ class VehicleTypeSheetWidget extends StatelessWidget {
   }
 }
 
-/// A single selectable vehicle type row with its quoted price.
 class _VehicleTypeTileWidget extends StatelessWidget {
   final VehicleTypeQuoteModel vehicleType;
   final double distanceKm;

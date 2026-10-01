@@ -3,7 +3,6 @@ import '../../data/models/driver_user_model.dart';
 
 enum DriverAuthStatus { idle, submitting, success, failure }
 
-/// Immutable state for the driver sign-in flow.
 class DriverAuthState extends Equatable {
   final DriverAuthStatus status;
   final DriverUserModel? driver;

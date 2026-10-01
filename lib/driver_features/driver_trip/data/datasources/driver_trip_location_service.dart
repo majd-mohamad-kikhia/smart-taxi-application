@@ -43,4 +43,8 @@ class DriverTripLocationService {
     to.latitude,
     to.longitude,
   );
+
+  /// Distance from a saved point (no [Position] of its own) to a fix.
+  double distanceFromPoint(double lat, double lng, Position to) =>
+      Geolocator.distanceBetween(lat, lng, to.latitude, to.longitude);
 }

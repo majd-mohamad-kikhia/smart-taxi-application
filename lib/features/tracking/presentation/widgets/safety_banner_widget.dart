@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Safety banner confirming path tracking and location sharing are active.
 class SafetyBannerWidget extends StatelessWidget {
   final bool isTrackingEnabled;
   final bool isSharingEnabled;

@@ -3,7 +3,6 @@ import '../../data/models/customer_profile_model.dart';
 
 enum EditProfileStatus { loading, loaded, saving, saved, failure }
 
-/// Immutable state for the edit-profile screen.
 class EditProfileState extends Equatable {
   final EditProfileStatus status;
   final CustomerProfileModel? profile;

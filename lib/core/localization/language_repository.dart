@@ -4,7 +4,6 @@ import '../network/api_exception.dart';
 import 'app_strings.dart';
 import 'language_remote_data_source.dart';
 
-/// Structured failure thrown by [LanguageRepository].
 class LanguageException implements Exception {
   final String message;
 

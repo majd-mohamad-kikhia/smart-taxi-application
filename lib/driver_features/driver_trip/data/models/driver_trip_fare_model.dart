@@ -1,9 +1,10 @@
 import 'package:equatable/equatable.dart';
+import '../../../../core/models/ride_fare_breakdown_model.dart';
 
 /// The server's final fare for a finished ride — the `ride.fare` object
 /// returned by `POST /api/driver/rides/{id}/finish` (or the
 /// `driver:ride_finish` ack):
-/// `final_price = base_fare + distance_km × price_per_km + stops_fee_total`.
+/// `final_price = base_fare + distance_fare + stops_fee_total + waiting_fee`.
 class DriverTripFareModel extends Equatable {
   final double finalPrice;
   final double estimatedPrice;
@@ -13,6 +14,10 @@ class DriverTripFareModel extends Equatable {
   final double adminCommissionAmount;
   final double driverEarningAmount;
 
+  /// The bill lines (distance, stops, waiting…). The commission is taken
+  /// from the total, waiting fee included.
+  final RideFareBreakdownModel breakdown;
+
   const DriverTripFareModel({
     required this.finalPrice,
     required this.estimatedPrice,
@@ -21,6 +26,7 @@ class DriverTripFareModel extends Equatable {
     required this.commissionRate,
     required this.adminCommissionAmount,
     required this.driverEarningAmount,
+    required this.breakdown,
   });
 
   /// Parses the finished ride. Uses `ride['fare']` when the server sends
@@ -43,6 +49,10 @@ class DriverTripFareModel extends Equatable {
       commissionRate: number('commission_rate', 'commission_rate_applied'),
       adminCommissionAmount: number('admin_commission_amount'),
       driverEarningAmount: number('driver_earning_amount'),
+      breakdown: RideFareBreakdownModel.fromJson(
+        Map<String, dynamic>.from(fare),
+        fallbackFinalPrice: finalPrice,
+      ),
     );
   }
 
@@ -55,5 +65,6 @@ class DriverTripFareModel extends Equatable {
     commissionRate,
     adminCommissionAmount,
     driverEarningAmount,
+    breakdown,
   ];
 }

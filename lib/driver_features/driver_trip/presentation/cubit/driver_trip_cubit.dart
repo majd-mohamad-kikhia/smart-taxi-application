@@ -3,10 +3,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../core/models/order_offer_model.dart';
+import '../../../../core/models/ride_pause_model.dart';
+import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/services/planned_route_loader.dart';
 import '../../data/datasources/driver_trip_location_service.dart';
+import '../../data/models/driver_active_ride_model.dart';
+import '../../data/route_distance_calculator.dart';
 import '../../data/models/recorded_route_point_model.dart';
+import '../../data/models/ride_cancellation_model.dart';
 import '../../data/repositories/driver_trip_repository.dart';
 import '../../data/repositories/driver_trip_route_repository.dart';
 import 'driver_trip_state.dart';
@@ -22,9 +27,6 @@ import 'driver_trip_state.dart';
 class DriverTripCubit extends Cubit<DriverTripState> {
   static const _maxAccuracyMeters = 100;
   static const _recordInterval = Duration(seconds: 5);
-
-  /// Every Nth recorded point the route so far is also saved on the device.
-  static const _draftEveryPoints = 6;
 
   final DriverTripRepository _repository;
   final DriverTripLocationService _locationService;
@@ -44,29 +46,135 @@ class DriverTripCubit extends Cubit<DriverTripState> {
   Timer? _recordTimer;
   Position? _latestFix;
 
+  /// The ride being resumed after an app kill, if any.
+  final DriverActiveRideModel? _resume;
+
+  /// Last point recorded before the kill. The first fix after resuming is
+  /// joined to it by a straight line, so the distance driven while the app
+  /// was dead isn't lost entirely.
+  RecordedRoutePointModel? _resumeAnchor;
+
+  /// Cancels that arrive from outside — the customer, a manager or another
+  /// of this driver's devices — over the socket, or over FCM when the
+  /// socket is down. Both can report the same cancel; the first one wins.
+  late final List<StreamSubscription<Map<String, dynamic>>> _cancellationSubscriptions;
+
   DriverTripCubit(
     this._repository,
     this._locationService,
     this._routeLoader,
     this._routeRepository,
-    OrderOfferModel order,
-  ) : super(DriverTripState.initial(order));
+    Stream<Map<String, dynamic>> socketCancellations,
+    Stream<Map<String, dynamic>> pushCancellations,
+    OrderOfferModel order, {
+    DriverActiveRideModel? resume,
+  }) : _resume = resume,
+       super(
+         DriverTripState.initial(
+           order,
+           status: _initialStatus(resume),
+           waiting: resume?.waiting,
+           pause: resume?.pause,
+         ),
+       ) {
+    _cancellationSubscriptions = [
+      socketCancellations.listen(_handleCancellation),
+      pushCancellations.listen(_handleCancellation),
+    ];
+  }
+
+  void _handleCancellation(Map<String, dynamic> json) {
+    final event = RideCancellationModel.fromJson(json);
+    if (event == null ||
+        isClosed ||
+        event.rideId != state.order.rideId ||
+        state.isCancelled ||
+        state.status == DriverTripStatus.completed) {
+      return;
+    }
+    emit(state.copyWith(
+      isCancelling: false,
+      isCancelled: true,
+      cancelledBy: event.cancelledBy,
+    ));
+  }
+
+  static DriverTripStatus _initialStatus(DriverActiveRideModel? resume) {
+    if (resume == null) return DriverTripStatus.accepted;
+    if (resume.isInProgress) return DriverTripStatus.inProgress;
+    return resume.isArrived ? DriverTripStatus.arrived : DriverTripStatus.accepted;
+  }
+
+  /// For an in-progress ride resumed after the app was killed: picks the
+  /// trip back up from the route saved on the device — the driven distance,
+  /// the recorded samples (so the route uploaded at finish is complete) and
+  /// the line on the map — then restarts position tracking. Does nothing
+  /// for a fresh ride or one still at pickup.
+  void resumeIfNeeded() {
+    final resume = _resume;
+    if (resume == null || !resume.isInProgress || resume.resumedRoute.isEmpty) return;
+    final route = resume.resumedRoute;
+    _recordedRoute
+      ..clear()
+      ..addAll(route);
+    _drivenMeters = RouteDistanceCalculator.meters(route);
+    _resumeAnchor = route.last;
+    emit(state.copyWith(
+      drivenPath: [for (final p in route) RoutePointModel(p.lat, p.lng)],
+    ));
+    _loadPlannedRoute();
+    _trackPosition();
+  }
 
   /// accepted → arrived. Optional: [startRide] works straight from accepted.
+  /// The server starts the waiting timer; its reply seeds the on-screen one.
   Future<void> markArrived() => _advance(
     from: const {DriverTripStatus.accepted},
     to: DriverTripStatus.arrived,
     call: _repository.markArrived,
   );
 
-  /// accepted / arrived → in_progress.
+  /// accepted / arrived → in_progress. Stops the waiting timer — the
+  /// server's reply carries the final waiting fee.
   Future<void> startRide() => _advance(
     from: const {DriverTripStatus.accepted, DriverTripStatus.arrived},
     to: DriverTripStatus.inProgress,
     call: _repository.startRide,
   );
 
-  /// in_progress → completed. Sends the distance actually driven so the
+  /// Stops the trip for a while (the customer is buying a coffee, …). The
+  /// status stays in progress; the server starts the pause timer and its
+  /// reply seeds the on-screen one.
+  Future<void> pauseTrip() => _changePause(
+    allowed: () => !state.isPaused,
+    call: _repository.pauseRide,
+  );
+
+  /// Ends the pause. The server's reply carries the pause totals, fee of
+  /// the pause that just ended included.
+  Future<void> resumeTrip() => _changePause(
+    allowed: () => state.isPaused,
+    call: _repository.resumeRide,
+  );
+
+  Future<void> _changePause({
+    required bool Function() allowed,
+    required Future<RidePauseModel?> Function(int rideId) call,
+  }) async {
+    if (isClosed || state.isBusy || state.status != DriverTripStatus.inProgress || !allowed()) {
+      return;
+    }
+    emit(state.copyWith(isUpdating: true, clearError: true));
+    try {
+      final pause = await call(state.order.rideId);
+      if (!isClosed) emit(state.copyWith(isUpdating: false, pause: pause));
+    } on DriverTripException catch (e) {
+      if (!isClosed) emit(state.copyWith(isUpdating: false, errorMessage: e.message));
+    }
+  }
+
+  /// in_progress → completed (also while paused: the server closes the
+  /// pause first and counts its fee). Sends the distance actually driven so the
   /// server can compute the final price, and keeps the fare it returns.
   Future<void> finishRide() async {
     if (isClosed || state.isBusy || state.status != DriverTripStatus.inProgress) return;
@@ -143,14 +251,14 @@ class DriverTripCubit extends Cubit<DriverTripState> {
   Future<void> _advance({
     required Set<DriverTripStatus> from,
     required DriverTripStatus to,
-    required Future<void> Function(int rideId) call,
+    required Future<RideWaitingModel?> Function(int rideId) call,
   }) async {
     if (isClosed || state.isBusy || !from.contains(state.status)) return;
     emit(state.copyWith(isUpdating: true, clearError: true));
     try {
-      await call(state.order.rideId);
+      final waiting = await call(state.order.rideId);
       if (isClosed) return;
-      emit(state.copyWith(isUpdating: false, status: to));
+      emit(state.copyWith(isUpdating: false, status: to, waiting: waiting));
       if (to == DriverTripStatus.inProgress) {
         _loadPlannedRoute();
         _trackPosition();
@@ -175,6 +283,7 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     if (isClosed || start == null) return;
     // Baseline for the driven distance, unless a streamed fix already set one.
     if (_lastCounted == null) {
+      if (start.accuracy <= _maxAccuracyMeters) _bridgeResumeGap(start);
       _lastCounted = start;
       _recordPathPoint(start);
     }
@@ -190,13 +299,25 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     final previous = _lastCounted;
     if (previous != null) {
       _drivenMeters += _locationService.distanceMeters(previous, position);
+    } else {
+      _bridgeResumeGap(position);
     }
     _lastCounted = position;
     _recordPathPoint(position);
   }
 
+  /// First fix after a resume: adds the straight line from the last point
+  /// saved before the app was killed. Used once.
+  void _bridgeResumeGap(Position position) {
+    final anchor = _resumeAnchor;
+    if (anchor == null) return;
+    _resumeAnchor = null;
+    _drivenMeters += _locationService.distanceFromPoint(anchor.lat, anchor.lng, position);
+  }
+
   /// Adds the latest GPS fix to the route that is uploaded after finish, and
-  /// saves a safety copy on the device every [_draftEveryPoints] samples.
+  /// saves a copy on the device after every sample — if the app is killed
+  /// mid-trip, that copy is what the driven distance is rebuilt from.
   void _recordSample() {
     final fix = _latestFix;
     if (isClosed || fix == null) return;
@@ -205,9 +326,7 @@ class DriverTripCubit extends Cubit<DriverTripState> {
       lng: fix.longitude,
       recordedAt: DateTime.now(),
     ));
-    if (_recordedRoute.length % _draftEveryPoints == 0) {
-      unawaited(_routeRepository.saveDraft(state.order.rideId, List.of(_recordedRoute)));
-    }
+    unawaited(_routeRepository.saveDraft(state.order.rideId, List.of(_recordedRoute)));
   }
 
   void _recordPathPoint(Position position) {
@@ -250,6 +369,9 @@ class DriverTripCubit extends Cubit<DriverTripState> {
 
   @override
   Future<void> close() {
+    for (final subscription in _cancellationSubscriptions) {
+      subscription.cancel();
+    }
     _recordTimer?.cancel();
     _positionSubscription?.cancel();
     return super.close();

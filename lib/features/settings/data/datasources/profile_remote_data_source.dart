@@ -16,6 +16,13 @@ class ProfileRemoteDataSource {
     );
   }
 
+  /// `DELETE /api/customer/profile`: permanently deletes the account,
+  /// confirmed with the account [password]. Fails with 401 for a wrong
+  /// password and 409 while a ride is still active.
+  Future<void> deleteAccount(String password) async {
+    await _dio.delete(_endpoints.customerProfile, data: {'password': password});
+  }
+
   /// Partial update — only the keys in [fields] are sent.
   Future<CustomerProfileModel> updateProfile(
     Map<String, dynamic> fields,

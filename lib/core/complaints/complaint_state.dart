@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 
 enum ComplaintSubmitStatus { idle, submitting, success, failure }
 
-/// Immutable state for the complaint dialog.
 class ComplaintState extends Equatable {
   final ComplaintSubmitStatus submitStatus;
   final String? errorMessage;

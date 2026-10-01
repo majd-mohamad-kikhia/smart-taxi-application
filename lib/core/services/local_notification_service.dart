@@ -1,7 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../localization/app_strings.dart';
 
-/// Shows system notifications through flutter_local_notifications.
 class LocalNotificationService {
   /// Its id must match the `default_notification_channel_id` meta-data in
   /// `AndroidManifest.xml`.

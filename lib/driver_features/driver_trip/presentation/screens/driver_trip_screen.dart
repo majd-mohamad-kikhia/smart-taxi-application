@@ -4,8 +4,13 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../../../../core/widgets/live_trip_map_widget.dart';
+import '../../../../core/widgets/ride_waiting_timer_widget.dart';
+import '../../../../core/widgets/trip_fees_overlay_widget.dart';
+import '../../data/models/driver_active_ride_model.dart';
+import '../../data/models/ride_cancellation_model.dart';
 import '../cubit/driver_trip_cubit.dart';
 import '../cubit/driver_trip_state.dart';
 import '../widgets/driver_fare_dialog_widget.dart';
@@ -20,12 +25,15 @@ import '../widgets/driver_trip_actions_widget.dart';
 class DriverTripScreen extends StatelessWidget {
   final OrderOfferModel order;
 
-  const DriverTripScreen({super.key, required this.order});
+  /// Set when resuming a ride from before the app closed.
+  final DriverActiveRideModel? resume;
+
+  const DriverTripScreen({super.key, required this.order, this.resume});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<DriverTripCubit>(
-      create: (_) => sl<DriverTripCubit>(param1: order),
+      create: (_) => sl<DriverTripCubit>(param1: order, param2: resume)..resumeIfNeeded(),
       child: const _DriverTripView(),
     );
   }
@@ -49,19 +57,29 @@ class _DriverTripView extends StatelessWidget {
                   current.errorMessage != previous.errorMessage),
           listener: (context, state) {
             if (state.isCancelled) {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(context.l10n.tripCancelled),
-                  backgroundColor: AppColors.error,
-                ),
+              // A cancel from the customer can land while the cancel-reason
+              // or another dialog is open: close those, then this screen.
+              final navigator = Navigator.of(context);
+              final tripRoute = ModalRoute.of(context);
+              navigator.popUntil((route) => route == tripRoute || route.isFirst);
+              navigator.pop();
+              showAppSnackBar(
+                context,
+                switch (state.cancelledBy) {
+                  RideCancelledBy.customer => context.l10n.tripCancelledByCustomer,
+                  RideCancelledBy.manager => context.l10n.tripCancelledByManager,
+                  _ => context.l10n.tripCancelled,
+                },
+                type: AppSnackBarType.error,
               );
             } else if (state.status == DriverTripStatus.completed) {
               _showFareAndExit(context);
             } else if (state.errorMessage != null) {
-              ScaffoldMessenger.of(
+              showAppSnackBar(
                 context,
-              ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+                state.errorMessage!,
+                type: AppSnackBarType.error,
+              );
             }
           },
           builder: (context, state) {
@@ -74,7 +92,6 @@ class _DriverTripView extends StatelessWidget {
                   pickupLat: state.order.pickupLat,
                   pickupLng: state.order.pickupLng,
                 ),
-                _ScreenHeader(status: state.status),
                 _BottomPanel(state: state),
               ],
             );
@@ -125,6 +142,13 @@ class _InProgressView extends StatelessWidget {
           drivenPath: state.drivenPath,
         ),
         Align(
+          alignment: AlignmentDirectional.topStart,
+          child: TripFeesOverlayWidget(
+            waitingFee: state.waiting?.fee ?? 0,
+            pause: state.pause,
+          ),
+        ),
+        Align(
           alignment: Alignment.bottomCenter,
           child: SafeArea(
             child: Padding(
@@ -133,69 +157,12 @@ class _InProgressView extends StatelessWidget {
                 status: state.status,
                 isUpdating: state.isUpdating,
                 isCancelling: state.isCancelling,
+                isPaused: state.isPaused,
               ),
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ScreenHeader extends StatelessWidget {
-  final DriverTripStatus status;
-
-  const _ScreenHeader({required this.status});
-
-  String _label(BuildContext context) {
-    return status == DriverTripStatus.accepted
-        ? context.l10n.driverGoToPickup
-        : context.l10n.driverArrivalReported;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.95),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
-                BoxShadow(
-                  color: AppColors.shadowLight,
-                  blurRadius: 6,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.local_taxi_rounded,
-                  color: AppColors.primary,
-                  size: 16,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  _label(context),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -251,6 +218,10 @@ class _BottomPanel extends StatelessWidget {
                   ),
                 ],
               ),
+              if (state.status == DriverTripStatus.arrived && state.waiting != null) ...[
+                const SizedBox(height: 12),
+                RideWaitingTimerWidget(waiting: state.waiting!),
+              ],
               const SizedBox(height: 16),
               DriverTripActionsWidget(
                 status: state.status,

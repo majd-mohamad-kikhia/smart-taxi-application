@@ -9,6 +9,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/services/current_location_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../data/models/place_suggestion_model.dart';
 import '../../data/repositories/places_repository.dart';
 
@@ -110,7 +111,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       backgroundColor: AppColors.backgroundGray,
       body: Stack(
         children: [
-          // ── Map ──────────────────────────────────────────
           GoogleMap(
             style: _mapStyle,
             initialCameraPosition: CameraPosition(target: _center, zoom: 15),
@@ -136,7 +136,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               setState(() => _suggestions = []);
             },
           ),
-          // ── Fixed center pin ─────────────────────────────
           IgnorePointer(
             child: Align(
               alignment: Alignment.center,
@@ -150,7 +149,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               ),
             ),
           ),
-          // ── Top bar: back + title + search ────────────────
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(AppConstants.paddingL),
@@ -222,7 +220,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               ),
             ),
           ),
-          // ── Bottom confirm card ───────────────────────────
           Align(
             alignment: Alignment.bottomCenter,
             child: SafeArea(
@@ -397,9 +394,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       final message = e.reason == LocationFailureReason.serviceDisabled
           ? context.l10n.errLocationServiceOff
           : context.l10n.errLocationDenied;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      showAppSnackBar(context, message, type: AppSnackBarType.warning);
     } finally {
       if (mounted) setState(() => _isLocating = false);
     }

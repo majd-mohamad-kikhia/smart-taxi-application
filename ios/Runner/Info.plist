@@ -28,10 +28,17 @@
 		<string>$(GOOGLE_MAPS_API_KEY)</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
+		<key>ITSAppUsesNonExemptEncryption</key>
+		<false/>
+		<key>CFBundleLocalizations</key>
+		<array>
+			<string>ar</string>
+			<string>en</string>
+		</array>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>نحتاج موقعك لإظهارك للركاب القريبين وحساب مسار الرحلة</string>
+		<string>Smart Taxi uses your location to set your pickup point on the map and to track your ride. Drivers are also shown to nearby riders. | نستخدم موقعك لتحديد نقطة الانطلاق على الخريطة وتتبع رحلتك، ولإظهار السائق للركاب القريبين.</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>نحتاج موقعك أثناء عملك حتى تبقى ظاهراً للإدارة والركاب وأنت متاح</string>
+		<string>While you are online as a driver, Smart Taxi uses your location, including in the background, so riders and dispatch can see you and your trip route is recorded. | نحتاج موقعك أثناء عملك كسائق، حتى في الخلفية، ليظهر للركاب والإدارة ولتسجيل مسار الرحلة.</string>
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>location</string>

@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/token_check.dart';
 import '../datasources/driver_local_data_source.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../datasources/driver_remote_data_source.dart';
 import '../models/driver_user_model.dart';
 
-/// Structured failure thrown by [DriverRepository], so the Cubit never
-/// has to interpret a raw exception.
 class DriverAuthException implements Exception {
   final String message;
 
@@ -17,10 +16,6 @@ class DriverAuthException implements Exception {
   String toString() => message;
 }
 
-/// Repository for the Driver feature.
-///
-/// The Cubit talks to this, never to [DriverRemoteDataSource] /
-/// [DriverLocalDataSource] directly — mirrors `AuthRepository`'s shape.
 class DriverRepository {
   final DriverRemoteDataSource _remoteDataSource;
   final DriverLocalDataSource _localDataSource;
@@ -53,6 +48,10 @@ class DriverRepository {
     }
     return driver;
   }
+
+  /// Whether the server no longer accepts the restored session's token
+  /// (expired, or the account was deleted). `false` when offline.
+  Future<bool> isSessionRejected() => isTokenRejected(_remoteDataSource.checkSession);
 
   /// Revokes the current device's session on the server, then always
   /// clears the local session/token — even if the network call fails —

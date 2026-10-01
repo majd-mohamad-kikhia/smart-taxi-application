@@ -10,9 +10,8 @@ import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_footer_link_widget.dart';
 
-/// Rider sign in — only riders reach this screen (drivers use
-/// `features/driver`'s own sign in screen, since they don't share a
-/// sign-up flow or account shape).
+/// Rider sign in — drivers use `driver_features/driver_auth`'s own screen,
+/// since they don't share a sign-up flow or account shape.
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
 

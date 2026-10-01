@@ -1,13 +1,14 @@
 import 'package:dio/dio.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/models/ride_pause_model.dart';
+import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/status_code.dart';
 import '../datasources/driver_trip_remote_data_source.dart';
+import '../models/driver_active_ride_model.dart';
 import '../models/driver_trip_fare_model.dart';
 import '../models/driver_trip_payment_model.dart';
 
-/// Structured failure thrown by [DriverTripRepository], so the Cubit
-/// never has to interpret a raw exception.
 class DriverTripException implements Exception {
   final String message;
   final int? statusCode;
@@ -22,18 +23,25 @@ class DriverTripException implements Exception {
   String toString() => message;
 }
 
-/// Repository for the driver's active-ride screen. The Cubit talks to
-/// this, never to [DriverTripRemoteDataSource] directly.
 class DriverTripRepository {
   final DriverTripRemoteDataSource _remoteDataSource;
 
   const DriverTripRepository(this._remoteDataSource);
 
-  Future<void> markArrived(int rideId) =>
+  Future<DriverActiveRideModel?> fetchActiveRide() =>
+      _guard(_remoteDataSource.fetchActiveRide);
+
+  Future<RideWaitingModel?> markArrived(int rideId) =>
       _guard(() => _remoteDataSource.markArrived(rideId));
 
-  Future<void> startRide(int rideId) =>
+  Future<RideWaitingModel?> startRide(int rideId) =>
       _guard(() => _remoteDataSource.startRide(rideId));
+
+  Future<RidePauseModel?> pauseRide(int rideId) =>
+      _guard(() => _remoteDataSource.pauseRide(rideId));
+
+  Future<RidePauseModel?> resumeRide(int rideId) =>
+      _guard(() => _remoteDataSource.resumeRide(rideId));
 
   Future<DriverTripFareModel> finishRide({
     required int rideId,

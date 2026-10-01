@@ -9,10 +9,15 @@ class LogoutFooterWidget extends StatelessWidget {
   final bool isLoading;
   final VoidCallback? onLogout;
 
+  /// Shown right under the logout button, above the tagline and version —
+  /// e.g. the "delete my account" block (rider button, driver request status).
+  final Widget? belowLogout;
+
   const LogoutFooterWidget({
     super.key,
     required this.isLoading,
     this.onLogout,
+    this.belowLogout,
   });
 
   @override
@@ -64,6 +69,10 @@ class LogoutFooterWidget extends StatelessWidget {
                   ),
           ),
         ),
+        if (belowLogout != null) ...[
+          const SizedBox(height: 4),
+          belowLogout!,
+        ],
         const SizedBox(height: 16),
         Text(
           l10n.appTagline,

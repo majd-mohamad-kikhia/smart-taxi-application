@@ -13,20 +13,10 @@ class HomeCubit extends Cubit<HomeState> {
 
   HomeCubit(this._sessionCubit, this._repository) : super(HomeState.initial());
 
-  /// Called when the screen first loads.
   void initialize() {
     if (isClosed) return;
     final user = _sessionCubit.state;
     emit(state.copyWith(userName: user?.firstName));
-  }
-
-  /// Updates the greeting based on the current time of day.
-  void refreshGreeting() {
-    final greeting = GreetingPeriod.fromHour(DateTime.now().hour);
-
-    if (!isClosed && state.greeting != greeting) {
-      emit(state.copyWith(greeting: greeting));
-    }
   }
 
   void setFromLocation(PickedLocationModel location) {

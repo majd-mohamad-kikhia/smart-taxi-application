@@ -3,13 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_loader_widget.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
+import '../../../../core/widgets/paginated_list_widget.dart';
+import '../../data/models/notification_model.dart';
 import '../cubit/notifications_cubit.dart';
 import '../cubit/notifications_state.dart';
 import '../widgets/notification_card_widget.dart';
 import '../widgets/notifications_header_widget.dart';
 
-/// Notifications inbox screen: trip updates, promos, payments, and system alerts.
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
@@ -27,139 +28,51 @@ class _NotificationsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<NotificationsCubit>();
     return Scaffold(
       backgroundColor: AppColors.backgroundGray,
       body: SafeArea(
         bottom: false,
-        child: BlocBuilder<NotificationsCubit, NotificationsState>(
-          builder: (context, state) {
-            final notifications = state.notifications;
-
-            return Column(
-              children: [
-                NotificationsHeaderWidget(
-                  onBack: () => Navigator.of(context).maybePop(),
-                ),
-                Expanded(
-                  child: state.isLoading
-                      ? const AppLoaderWidget()
-                      : state.errorMessage != null
-                      ? _ErrorView(
-                          message: state.errorMessage!,
-                          onRetry: () =>
-                              context.read<NotificationsCubit>().initialize(),
-                        )
-                      : notifications.isEmpty
-                      ? const _EmptyNotifications()
-                      : ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
-                          itemCount: notifications.length,
-                          itemBuilder: (context, index) {
-                            return NotificationCardWidget(
-                              notification: notifications[index],
-                            );
-                          },
-                        ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback? onRetry;
-
-  const _ErrorView({required this.message, this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.wifi_off_rounded,
-              size: 48,
-              color: AppColors.textTertiary,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+        // The list itself shows a failed first load; a failed "load more"
+        // with rows already on screen surfaces as a snackbar.
+        child: BlocListener<NotificationsCubit, NotificationsState>(
+          listenWhen: (previous, current) =>
+              current.errorMessage != null &&
+              current.errorMessage != previous.errorMessage &&
+              current.notifications.isNotEmpty,
+          listener: (context, state) => showAppSnackBar(
+            context,
+            state.errorMessage!,
+            type: AppSnackBarType.error,
+          ),
+          child: Column(
+            children: [
+              NotificationsHeaderWidget(
+                onBack: () => Navigator.of(context).maybePop(),
               ),
-            ),
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap: onRetry,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.refresh_rounded, size: 16, color: Colors.white),
-                    const SizedBox(width: 6),
-                    Text(
-                      context.l10n.retry,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+              Expanded(
+                child: BlocBuilder<NotificationsCubit, NotificationsState>(
+                  builder: (context, state) =>
+                      PaginatedListWidget<NotificationModel>(
+                        items: state.notifications,
+                        isLoading: state.isLoading,
+                        isLoadingMore: state.isLoadingMore,
+                        hasMore: state.hasMore,
+                        errorMessage: state.errorMessage,
+                        emptyMessage: context.l10n.notificationsEmpty,
+                        emptyIcon: Icons.notifications_off_outlined,
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
+                        onLoadMore: cubit.loadMore,
+                        onRetry: cubit.initialize,
+                        onRefresh: cubit.initialize,
+                        itemBuilder: (context, notification, _) =>
+                            NotificationCardWidget(notification: notification),
                       ),
-                    ),
-                  ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class _EmptyNotifications extends StatelessWidget {
-  const _EmptyNotifications();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.notifications_off_outlined,
-            size: 48,
-            color: AppColors.textTertiary,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            context.l10n.notificationsEmpty,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/app_version/presentation/cubit/app_version_cubit.dart';
+import 'core/app_version/presentation/cubit/app_version_state.dart';
+import 'core/app_version/presentation/widgets/app_version_gate_widget.dart';
 import 'core/injection/injection.dart';
 import 'core/l10n/generated/app_localizations.dart';
 import 'core/localization/l10n_context_extension.dart';
@@ -21,13 +24,11 @@ import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables (API keys, etc.)
   await dotenv.load(fileName: '.env');
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  // Force portrait mode
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -42,7 +43,6 @@ Future<void> main() async {
     ),
   );
 
-  // Register all dependencies
   setupInjection();
 
   // Restore the saved language before the first frame.
@@ -53,40 +53,93 @@ Future<void> main() async {
 
   // Skip the auth flow entirely if a session was already saved locally
   // (rider or driver — a device is only ever logged into one at a time).
-  final restoredRider = await sl<AuthRepository>().restoreSession();
+  //
+  // A restored session is first checked against the server: if it rejects
+  // the token (expired, or the account was deleted) the session is dropped
+  // and the user lands on role selection. Offline, the check is skipped and
+  // the user stays signed in.
+  final riderRepository = sl<AuthRepository>();
+  final restoredRider = await riderRepository.restoreSession();
   if (restoredRider != null) {
-    sl<AuthCubit>().hydrate(restoredRider);
-    runApp(const MshoarApp(initialRoute: AppRouter.home));
-    return;
+    if (await riderRepository.isSessionRejected()) {
+      await riderRepository.logout();
+    } else {
+      sl<AuthCubit>().hydrate(restoredRider);
+      await _launch(AppRouter.home);
+      return;
+    }
   }
 
-  final restoredDriver = await sl<DriverRepository>().restoreSession();
+  final driverRepository = sl<DriverRepository>();
+  final restoredDriver = await driverRepository.restoreSession();
   if (restoredDriver != null) {
-    sl<DriverAuthCubit>().hydrate(restoredDriver);
-    runApp(const MshoarApp(initialRoute: AppRouter.driverHome));
-    return;
+    if (await driverRepository.isSessionRejected()) {
+      await driverRepository.logout();
+    } else {
+      sl<DriverAuthCubit>().hydrate(restoredDriver);
+      await _launch(AppRouter.driverHome);
+      return;
+    }
   }
 
-  runApp(const MshoarApp(initialRoute: AppRouter.roleSelection));
+  await _launch(AppRouter.roleSelection);
+}
+
+/// Asks the server whether this version may run — the native splash stays up
+/// while waiting (the cubit gives up and lets the user in after a few
+/// seconds) — then starts the app on [initialRoute], or on the force-update /
+/// maintenance screen when the server says so.
+Future<void> _launch(String initialRoute) async {
+  final versionCubit = sl<AppVersionCubit>();
+  await versionCubit.check();
+
+  switch (versionCubit.state) {
+    case AppVersionForceUpdate(:final info):
+      runApp(
+        MshoarApp(
+          initialRoute: AppRouter.forceUpdate,
+          initialArguments: info,
+        ),
+      );
+    case AppVersionMaintenance(:final info):
+      runApp(
+        MshoarApp(
+          initialRoute: AppRouter.maintenance,
+          initialArguments: info,
+        ),
+      );
+    case AppVersionAllowed() || AppVersionChecking():
+      runApp(MshoarApp(initialRoute: initialRoute));
+  }
 }
 
 class MshoarApp extends StatelessWidget {
   final String initialRoute;
+  final Object? initialArguments;
 
-  const MshoarApp({super.key, required this.initialRoute});
+  const MshoarApp({
+    super.key,
+    required this.initialRoute,
+    this.initialArguments,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<LocaleCubit>.value(
-      value: sl<LocaleCubit>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<LocaleCubit>.value(value: sl<LocaleCubit>()),
+        BlocProvider<AppVersionCubit>.value(value: sl<AppVersionCubit>()),
+      ],
       child: BlocSelector<LocaleCubit, Locale, Locale>(
         selector: (locale) => locale,
         builder: (context, locale) => MaterialApp(
+          navigatorKey: AppRouter.navigatorKey,
+          builder: (context, child) =>
+              AppVersionGateWidget(child: child ?? const SizedBox.shrink()),
           onGenerateTitle: (context) => context.l10n.appName,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
 
-          // ── Localization ───────────────────────────────────
           // Text direction follows the locale (Arabic → RTL, English →
           // LTR) through the Material/Widgets localization delegates, so
           // no global Directionality override is needed.
@@ -94,7 +147,6 @@ class MshoarApp extends StatelessWidget {
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
 
-          // ── Navigation ─────────────────────────────────────
           initialRoute: initialRoute,
           onGenerateRoute: AppRouter.onGenerateRoute,
           // Route names with a nested path (e.g. `/driver/home`) would
@@ -105,7 +157,12 @@ class MshoarApp extends StatelessWidget {
           // straight from the full name avoids that.
           onGenerateInitialRoutes: (initialRouteName) {
             return [
-              AppRouter.onGenerateRoute(RouteSettings(name: initialRouteName)),
+              AppRouter.onGenerateRoute(
+                RouteSettings(
+                  name: initialRouteName,
+                  arguments: initialArguments,
+                ),
+              ),
             ];
           },
         ),

@@ -11,15 +11,30 @@ import '../../driver_features/driver_home/presentation/cubit/driver_presence_cub
 import '../../driver_features/driver_profile/data/datasources/driver_vehicle_remote_data_source.dart';
 import '../../driver_features/driver_profile/data/repositories/driver_vehicle_repository.dart';
 import '../../driver_features/driver_profile/presentation/cubit/driver_vehicle_cubit.dart';
+import '../../driver_features/driver_settings/data/datasources/driver_account_deletion_remote_data_source.dart';
 import '../../driver_features/driver_settings/data/datasources/driver_complaints_remote_data_source.dart';
+import '../../driver_features/driver_settings/data/repositories/driver_account_deletion_repository.dart';
 import '../../driver_features/driver_settings/data/repositories/driver_complaints_repository.dart';
+import '../../driver_features/driver_settings/presentation/cubit/driver_account_deletion_cubit.dart';
+import '../app_version/data/datasources/app_version_local_datasource.dart';
+import '../app_version/data/datasources/app_version_remote_datasource.dart';
+import '../app_version/data/repositories/app_version_repository.dart';
+import '../app_version/presentation/cubit/app_version_cubit.dart';
 import '../complaints/complaint_cubit.dart';
 import '../../driver_features/driver_settings/presentation/cubit/driver_settings_cubit.dart';
+import '../../driver_features/driver_gps_guard/data/datasources/gps_status_service.dart';
+import '../../driver_features/driver_gps_guard/presentation/cubit/gps_status_cubit.dart';
+import '../../driver_features/driver_route/data/datasources/route_location_service.dart';
+import '../../driver_features/driver_route/data/datasources/route_session_local_data_source.dart';
+import '../../driver_features/driver_route/data/repositories/route_session_repository.dart';
+import '../../driver_features/driver_route/presentation/cubit/route_tracker_cubit.dart';
 import '../../driver_features/driver_trip/data/datasources/driver_trip_location_service.dart';
 import '../../driver_features/driver_trip/data/datasources/driver_trip_remote_data_source.dart';
 import '../../driver_features/driver_trip/data/datasources/driver_trip_route_local_data_source.dart';
+import '../../driver_features/driver_trip/data/models/driver_active_ride_model.dart';
 import '../../driver_features/driver_trip/data/repositories/driver_trip_route_repository.dart';
 import '../../driver_features/driver_trip/data/repositories/driver_trip_repository.dart';
+import '../../driver_features/driver_trip/presentation/cubit/driver_active_ride_cubit.dart';
 import '../../driver_features/driver_trip/presentation/cubit/driver_trip_cubit.dart';
 import '../../driver_features/driver_wallet/data/datasources/driver_wallet_remote_data_source.dart';
 import '../../driver_features/driver_wallet/data/models/wallet_transaction_model.dart';
@@ -30,14 +45,15 @@ import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
-import '../../features/booking/presentation/cubit/booking_cubit.dart';
 import '../enums/user_role.dart';
 import '../localization/language_remote_data_source.dart';
 import '../localization/language_repository.dart';
 import '../localization/locale_cubit.dart';
-import '../terms/terms_cubit.dart';
-import '../terms/terms_remote_data_source.dart';
-import '../terms/terms_repository.dart';
+import '../account_block/account_block_cubit.dart';
+import '../account_block/account_block_socket_service.dart';
+import '../privacy_policy/privacy_policy_cubit.dart';
+import '../privacy_policy/privacy_policy_remote_data_source.dart';
+import '../privacy_policy/privacy_policy_repository.dart';
 import '../localization/locale_local_data_source.dart';
 import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
@@ -49,7 +65,6 @@ import '../services/local_notification_service.dart';
 import '../services/push_notification_service.dart';
 import '../models/order_offer_model.dart';
 import '../session/session_cubit.dart';
-import '../../features/favorites/presentation/cubit/favorites_cubit.dart';
 import '../../features/home/data/datasources/places_remote_data_source.dart';
 import '../../features/home/data/datasources/ride_request_remote_data_source.dart';
 import '../../features/home/data/repositories/places_repository.dart';
@@ -63,16 +78,15 @@ import '../../features/settings/data/datasources/profile_remote_data_source.dart
 import '../../features/settings/data/repositories/customer_complaints_repository.dart';
 import '../../features/settings/data/repositories/profile_repository.dart';
 import '../../features/settings/presentation/cubit/edit_profile_cubit.dart';
+import '../../features/settings/presentation/cubit/delete_account_cubit.dart';
 import '../../features/settings/presentation/cubit/settings_cubit.dart';
 import '../../features/tracking/data/datasources/customer_ride_socket_service.dart';
 import '../../features/tracking/presentation/cubit/ride_tracking_cubit.dart';
-import '../../features/tracking/presentation/cubit/tracking_cubit.dart';
 import '../../features/trips/data/datasources/trips_remote_data_source.dart';
 import '../../features/trips/data/repositories/trips_repository.dart';
 import '../../features/trips/presentation/cubit/ride_details_cubit.dart';
 import '../../features/trips/presentation/cubit/trips_cubit.dart';
 
-/// Global service locator instance.
 final GetIt sl = GetIt.instance;
 
 /// Registers all dependencies in the service locator.
@@ -99,14 +113,61 @@ void setupInjection() {
     ),
   );
 
-  // ─── Core Terms ─────────────────────────────────────────────
-  sl.registerLazySingleton<TermsRepository>(
-    () => TermsRepository(TermsRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>())),
+  // ─── Core Privacy Policy ────────────────────────────────────
+  sl.registerLazySingleton<PrivacyPolicyRepository>(
+    () => PrivacyPolicyRepository(
+      PrivacyPolicyRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+    ),
   );
-  sl.registerFactory<TermsCubit>(() => TermsCubit(sl<TermsRepository>()));
+  sl.registerFactory<PrivacyPolicyCubit>(
+    () => PrivacyPolicyCubit(sl<PrivacyPolicyRepository>()),
+  );
 
   // ─── Core Session ───────────────────────────────────────────
   sl.registerLazySingleton<SessionCubit>(() => SessionCubit());
+
+  // ─── Core Account Block ─────────────────────────────────────
+  // Always-on socket feed of the manager's ride block, for both roles. Runs
+  // for as long as someone is signed in; restarted only when the account
+  // (not just its profile fields) changes.
+  sl.registerLazySingleton<AccountBlockSocketService>(
+    () => AccountBlockSocketService(),
+  );
+  sl.registerLazySingleton<AccountBlockCubit>(
+    () => AccountBlockCubit(sl<AccountBlockSocketService>()),
+  );
+  sl<SessionCubit>().stream.listen((user) {
+    final cubit = sl<AccountBlockCubit>();
+    if (user == null) {
+      cubit.stop();
+    } else {
+      cubit.start(
+        user.role,
+        onAppVersionChanged: sl<AppVersionCubit>().onServerVersionChanged,
+      );
+    }
+  });
+
+  // ─── Core App Version ───────────────────────────────────────
+  // Launch / resume / socket check of "may this version continue?" —
+  // maintenance, force update, optional update. Singleton so the launch
+  // check in `main`, the lifecycle gate and the socket listener share state.
+  sl.registerLazySingleton<AppVersionRemoteDataSource>(
+    () => AppVersionRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+  );
+  sl.registerLazySingleton<AppVersionRepository>(
+    () => AppVersionRepository(
+      sl<AppVersionRemoteDataSource>(),
+      const AppVersionLocalDataSource(),
+    ),
+  );
+  sl.registerLazySingleton<AppVersionCubit>(
+    () => AppVersionCubit(
+      sl<AppVersionRepository>(),
+      sl<LocaleCubit>(),
+      sl<SessionCubit>(),
+    ),
+  );
 
   // ─── Core Services ──────────────────────────────────────────
   sl.registerLazySingleton<RouteService>(() => RouteService());
@@ -151,6 +212,14 @@ void setupInjection() {
     UserRole.rider,
     () => sl<AuthCubit>().logout(),
   );
+  // Role picked on the role-selection screen, before anyone is signed in:
+  // the app version check is asked for that role (see AppVersionCubit).
+  sl<AuthCubit>().stream
+      .map((state) => state.selectedRole)
+      .distinct()
+      .listen((role) {
+        if (role != null) sl<AppVersionCubit>().onRoleChosen(role);
+      });
   sl<SessionCubit>().stream.listen((user) {
     if (user == null || user.role != UserRole.rider) return;
     sl<AuthRepository>().syncStoredProfile(
@@ -221,13 +290,42 @@ void setupInjection() {
       const DriverTripRouteLocalDataSource(),
     ),
   );
-  sl.registerFactoryParam<DriverTripCubit, OrderOfferModel, void>(
-    (order, _) => DriverTripCubit(
+  sl.registerFactoryParam<DriverTripCubit, OrderOfferModel, DriverActiveRideModel?>(
+    (order, resume) => DriverTripCubit(
       sl<DriverTripRepository>(),
       sl<DriverTripLocationService>(),
       sl<PlannedRouteLoader>(),
       sl<DriverTripRouteRepository>(),
+      sl<DriverSocketService>().rideCancelled,
+      sl<PushNotificationService>().rideCancelled,
       order,
+      resume: resume,
+    ),
+  );
+  sl.registerFactory<DriverActiveRideCubit>(
+    () => DriverActiveRideCubit(
+      sl<DriverTripRepository>(),
+      sl<DriverTripRouteRepository>(),
+    ),
+  );
+
+  // ─── Driver GPS Guard ───────────────────────────────────────
+  // Singleton so every guarded driver screen shares one connection to the
+  // system's GPS on/off events.
+  sl.registerLazySingleton<GpsStatusCubit>(
+    () => GpsStatusCubit(const GpsStatusService()),
+  );
+
+  // ─── Driver Route Feature (private, on-device only) ─────────
+  sl.registerLazySingleton<RouteSessionRepository>(
+    () => const RouteSessionRepository(RouteSessionLocalDataSource()),
+  );
+  sl.registerLazySingleton<RouteLocationService>(() => RouteLocationService());
+  sl.registerFactory<RouteTrackerCubit>(
+    () => RouteTrackerCubit(
+      sl<RouteSessionRepository>(),
+      sl<RouteLocationService>(),
+      sl<CurrentLocationService>(),
     ),
   );
 
@@ -247,6 +345,20 @@ void setupInjection() {
   sl.registerFactory<ComplaintCubit>(
     () => ComplaintCubit(sl<DriverComplaintsRepository>().submitComplaint),
     instanceName: 'driver',
+  );
+  sl.registerLazySingleton<DriverAccountDeletionRemoteDataSource>(
+    () => DriverAccountDeletionRemoteDataSource(
+      sl<ApiClient>().dio,
+      sl<ApiEndpoints>(),
+    ),
+  );
+  sl.registerLazySingleton<DriverAccountDeletionRepository>(
+    () => DriverAccountDeletionRepository(
+      sl<DriverAccountDeletionRemoteDataSource>(),
+    ),
+  );
+  sl.registerFactory<DriverAccountDeletionCubit>(
+    () => DriverAccountDeletionCubit(sl<DriverAccountDeletionRepository>()),
   );
 
   // ─── Driver Wallet Feature ──────────────────────────────────
@@ -297,11 +409,7 @@ void setupInjection() {
     () => HomeCubit(sl<SessionCubit>(), sl<RideRequestRepository>()),
   );
 
-  // ─── Booking Feature ────────────────────────────────────────
-  sl.registerFactory<BookingCubit>(() => BookingCubit());
-
   // ─── Tracking Feature ───────────────────────────────────────
-  sl.registerFactory<TrackingCubit>(() => TrackingCubit());
   // Real ride tracking (post choose-vehicle) — fresh socket + cubit per
   // screen visit, unlike the driver side's long-lived shared connection.
   sl.registerFactory<CustomerRideSocketService>(
@@ -331,6 +439,9 @@ void setupInjection() {
 
   // ─── Settings Feature ───────────────────────────────────────
   sl.registerFactory<SettingsCubit>(() => SettingsCubit(sl<SessionCubit>()));
+  sl.registerFactory<DeleteAccountCubit>(
+    () => DeleteAccountCubit(sl<ProfileRepository>(), sl<SessionCubit>()),
+  );
   sl.registerLazySingleton<ProfileRemoteDataSource>(
     () => ProfileRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
   );
@@ -355,12 +466,9 @@ void setupInjection() {
     () => EditProfileCubit(sl<ProfileRepository>(), sl<SessionCubit>()),
   );
 
-  // ─── Favorites Feature ──────────────────────────────────────
-  sl.registerFactory<FavoritesCubit>(() => FavoritesCubit());
-
   // ─── Notifications Feature ──────────────────────────────────
   sl.registerLazySingleton<NotificationsRemoteDataSource>(
-    () => NotificationsRemoteDataSource(),
+    () => NotificationsRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
   );
   sl.registerLazySingleton<NotificationsRepository>(
     () => NotificationsRepository(sl<NotificationsRemoteDataSource>()),

@@ -59,6 +59,10 @@ class AuthRemoteDataSource {
     );
   }
 
+  /// Cheapest authenticated call available (`GET /api/customer/profile`),
+  /// used only to find out whether the saved token is still accepted.
+  Future<void> checkSession() => _dio.get(_endpoints.customerProfile);
+
   Future<void> logout({required String refreshToken}) {
     return _dio.post(
       _endpoints.customerLogout,

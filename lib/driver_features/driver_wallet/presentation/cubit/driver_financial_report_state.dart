@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/driver_financial_report_model.dart';
 
-/// Immutable state for the driver wallet's monthly financial summary.
 class DriverFinancialReportState extends Equatable {
   final DriverFinancialReportModel? report;
   final bool isLoading;

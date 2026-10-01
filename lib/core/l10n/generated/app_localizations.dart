@@ -128,6 +128,54 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get retry;
 
+  /// No description provided for @appUpdateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get appUpdateAction;
+
+  /// No description provided for @appUpdateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get appUpdateLater;
+
+  /// No description provided for @appUpdateOptionalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A new update is available'**
+  String get appUpdateOptionalTitle;
+
+  /// No description provided for @appUpdateRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update required'**
+  String get appUpdateRequiredTitle;
+
+  /// No description provided for @appUpdateRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This version of the app is no longer supported. Please update to continue.'**
+  String get appUpdateRequiredMessage;
+
+  /// No description provided for @appMaintenanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Under maintenance'**
+  String get appMaintenanceTitle;
+
+  /// No description provided for @appMaintenanceMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'re improving the app and will be back shortly.'**
+  String get appMaintenanceMessage;
+
+  /// No description provided for @appMaintenanceBackAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Back at {time}'**
+  String appMaintenanceBackAt(String time);
+
   /// No description provided for @cancel.
   ///
   /// In en, this message translates to:
@@ -181,12 +229,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm cancellation'**
   String get confirmCancellation;
-
-  /// No description provided for @comingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'{label} coming soon'**
-  String comingSoon(String label);
 
   /// No description provided for @noData.
   ///
@@ -242,12 +284,6 @@ abstract class AppLocalizations {
   /// **'{value} km to pickup'**
   String distanceKmToPickup(String value);
 
-  /// No description provided for @distanceKmVia.
-  ///
-  /// In en, this message translates to:
-  /// **'{value} km via {road}'**
-  String distanceKmVia(String value, String road);
-
   /// No description provided for @durationMinutesShort.
   ///
   /// In en, this message translates to:
@@ -271,12 +307,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{amount} LYD'**
   String priceLyd(String amount);
-
-  /// No description provided for @priceSar.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} SAR'**
-  String priceSar(String amount);
 
   /// No description provided for @phoneNumber.
   ///
@@ -872,11 +902,17 @@ abstract class AppLocalizations {
   /// **'The trip was cancelled'**
   String get tripCancelled;
 
-  /// No description provided for @walletComingSoon.
+  /// No description provided for @tripCancelledByCustomer.
   ///
   /// In en, this message translates to:
-  /// **'Wallet coming soon'**
-  String get walletComingSoon;
+  /// **'The customer cancelled the trip'**
+  String get tripCancelledByCustomer;
+
+  /// No description provided for @tripCancelledByManager.
+  ///
+  /// In en, this message translates to:
+  /// **'The trip was cancelled by the manager'**
+  String get tripCancelledByManager;
 
   /// No description provided for @notificationsChannelName.
   ///
@@ -1322,60 +1358,6 @@ abstract class AppLocalizations {
   /// **'Plate number'**
   String get vehiclePlate;
 
-  /// No description provided for @settingsSectionAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Account & payments'**
-  String get settingsSectionAccount;
-
-  /// No description provided for @settingsSectionSafety.
-  ///
-  /// In en, this message translates to:
-  /// **'Safety & support'**
-  String get settingsSectionSafety;
-
-  /// No description provided for @settingsFavoritesTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Favorite & saved places'**
-  String get settingsFavoritesTitle;
-
-  /// No description provided for @settingsFavoritesSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Home, work, retreat (3 places)'**
-  String get settingsFavoritesSubtitle;
-
-  /// No description provided for @settingsSupportTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Help & technical support'**
-  String get settingsSupportTitle;
-
-  /// No description provided for @settingsSupportSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Live chat or phone, around the clock'**
-  String get settingsSupportSubtitle;
-
-  /// No description provided for @settingsTermsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Terms & privacy'**
-  String get settingsTermsTitle;
-
-  /// No description provided for @settingsTermsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Usage policy and data protection'**
-  String get settingsTermsSubtitle;
-
-  /// No description provided for @favoritePlaces.
-  ///
-  /// In en, this message translates to:
-  /// **'Favorite places'**
-  String get favoritePlaces;
-
   /// No description provided for @editPersonalInfo.
   ///
   /// In en, this message translates to:
@@ -1616,29 +1598,29 @@ abstract class AppLocalizations {
   /// **'Trip completed successfully'**
   String get tripCompletedSuccess;
 
-  /// No description provided for @termsAndConditions.
+  /// No description provided for @privacyPolicy.
   ///
   /// In en, this message translates to:
-  /// **'Terms and conditions'**
-  String get termsAndConditions;
+  /// **'Privacy policy'**
+  String get privacyPolicy;
 
-  /// No description provided for @termsAgreePrefix.
+  /// No description provided for @privacyPolicyAgreePrefix.
   ///
   /// In en, this message translates to:
   /// **'I agree to the '**
-  String get termsAgreePrefix;
+  String get privacyPolicyAgreePrefix;
 
-  /// No description provided for @termsRequired.
+  /// No description provided for @privacyPolicyRequired.
   ///
   /// In en, this message translates to:
-  /// **'You need to accept the terms and conditions to create an account'**
-  String get termsRequired;
+  /// **'You need to accept the privacy policy to create an account'**
+  String get privacyPolicyRequired;
 
-  /// No description provided for @termsEmpty.
+  /// No description provided for @privacyPolicyEmpty.
   ///
   /// In en, this message translates to:
-  /// **'The terms and conditions have not been published yet.'**
-  String get termsEmpty;
+  /// **'The privacy policy has not been published yet.'**
+  String get privacyPolicyEmpty;
 
   /// No description provided for @close.
   ///
@@ -1669,42 +1651,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Track trip'**
   String get trackTrip;
-
-  /// No description provided for @cancelTripQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel the trip?'**
-  String get cancelTripQuestion;
-
-  /// No description provided for @cancelTripMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to cancel this trip? You won\'t be charged if you cancel within two minutes.'**
-  String get cancelTripMessage;
-
-  /// No description provided for @tripSafety.
-  ///
-  /// In en, this message translates to:
-  /// **'Trip safety'**
-  String get tripSafety;
-
-  /// No description provided for @actionCall.
-  ///
-  /// In en, this message translates to:
-  /// **'Call'**
-  String get actionCall;
-
-  /// No description provided for @actionChat.
-  ///
-  /// In en, this message translates to:
-  /// **'Chat'**
-  String get actionChat;
-
-  /// No description provided for @actionShare.
-  ///
-  /// In en, this message translates to:
-  /// **'Share'**
-  String get actionShare;
 
   /// No description provided for @safeTripTitle.
   ///
@@ -1741,114 +1687,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You must sign in'**
   String get errLoginRequired;
-
-  /// No description provided for @pickupPointSelected.
-  ///
-  /// In en, this message translates to:
-  /// **'Selected pickup point'**
-  String get pickupPointSelected;
-
-  /// No description provided for @paymentMethodValue.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment method: {method}'**
-  String paymentMethodValue(String method);
-
-  /// No description provided for @captainCertified.
-  ///
-  /// In en, this message translates to:
-  /// **'Certified captain • {trips}+ trips'**
-  String captainCertified(String trips);
-
-  /// No description provided for @liveCaptainOnTheWay.
-  ///
-  /// In en, this message translates to:
-  /// **'The captain is on the way'**
-  String get liveCaptainOnTheWay;
-
-  /// No description provided for @liveArrived.
-  ///
-  /// In en, this message translates to:
-  /// **'The captain reached the pickup point'**
-  String get liveArrived;
-
-  /// No description provided for @liveInProgress.
-  ///
-  /// In en, this message translates to:
-  /// **'You\'re on your way to the destination'**
-  String get liveInProgress;
-
-  /// No description provided for @liveCompleted.
-  ///
-  /// In en, this message translates to:
-  /// **'You\'ve arrived at your destination'**
-  String get liveCompleted;
-
-  /// No description provided for @liveEtaOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'Estimated arrival: only {minutes} minutes'**
-  String liveEtaOnly(String minutes);
-
-  /// No description provided for @liveArrivedSub.
-  ///
-  /// In en, this message translates to:
-  /// **'The captain is waiting for you at the pickup point'**
-  String get liveArrivedSub;
-
-  /// No description provided for @liveRemaining.
-  ///
-  /// In en, this message translates to:
-  /// **'Time remaining: {minutes} minutes'**
-  String liveRemaining(String minutes);
-
-  /// No description provided for @liveThanks.
-  ///
-  /// In en, this message translates to:
-  /// **'Thanks for riding with Smart Taxi'**
-  String get liveThanks;
-
-  /// No description provided for @mockCaptainName.
-  ///
-  /// In en, this message translates to:
-  /// **'Abdulrahman Alshammari'**
-  String get mockCaptainName;
-
-  /// No description provided for @mockVehicleModel.
-  ///
-  /// In en, this message translates to:
-  /// **'Toyota Camry 2024'**
-  String get mockVehicleModel;
-
-  /// No description provided for @mockVehicleColor.
-  ///
-  /// In en, this message translates to:
-  /// **'Gray'**
-  String get mockVehicleColor;
-
-  /// No description provided for @mockPlateLetters.
-  ///
-  /// In en, this message translates to:
-  /// **'A B C'**
-  String get mockPlateLetters;
-
-  /// No description provided for @mockPickupTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'In front of the main compound gate'**
-  String get mockPickupTitle;
-
-  /// No description provided for @mockPickupSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'King Fahd Road, opposite the fountain'**
-  String get mockPickupSubtitle;
-
-  /// No description provided for @mockPaymentWallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Smart Taxi wallet'**
-  String get mockPaymentWallet;
 
   /// No description provided for @rideStatusPending.
   ///
@@ -1982,204 +1820,6 @@ abstract class AppLocalizations {
   /// **'No rides yet'**
   String get noRidesYet;
 
-  /// No description provided for @favoriteAddresses.
-  ///
-  /// In en, this message translates to:
-  /// **'Favorite addresses'**
-  String get favoriteAddresses;
-
-  /// No description provided for @favAddressDeleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Address deleted'**
-  String get favAddressDeleted;
-
-  /// No description provided for @favSelectOnMapSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Select on map coming soon'**
-  String get favSelectOnMapSoon;
-
-  /// No description provided for @favSearchByNameSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Search by name coming soon'**
-  String get favSearchByNameSoon;
-
-  /// No description provided for @favPlacesCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} places'**
-  String favPlacesCount(String count);
-
-  /// No description provided for @favSort.
-  ///
-  /// In en, this message translates to:
-  /// **'Sort'**
-  String get favSort;
-
-  /// No description provided for @favEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No saved addresses'**
-  String get favEmpty;
-
-  /// No description provided for @favEditSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Editing {name} coming soon'**
-  String favEditSoon(String name);
-
-  /// No description provided for @favCurrentSaved.
-  ///
-  /// In en, this message translates to:
-  /// **'Current location saved'**
-  String get favCurrentSaved;
-
-  /// No description provided for @favDeleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete address?'**
-  String get favDeleteTitle;
-
-  /// No description provided for @favDeleteMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete \"{name}\" from your favorite addresses? This can\'t be undone.'**
-  String favDeleteMessage(String name);
-
-  /// No description provided for @favMyCurrentLocation.
-  ///
-  /// In en, this message translates to:
-  /// **'My current location'**
-  String get favMyCurrentLocation;
-
-  /// No description provided for @favDefault.
-  ///
-  /// In en, this message translates to:
-  /// **'Default'**
-  String get favDefault;
-
-  /// No description provided for @favOrderRideHere.
-  ///
-  /// In en, this message translates to:
-  /// **'Request a ride here now'**
-  String get favOrderRideHere;
-
-  /// No description provided for @favFavoritePlace.
-  ///
-  /// In en, this message translates to:
-  /// **'Favorite place'**
-  String get favFavoritePlace;
-
-  /// No description provided for @favSaveCurrent.
-  ///
-  /// In en, this message translates to:
-  /// **'Save your current location'**
-  String get favSaveCurrent;
-
-  /// No description provided for @favNearYou.
-  ///
-  /// In en, this message translates to:
-  /// **'You\'re now near: {area}'**
-  String favNearYou(String area);
-
-  /// No description provided for @favSaveOneTap.
-  ///
-  /// In en, this message translates to:
-  /// **'Save my current location in one tap'**
-  String get favSaveOneTap;
-
-  /// No description provided for @favAddNew.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a new address'**
-  String get favAddNew;
-
-  /// No description provided for @favAddNewSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save your frequent destinations for quick access'**
-  String get favAddNewSubtitle;
-
-  /// No description provided for @favSelectOnMap.
-  ///
-  /// In en, this message translates to:
-  /// **'Select on map'**
-  String get favSelectOnMap;
-
-  /// No description provided for @favSearchByName.
-  ///
-  /// In en, this message translates to:
-  /// **'Search by name'**
-  String get favSearchByName;
-
-  /// No description provided for @favMockHomeName.
-  ///
-  /// In en, this message translates to:
-  /// **'Home'**
-  String get favMockHomeName;
-
-  /// No description provided for @favMockHomeAddress.
-  ///
-  /// In en, this message translates to:
-  /// **'Al Olaya, Prince Sultan St, Villa 14, Riyadh'**
-  String get favMockHomeAddress;
-
-  /// No description provided for @favMockHomeNote.
-  ///
-  /// In en, this message translates to:
-  /// **'The gray side gate'**
-  String get favMockHomeNote;
-
-  /// No description provided for @favMockWorkName.
-  ///
-  /// In en, this message translates to:
-  /// **'Work'**
-  String get favMockWorkName;
-
-  /// No description provided for @favMockWorkAddress.
-  ///
-  /// In en, this message translates to:
-  /// **'Kingdom Tower, King Fahd Rd, Riyadh'**
-  String get favMockWorkAddress;
-
-  /// No description provided for @favMockWorkNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Basement parking P2'**
-  String get favMockWorkNote;
-
-  /// No description provided for @favMockGymName.
-  ///
-  /// In en, this message translates to:
-  /// **'Gym'**
-  String get favMockGymName;
-
-  /// No description provided for @favMockGymAddress.
-  ///
-  /// In en, this message translates to:
-  /// **'Al Malqa, Anas Bin Malik St, Riyadh'**
-  String get favMockGymAddress;
-
-  /// No description provided for @favMockMomName.
-  ///
-  /// In en, this message translates to:
-  /// **'Mom\'s house'**
-  String get favMockMomName;
-
-  /// No description provided for @favMockMomAddress.
-  ///
-  /// In en, this message translates to:
-  /// **'Al Yasmin, Specialist St, Riyadh'**
-  String get favMockMomAddress;
-
-  /// No description provided for @favMockCurrentArea.
-  ///
-  /// In en, this message translates to:
-  /// **'Sidra Complex, Riyadh'**
-  String get favMockCurrentArea;
-
   /// No description provided for @notificationsTitle.
   ///
   /// In en, this message translates to:
@@ -2192,263 +1832,11 @@ abstract class AppLocalizations {
   /// **'No notifications'**
   String get notificationsEmpty;
 
-  /// No description provided for @errNotificationsLoad.
-  ///
-  /// In en, this message translates to:
-  /// **'Couldn\'t load notifications'**
-  String get errNotificationsLoad;
-
   /// No description provided for @errPlacesSearch.
   ///
   /// In en, this message translates to:
   /// **'Search is unavailable right now, please try again'**
   String get errPlacesSearch;
-
-  /// No description provided for @mockNotif1Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Captain Majed is on the way'**
-  String get mockNotif1Title;
-
-  /// No description provided for @mockNotif1Message.
-  ///
-  /// In en, this message translates to:
-  /// **'Your captain will arrive in about 3 minutes, get ready to go.'**
-  String get mockNotif1Message;
-
-  /// No description provided for @mockNotif2Title.
-  ///
-  /// In en, this message translates to:
-  /// **'20% off your rides'**
-  String get mockNotif2Title;
-
-  /// No description provided for @mockNotif2Message.
-  ///
-  /// In en, this message translates to:
-  /// **'Use the promo code \"SMARTTAXI20\" when booking this week.'**
-  String get mockNotif2Message;
-
-  /// No description provided for @mockNotif3Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment deducted'**
-  String get mockNotif3Title;
-
-  /// No description provided for @mockNotif3Message.
-  ///
-  /// In en, this message translates to:
-  /// **'38.50 SYP was deducted from your wallet for your last trip.'**
-  String get mockNotif3Message;
-
-  /// No description provided for @mockNotif4Title.
-  ///
-  /// In en, this message translates to:
-  /// **'You arrived at your destination'**
-  String get mockNotif4Title;
-
-  /// No description provided for @mockNotif4Message.
-  ///
-  /// In en, this message translates to:
-  /// **'We hope you enjoyed your ride. Don\'t forget to rate the captain.'**
-  String get mockNotif4Message;
-
-  /// No description provided for @mockNotif5Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Special offer for Smart Taxi riders'**
-  String get mockNotif5Title;
-
-  /// No description provided for @mockNotif5Message.
-  ///
-  /// In en, this message translates to:
-  /// **'Get a free ride when you invite 3 friends to the app.'**
-  String get mockNotif5Message;
-
-  /// No description provided for @mockNotif6Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Privacy policy update'**
-  String get mockNotif6Title;
-
-  /// No description provided for @mockNotif6Message.
-  ///
-  /// In en, this message translates to:
-  /// **'We\'ve updated the app\'s privacy policy and terms of use.'**
-  String get mockNotif6Message;
-
-  /// No description provided for @bookingHeaderConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm request'**
-  String get bookingHeaderConfirm;
-
-  /// No description provided for @bookingCertifiedCaptains.
-  ///
-  /// In en, this message translates to:
-  /// **'Certified & licensed captains'**
-  String get bookingCertifiedCaptains;
-
-  /// No description provided for @bookingInstantMatch.
-  ///
-  /// In en, this message translates to:
-  /// **'Instant confirmation & matching'**
-  String get bookingInstantMatch;
-
-  /// No description provided for @bookingConfirmRide.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm {category} ride'**
-  String bookingConfirmRide(String category);
-
-  /// No description provided for @bookingAgreePrefix.
-  ///
-  /// In en, this message translates to:
-  /// **'By tapping confirm, you agree to Smart Taxi\'s '**
-  String get bookingAgreePrefix;
-
-  /// No description provided for @bookingTerms.
-  ///
-  /// In en, this message translates to:
-  /// **'Terms of Service'**
-  String get bookingTerms;
-
-  /// No description provided for @bookingAgreeAnd.
-  ///
-  /// In en, this message translates to:
-  /// **' and '**
-  String get bookingAgreeAnd;
-
-  /// No description provided for @bookingPrivacy.
-  ///
-  /// In en, this message translates to:
-  /// **'Privacy Policy'**
-  String get bookingPrivacy;
-
-  /// No description provided for @bookingAgreeSuffix.
-  ///
-  /// In en, this message translates to:
-  /// **''**
-  String get bookingAgreeSuffix;
-
-  /// No description provided for @bookingConfirmed.
-  ///
-  /// In en, this message translates to:
-  /// **'Your {category} ride was confirmed'**
-  String bookingConfirmed(String category);
-
-  /// No description provided for @bookingChooseType.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose ride type'**
-  String get bookingChooseType;
-
-  /// No description provided for @bookingCategoriesAvailable.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} categories available'**
-  String bookingCategoriesAvailable(String count);
-
-  /// No description provided for @bookingCompareSpecs.
-  ///
-  /// In en, this message translates to:
-  /// **'Compare specs'**
-  String get bookingCompareSpecs;
-
-  /// No description provided for @bookingPaymentMethod.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment method'**
-  String get bookingPaymentMethod;
-
-  /// No description provided for @bookingCaptainNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Note for the captain'**
-  String get bookingCaptainNote;
-
-  /// No description provided for @bookingAddNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a note...'**
-  String get bookingAddNote;
-
-  /// No description provided for @bookingDragMap.
-  ///
-  /// In en, this message translates to:
-  /// **'Drag the map to fine-tune the pickup point'**
-  String get bookingDragMap;
-
-  /// No description provided for @bookingCapacityEta.
-  ///
-  /// In en, this message translates to:
-  /// **'{capacity} seats • {minutes} min'**
-  String bookingCapacityEta(String capacity, String minutes);
-
-  /// No description provided for @bookingEtaMinutes.
-  ///
-  /// In en, this message translates to:
-  /// **'{minutes} min'**
-  String bookingEtaMinutes(String minutes);
-
-  /// No description provided for @bookingMockPickup.
-  ///
-  /// In en, this message translates to:
-  /// **'Al Sahafa, Olaya Main Road'**
-  String get bookingMockPickup;
-
-  /// No description provided for @bookingMockDestination.
-  ///
-  /// In en, this message translates to:
-  /// **'Riyadh Front - Gate 4'**
-  String get bookingMockDestination;
-
-  /// No description provided for @bookingMockViaRoad.
-  ///
-  /// In en, this message translates to:
-  /// **'Thumama Road'**
-  String get bookingMockViaRoad;
-
-  /// No description provided for @catEconomy.
-  ///
-  /// In en, this message translates to:
-  /// **'Economy'**
-  String get catEconomy;
-
-  /// No description provided for @catEconomyBadge.
-  ///
-  /// In en, this message translates to:
-  /// **'Best value'**
-  String get catEconomyBadge;
-
-  /// No description provided for @catComfort.
-  ///
-  /// In en, this message translates to:
-  /// **'Comfort'**
-  String get catComfort;
-
-  /// No description provided for @catFamilyXl.
-  ///
-  /// In en, this message translates to:
-  /// **'Family XL'**
-  String get catFamilyXl;
-
-  /// No description provided for @bookingPaymentWallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallet'**
-  String get bookingPaymentWallet;
-
-  /// No description provided for @bookingMockNote.
-  ///
-  /// In en, this message translates to:
-  /// **'No calls - text...'**
-  String get bookingMockNote;
-
-  /// No description provided for @bookingMockPromo.
-  ///
-  /// In en, this message translates to:
-  /// **'Smart Taxi welcome code applied (15% off)'**
-  String get bookingMockPromo;
 
   /// No description provided for @locationResolving.
   ///
@@ -2461,6 +1849,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No address found for this spot. Move the pin and try again.'**
   String get locationUnresolved;
+
+  /// No description provided for @waitingAtPickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting at pickup'**
+  String get waitingAtPickup;
+
+  /// No description provided for @waitingFreeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Free time left: {time}'**
+  String waitingFreeLeft(String time);
+
+  /// No description provided for @waitingFreeOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Free time is over'**
+  String get waitingFreeOver;
+
+  /// No description provided for @waitingFeeFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting fee: {amount}'**
+  String waitingFeeFinal(String amount);
+
+  /// No description provided for @waitingRules.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} free minutes, then {price} per minute'**
+  String waitingRules(String minutes, String price);
+
+  /// No description provided for @fareDistanceFare.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get fareDistanceFare;
+
+  /// No description provided for @fareBaseFare.
+  ///
+  /// In en, this message translates to:
+  /// **'Base fare'**
+  String get fareBaseFare;
+
+  /// No description provided for @fareStopsFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops'**
+  String get fareStopsFee;
+
+  /// No description provided for @fareWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get fareWaiting;
+
+  /// No description provided for @fareWaitingDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min × {price}'**
+  String fareWaitingDetail(String minutes, String price);
+
+  /// No description provided for @fareTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get fareTotal;
+
+  /// No description provided for @pauseTripPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip paused'**
+  String get pauseTripPaused;
+
+  /// No description provided for @pauseIncludedLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Included time left: {time}'**
+  String pauseIncludedLeft(String time);
+
+  /// No description provided for @pauseIncludedOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Included time is over'**
+  String get pauseIncludedOver;
+
+  /// No description provided for @pauseRules.
+  ///
+  /// In en, this message translates to:
+  /// **'{base} includes {minutes} minutes, then {price} per minute'**
+  String pauseRules(String base, String minutes, String price);
+
+  /// No description provided for @pauseFeeTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Pauses: {amount}'**
+  String pauseFeeTotal(String amount);
+
+  /// No description provided for @pauseStopLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop during the trip'**
+  String get pauseStopLabel;
+
+  /// No description provided for @driverPauseTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause trip'**
+  String get driverPauseTrip;
+
+  /// No description provided for @driverResumeTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume trip'**
+  String get driverResumeTrip;
+
+  /// No description provided for @farePauses.
+  ///
+  /// In en, this message translates to:
+  /// **'Pauses'**
+  String get farePauses;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone. Your personal data, saved addresses and notifications will be erased and you\'ll be signed out on every device. Enter your password to confirm.'**
+  String get deleteAccountMessage;
+
+  /// No description provided for @deleteAccountPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get deleteAccountPasswordLabel;
+
+  /// No description provided for @deleteAccountConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete permanently'**
+  String get deleteAccountConfirm;
+
+  /// No description provided for @deleteAccountDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted'**
+  String get deleteAccountDone;
+
+  /// No description provided for @errIncorrectPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password'**
+  String get errIncorrectPassword;
+
+  /// No description provided for @driverDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your request will be reviewed by a manager. You can keep working until it\'s approved; then your personal data will be erased and you\'ll be signed out on every device. Enter your password to confirm.'**
+  String get driverDeleteMessage;
+
+  /// No description provided for @driverDeleteReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get driverDeleteReasonLabel;
+
+  /// No description provided for @driverDeleteReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you leaving?'**
+  String get driverDeleteReasonHint;
+
+  /// No description provided for @driverDeleteSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get driverDeleteSubmit;
+
+  /// No description provided for @driverDeletionPendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion request under review'**
+  String get driverDeletionPendingTitle;
+
+  /// No description provided for @driverDeletionPendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A manager will review your request. You can keep working until it\'s approved.'**
+  String get driverDeletionPendingBody;
+
+  /// No description provided for @driverDeletionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel request'**
+  String get driverDeletionCancel;
+
+  /// No description provided for @driverDeletionRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion request declined'**
+  String get driverDeletionRejectedTitle;
+
+  /// No description provided for @errAccountDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has been deleted'**
+  String get errAccountDeleted;
+
+  /// No description provided for @errDeleteActiveRide.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t delete your account while a ride is in progress. Finish or cancel it first.'**
+  String get errDeleteActiveRide;
+
+  /// No description provided for @gpsRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location (GPS)'**
+  String get gpsRequiredTitle;
+
+  /// No description provided for @gpsRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The app can\'t be used while location is off. Turn on GPS to continue.'**
+  String get gpsRequiredMessage;
+
+  /// No description provided for @gpsOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open location settings'**
+  String get gpsOpenSettings;
+
+  /// No description provided for @navRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get navRoute;
+
+  /// No description provided for @routeStartNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new route'**
+  String get routeStartNew;
+
+  /// No description provided for @routeSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Route summary'**
+  String get routeSummaryTitle;
+
+  /// No description provided for @routeSummaryWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting at start'**
+  String get routeSummaryWaiting;
+
+  /// No description provided for @routeSummaryTripTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip time'**
+  String get routeSummaryTripTime;
+
+  /// No description provided for @routeSummaryStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops (coffee)'**
+  String get routeSummaryStops;
+
+  /// No description provided for @routeSummaryDriving.
+  ///
+  /// In en, this message translates to:
+  /// **'Driving time'**
+  String get routeSummaryDriving;
+
+  /// No description provided for @routeLocationDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location access is needed to record the route'**
+  String get routeLocationDenied;
+
+  /// No description provided for @farePausesDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'×{count} · {time}'**
+  String farePausesDetail(String count, String time);
+
+  /// No description provided for @accountBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is temporarily blocked'**
+  String get accountBlockedTitle;
+
+  /// No description provided for @accountBlockedRiderMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t request new rides while the block is active. A ride already in progress isn\'t affected.'**
+  String get accountBlockedRiderMessage;
+
+  /// No description provided for @accountBlockedDriverMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You won\'t receive new ride offers while the block is active. A trip already in progress isn\'t affected.'**
+  String get accountBlockedDriverMessage;
+
+  /// No description provided for @accountBlockedUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked until {date}'**
+  String accountBlockedUntil(String date);
+
+  /// No description provided for @accountBlockedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason: {reason}'**
+  String accountBlockedReason(String reason);
+
+  /// No description provided for @accountBlockedStrikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellations: {count} of {limit}'**
+  String accountBlockedStrikes(int count, int limit);
 }
 
 class _AppLocalizationsDelegate

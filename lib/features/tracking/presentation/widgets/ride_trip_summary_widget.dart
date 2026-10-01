@@ -4,7 +4,6 @@ import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/tracked_ride_model.dart';
 
-/// Pickup/dropoff addresses + distance/ETA/price row.
 class RideTripSummaryWidget extends StatelessWidget {
   final PickedLocationModel pickup;
   final PickedLocationModel dropoff;

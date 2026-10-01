@@ -3,11 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../../../../core/widgets/live_trip_map_widget.dart';
+import '../../../../core/widgets/ride_waiting_timer_widget.dart';
+import '../../../../core/widgets/trip_fees_overlay_widget.dart';
 import '../cubit/ride_tracking_cubit.dart';
 import '../cubit/ride_tracking_state.dart';
 import '../widgets/ride_driver_card_widget.dart';
@@ -55,13 +59,13 @@ class RideTrackingScreen extends StatelessWidget {
 
 /// Blocking "pay the driver" dialog — no buttons and no back; the exit
 /// listener closes it once the driver confirms the payment.
-void _showPaymentDue(BuildContext context, double amount) {
+void _showPaymentDue(BuildContext context, double amount, RideFareBreakdownModel? fare) {
   showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (_) => PopScope(
       canPop: false,
-      child: RidePaymentDueDialogWidget(amount: amount),
+      child: RidePaymentDueDialogWidget(amount: amount, fare: fare),
     ),
   );
 }
@@ -78,10 +82,15 @@ class _RideTrackingView extends StatelessWidget {
         body: BlocConsumer<RideTrackingCubit, RideTrackingState>(
           listenWhen: (previous, current) =>
               (previous.exitReason != current.exitReason && current.exitReason != null) ||
-              (!previous.isAwaitingPayment && current.isAwaitingPayment),
+              (!previous.isAwaitingPayment && current.isAwaitingPayment) ||
+              (previous.cancelError != current.cancelError && current.cancelError != null),
           listener: (context, state) {
+            if (state.cancelError != null && state.exitReason == null && !state.isAwaitingPayment) {
+              showAppSnackBar(context, state.cancelError!, type: AppSnackBarType.error);
+              return;
+            }
             if (state.exitReason == null) {
-              _showPaymentDue(context, state.finalPrice ?? state.ride.price ?? 0);
+              _showPaymentDue(context, state.finalPrice ?? state.ride.price ?? 0, state.fare);
               return;
             }
             final isSuccess = state.exitReason == RideTrackingExitReason.completed;
@@ -90,26 +99,34 @@ class _RideTrackingView extends StatelessWidget {
             // the pop below leaves the screen itself.
             if (ModalRoute.of(context)?.isCurrent == false) navigator.pop();
             navigator.pop();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  isSuccess
-                      ? context.l10n.tripCompletedSuccess
-                      : context.l10n.tripCancelled,
-                ),
-                backgroundColor: isSuccess ? AppColors.success : AppColors.error,
-              ),
+            showAppSnackBar(
+              context,
+              isSuccess
+                  ? context.l10n.tripCompletedSuccess
+                  : context.l10n.tripCancelled,
+              type: isSuccess ? AppSnackBarType.success : AppSnackBarType.error,
             );
           },
           builder: (context, state) {
             if (state.showsLiveMap) {
-              return LiveTripMapWidget(
-                carLat: state.driverLocation?.lat,
-                carLng: state.driverLocation?.lng,
-                destinationLat: state.dropoff.latitude,
-                destinationLng: state.dropoff.longitude,
-                routePoints: state.routePoints,
-                drivenPath: state.drivenPath,
+              return Stack(
+                children: [
+                  LiveTripMapWidget(
+                    carLat: state.driverLocation?.lat,
+                    carLng: state.driverLocation?.lng,
+                    destinationLat: state.dropoff.latitude,
+                    destinationLng: state.dropoff.longitude,
+                    routePoints: state.routePoints,
+                    drivenPath: state.drivenPath,
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional.topStart,
+                    child: TripFeesOverlayWidget(
+                      waitingFee: state.ride.waitingFee,
+                      pause: state.ride.pause,
+                    ),
+                  ),
+                ],
               );
             }
             return Column(
@@ -204,6 +221,10 @@ class _TrackingSheet extends StatelessWidget {
                 children: [
                   RideStatusBannerWidget(ride: state.ride, connectionStatus: state.connectionStatus),
                   const SizedBox(height: 14),
+                  if (state.ride.isWaitingRunning) ...[
+                    RideWaitingTimerWidget(waiting: state.ride.waiting!),
+                    const SizedBox(height: 14),
+                  ],
                   if (state.isAccepted) ...[
                     RideDriverCardWidget(driver: state.driver!, vehicle: state.vehicle!),
                     const SizedBox(height: 14),

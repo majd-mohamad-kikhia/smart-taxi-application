@@ -12,6 +12,9 @@ class AuthTextFieldWidget extends StatefulWidget {
   final TextInputAction textInputAction;
   final String? Function(String?) validator;
 
+  /// Caps the input length (and shows the counter) when set.
+  final int? maxLength;
+
   const AuthTextFieldWidget({
     super.key,
     required this.controller,
@@ -22,6 +25,7 @@ class AuthTextFieldWidget extends StatefulWidget {
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.textInputAction = TextInputAction.next,
+    this.maxLength,
   });
 
   @override
@@ -44,6 +48,7 @@ class _AuthTextFieldWidgetState extends State<AuthTextFieldWidget> {
           keyboardType: widget.keyboardType,
           textInputAction: widget.textInputAction,
           validator: widget.validator,
+          maxLength: widget.maxLength,
           decoration: InputDecoration(
             hintText: widget.hint,
             prefixIcon: Icon(widget.prefixIcon),

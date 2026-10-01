@@ -17,7 +17,6 @@ enum GreetingPeriod {
           : GreetingPeriod.evening;
 }
 
-/// Immutable state for the "create request" screen.
 class HomeState extends Equatable {
   final GreetingPeriod greeting;
   final String userName;

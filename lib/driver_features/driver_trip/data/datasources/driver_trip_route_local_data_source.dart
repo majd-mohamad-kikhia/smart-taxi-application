@@ -31,6 +31,13 @@ class DriverTripRouteLocalDataSource {
     await prefs.setStringList(_idsKey, ids.toList());
   }
 
+  Future<PendingRouteModel?> load(int rideId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('$_routeKeyPrefix$rideId');
+    if (raw == null) return null;
+    return PendingRouteModel.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+  }
+
   Future<List<PendingRouteModel>> loadAll() async {
     final prefs = await SharedPreferences.getInstance();
     final entries = <PendingRouteModel>[];

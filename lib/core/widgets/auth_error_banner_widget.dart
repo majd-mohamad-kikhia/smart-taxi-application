@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_colors.dart';
 
-/// Inline error banner shown under an auth form when a submit fails.
 class AuthErrorBannerWidget extends StatelessWidget {
   final String message;
 

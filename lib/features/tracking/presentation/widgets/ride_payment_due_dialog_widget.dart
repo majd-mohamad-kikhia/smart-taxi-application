@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/fare_breakdown_widget.dart';
 
 /// Shown to the customer when the driver finishes the trip: how much to
 /// pay the driver. It has no buttons — the tracking screen closes it when
@@ -8,7 +10,10 @@ import '../../../../core/theme/app_colors.dart';
 class RidePaymentDueDialogWidget extends StatelessWidget {
   final double amount;
 
-  const RidePaymentDueDialogWidget({super.key, required this.amount});
+  /// Bill lines (distance, stops, waiting…), when the server sent them.
+  final RideFareBreakdownModel? fare;
+
+  const RidePaymentDueDialogWidget({super.key, required this.amount, this.fare});
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +54,10 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
                 color: AppColors.textPrimary,
               ),
             ),
+            if (fare != null) ...[
+              const SizedBox(height: 14),
+              FareBreakdownWidget(fare: fare!, showTotal: false),
+            ],
             const SizedBox(height: 18),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

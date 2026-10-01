@@ -26,6 +26,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get retry => 'Retry';
 
   @override
+  String get appUpdateAction => 'Update';
+
+  @override
+  String get appUpdateLater => 'Later';
+
+  @override
+  String get appUpdateOptionalTitle => 'A new update is available';
+
+  @override
+  String get appUpdateRequiredTitle => 'Update required';
+
+  @override
+  String get appUpdateRequiredMessage =>
+      'This version of the app is no longer supported. Please update to continue.';
+
+  @override
+  String get appMaintenanceTitle => 'Under maintenance';
+
+  @override
+  String get appMaintenanceMessage =>
+      'We\'re improving the app and will be back shortly.';
+
+  @override
+  String appMaintenanceBackAt(String time) {
+    return 'Back at $time';
+  }
+
+  @override
   String get cancel => 'Cancel';
 
   @override
@@ -51,11 +79,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmCancellation => 'Confirm cancellation';
-
-  @override
-  String comingSoon(String label) {
-    return '$label coming soon';
-  }
 
   @override
   String get noData => 'No data';
@@ -89,11 +112,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String distanceKmVia(String value, String road) {
-    return '$value km via $road';
-  }
-
-  @override
   String durationMinutesShort(String minutes) {
     return '$minutes min';
   }
@@ -111,11 +129,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String priceLyd(String amount) {
     return '$amount LYD';
-  }
-
-  @override
-  String priceSar(String amount) {
-    return '$amount SAR';
   }
 
   @override
@@ -439,7 +452,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripCancelled => 'The trip was cancelled';
 
   @override
-  String get walletComingSoon => 'Wallet coming soon';
+  String get tripCancelledByCustomer => 'The customer cancelled the trip';
+
+  @override
+  String get tripCancelledByManager => 'The trip was cancelled by the manager';
 
   @override
   String get notificationsChannelName => 'Notifications';
@@ -671,33 +687,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vehiclePlate => 'Plate number';
 
   @override
-  String get settingsSectionAccount => 'Account & payments';
-
-  @override
-  String get settingsSectionSafety => 'Safety & support';
-
-  @override
-  String get settingsFavoritesTitle => 'Favorite & saved places';
-
-  @override
-  String get settingsFavoritesSubtitle => 'Home, work, retreat (3 places)';
-
-  @override
-  String get settingsSupportTitle => 'Help & technical support';
-
-  @override
-  String get settingsSupportSubtitle => 'Live chat or phone, around the clock';
-
-  @override
-  String get settingsTermsTitle => 'Terms & privacy';
-
-  @override
-  String get settingsTermsSubtitle => 'Usage policy and data protection';
-
-  @override
-  String get favoritePlaces => 'Favorite places';
-
-  @override
   String get editPersonalInfo => 'Edit personal info';
 
   @override
@@ -823,18 +812,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripCompletedSuccess => 'Trip completed successfully';
 
   @override
-  String get termsAndConditions => 'Terms and conditions';
+  String get privacyPolicy => 'Privacy policy';
 
   @override
-  String get termsAgreePrefix => 'I agree to the ';
+  String get privacyPolicyAgreePrefix => 'I agree to the ';
 
   @override
-  String get termsRequired =>
-      'You need to accept the terms and conditions to create an account';
+  String get privacyPolicyRequired =>
+      'You need to accept the privacy policy to create an account';
 
   @override
-  String get termsEmpty =>
-      'The terms and conditions have not been published yet.';
+  String get privacyPolicyEmpty =>
+      'The privacy policy has not been published yet.';
 
   @override
   String get close => 'Close';
@@ -853,25 +842,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackTrip => 'Track trip';
 
   @override
-  String get cancelTripQuestion => 'Cancel the trip?';
-
-  @override
-  String get cancelTripMessage =>
-      'Are you sure you want to cancel this trip? You won\'t be charged if you cancel within two minutes.';
-
-  @override
-  String get tripSafety => 'Trip safety';
-
-  @override
-  String get actionCall => 'Call';
-
-  @override
-  String get actionChat => 'Chat';
-
-  @override
-  String get actionShare => 'Share';
-
-  @override
   String get safeTripTitle => 'Safe, verified trip';
 
   @override
@@ -888,69 +858,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errLoginRequired => 'You must sign in';
-
-  @override
-  String get pickupPointSelected => 'Selected pickup point';
-
-  @override
-  String paymentMethodValue(String method) {
-    return 'Payment method: $method';
-  }
-
-  @override
-  String captainCertified(String trips) {
-    return 'Certified captain • $trips+ trips';
-  }
-
-  @override
-  String get liveCaptainOnTheWay => 'The captain is on the way';
-
-  @override
-  String get liveArrived => 'The captain reached the pickup point';
-
-  @override
-  String get liveInProgress => 'You\'re on your way to the destination';
-
-  @override
-  String get liveCompleted => 'You\'ve arrived at your destination';
-
-  @override
-  String liveEtaOnly(String minutes) {
-    return 'Estimated arrival: only $minutes minutes';
-  }
-
-  @override
-  String get liveArrivedSub =>
-      'The captain is waiting for you at the pickup point';
-
-  @override
-  String liveRemaining(String minutes) {
-    return 'Time remaining: $minutes minutes';
-  }
-
-  @override
-  String get liveThanks => 'Thanks for riding with Smart Taxi';
-
-  @override
-  String get mockCaptainName => 'Abdulrahman Alshammari';
-
-  @override
-  String get mockVehicleModel => 'Toyota Camry 2024';
-
-  @override
-  String get mockVehicleColor => 'Gray';
-
-  @override
-  String get mockPlateLetters => 'A B C';
-
-  @override
-  String get mockPickupTitle => 'In front of the main compound gate';
-
-  @override
-  String get mockPickupSubtitle => 'King Fahd Road, opposite the fountain';
-
-  @override
-  String get mockPaymentWallet => 'Smart Taxi wallet';
 
   @override
   String get rideStatusPending => 'Pending';
@@ -1021,266 +928,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noRidesYet => 'No rides yet';
 
   @override
-  String get favoriteAddresses => 'Favorite addresses';
-
-  @override
-  String get favAddressDeleted => 'Address deleted';
-
-  @override
-  String get favSelectOnMapSoon => 'Select on map coming soon';
-
-  @override
-  String get favSearchByNameSoon => 'Search by name coming soon';
-
-  @override
-  String favPlacesCount(String count) {
-    return '$count places';
-  }
-
-  @override
-  String get favSort => 'Sort';
-
-  @override
-  String get favEmpty => 'No saved addresses';
-
-  @override
-  String favEditSoon(String name) {
-    return 'Editing $name coming soon';
-  }
-
-  @override
-  String get favCurrentSaved => 'Current location saved';
-
-  @override
-  String get favDeleteTitle => 'Delete address?';
-
-  @override
-  String favDeleteMessage(String name) {
-    return 'Delete \"$name\" from your favorite addresses? This can\'t be undone.';
-  }
-
-  @override
-  String get favMyCurrentLocation => 'My current location';
-
-  @override
-  String get favDefault => 'Default';
-
-  @override
-  String get favOrderRideHere => 'Request a ride here now';
-
-  @override
-  String get favFavoritePlace => 'Favorite place';
-
-  @override
-  String get favSaveCurrent => 'Save your current location';
-
-  @override
-  String favNearYou(String area) {
-    return 'You\'re now near: $area';
-  }
-
-  @override
-  String get favSaveOneTap => 'Save my current location in one tap';
-
-  @override
-  String get favAddNew => 'Add a new address';
-
-  @override
-  String get favAddNewSubtitle =>
-      'Save your frequent destinations for quick access';
-
-  @override
-  String get favSelectOnMap => 'Select on map';
-
-  @override
-  String get favSearchByName => 'Search by name';
-
-  @override
-  String get favMockHomeName => 'Home';
-
-  @override
-  String get favMockHomeAddress =>
-      'Al Olaya, Prince Sultan St, Villa 14, Riyadh';
-
-  @override
-  String get favMockHomeNote => 'The gray side gate';
-
-  @override
-  String get favMockWorkName => 'Work';
-
-  @override
-  String get favMockWorkAddress => 'Kingdom Tower, King Fahd Rd, Riyadh';
-
-  @override
-  String get favMockWorkNote => 'Basement parking P2';
-
-  @override
-  String get favMockGymName => 'Gym';
-
-  @override
-  String get favMockGymAddress => 'Al Malqa, Anas Bin Malik St, Riyadh';
-
-  @override
-  String get favMockMomName => 'Mom\'s house';
-
-  @override
-  String get favMockMomAddress => 'Al Yasmin, Specialist St, Riyadh';
-
-  @override
-  String get favMockCurrentArea => 'Sidra Complex, Riyadh';
-
-  @override
   String get notificationsTitle => 'Notifications';
 
   @override
   String get notificationsEmpty => 'No notifications';
 
   @override
-  String get errNotificationsLoad => 'Couldn\'t load notifications';
-
-  @override
   String get errPlacesSearch =>
       'Search is unavailable right now, please try again';
-
-  @override
-  String get mockNotif1Title => 'Captain Majed is on the way';
-
-  @override
-  String get mockNotif1Message =>
-      'Your captain will arrive in about 3 minutes, get ready to go.';
-
-  @override
-  String get mockNotif2Title => '20% off your rides';
-
-  @override
-  String get mockNotif2Message =>
-      'Use the promo code \"SMARTTAXI20\" when booking this week.';
-
-  @override
-  String get mockNotif3Title => 'Payment deducted';
-
-  @override
-  String get mockNotif3Message =>
-      '38.50 SYP was deducted from your wallet for your last trip.';
-
-  @override
-  String get mockNotif4Title => 'You arrived at your destination';
-
-  @override
-  String get mockNotif4Message =>
-      'We hope you enjoyed your ride. Don\'t forget to rate the captain.';
-
-  @override
-  String get mockNotif5Title => 'Special offer for Smart Taxi riders';
-
-  @override
-  String get mockNotif5Message =>
-      'Get a free ride when you invite 3 friends to the app.';
-
-  @override
-  String get mockNotif6Title => 'Privacy policy update';
-
-  @override
-  String get mockNotif6Message =>
-      'We\'ve updated the app\'s privacy policy and terms of use.';
-
-  @override
-  String get bookingHeaderConfirm => 'Confirm request';
-
-  @override
-  String get bookingCertifiedCaptains => 'Certified & licensed captains';
-
-  @override
-  String get bookingInstantMatch => 'Instant confirmation & matching';
-
-  @override
-  String bookingConfirmRide(String category) {
-    return 'Confirm $category ride';
-  }
-
-  @override
-  String get bookingAgreePrefix =>
-      'By tapping confirm, you agree to Smart Taxi\'s ';
-
-  @override
-  String get bookingTerms => 'Terms of Service';
-
-  @override
-  String get bookingAgreeAnd => ' and ';
-
-  @override
-  String get bookingPrivacy => 'Privacy Policy';
-
-  @override
-  String get bookingAgreeSuffix => '';
-
-  @override
-  String bookingConfirmed(String category) {
-    return 'Your $category ride was confirmed';
-  }
-
-  @override
-  String get bookingChooseType => 'Choose ride type';
-
-  @override
-  String bookingCategoriesAvailable(String count) {
-    return '$count categories available';
-  }
-
-  @override
-  String get bookingCompareSpecs => 'Compare specs';
-
-  @override
-  String get bookingPaymentMethod => 'Payment method';
-
-  @override
-  String get bookingCaptainNote => 'Note for the captain';
-
-  @override
-  String get bookingAddNote => 'Add a note...';
-
-  @override
-  String get bookingDragMap => 'Drag the map to fine-tune the pickup point';
-
-  @override
-  String bookingCapacityEta(String capacity, String minutes) {
-    return '$capacity seats • $minutes min';
-  }
-
-  @override
-  String bookingEtaMinutes(String minutes) {
-    return '$minutes min';
-  }
-
-  @override
-  String get bookingMockPickup => 'Al Sahafa, Olaya Main Road';
-
-  @override
-  String get bookingMockDestination => 'Riyadh Front - Gate 4';
-
-  @override
-  String get bookingMockViaRoad => 'Thumama Road';
-
-  @override
-  String get catEconomy => 'Economy';
-
-  @override
-  String get catEconomyBadge => 'Best value';
-
-  @override
-  String get catComfort => 'Comfort';
-
-  @override
-  String get catFamilyXl => 'Family XL';
-
-  @override
-  String get bookingPaymentWallet => 'Wallet';
-
-  @override
-  String get bookingMockNote => 'No calls - text...';
-
-  @override
-  String get bookingMockPromo => 'Smart Taxi welcome code applied (15% off)';
 
   @override
   String get locationResolving => 'Finding the address...';
@@ -1288,4 +943,199 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get locationUnresolved =>
       'No address found for this spot. Move the pin and try again.';
+
+  @override
+  String get waitingAtPickup => 'Waiting at pickup';
+
+  @override
+  String waitingFreeLeft(String time) {
+    return 'Free time left: $time';
+  }
+
+  @override
+  String get waitingFreeOver => 'Free time is over';
+
+  @override
+  String waitingFeeFinal(String amount) {
+    return 'Waiting fee: $amount';
+  }
+
+  @override
+  String waitingRules(String minutes, String price) {
+    return '$minutes free minutes, then $price per minute';
+  }
+
+  @override
+  String get fareDistanceFare => 'Distance';
+
+  @override
+  String get fareBaseFare => 'Base fare';
+
+  @override
+  String get fareStopsFee => 'Stops';
+
+  @override
+  String get fareWaiting => 'Waiting';
+
+  @override
+  String fareWaitingDetail(String minutes, String price) {
+    return '$minutes min × $price';
+  }
+
+  @override
+  String get fareTotal => 'Total';
+
+  @override
+  String get pauseTripPaused => 'Trip paused';
+
+  @override
+  String pauseIncludedLeft(String time) {
+    return 'Included time left: $time';
+  }
+
+  @override
+  String get pauseIncludedOver => 'Included time is over';
+
+  @override
+  String pauseRules(String base, String minutes, String price) {
+    return '$base includes $minutes minutes, then $price per minute';
+  }
+
+  @override
+  String pauseFeeTotal(String amount) {
+    return 'Pauses: $amount';
+  }
+
+  @override
+  String get pauseStopLabel => 'Stop during the trip';
+
+  @override
+  String get driverPauseTrip => 'Pause trip';
+
+  @override
+  String get driverResumeTrip => 'Resume trip';
+
+  @override
+  String get farePauses => 'Pauses';
+
+  @override
+  String get deleteAccount => 'Delete my account';
+
+  @override
+  String get deleteAccountTitle => 'Delete your account?';
+
+  @override
+  String get deleteAccountMessage =>
+      'This can\'t be undone. Your personal data, saved addresses and notifications will be erased and you\'ll be signed out on every device. Enter your password to confirm.';
+
+  @override
+  String get deleteAccountPasswordLabel => 'Password';
+
+  @override
+  String get deleteAccountConfirm => 'Delete permanently';
+
+  @override
+  String get deleteAccountDone => 'Your account has been deleted';
+
+  @override
+  String get errIncorrectPassword => 'Incorrect password';
+
+  @override
+  String get driverDeleteMessage =>
+      'Your request will be reviewed by a manager. You can keep working until it\'s approved; then your personal data will be erased and you\'ll be signed out on every device. Enter your password to confirm.';
+
+  @override
+  String get driverDeleteReasonLabel => 'Reason (optional)';
+
+  @override
+  String get driverDeleteReasonHint => 'Why are you leaving?';
+
+  @override
+  String get driverDeleteSubmit => 'Send request';
+
+  @override
+  String get driverDeletionPendingTitle => 'Deletion request under review';
+
+  @override
+  String get driverDeletionPendingBody =>
+      'A manager will review your request. You can keep working until it\'s approved.';
+
+  @override
+  String get driverDeletionCancel => 'Cancel request';
+
+  @override
+  String get driverDeletionRejectedTitle => 'Deletion request declined';
+
+  @override
+  String get errAccountDeleted => 'This account has been deleted';
+
+  @override
+  String get errDeleteActiveRide =>
+      'You can\'t delete your account while a ride is in progress. Finish or cancel it first.';
+
+  @override
+  String get gpsRequiredTitle => 'Turn on location (GPS)';
+
+  @override
+  String get gpsRequiredMessage =>
+      'The app can\'t be used while location is off. Turn on GPS to continue.';
+
+  @override
+  String get gpsOpenSettings => 'Open location settings';
+
+  @override
+  String get navRoute => 'Route';
+
+  @override
+  String get routeStartNew => 'Start a new route';
+
+  @override
+  String get routeSummaryTitle => 'Route summary';
+
+  @override
+  String get routeSummaryWaiting => 'Waiting at start';
+
+  @override
+  String get routeSummaryTripTime => 'Trip time';
+
+  @override
+  String get routeSummaryStops => 'Stops (coffee)';
+
+  @override
+  String get routeSummaryDriving => 'Driving time';
+
+  @override
+  String get routeLocationDenied =>
+      'Location access is needed to record the route';
+
+  @override
+  String farePausesDetail(String count, String time) {
+    return '×$count · $time';
+  }
+
+  @override
+  String get accountBlockedTitle => 'Your account is temporarily blocked';
+
+  @override
+  String get accountBlockedRiderMessage =>
+      'You can\'t request new rides while the block is active. A ride already in progress isn\'t affected.';
+
+  @override
+  String get accountBlockedDriverMessage =>
+      'You won\'t receive new ride offers while the block is active. A trip already in progress isn\'t affected.';
+
+  @override
+  String accountBlockedUntil(String date) {
+    return 'Blocked until $date';
+  }
+
+  @override
+  String accountBlockedReason(String reason) {
+    return 'Reason: $reason';
+  }
+
+  @override
+  String accountBlockedStrikes(int count, int limit) {
+    return 'Cancellations: $count of $limit';
+  }
 }

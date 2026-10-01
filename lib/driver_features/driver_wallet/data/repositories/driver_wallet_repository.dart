@@ -6,8 +6,6 @@ import '../../../../core/localization/app_strings.dart';
 import '../models/wallet_history_model.dart';
 import '../models/wallet_transaction_model.dart';
 
-/// Structured failure thrown by [DriverWalletRepository], so the Cubit
-/// never has to interpret a raw exception.
 class DriverWalletException implements Exception {
   final String message;
 
@@ -17,8 +15,6 @@ class DriverWalletException implements Exception {
   String toString() => message;
 }
 
-/// Repository for the Driver Wallet feature. The Cubit talks to this,
-/// never to [DriverWalletRemoteDataSource] directly.
 class DriverWalletRepository {
   final DriverWalletRemoteDataSource _remoteDataSource;
 

@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/complaints/complaint_cubit.dart';
-import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
-import '../../../../core/widgets/coming_soon_screen_widget.dart';
+import '../../../../core/widgets/app_brand_bar_widget.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/complaint_button_widget.dart';
 import '../../../../core/widgets/complaint_dialog_widget.dart';
 import '../../../../core/widgets/language_dropdown_widget.dart';
 import '../../../../core/widgets/logout_footer_widget.dart';
-import '../../../../core/widgets/terms_button_widget.dart';
-import '../../../../core/widgets/terms_dialog_widget.dart';
-import '../../../home/presentation/widgets/home_app_bar_widget.dart';
+import '../../../../core/widgets/privacy_policy_button_widget.dart';
+import '../../../../core/widgets/privacy_policy_dialog_widget.dart';
+import '../cubit/delete_account_cubit.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
+import '../../../../core/widgets/delete_account_button_widget.dart';
+import '../widgets/delete_account_dialog_widget.dart';
 import '../widgets/profile_card_widget.dart';
-import '../widgets/settings_sections_widget.dart';
 
-/// Profile / Settings screen with wallet, preferences, and logout.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -42,7 +42,7 @@ class _SettingsView extends StatelessWidget {
       backgroundColor: AppColors.backgroundGray,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(60),
-        child: HomeAppBarWidget(),
+        child: AppBrandBarWidget(showNotifications: true),
       ),
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
@@ -54,26 +54,11 @@ class _SettingsView extends StatelessWidget {
                 profile: state.profile,
                 onEdit: () => _openEditProfile(context),
               ),
-              const SizedBox(height: 18),
-              SettingsSectionsWidget(
-                sections: state.sections,
-                onItemTapped: (id) {
-                  context.read<SettingsCubit>().onItemTapped(id);
-                  if (id == 'favorites') {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ComingSoonScreenWidget(
-                          label: context.l10n.favoritePlaces,
-                        ),
-                      ),
-                    );
-                  }
-                },
-              ),
+              const SizedBox(height: 14),
               const LanguageDropdownWidget(),
               const SizedBox(height: 14),
-              TermsButtonWidget(
-                onPressed: () => showTermsDialog(context, role: UserRole.rider),
+              PrivacyPolicyButtonWidget(
+                onPressed: () => showPrivacyPolicyDialog(context),
               ),
               const SizedBox(height: 12),
               ComplaintButtonWidget(
@@ -83,6 +68,9 @@ class _SettingsView extends StatelessWidget {
               LogoutFooterWidget(
                 isLoading: state.isLoggingOut,
                 onLogout: () => _confirmLogout(context),
+                belowLogout: DeleteAccountButtonWidget(
+                  onPressed: () => _openDeleteAccountDialog(context),
+                ),
               ),
             ],
           );
@@ -101,9 +89,30 @@ class _SettingsView extends StatelessWidget {
     showComplaintDialog(
       context,
       createCubit: () => sl<ComplaintCubit>(instanceName: 'customer'),
-      onSubmitted: () => ScaffoldMessenger.of(
+      onSubmitted: () => showAppSnackBar(
         context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.complaintSent))),
+        context.l10n.complaintSent,
+        type: AppSnackBarType.success,
+      ),
+    );
+  }
+
+  void _openDeleteAccountDialog(BuildContext context) {
+    // The messenger and navigator outlive this screen, which is removed
+    // from the stack as soon as the account is deleted.
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final message = context.l10n.deleteAccountDone;
+    showDeleteAccountDialog(
+      context,
+      createCubit: () => sl<DeleteAccountCubit>(),
+      onDeleted: () {
+        navigator.pushNamedAndRemoveUntil(
+          AppRouter.roleSelection,
+          (route) => false,
+        );
+        showAppSnackBarOn(messenger, message, type: AppSnackBarType.success);
+      },
     );
   }
 

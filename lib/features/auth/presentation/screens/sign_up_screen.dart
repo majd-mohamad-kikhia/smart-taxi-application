@@ -5,13 +5,13 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/validators/auth_validators.dart';
-import '../../../../core/widgets/terms_dialog_widget.dart';
+import '../../../../core/widgets/privacy_policy_dialog_widget.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_footer_link_widget.dart';
-import '../widgets/terms_checkbox_field_widget.dart';
+import '../widgets/privacy_policy_checkbox_field_widget.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -139,8 +139,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 _passwordController.text,
               ),
             ),
-            TermsCheckboxFieldWidget(
-              onOpenTerms: () => showTermsDialog(context, role: UserRole.rider),
+            PrivacyPolicyCheckboxFieldWidget(
+              onOpenPolicy: () => showPrivacyPolicyDialog(context),
             ),
           ],
           errorMessage: state.status == AuthStatus.failure

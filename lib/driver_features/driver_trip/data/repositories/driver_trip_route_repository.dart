@@ -32,6 +32,21 @@ class DriverTripRouteRepository {
     }
   }
 
+  /// The points saved for a ride that is still running, so an app that was
+  /// killed mid-trip can continue the route (and the distance measured from
+  /// it). Null when nothing usable is saved: no draft, a draft of a ride
+  /// that was already finished, or an unreadable one.
+  Future<List<RecordedRoutePointModel>?> loadDraft(int rideId) async {
+    try {
+      final saved = await _local.load(rideId);
+      if (saved == null || saved.isFinished || saved.points.isEmpty) return null;
+      return saved.points;
+    } catch (e) {
+      debugPrint('DriverTripRouteRepository: failed to read draft: $e');
+      return null;
+    }
+  }
+
   /// The ride was finished on the server: persist the final list, then
   /// upload it (with retries).
   Future<void> finishAndUpload(int rideId, List<RecordedRoutePointModel> points) async {

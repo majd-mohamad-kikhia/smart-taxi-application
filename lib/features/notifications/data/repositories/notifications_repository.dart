@@ -1,33 +1,26 @@
+import 'package:dio/dio.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/network/api_exception.dart';
 import '../datasources/notifications_remote_data_source.dart';
-import '../models/notification_model.dart';
+import '../models/notifications_page_model.dart';
 
-/// Structured failure thrown by [NotificationsRepository] on a non-200
-/// response, so the Cubit never has to interpret raw exceptions.
-class NotificationsException implements Exception {
-  final String message;
-
-  const NotificationsException(this.message);
-
-  @override
-  String toString() => message;
-}
-
-/// Repository for the Notifications feature.
-///
-/// The Cubit talks to this, never to [NotificationsRemoteDataSource]
-/// directly, so the mocked data source can be replaced with a real API
-/// client without touching presentation code.
+/// Repository for the customer notifications. Failures surface as
+/// [ApiException] so the Cubit never sees a raw `DioException`.
 class NotificationsRepository {
-  final NotificationsRemoteDataSource _remoteDataSource;
+  static const int pageSize = 20;
 
-  const NotificationsRepository(this._remoteDataSource);
+  final NotificationsRemoteDataSource _remote;
 
-  Future<List<NotificationModel>> getNotifications() async {
-    final response = await _remoteDataSource.fetchNotifications();
-    if (response.statusCode != 200) {
-      throw NotificationsException(AppStrings.current.errNotificationsLoad);
+  const NotificationsRepository(this._remote);
+
+  Future<NotificationsPageModel> getPage(int page) async {
+    try {
+      return await _remote.fetchNotifications(page: page, limit: pageSize);
+    } on DioException catch (e) {
+      final error = e.error;
+      throw error is ApiException
+          ? error
+          : ApiException(AppStrings.current.errServerUnreachable);
     }
-    return response.data;
   }
 }

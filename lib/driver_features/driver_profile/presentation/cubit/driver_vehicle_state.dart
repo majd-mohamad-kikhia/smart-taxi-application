@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../driver_auth/data/models/driver_vehicle_model.dart';
 
-/// Immutable state for the driver profile's vehicle card.
 class DriverVehicleState extends Equatable {
   final DriverVehicleModel? vehicle;
   final bool isLoading;

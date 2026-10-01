@@ -3,7 +3,6 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/ride_history_model.dart';
 
-/// Horizontal chip row filtering rides by status; `null` = all.
 class TripsStatusFilterWidget extends StatelessWidget {
   final RideStatus? selected;
   final ValueChanged<RideStatus?> onSelected;

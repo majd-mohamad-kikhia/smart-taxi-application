@@ -4,7 +4,6 @@ import '../../../../core/localization/app_strings.dart';
 import '../datasources/trips_remote_data_source.dart';
 import '../models/ride_history_model.dart';
 
-/// Structured failure thrown by [TripsRepository].
 class TripsException implements Exception {
   final String message;
 

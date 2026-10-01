@@ -13,6 +13,9 @@ class DriverTripActionsWidget extends StatelessWidget {
   final DriverTripStatus status;
   final bool isUpdating;
   final bool isCancelling;
+
+  /// The in-progress trip is currently paused — the button becomes Resume.
+  final bool isPaused;
   final VoidCallback? onCancel;
 
   const DriverTripActionsWidget({
@@ -20,6 +23,7 @@ class DriverTripActionsWidget extends StatelessWidget {
     required this.status,
     required this.isUpdating,
     required this.isCancelling,
+    this.isPaused = false,
     this.onCancel,
   });
 
@@ -42,6 +46,32 @@ class DriverTripActionsWidget extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.textPrimary,
               side: const BorderSide(color: AppColors.border),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+        if (isInProgress) ...[
+          OutlinedButton.icon(
+            onPressed: _isBusy ? null : (isPaused ? cubit.resumeTrip : cubit.pauseTrip),
+            icon: Icon(
+              isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+              size: 18,
+            ),
+            label: Text(
+              isPaused ? context.l10n.driverResumeTrip : context.l10n.driverPauseTrip,
+            ),
+            // Sits on the live map, so it needs a solid fill — an outlined
+            // button is transparent there and the map shows through.
+            style: OutlinedButton.styleFrom(
+              backgroundColor: isPaused
+                  ? AppColors.primarySurface
+                  : AppColors.backgroundWhite,
+              disabledBackgroundColor: AppColors.backgroundWhite,
+              foregroundColor: isPaused ? AppColors.primary : AppColors.textPrimary,
+              side: BorderSide(
+                color: isPaused ? AppColors.primary : AppColors.border,
+              ),
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
           ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../constants/app_constants.dart';
 import '../routing/app_router.dart';
 import '../theme/app_colors.dart';
+import 'app_logo_widget.dart';
 
 /// Shared brand top bar — the Mshoar logo pinned to the physical right
 /// edge — used as the app bar for both the rider and driver apps so the
@@ -44,7 +44,6 @@ class AppBrandBarWidget extends StatelessWidget {
   }
 }
 
-/// The Mshoar brand mark: logo image + wordmark.
 class _BrandLogoWidget extends StatelessWidget {
   const _BrandLogoWidget();
 
@@ -53,15 +52,7 @@ class _BrandLogoWidget extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(9),
-          child: Image.asset(
-            AppConstants.logoPath,
-            width: 38,
-            height: 38,
-            fit: BoxFit.cover,
-          ),
-        ),
+        const AppLogoWidget(size: 38),
         const SizedBox(width: 8),
         Padding(
           padding: const EdgeInsets.only(top: 10),

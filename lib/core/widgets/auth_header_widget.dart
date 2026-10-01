@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_colors.dart';
+import 'app_logo_widget.dart';
 
-/// Logo + title block shown at the top of every auth screen.
 class AuthHeaderWidget extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -17,19 +16,7 @@ class AuthHeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: 72,
-          height: 72,
-          decoration: const BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.local_taxi_rounded,
-            color: AppColors.textOnPrimary,
-            size: 36,
-          ),
-        ),
+        const AppLogoWidget(size: 84),
         const SizedBox(height: AppConstants.paddingL),
         Text(title, style: Theme.of(context).textTheme.headlineLarge),
         const SizedBox(height: AppConstants.paddingXS),

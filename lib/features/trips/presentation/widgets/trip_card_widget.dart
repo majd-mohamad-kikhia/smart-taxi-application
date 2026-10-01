@@ -6,7 +6,6 @@ import '../../data/models/ride_history_model.dart';
 import 'ride_route_widget.dart';
 import 'ride_status_badge_widget.dart';
 
-/// Simple ride summary card: status, date, route and price.
 class TripCardWidget extends StatelessWidget {
   final RideHistoryModel ride;
   final VoidCallback onTap;

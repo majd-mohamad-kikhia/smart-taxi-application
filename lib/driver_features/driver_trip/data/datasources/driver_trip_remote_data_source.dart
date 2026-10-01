@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
+import '../../../../core/models/ride_pause_model.dart';
+import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/network/api_endpoints.dart';
+import '../models/driver_active_ride_model.dart';
 import '../models/driver_trip_fare_model.dart';
 import '../models/driver_trip_payment_model.dart';
 import '../models/recorded_route_point_model.dart';
@@ -14,14 +17,52 @@ class DriverTripRemoteDataSource {
 
   const DriverTripRemoteDataSource(this._dio, this._endpoints);
 
-  /// accepted → arrived (optional step).
-  Future<void> markArrived(int rideId) async {
-    await _dio.post(_endpoints.driverRidePickup(rideId));
+  /// The driver's current ride, or null when there is none — or when it is
+  /// in a state the trip screen can't resume (see [DriverActiveRideModel]).
+  Future<DriverActiveRideModel?> fetchActiveRide() async {
+    final response = await _dio.get(_endpoints.driverActiveRide);
+    final data = (response.data as Map)['data'];
+    return data is Map
+        ? DriverActiveRideModel.tryParse(Map<String, dynamic>.from(data))
+        : null;
   }
 
-  /// accepted / arrived → in_progress.
-  Future<void> startRide(int rideId) async {
-    await _dio.post(_endpoints.driverRideStart(rideId));
+  /// accepted → arrived (optional step). Returns the running waiting timer
+  /// (`ride.waiting`, `elapsed_seconds` = 0).
+  Future<RideWaitingModel?> markArrived(int rideId) async {
+    final response = await _dio.post(_endpoints.driverRidePickup(rideId));
+    return _waitingOf(response.data);
+  }
+
+  /// accepted / arrived → in_progress. Returns the stopped waiting timer
+  /// with the final fee, or null when the driver never tapped arrived.
+  Future<RideWaitingModel?> startRide(int rideId) async {
+    final response = await _dio.post(_endpoints.driverRideStart(rideId));
+    return _waitingOf(response.data);
+  }
+
+  /// in_progress → paused (the status stays in_progress). Returns the
+  /// running pause: `pause.current.elapsed_seconds` starts at 0.
+  Future<RidePauseModel?> pauseRide(int rideId) async {
+    final response = await _dio.post(_endpoints.driverRidePause(rideId));
+    return _pauseOf(response.data);
+  }
+
+  /// paused → in_progress. Returns the pause summary, whose `total_fee`
+  /// now includes the pause that just ended.
+  Future<RidePauseModel?> resumeRide(int rideId) async {
+    final response = await _dio.post(_endpoints.driverRideResume(rideId));
+    return _pauseOf(response.data);
+  }
+
+  RidePauseModel? _pauseOf(dynamic body) {
+    final data = body is Map ? body['data'] : null;
+    return data is Map ? RidePauseModel.fromParent(Map<String, dynamic>.from(data)) : null;
+  }
+
+  RideWaitingModel? _waitingOf(dynamic body) {
+    final data = body is Map ? body['data'] : null;
+    return data is Map ? RideWaitingModel.fromParent(Map<String, dynamic>.from(data)) : null;
   }
 
   /// in_progress → completed. The server prices the trip from the distance

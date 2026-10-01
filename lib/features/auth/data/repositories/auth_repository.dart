@@ -2,13 +2,12 @@ import 'package:dio/dio.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/token_check.dart';
 import '../datasources/auth_local_data_source.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../models/auth_user_model.dart';
 
-/// Structured failure thrown by [AuthRepository], so the Cubit never has
-/// to interpret a raw exception.
 class AuthException implements Exception {
   final String message;
 
@@ -18,11 +17,6 @@ class AuthException implements Exception {
   String toString() => message;
 }
 
-/// Repository for the Auth feature.
-///
-/// The Cubit talks to this, never to [AuthRemoteDataSource] /
-/// [AuthLocalDataSource] directly, so either can change without touching
-/// presentation code.
 class AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
   final AuthLocalDataSource _localDataSource;
@@ -79,6 +73,10 @@ class AuthRepository {
     }
     return user;
   }
+
+  /// Whether the server no longer accepts the restored session's token
+  /// (expired, or the account was deleted). `false` when offline.
+  Future<bool> isSessionRejected() => isTokenRejected(_remoteDataSource.checkSession);
 
   /// Revokes the current device's session on the server, then always
   /// clears the local session/token — even if the network call fails

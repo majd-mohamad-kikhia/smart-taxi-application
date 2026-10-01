@@ -4,6 +4,7 @@ import '../localization/app_locales.dart';
 import '../localization/l10n_context_extension.dart';
 import '../localization/locale_cubit.dart';
 import '../theme/app_colors.dart';
+import 'app_snack_bar_widget.dart';
 
 /// Settings card with a dropdown to switch the app language. Shared by the
 /// rider and driver settings screens; the choice is saved on the server
@@ -72,9 +73,7 @@ class _LanguagePickerState extends State<_LanguagePicker> {
     if (!mounted) return;
     setState(() => _isSaving = false);
     if (error != null) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(error), backgroundColor: AppColors.error),
-      );
+      showAppSnackBarOn(messenger, error, type: AppSnackBarType.error);
     }
   }
 

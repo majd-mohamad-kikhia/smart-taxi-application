@@ -4,8 +4,8 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/paginated_list_widget.dart';
-import '../../../home/presentation/widgets/home_app_bar_widget.dart';
 import '../../data/models/ride_history_model.dart';
 import '../cubit/trips_cubit.dart';
 import '../cubit/trips_state.dart';
@@ -34,7 +34,7 @@ class _TripsView extends StatelessWidget {
       backgroundColor: AppColors.backgroundGray,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(60),
-        child: HomeAppBarWidget(),
+        child: AppBrandBarWidget(showNotifications: true),
       ),
       body: BlocBuilder<TripsCubit, TripsState>(
         builder: (context, state) {

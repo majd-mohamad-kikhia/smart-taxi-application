@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../data/models/ride_driver_model.dart';
 import '../../data/models/ride_location_model.dart';
@@ -30,7 +31,14 @@ class RideTrackingState extends Equatable {
 
   /// The server's final price, from the `completed` status event.
   final double? finalPrice;
+
+  /// The bill lines (distance, stops, waiting…) from the `completed` event.
+  final RideFareBreakdownModel? fare;
   final bool isCancelling;
+
+  /// The server's message when the last cancel attempt failed; the screen
+  /// shows it once and the customer can retry.
+  final String? cancelError;
   final RideTrackingExitReason? exitReason;
 
   const RideTrackingState({
@@ -45,7 +53,9 @@ class RideTrackingState extends Equatable {
     this.routePoints = const [],
     this.drivenPath = const [],
     this.finalPrice,
+    this.fare,
     required this.isCancelling,
+    this.cancelError,
     this.exitReason,
   });
 
@@ -88,7 +98,10 @@ class RideTrackingState extends Equatable {
     List<RoutePointModel>? routePoints,
     List<RoutePointModel>? drivenPath,
     double? finalPrice,
+    RideFareBreakdownModel? fare,
     bool? isCancelling,
+    String? cancelError,
+    bool clearCancelError = false,
     RideTrackingExitReason? exitReason,
   }) {
     return RideTrackingState(
@@ -104,7 +117,9 @@ class RideTrackingState extends Equatable {
       routePoints: routePoints ?? this.routePoints,
       drivenPath: drivenPath ?? this.drivenPath,
       finalPrice: finalPrice ?? this.finalPrice,
+      fare: fare ?? this.fare,
       isCancelling: isCancelling ?? this.isCancelling,
+      cancelError: clearCancelError ? null : (cancelError ?? this.cancelError),
       exitReason: exitReason ?? this.exitReason,
     );
   }
@@ -122,7 +137,9 @@ class RideTrackingState extends Equatable {
         routePoints,
         drivenPath,
         finalPrice,
+        fare,
         isCancelling,
+        cancelError,
         exitReason,
       ];
 }

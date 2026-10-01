@@ -5,8 +5,6 @@ import '../../../driver_auth/data/models/driver_vehicle_model.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../datasources/driver_vehicle_remote_data_source.dart';
 
-/// Structured failure thrown by [DriverVehicleRepository], so the Cubit
-/// never has to interpret a raw exception.
 class DriverVehicleException implements Exception {
   final String message;
 
@@ -16,8 +14,6 @@ class DriverVehicleException implements Exception {
   String toString() => message;
 }
 
-/// Repository for the driver profile's vehicle card. The Cubit talks to
-/// this, never to [DriverVehicleRemoteDataSource] directly.
 class DriverVehicleRepository {
   final DriverVehicleRemoteDataSource _remoteDataSource;
 

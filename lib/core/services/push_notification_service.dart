@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -25,13 +26,21 @@ class PushNotificationService {
   final FirebaseMessaging _messaging;
   final LocalNotificationService _localNotifications;
 
+  /// Data of foreground `ride_cancelled` pushes — the fallback for when the
+  /// socket that normally delivers the cancel is down.
+  final _rideCancelled = StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get rideCancelled => _rideCancelled.stream;
+
   PushNotificationService(this._messaging, this._localNotifications);
 
   Future<void> initialize() async {
     await _localNotifications.initialize();
-    FirebaseMessaging.onMessage.listen(
-      (message) => _showMessage(_localNotifications, message),
-    );
+    FirebaseMessaging.onMessage.listen((message) {
+      if (message.data['notification_type'] == 'ride_cancelled') {
+        _rideCancelled.add(Map<String, dynamic>.from(message.data));
+      }
+      _showMessage(_localNotifications, message);
+    });
 
     await _messaging.requestPermission();
 

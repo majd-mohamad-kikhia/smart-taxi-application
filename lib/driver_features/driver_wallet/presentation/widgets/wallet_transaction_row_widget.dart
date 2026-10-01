@@ -3,7 +3,6 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/wallet_transaction_model.dart';
 
-/// One row in the wallet's transaction history list.
 class WalletTransactionRowWidget extends StatelessWidget {
   final WalletTransactionModel transaction;
 

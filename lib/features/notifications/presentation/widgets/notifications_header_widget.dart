@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Simple header with a back button and the screen title.
 class NotificationsHeaderWidget extends StatelessWidget {
   final VoidCallback? onBack;
 

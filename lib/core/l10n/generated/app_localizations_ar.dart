@@ -26,6 +26,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get retry => 'إعادة المحاولة';
 
   @override
+  String get appUpdateAction => 'تحديث';
+
+  @override
+  String get appUpdateLater => 'لاحقًا';
+
+  @override
+  String get appUpdateOptionalTitle => 'يتوفر تحديث جديد';
+
+  @override
+  String get appUpdateRequiredTitle => 'التحديث مطلوب';
+
+  @override
+  String get appUpdateRequiredMessage =>
+      'لم يعد هذا الإصدار من التطبيق مدعومًا. يرجى التحديث للمتابعة.';
+
+  @override
+  String get appMaintenanceTitle => 'التطبيق تحت الصيانة';
+
+  @override
+  String get appMaintenanceMessage => 'نعمل على تحسين التطبيق وسنعود قريبًا.';
+
+  @override
+  String appMaintenanceBackAt(String time) {
+    return 'نعود في $time';
+  }
+
+  @override
   String get cancel => 'إلغاء';
 
   @override
@@ -51,11 +78,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmCancellation => 'تأكيد الإلغاء';
-
-  @override
-  String comingSoon(String label) {
-    return '$label قريباً';
-  }
 
   @override
   String get noData => 'لا توجد بيانات';
@@ -89,11 +111,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String distanceKmVia(String value, String road) {
-    return '$value كم عبر $road';
-  }
-
-  @override
   String durationMinutesShort(String minutes) {
     return '$minutes د';
   }
@@ -111,11 +128,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String priceLyd(String amount) {
     return '$amount د.ل';
-  }
-
-  @override
-  String priceSar(String amount) {
-    return '$amount ريال';
   }
 
   @override
@@ -427,7 +439,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tripCancelled => 'تم إلغاء الرحلة';
 
   @override
-  String get walletComingSoon => 'المحفظة قريباً';
+  String get tripCancelledByCustomer => 'قام العميل بإلغاء الرحلة';
+
+  @override
+  String get tripCancelledByManager => 'تم إلغاء الرحلة من قبل الإدارة';
 
   @override
   String get notificationsChannelName => 'الإشعارات';
@@ -656,34 +671,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vehiclePlate => 'رقم اللوحة';
 
   @override
-  String get settingsSectionAccount => 'الحساب والمدفوعات';
-
-  @override
-  String get settingsSectionSafety => 'الأمان والدعم';
-
-  @override
-  String get settingsFavoritesTitle => 'الأماكن المفضلة والمحفوظة';
-
-  @override
-  String get settingsFavoritesSubtitle => 'المنزل، العمل، استراحة (3 مواقع)';
-
-  @override
-  String get settingsSupportTitle => 'المساعدة والدعم الفني';
-
-  @override
-  String get settingsSupportSubtitle =>
-      'محادثة مباشرة أو اتصال على مدار الساعة';
-
-  @override
-  String get settingsTermsTitle => 'الشروط والخصوصية';
-
-  @override
-  String get settingsTermsSubtitle => 'سياسة الاستخدام وحماية البيانات';
-
-  @override
-  String get favoritePlaces => 'الأماكن المفضلة';
-
-  @override
   String get editPersonalInfo => 'تعديل البيانات الشخصية';
 
   @override
@@ -809,16 +796,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tripCompletedSuccess => 'اكتملت الرحلة بنجاح';
 
   @override
-  String get termsAndConditions => 'الشروط والأحكام';
+  String get privacyPolicy => 'سياسة الخصوصية';
 
   @override
-  String get termsAgreePrefix => 'أوافق على ';
+  String get privacyPolicyAgreePrefix => 'أوافق على ';
 
   @override
-  String get termsRequired => 'يجب الموافقة على الشروط والأحكام لإنشاء حساب';
+  String get privacyPolicyRequired =>
+      'يجب الموافقة على سياسة الخصوصية لإنشاء حساب';
 
   @override
-  String get termsEmpty => 'لم يتم نشر الشروط والأحكام بعد.';
+  String get privacyPolicyEmpty => 'لم يتم نشر سياسة الخصوصية بعد.';
 
   @override
   String get close => 'إغلاق';
@@ -834,25 +822,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get trackTrip => 'تتبع الرحلة';
-
-  @override
-  String get cancelTripQuestion => 'إلغاء الرحلة؟';
-
-  @override
-  String get cancelTripMessage =>
-      'هل أنت متأكد من رغبتك في إلغاء هذه الرحلة؟ لن يتم خصم أي رسوم إذا ألغيت خلال دقيقتين.';
-
-  @override
-  String get tripSafety => 'أمان الرحلة';
-
-  @override
-  String get actionCall => 'اتصال';
-
-  @override
-  String get actionChat => 'محادثة';
-
-  @override
-  String get actionShare => 'مشاركة';
 
   @override
   String get safeTripTitle => 'رحلة آمنة وموثقة';
@@ -872,68 +841,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errLoginRequired => 'يجب تسجيل الدخول';
-
-  @override
-  String get pickupPointSelected => 'نقطة الالتقاء المحددة';
-
-  @override
-  String paymentMethodValue(String method) {
-    return 'طريقة الدفع: $method';
-  }
-
-  @override
-  String captainCertified(String trips) {
-    return 'كابتن معتمد • $trips+ رحلة';
-  }
-
-  @override
-  String get liveCaptainOnTheWay => 'الكابتن في الطريق إليك';
-
-  @override
-  String get liveArrived => 'الكابتن وصل لنقطة الالتقاء';
-
-  @override
-  String get liveInProgress => 'أنت في الطريق إلى الوجهة';
-
-  @override
-  String get liveCompleted => 'وصلت إلى وجهتك';
-
-  @override
-  String liveEtaOnly(String minutes) {
-    return 'الوصول المتوقع: $minutes دقائق فقط';
-  }
-
-  @override
-  String get liveArrivedSub => 'الكابتن بانتظارك عند نقطة الالتقاء';
-
-  @override
-  String liveRemaining(String minutes) {
-    return 'المدة المتبقية: $minutes دقائق';
-  }
-
-  @override
-  String get liveThanks => 'شكراً لاستخدامك Smart Taxi';
-
-  @override
-  String get mockCaptainName => 'عبدالرحمن الشمري';
-
-  @override
-  String get mockVehicleModel => 'تويوتا كامري 2024';
-
-  @override
-  String get mockVehicleColor => 'رمادي';
-
-  @override
-  String get mockPlateLetters => 'أ ب ج';
-
-  @override
-  String get mockPickupTitle => 'أمام بوابة المجمع الرئيسية';
-
-  @override
-  String get mockPickupSubtitle => 'طريق الملك فهد، مقابل النافورة';
-
-  @override
-  String get mockPaymentWallet => 'محفظة Smart Taxi';
 
   @override
   String get rideStatusPending => 'قيد الانتظار';
@@ -1004,263 +911,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noRidesYet => 'لا توجد طلبات بعد';
 
   @override
-  String get favoriteAddresses => 'العناوين المفضلة';
-
-  @override
-  String get favAddressDeleted => 'تم حذف العنوان';
-
-  @override
-  String get favSelectOnMapSoon => 'تحديد على الخريطة قريباً';
-
-  @override
-  String get favSearchByNameSoon => 'البحث بالاسم قريباً';
-
-  @override
-  String favPlacesCount(String count) {
-    return '$count أماكن';
-  }
-
-  @override
-  String get favSort => 'ترتيب';
-
-  @override
-  String get favEmpty => 'لا توجد عناوين محفوظة';
-
-  @override
-  String favEditSoon(String name) {
-    return 'تعديل $name قريباً';
-  }
-
-  @override
-  String get favCurrentSaved => 'تم حفظ الموقع الحالي';
-
-  @override
-  String get favDeleteTitle => 'حذف العنوان؟';
-
-  @override
-  String favDeleteMessage(String name) {
-    return 'هل تريد حذف \"$name\" من عناوينك المفضلة؟ لا يمكن التراجع عن هذا الإجراء.';
-  }
-
-  @override
-  String get favMyCurrentLocation => 'موقعي الحالي';
-
-  @override
-  String get favDefault => 'افتراضي';
-
-  @override
-  String get favOrderRideHere => 'طلب مشوار إلى هنا الآن';
-
-  @override
-  String get favFavoritePlace => 'موقع مفضل';
-
-  @override
-  String get favSaveCurrent => 'حفظ موقعك الحالي';
-
-  @override
-  String favNearYou(String area) {
-    return 'أنت الآن بالقرب من: $area';
-  }
-
-  @override
-  String get favSaveOneTap => 'احفظ موقعي الحالي بنقرة واحدة';
-
-  @override
-  String get favAddNew => 'إضافة عنوان جديد';
-
-  @override
-  String get favAddNewSubtitle => 'احفظ وجهاتك المتكررة للوصول السريع';
-
-  @override
-  String get favSelectOnMap => 'التحديد على الخريطة';
-
-  @override
-  String get favSearchByName => 'البحث بالاسم';
-
-  @override
-  String get favMockHomeName => 'المنزل';
-
-  @override
-  String get favMockHomeAddress =>
-      'حي العليا، شارع الأمير سلطان، فيلا 14، الرياض';
-
-  @override
-  String get favMockHomeNote => 'البوابة الجانبية الرمادية';
-
-  @override
-  String get favMockWorkName => 'العمل';
-
-  @override
-  String get favMockWorkAddress => 'برج المملكة، طريق الملك فهد، الرياض';
-
-  @override
-  String get favMockWorkNote => 'موقف قبو P2';
-
-  @override
-  String get favMockGymName => 'النادي الرياضي';
-
-  @override
-  String get favMockGymAddress => 'حي الملقا، شارع أنس بن مالك، الرياض';
-
-  @override
-  String get favMockMomName => 'بيت الوالدة';
-
-  @override
-  String get favMockMomAddress => 'حي الياسمين، شارع التخصصي، الرياض';
-
-  @override
-  String get favMockCurrentArea => 'مجمع السدرة، الرياض';
-
-  @override
   String get notificationsTitle => 'الإشعارات';
 
   @override
   String get notificationsEmpty => 'لا توجد إشعارات';
 
   @override
-  String get errNotificationsLoad => 'تعذر تحميل الإشعارات';
-
-  @override
   String get errPlacesSearch => 'تعذر البحث حالياً، حاول مرة أخرى';
-
-  @override
-  String get mockNotif1Title => 'الكابتن ماجد في الطريق إليك';
-
-  @override
-  String get mockNotif1Message =>
-      'سيصل كابتنك خلال 3 دقائق تقريباً، جهّز نفسك للانطلاق.';
-
-  @override
-  String get mockNotif2Title => 'خصم 20% على مشاويرك';
-
-  @override
-  String get mockNotif2Message =>
-      'استخدم الرمز الترويجي \"SMARTTAXI20\" عند الحجز هذا الأسبوع.';
-
-  @override
-  String get mockNotif3Title => 'تم خصم المبلغ بنجاح';
-
-  @override
-  String get mockNotif3Message =>
-      'تم خصم 38.50 ل.س من محفظتك مقابل رحلتك الأخيرة.';
-
-  @override
-  String get mockNotif4Title => 'وصلت إلى وجهتك بنجاح';
-
-  @override
-  String get mockNotif4Message =>
-      'نتمنى أن تكون قد استمتعت برحلتك معنا. لا تنسَ تقييم الكابتن.';
-
-  @override
-  String get mockNotif5Title => 'عرض خاص لعملاء Smart Taxi';
-
-  @override
-  String get mockNotif5Message =>
-      'احصل على رحلة مجانية عند دعوة 3 أصدقاء للتطبيق.';
-
-  @override
-  String get mockNotif6Title => 'تحديث سياسة الخصوصية';
-
-  @override
-  String get mockNotif6Message =>
-      'قمنا بتحديث سياسة الخصوصية وشروط الاستخدام الخاصة بالتطبيق.';
-
-  @override
-  String get bookingHeaderConfirm => 'تأكيد الطلب';
-
-  @override
-  String get bookingCertifiedCaptains => 'كبائن معتمدون ومرخصون';
-
-  @override
-  String get bookingInstantMatch => 'تأكيد ومطابقة فورية';
-
-  @override
-  String bookingConfirmRide(String category) {
-    return 'تأكيد طلب مشوار $category';
-  }
-
-  @override
-  String get bookingAgreePrefix => 'بالضغط على تأكيد، أنت توافق على ';
-
-  @override
-  String get bookingTerms => 'شروط الخدمة';
-
-  @override
-  String get bookingAgreeAnd => ' و';
-
-  @override
-  String get bookingPrivacy => 'سياسة الخصوصية';
-
-  @override
-  String get bookingAgreeSuffix => ' الخاصة بـ Smart Taxi';
-
-  @override
-  String bookingConfirmed(String category) {
-    return 'تم تأكيد طلب مشوار $category بنجاح';
-  }
-
-  @override
-  String get bookingChooseType => 'اختر نوع المشوار';
-
-  @override
-  String bookingCategoriesAvailable(String count) {
-    return '$count فئات متوفرة';
-  }
-
-  @override
-  String get bookingCompareSpecs => 'مقارنة المواصفات';
-
-  @override
-  String get bookingPaymentMethod => 'طريقة الدفع';
-
-  @override
-  String get bookingCaptainNote => 'ملاحظة للكابتن';
-
-  @override
-  String get bookingAddNote => 'أضف ملاحظة...';
-
-  @override
-  String get bookingDragMap => 'اسحب الخريطة لتعديل نقطة الالتقاء بدقة';
-
-  @override
-  String bookingCapacityEta(String capacity, String minutes) {
-    return '$capacity ركاب • $minutes د';
-  }
-
-  @override
-  String bookingEtaMinutes(String minutes) {
-    return '$minutes دقائق';
-  }
-
-  @override
-  String get bookingMockPickup => 'حي الصحافة، طريق العليا العام';
-
-  @override
-  String get bookingMockDestination => 'واجهة الرياض (Riyadh Front) - بوابة 4';
-
-  @override
-  String get bookingMockViaRoad => 'طريق الثمامة';
-
-  @override
-  String get catEconomy => 'اقتصادي';
-
-  @override
-  String get catEconomyBadge => 'الأكثر توفيراً';
-
-  @override
-  String get catComfort => 'مريح';
-
-  @override
-  String get catFamilyXl => 'عائلي XL';
-
-  @override
-  String get bookingPaymentWallet => 'محفظة';
-
-  @override
-  String get bookingMockNote => 'بدون اتصال - التك...';
-
-  @override
-  String get bookingMockPromo => 'تم تطبيق كود ترحيبي Smart Taxi (خصم 15%)';
 
   @override
   String get locationResolving => 'جارٍ تحديد العنوان...';
@@ -1268,4 +925,199 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get locationUnresolved =>
       'لم نتمكن من تحديد عنوان لهذه النقطة. حرّك الدبوس وحاول مرة أخرى.';
+
+  @override
+  String get waitingAtPickup => 'الانتظار عند نقطة الانطلاق';
+
+  @override
+  String waitingFreeLeft(String time) {
+    return 'الوقت المجاني المتبقي: $time';
+  }
+
+  @override
+  String get waitingFreeOver => 'انتهى الوقت المجاني';
+
+  @override
+  String waitingFeeFinal(String amount) {
+    return 'رسوم الانتظار: $amount';
+  }
+
+  @override
+  String waitingRules(String minutes, String price) {
+    return '$minutes دقائق مجانية، ثم $price لكل دقيقة';
+  }
+
+  @override
+  String get fareDistanceFare => 'المسافة';
+
+  @override
+  String get fareBaseFare => 'الأجرة الأساسية';
+
+  @override
+  String get fareStopsFee => 'التوقفات';
+
+  @override
+  String get fareWaiting => 'الانتظار';
+
+  @override
+  String fareWaitingDetail(String minutes, String price) {
+    return '$minutes د × $price';
+  }
+
+  @override
+  String get fareTotal => 'الإجمالي';
+
+  @override
+  String get pauseTripPaused => 'الرحلة متوقفة مؤقتاً';
+
+  @override
+  String pauseIncludedLeft(String time) {
+    return 'الوقت المشمول المتبقي: $time';
+  }
+
+  @override
+  String get pauseIncludedOver => 'انتهى الوقت المشمول';
+
+  @override
+  String pauseRules(String base, String minutes, String price) {
+    return '$base تشمل $minutes دقائق، ثم $price لكل دقيقة';
+  }
+
+  @override
+  String pauseFeeTotal(String amount) {
+    return 'التوقفات: $amount';
+  }
+
+  @override
+  String get pauseStopLabel => 'التوقف أثناء الرحلة';
+
+  @override
+  String get driverPauseTrip => 'إيقاف الرحلة مؤقتاً';
+
+  @override
+  String get driverResumeTrip => 'متابعة الرحلة';
+
+  @override
+  String get farePauses => 'التوقفات';
+
+  @override
+  String get deleteAccount => 'حذف حسابي';
+
+  @override
+  String get deleteAccountTitle => 'حذف حسابك؟';
+
+  @override
+  String get deleteAccountMessage =>
+      'لا يمكن التراجع عن هذا الإجراء. سيتم مسح بياناتك الشخصية وعناوينك المحفوظة وإشعاراتك، وسيتم تسجيل خروجك من جميع الأجهزة. أدخل كلمة المرور للتأكيد.';
+
+  @override
+  String get deleteAccountPasswordLabel => 'كلمة المرور';
+
+  @override
+  String get deleteAccountConfirm => 'حذف نهائي';
+
+  @override
+  String get deleteAccountDone => 'تم حذف حسابك';
+
+  @override
+  String get errIncorrectPassword => 'كلمة المرور غير صحيحة';
+
+  @override
+  String get driverDeleteMessage =>
+      'سيقوم أحد المدراء بمراجعة طلبك. يمكنك متابعة العمل إلى حين الموافقة عليه، وبعدها سيتم مسح بياناتك الشخصية وتسجيل خروجك من جميع الأجهزة. أدخل كلمة المرور للتأكيد.';
+
+  @override
+  String get driverDeleteReasonLabel => 'السبب (اختياري)';
+
+  @override
+  String get driverDeleteReasonHint => 'لماذا تريد المغادرة؟';
+
+  @override
+  String get driverDeleteSubmit => 'إرسال الطلب';
+
+  @override
+  String get driverDeletionPendingTitle => 'طلب حذف الحساب قيد المراجعة';
+
+  @override
+  String get driverDeletionPendingBody =>
+      'سيقوم أحد المدراء بمراجعة طلبك. يمكنك متابعة العمل إلى حين الموافقة عليه.';
+
+  @override
+  String get driverDeletionCancel => 'إلغاء الطلب';
+
+  @override
+  String get driverDeletionRejectedTitle => 'تم رفض طلب حذف الحساب';
+
+  @override
+  String get errAccountDeleted => 'تم حذف هذا الحساب';
+
+  @override
+  String get errDeleteActiveRide =>
+      'لا يمكنك حذف حسابك أثناء وجود رحلة جارية. أنهِها أو ألغِها أولاً.';
+
+  @override
+  String get gpsRequiredTitle => 'فعّل الموقع (GPS)';
+
+  @override
+  String get gpsRequiredMessage =>
+      'لا يمكن استخدام التطبيق أثناء إيقاف الموقع. فعّل الـ GPS للمتابعة.';
+
+  @override
+  String get gpsOpenSettings => 'فتح إعدادات الموقع';
+
+  @override
+  String get navRoute => 'مسار';
+
+  @override
+  String get routeStartNew => 'بداية مسار جديد';
+
+  @override
+  String get routeSummaryTitle => 'ملخص المسار';
+
+  @override
+  String get routeSummaryWaiting => 'الانتظار في البداية';
+
+  @override
+  String get routeSummaryTripTime => 'مدة الرحلة';
+
+  @override
+  String get routeSummaryStops => 'التوقفات (قهوة)';
+
+  @override
+  String get routeSummaryDriving => 'مدة القيادة';
+
+  @override
+  String get routeLocationDenied =>
+      'يلزم السماح بالوصول إلى الموقع لتسجيل المسار';
+
+  @override
+  String farePausesDetail(String count, String time) {
+    return '×$count · $time';
+  }
+
+  @override
+  String get accountBlockedTitle => 'حسابك محظور مؤقتًا';
+
+  @override
+  String get accountBlockedRiderMessage =>
+      'لا يمكنك طلب رحلات جديدة أثناء الحظر. الرحلة الجارية حاليًا لا تتأثر.';
+
+  @override
+  String get accountBlockedDriverMessage =>
+      'لن تصلك عروض رحلات جديدة أثناء الحظر. الرحلة الجارية حاليًا لا تتأثر.';
+
+  @override
+  String accountBlockedUntil(String date) {
+    return 'محظور حتى $date';
+  }
+
+  @override
+  String accountBlockedReason(String reason) {
+    return 'السبب: $reason';
+  }
+
+  @override
+  String accountBlockedStrikes(int count, int limit) {
+    return 'الإلغاءات: $count من $limit';
+  }
 }

@@ -9,12 +9,11 @@
 class ApiEndpoints {
   const ApiEndpoints();
 
-  // ─── Health ────────────────────────────────────────────────
-  String get health => '/';
+  // ─── Privacy policy (public) ───────────────────────────────
+  String get privacyPolicy => '/api/privacy-policy';
 
-  // ─── Terms (public) ────────────────────────────────────────
-  /// [audience] is `customer` or `driver`.
-  String terms(String audience) => '/api/terms/$audience';
+  // ─── App version (public) ──────────────────────────────────
+  String get appVersionCheck => '/api/app/version-check';
 
   // ─── Customer Auth ─────────────────────────────────────────
   String get customerSignup => '/api/customer/auth/signup';
@@ -45,9 +44,12 @@ class ApiEndpoints {
   String get driverLanguage => '/api/driver/language';
 
   // ─── Driver Rides ──────────────────────────────────────────
+  String get driverActiveRide => '/api/driver/rides/active';
   String driverRideAccept(int id) => '/api/driver/rides/$id/accept';
   String driverRidePickup(int id) => '/api/driver/rides/$id/pickup';
   String driverRideStart(int id) => '/api/driver/rides/$id/start';
+  String driverRidePause(int id) => '/api/driver/rides/$id/pause';
+  String driverRideResume(int id) => '/api/driver/rides/$id/resume';
   String driverRideFinish(int id) => '/api/driver/rides/$id/finish';
   String driverRideCancel(int id) => '/api/driver/rides/$id/cancel';
   String driverRideRoute(int id) => '/api/driver/rides/$id/route';
@@ -63,6 +65,11 @@ class ApiEndpoints {
 
   // ─── Driver Complaints ─────────────────────────────────────
   String get driverComplaints => '/api/driver/complaints';
+
+  // ─── Driver Account ────────────────────────────────────────
+  /// GET latest request · POST ask for deletion · DELETE cancel the pending one.
+  String get driverAccountDeletionRequest =>
+      '/api/driver/account/deletion-request';
 
   // ─── Driver Profile ────────────────────────────────────────
   String get driverVehicle => '/api/driver/vehicle';

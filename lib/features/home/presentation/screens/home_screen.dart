@@ -7,6 +7,8 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/account_block_gate_widget.dart';
+import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
@@ -14,7 +16,6 @@ import '../../data/models/ride_quote_model.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/active_ride_card_widget.dart';
-import '../widgets/home_app_bar_widget.dart';
 import '../widgets/location_select_button_widget.dart';
 import '../widgets/vehicle_type_sheet_widget.dart';
 import 'location_picker_screen.dart';
@@ -42,7 +43,7 @@ class _HomeView extends StatelessWidget {
       backgroundColor: AppColors.backgroundGray,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(60),
-        child: HomeAppBarWidget(),
+        child: AppBrandBarWidget(showNotifications: true),
       ),
       body: MultiBlocListener(
         listeners: [
@@ -134,7 +135,6 @@ class _HomeBody extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Welcome message ───────────────────────────
                     Text(
                       _greetingText(l10n),
                       style: const TextStyle(
@@ -156,7 +156,6 @@ class _HomeBody extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    // ── From / To pick cards ──────────────────────
                     LocationSelectButtonWidget(
                       label: l10n.fromLabel,
                       icon: Icons.trip_origin_rounded,
@@ -192,7 +191,6 @@ class _HomeBody extends StatelessWidget {
                               onPicked: context.read<HomeCubit>().setToLocation,
                             ),
                     ),
-                    // ── Active ride summary ────────────────────────
                     if (state.activeRide != null) ...[
                       const SizedBox(height: AppConstants.paddingXL),
                       ActiveRideCardWidget(ride: state.activeRide!),
@@ -202,12 +200,10 @@ class _HomeBody extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppConstants.paddingL),
-            // ── Error banner ───────────────────────────────
             if (state.errorMessage != null) ...[
               AuthErrorBannerWidget(message: state.errorMessage!),
               const SizedBox(height: AppConstants.paddingM),
             ],
-            // ── Primary action ─────────────────────────────
             if (hasActiveRide)
               AppDestructiveButtonWidget(
                 label: l10n.cancelRequest,
@@ -215,12 +211,17 @@ class _HomeBody extends StatelessWidget {
                 onPressed: () => context.read<HomeCubit>().cancelRide(),
               )
             else
-              AuthPrimaryButtonWidget(
-                label: l10n.search,
-                isLoading: state.isSearching || state.isBooking,
-                onPressed: state.canSearch
-                    ? () => context.read<HomeCubit>().searchRide()
-                    : null,
+              // A block only stops new orders — a ride in progress (the
+              // cancel button above) is unaffected.
+              AccountBlockGateWidget(
+                blockedMessage: l10n.accountBlockedRiderMessage,
+                child: AuthPrimaryButtonWidget(
+                  label: l10n.search,
+                  isLoading: state.isSearching || state.isBooking,
+                  onPressed: state.canSearch
+                      ? () => context.read<HomeCubit>().searchRide()
+                      : null,
+                ),
               ),
           ],
         ),

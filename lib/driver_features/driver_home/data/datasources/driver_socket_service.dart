@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/network/socket_client.dart';
@@ -16,6 +17,12 @@ import '../../../../core/network/socket_client.dart';
 class DriverSocketService {
   io.Socket? _socket;
   bool _disposed = true;
+
+  /// `driver:ride_cancelled` payloads. A broadcast stream rather than a
+  /// single callback, because each trip screen's cubit subscribes for as
+  /// long as its ride is open; it outlives every [connect].
+  final _rideCancelled = StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get rideCancelled => _rideCancelled.stream;
 
   void Function(Map<String, dynamic> data)? _onOrdersSnapshot;
   void Function(Map<String, dynamic> data)? _onOrderOffer;
@@ -65,6 +72,11 @@ class DriverSocketService {
     socket.on('driver:order_remove', (data) {
       if (!_disposed) {
         _onOrderRemove?.call(Map<String, dynamic>.from(data as Map));
+      }
+    });
+    socket.on('driver:ride_cancelled', (data) {
+      if (!_disposed) {
+        _rideCancelled.add(Map<String, dynamic>.from(data as Map));
       }
     });
     socket.connect();

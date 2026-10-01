@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Label on one side, value on the other.
 class RideDetailRowWidget extends StatelessWidget {
   final String label;
   final String value;

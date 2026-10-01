@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/ride_history_model.dart';
 
-/// Immutable state for the paginated "my rides" list.
 class TripsState extends Equatable {
   final List<RideHistoryModel> rides;
   final RideStatus? selectedStatus;

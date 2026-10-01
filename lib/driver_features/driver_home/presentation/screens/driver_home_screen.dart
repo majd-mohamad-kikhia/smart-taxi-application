@@ -5,7 +5,9 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/account_block_gate_widget.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../driver_auth/data/models/driver_status.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_state.dart';
@@ -38,8 +40,10 @@ class DriverHomeScreen extends StatelessWidget {
         listenWhen: (previous, current) =>
             current.errorMessage != null && current.errorMessage != previous.errorMessage,
         listener: (context, state) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage!)),
+          showAppSnackBar(
+            context,
+            state.errorMessage!,
+            type: AppSnackBarType.error,
           );
         },
         child: BlocBuilder<DriverAuthCubit, DriverAuthState>(
@@ -54,7 +58,12 @@ class DriverHomeScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 DriverOnlineToggleWidget(enabled: driver.status == DriverStatus.active),
                 const SizedBox(height: 20),
-                const _OrdersSection(),
+                // Blocked drivers get no offers; the toggle stays so they can
+                // still go offline.
+                AccountBlockGateWidget(
+                  blockedMessage: context.l10n.accountBlockedDriverMessage,
+                  child: const _OrdersSection(),
+                ),
               ],
             );
           },

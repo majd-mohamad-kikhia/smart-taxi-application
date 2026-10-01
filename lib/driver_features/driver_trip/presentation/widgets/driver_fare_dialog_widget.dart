@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/fare_breakdown_widget.dart';
 import '../../data/models/driver_trip_fare_model.dart';
 import '../../data/models/driver_trip_payment_model.dart';
 import '../cubit/driver_trip_cubit.dart';
@@ -85,6 +86,8 @@ class _FareDetails extends StatelessWidget {
       children: [
         _HeadlineAmount(label: l10n.fareFinalPrice, value: price(fare.finalPrice)),
         const SizedBox(height: 16),
+        FareBreakdownWidget(fare: fare.breakdown, showTotal: false),
+        const Divider(height: 20),
         _FareRow(label: l10n.fareEstimatedPrice, value: price(fare.estimatedPrice)),
         _FareRow(label: l10n.fareDifference, value: price(fare.difference)),
         _FareRow(

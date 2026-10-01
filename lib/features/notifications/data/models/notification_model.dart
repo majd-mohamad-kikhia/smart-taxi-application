@@ -1,52 +1,44 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 
 /// Category of a notification, driving its icon and color.
-enum NotificationType { tripUpdate, promo, payment, system }
+enum NotificationType {
+  ride,
+  system;
 
-/// Model representing a single notification entry.
+  /// swagger.json documents `notification_type` as an app-defined key
+  /// (`ride_accepted`, `manager_message`, `manager_broadcast`, ...):
+  /// `ride_*` keys are trip updates, anything else is a system message.
+  static NotificationType fromKey(String key) =>
+      key.startsWith('ride_') ? ride : system;
+}
+
+/// A single entry of `GET /api/customer/notifications` (swagger
+/// `Notification` schema).
 class NotificationModel extends Equatable {
-  final String id;
+  final int id;
   final String title;
   final String message;
   final NotificationType type;
-  final DateTime dateTime;
+  final DateTime sentAt;
 
   const NotificationModel({
     required this.id,
     required this.title,
     required this.message,
     required this.type,
-    required this.dateTime,
+    required this.sentAt,
   });
 
-  IconData get icon {
-    return switch (type) {
-      NotificationType.tripUpdate => Icons.directions_car_rounded,
-      NotificationType.promo => Icons.local_offer_rounded,
-      NotificationType.payment => Icons.account_balance_wallet_rounded,
-      NotificationType.system => Icons.info_rounded,
-    };
-  }
-
-  Color get iconColor {
-    return switch (type) {
-      NotificationType.tripUpdate => const Color(0xFF0F4C33),
-      NotificationType.promo => const Color(0xFFFF6535),
-      NotificationType.payment => const Color(0xFF1E40AF),
-      NotificationType.system => const Color(0xFF6B7280),
-    };
-  }
-
-  Color get iconBackground {
-    return switch (type) {
-      NotificationType.tripUpdate => const Color(0xFFE8F5EE),
-      NotificationType.promo => const Color(0xFFFFF1EC),
-      NotificationType.payment => const Color(0xFFEFF6FF),
-      NotificationType.system => const Color(0xFFF1F3F2),
-    };
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    return NotificationModel(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      message: json['body'] as String? ?? '',
+      type: NotificationType.fromKey(json['notification_type'] as String),
+      sentAt: DateTime.parse(json['sent_at'] as String),
+    );
   }
 
   @override
-  List<Object?> get props => [id, title, message, type, dateTime];
+  List<Object?> get props => [id, title, message, type, sentAt];
 }

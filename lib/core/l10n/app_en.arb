@@ -12,6 +12,21 @@
   },
   "language": "Language",
   "retry": "Retry",
+  "appUpdateAction": "Update",
+  "appUpdateLater": "Later",
+  "appUpdateOptionalTitle": "A new update is available",
+  "appUpdateRequiredTitle": "Update required",
+  "appUpdateRequiredMessage": "This version of the app is no longer supported. Please update to continue.",
+  "appMaintenanceTitle": "Under maintenance",
+  "appMaintenanceMessage": "We're improving the app and will be back shortly.",
+  "appMaintenanceBackAt": "Back at {time}",
+  "@appMaintenanceBackAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "cancel": "Cancel",
   "goBack": "Go back",
   "save": "Save",
@@ -21,14 +36,6 @@
   "change": "Change",
   "continueLabel": "Continue",
   "confirmCancellation": "Confirm cancellation",
-  "comingSoon": "{label} coming soon",
-  "@comingSoon": {
-    "placeholders": {
-      "label": {
-        "type": "String"
-      }
-    }
-  },
   "noData": "No data",
   "navHome": "Home",
   "navWallet": "Wallet",
@@ -48,17 +55,6 @@
   "@distanceKmToPickup": {
     "placeholders": {
       "value": {
-        "type": "String"
-      }
-    }
-  },
-  "distanceKmVia": "{value} km via {road}",
-  "@distanceKmVia": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      },
-      "road": {
         "type": "String"
       }
     }
@@ -89,14 +85,6 @@
   },
   "priceLyd": "{amount} LYD",
   "@priceLyd": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "priceSar": "{amount} SAR",
-  "@priceSar": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -209,7 +197,8 @@
   "cancelReasonRequired": "Please write the cancellation reason",
   "cancelReasonHint": "Write the reason here...",
   "tripCancelled": "The trip was cancelled",
-  "walletComingSoon": "Wallet coming soon",
+  "tripCancelledByCustomer": "The customer cancelled the trip",
+  "tripCancelledByManager": "The trip was cancelled by the manager",
   "notificationsChannelName": "Notifications",
   "notificationsChannelDescription": "Ride updates, offers and alerts",
   "welcomeToApp": "Welcome to Smart Taxi",
@@ -291,15 +280,6 @@
   "vehicleModel": "Model",
   "vehicleColor": "Color",
   "vehiclePlate": "Plate number",
-  "settingsSectionAccount": "Account & payments",
-  "settingsSectionSafety": "Safety & support",
-  "settingsFavoritesTitle": "Favorite & saved places",
-  "settingsFavoritesSubtitle": "Home, work, retreat (3 places)",
-  "settingsSupportTitle": "Help & technical support",
-  "settingsSupportSubtitle": "Live chat or phone, around the clock",
-  "settingsTermsTitle": "Terms & privacy",
-  "settingsTermsSubtitle": "Usage policy and data protection",
-  "favoritePlaces": "Favorite places",
   "editPersonalInfo": "Edit personal info",
   "profileSaved": "Your details were saved successfully",
   "errLoadData": "Couldn't load the data",
@@ -357,73 +337,21 @@
   "trackDriverOnTheWay": "The driver is on the way to you",
   "trackDriverAtPickup": "The driver reached the pickup point",
   "tripCompletedSuccess": "Trip completed successfully",
-  "termsAndConditions": "Terms and conditions",
-  "termsAgreePrefix": "I agree to the ",
-  "termsRequired": "You need to accept the terms and conditions to create an account",
-  "termsEmpty": "The terms and conditions have not been published yet.",
+  "privacyPolicy": "Privacy policy",
+  "privacyPolicyAgreePrefix": "I agree to the ",
+  "privacyPolicyRequired": "You need to accept the privacy policy to create an account",
+  "privacyPolicyEmpty": "The privacy policy has not been published yet.",
   "close": "Close",
   "payDriverTitle": "Trip completed",
   "payDriverMessage": "Please pay the driver",
   "payDriverWaiting": "Waiting for the driver to confirm your payment",
   "trackTrip": "Track trip",
-  "cancelTripQuestion": "Cancel the trip?",
-  "cancelTripMessage": "Are you sure you want to cancel this trip? You won't be charged if you cancel within two minutes.",
-  "tripSafety": "Trip safety",
-  "actionCall": "Call",
-  "actionChat": "Chat",
-  "actionShare": "Share",
   "safeTripTitle": "Safe, verified trip",
   "safeTripActive": "Route tracking and location sharing are on",
   "safeTripActivating": "Safety features are being activated",
   "connectionErrorRetrying": "Couldn't reach the server — retrying",
   "connecting": "Connecting...",
   "errLoginRequired": "You must sign in",
-  "pickupPointSelected": "Selected pickup point",
-  "paymentMethodValue": "Payment method: {method}",
-  "@paymentMethodValue": {
-    "placeholders": {
-      "method": {
-        "type": "String"
-      }
-    }
-  },
-  "captainCertified": "Certified captain • {trips}+ trips",
-  "@captainCertified": {
-    "placeholders": {
-      "trips": {
-        "type": "String"
-      }
-    }
-  },
-  "liveCaptainOnTheWay": "The captain is on the way",
-  "liveArrived": "The captain reached the pickup point",
-  "liveInProgress": "You're on your way to the destination",
-  "liveCompleted": "You've arrived at your destination",
-  "liveEtaOnly": "Estimated arrival: only {minutes} minutes",
-  "@liveEtaOnly": {
-    "placeholders": {
-      "minutes": {
-        "type": "String"
-      }
-    }
-  },
-  "liveArrivedSub": "The captain is waiting for you at the pickup point",
-  "liveRemaining": "Time remaining: {minutes} minutes",
-  "@liveRemaining": {
-    "placeholders": {
-      "minutes": {
-        "type": "String"
-      }
-    }
-  },
-  "liveThanks": "Thanks for riding with Smart Taxi",
-  "mockCaptainName": "Abdulrahman Alshammari",
-  "mockVehicleModel": "Toyota Camry 2024",
-  "mockVehicleColor": "Gray",
-  "mockPlateLetters": "A B C",
-  "mockPickupTitle": "In front of the main compound gate",
-  "mockPickupSubtitle": "King Fahd Road, opposite the fountain",
-  "mockPaymentWallet": "Smart Taxi wallet",
   "rideStatusPending": "Pending",
   "rideStatusAcceptedHist": "Accepted",
   "rideStatusArrivedHist": "Driver arrived",
@@ -453,150 +381,159 @@
   "detailEstimatedDuration": "Estimated duration",
   "detailStopsFee": "Stop fees",
   "noRidesYet": "No rides yet",
-  "favoriteAddresses": "Favorite addresses",
-  "favAddressDeleted": "Address deleted",
-  "favSelectOnMapSoon": "Select on map coming soon",
-  "favSearchByNameSoon": "Search by name coming soon",
-  "favPlacesCount": "{count} places",
-  "@favPlacesCount": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "favSort": "Sort",
-  "favEmpty": "No saved addresses",
-  "favEditSoon": "Editing {name} coming soon",
-  "@favEditSoon": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "favCurrentSaved": "Current location saved",
-  "favDeleteTitle": "Delete address?",
-  "favDeleteMessage": "Delete \"{name}\" from your favorite addresses? This can't be undone.",
-  "@favDeleteMessage": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "favMyCurrentLocation": "My current location",
-  "favDefault": "Default",
-  "favOrderRideHere": "Request a ride here now",
-  "favFavoritePlace": "Favorite place",
-  "favSaveCurrent": "Save your current location",
-  "favNearYou": "You're now near: {area}",
-  "@favNearYou": {
-    "placeholders": {
-      "area": {
-        "type": "String"
-      }
-    }
-  },
-  "favSaveOneTap": "Save my current location in one tap",
-  "favAddNew": "Add a new address",
-  "favAddNewSubtitle": "Save your frequent destinations for quick access",
-  "favSelectOnMap": "Select on map",
-  "favSearchByName": "Search by name",
-  "favMockHomeName": "Home",
-  "favMockHomeAddress": "Al Olaya, Prince Sultan St, Villa 14, Riyadh",
-  "favMockHomeNote": "The gray side gate",
-  "favMockWorkName": "Work",
-  "favMockWorkAddress": "Kingdom Tower, King Fahd Rd, Riyadh",
-  "favMockWorkNote": "Basement parking P2",
-  "favMockGymName": "Gym",
-  "favMockGymAddress": "Al Malqa, Anas Bin Malik St, Riyadh",
-  "favMockMomName": "Mom's house",
-  "favMockMomAddress": "Al Yasmin, Specialist St, Riyadh",
-  "favMockCurrentArea": "Sidra Complex, Riyadh",
   "notificationsTitle": "Notifications",
   "notificationsEmpty": "No notifications",
-  "errNotificationsLoad": "Couldn't load notifications",
   "errPlacesSearch": "Search is unavailable right now, please try again",
-  "mockNotif1Title": "Captain Majed is on the way",
-  "mockNotif1Message": "Your captain will arrive in about 3 minutes, get ready to go.",
-  "mockNotif2Title": "20% off your rides",
-  "mockNotif2Message": "Use the promo code \"SMARTTAXI20\" when booking this week.",
-  "mockNotif3Title": "Payment deducted",
-  "mockNotif3Message": "38.50 SYP was deducted from your wallet for your last trip.",
-  "mockNotif4Title": "You arrived at your destination",
-  "mockNotif4Message": "We hope you enjoyed your ride. Don't forget to rate the captain.",
-  "mockNotif5Title": "Special offer for Smart Taxi riders",
-  "mockNotif5Message": "Get a free ride when you invite 3 friends to the app.",
-  "mockNotif6Title": "Privacy policy update",
-  "mockNotif6Message": "We've updated the app's privacy policy and terms of use.",
-  "bookingHeaderConfirm": "Confirm request",
-  "bookingCertifiedCaptains": "Certified & licensed captains",
-  "bookingInstantMatch": "Instant confirmation & matching",
-  "bookingConfirmRide": "Confirm {category} ride",
-  "@bookingConfirmRide": {
+  "locationResolving": "Finding the address...",
+  "locationUnresolved": "No address found for this spot. Move the pin and try again.",
+  "waitingAtPickup": "Waiting at pickup",
+  "waitingFreeLeft": "Free time left: {time}",
+  "@waitingFreeLeft": {
     "placeholders": {
-      "category": {
+      "time": {
         "type": "String"
       }
     }
   },
-  "bookingAgreePrefix": "By tapping confirm, you agree to Smart Taxi's ",
-  "bookingTerms": "Terms of Service",
-  "bookingAgreeAnd": " and ",
-  "bookingPrivacy": "Privacy Policy",
-  "bookingAgreeSuffix": "",
-  "bookingConfirmed": "Your {category} ride was confirmed",
-  "@bookingConfirmed": {
+  "waitingFreeOver": "Free time is over",
+  "waitingFeeFinal": "Waiting fee: {amount}",
+  "@waitingFeeFinal": {
     "placeholders": {
-      "category": {
+      "amount": {
         "type": "String"
       }
     }
   },
-  "bookingChooseType": "Choose ride type",
-  "bookingCategoriesAvailable": "{count} categories available",
-  "@bookingCategoriesAvailable": {
+  "waitingRules": "{minutes} free minutes, then {price} per minute",
+  "@waitingRules": {
     "placeholders": {
-      "count": {
+      "minutes": {
+        "type": "String"
+      },
+      "price": {
         "type": "String"
       }
     }
   },
-  "bookingCompareSpecs": "Compare specs",
-  "bookingPaymentMethod": "Payment method",
-  "bookingCaptainNote": "Note for the captain",
-  "bookingAddNote": "Add a note...",
-  "bookingDragMap": "Drag the map to fine-tune the pickup point",
-  "bookingCapacityEta": "{capacity} seats • {minutes} min",
-  "@bookingCapacityEta": {
+  "fareDistanceFare": "Distance",
+  "fareBaseFare": "Base fare",
+  "fareStopsFee": "Stops",
+  "fareWaiting": "Waiting",
+  "fareWaitingDetail": "{minutes} min × {price}",
+  "@fareWaitingDetail": {
     "placeholders": {
-      "capacity": {
+      "minutes": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "fareTotal": "Total",
+  "pauseTripPaused": "Trip paused",
+  "pauseIncludedLeft": "Included time left: {time}",
+  "@pauseIncludedLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pauseIncludedOver": "Included time is over",
+  "pauseRules": "{base} includes {minutes} minutes, then {price} per minute",
+  "@pauseRules": {
+    "placeholders": {
+      "base": {
         "type": "String"
       },
       "minutes": {
         "type": "String"
-      }
-    }
-  },
-  "bookingEtaMinutes": "{minutes} min",
-  "@bookingEtaMinutes": {
-    "placeholders": {
-      "minutes": {
+      },
+      "price": {
         "type": "String"
       }
     }
   },
-  "bookingMockPickup": "Al Sahafa, Olaya Main Road",
-  "bookingMockDestination": "Riyadh Front - Gate 4",
-  "bookingMockViaRoad": "Thumama Road",
-  "catEconomy": "Economy",
-  "catEconomyBadge": "Best value",
-  "catComfort": "Comfort",
-  "catFamilyXl": "Family XL",
-  "bookingPaymentWallet": "Wallet",
-  "bookingMockNote": "No calls - text...",
-  "bookingMockPromo": "Smart Taxi welcome code applied (15% off)",
-  "locationResolving": "Finding the address...",
-  "locationUnresolved": "No address found for this spot. Move the pin and try again."
+  "pauseFeeTotal": "Pauses: {amount}",
+  "@pauseFeeTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "pauseStopLabel": "Stop during the trip",
+  "driverPauseTrip": "Pause trip",
+  "driverResumeTrip": "Resume trip",
+  "farePauses": "Pauses",
+  "deleteAccount": "Delete my account",
+  "deleteAccountTitle": "Delete your account?",
+  "deleteAccountMessage": "This can't be undone. Your personal data, saved addresses and notifications will be erased and you'll be signed out on every device. Enter your password to confirm.",
+  "deleteAccountPasswordLabel": "Password",
+  "deleteAccountConfirm": "Delete permanently",
+  "deleteAccountDone": "Your account has been deleted",
+  "errIncorrectPassword": "Incorrect password",
+  "driverDeleteMessage": "Your request will be reviewed by a manager. You can keep working until it's approved; then your personal data will be erased and you'll be signed out on every device. Enter your password to confirm.",
+  "driverDeleteReasonLabel": "Reason (optional)",
+  "driverDeleteReasonHint": "Why are you leaving?",
+  "driverDeleteSubmit": "Send request",
+  "driverDeletionPendingTitle": "Deletion request under review",
+  "driverDeletionPendingBody": "A manager will review your request. You can keep working until it's approved.",
+  "driverDeletionCancel": "Cancel request",
+  "driverDeletionRejectedTitle": "Deletion request declined",
+  "errAccountDeleted": "This account has been deleted",
+  "errDeleteActiveRide":"You can't delete your account while a ride is in progress. Finish or cancel it first.",
+  "gpsRequiredTitle": "Turn on location (GPS)",
+  "gpsRequiredMessage": "The app can't be used while location is off. Turn on GPS to continue.",
+  "gpsOpenSettings": "Open location settings",
+  "navRoute": "Route",
+  "routeStartNew": "Start a new route",
+  "routeSummaryTitle": "Route summary",
+  "routeSummaryWaiting": "Waiting at start",
+  "routeSummaryTripTime": "Trip time",
+  "routeSummaryStops": "Stops (coffee)",
+  "routeSummaryDriving": "Driving time",
+  "routeLocationDenied": "Location access is needed to record the route",
+  "farePausesDetail": "×{count} · {time}",
+  "@farePausesDetail": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "accountBlockedTitle": "Your account is temporarily blocked",
+  "accountBlockedRiderMessage": "You can't request new rides while the block is active. A ride already in progress isn't affected.",
+  "accountBlockedDriverMessage": "You won't receive new ride offers while the block is active. A trip already in progress isn't affected.",
+  "accountBlockedUntil": "Blocked until {date}",
+  "@accountBlockedUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "accountBlockedReason": "Reason: {reason}",
+  "@accountBlockedReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "accountBlockedStrikes": "Cancellations: {count} of {limit}",
+  "@accountBlockedStrikes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  }
 }

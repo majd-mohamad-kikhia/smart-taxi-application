@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// Global app theme – Tajawal Arabic font + Mshoar brand colors.
 class AppTheme {
   AppTheme._();
 

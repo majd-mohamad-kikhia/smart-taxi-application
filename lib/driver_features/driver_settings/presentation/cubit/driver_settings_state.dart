@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 
 enum SearchRadiusSaveStatus { idle, saving, success, failure }
 
-/// Immutable state for the driver settings screen's search-radius slider.
 class DriverSettingsState extends Equatable {
   final int searchRadiusKm;
   final SearchRadiusSaveStatus saveStatus;

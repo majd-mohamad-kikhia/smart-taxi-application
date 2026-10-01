@@ -6,8 +6,6 @@ import '../../../../core/localization/app_strings.dart';
 import '../datasources/ride_request_remote_data_source.dart';
 import '../models/ride_quote_model.dart';
 
-/// Structured failure thrown by [RideRequestRepository], so the Cubit
-/// only ever has to catch one exception type.
 class RideRequestException implements Exception {
   final String message;
 
@@ -17,12 +15,9 @@ class RideRequestException implements Exception {
   String toString() => message;
 }
 
-/// Repository for the customer order flow.
-///
-/// The Cubit talks to this, never to [RideRequestRemoteDataSource]
-/// directly. Every `DioException` has already been turned into a
-/// structured [ApiException] by `ApiClient`'s error interceptor, so the
-/// mapping here just unwraps its Arabic message.
+/// Every `DioException` has already been turned into a structured
+/// [ApiException] by `ApiClient`'s error interceptor, so the mapping here
+/// just unwraps its message.
 class RideRequestRepository {
   final RideRequestRemoteDataSource _remoteDataSource;
 

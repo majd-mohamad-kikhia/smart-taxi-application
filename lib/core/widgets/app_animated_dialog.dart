@@ -52,21 +52,33 @@ Future<T?> showAppDialog<T>({
           scale: Tween<double>(begin: 0.82, end: 1.0).animate(curved),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-            child: Center(
-              child: AppAnimatedDialog(
-                title: title,
-                message: message,
-                confirmLabel: confirmLabel,
-                cancelLabel: cancelLabel ?? context.l10n.goBack,
-                icon: icon,
-                tone: tone,
-                content: content,
-                showActions: showActions,
-                onConfirm: () {
-                  Navigator.of(context).pop();
-                  onConfirm?.call();
-                },
-                onCancel: () => Navigator.of(context).pop(),
+            // Sits above the keyboard and scrolls when taller than the space
+            // left, so a focused text field is never hidden behind it.
+            child: AnimatedPadding(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.viewInsetsOf(context).bottom,
+              ),
+              child: SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: AppAnimatedDialog(
+                      title: title,
+                      message: message,
+                      confirmLabel: confirmLabel,
+                      cancelLabel: cancelLabel ?? context.l10n.goBack,
+                      icon: icon,
+                      tone: tone,
+                      content: content,
+                      showActions: showActions,
+                      onConfirm: () {
+                        Navigator.of(context).pop();
+                        onConfirm?.call();
+                      },
+                      onCancel: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -76,7 +88,6 @@ Future<T?> showAppDialog<T>({
   );
 }
 
-/// Polished centered dialog card used by [showAppDialog].
 class AppAnimatedDialog extends StatelessWidget {
   final String title;
   final String? message;
@@ -171,7 +182,6 @@ class AppAnimatedDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Colored top strip
               Container(
                 height: 6,
                 decoration: BoxDecoration(gradient: palette.gradient),
@@ -180,7 +190,6 @@ class AppAnimatedDialog extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
                 child: Column(
                   children: [
-                    // Animated icon badge
                     _PulseIconBadge(
                       icon: icon,
                       palette: palette,
@@ -263,7 +272,6 @@ class _DialogPalette {
   });
 }
 
-/// Soft pulsing icon circle at the top of the dialog.
 class _PulseIconBadge extends StatefulWidget {
   final IconData icon;
   final _DialogPalette palette;

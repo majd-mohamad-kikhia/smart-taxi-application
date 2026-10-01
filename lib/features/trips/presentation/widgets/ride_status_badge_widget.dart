@@ -3,7 +3,6 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/ride_history_model.dart';
 
-/// Small colored pill showing a ride's status.
 class RideStatusBadgeWidget extends StatelessWidget {
   final RideStatus status;
 

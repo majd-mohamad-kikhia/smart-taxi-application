@@ -16,6 +16,9 @@ class ProfileRepository {
   Future<CustomerProfileModel> updateProfile(Map<String, dynamic> fields) =>
       _guard(() => _remote.updateProfile(fields));
 
+  Future<void> deleteAccount(String password) =>
+      _guard(() => _remote.deleteAccount(password));
+
   Future<T> _guard<T>(Future<T> Function() call) async {
     try {
       return await call();
