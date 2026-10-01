@@ -8,7 +8,7 @@ import 'driver_auth_state.dart';
 
 /// Cubit driving driver sign in (and session restore/logout).
 ///
-/// Registered as a singleton (see injection.dart), matching the rider
+/// Registered as a singleton (see injection.dart), matching the customer
 /// `AuthCubit`, so [DriverAuthState.driver] survives navigation from sign
 /// in into the driver app shell.
 class DriverAuthCubit extends Cubit<DriverAuthState> {

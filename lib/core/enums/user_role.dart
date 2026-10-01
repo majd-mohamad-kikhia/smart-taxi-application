@@ -7,16 +7,16 @@ import '../l10n/generated/app_localizations.dart';
 /// role-specific endpoints, and other features may need it later to
 /// tailor navigation or UI to the signed-in account kind.
 enum UserRole {
-  rider,
+  customer,
   driver;
 
   String label(AppLocalizations l10n) => switch (this) {
-        UserRole.rider => l10n.roleRider,
+        UserRole.customer => l10n.roleCustomer,
         UserRole.driver => l10n.roleDriver,
       };
 
   String description(AppLocalizations l10n) => switch (this) {
-        UserRole.rider => l10n.roleRiderDescription,
+        UserRole.customer => l10n.roleCustomerDescription,
         UserRole.driver => l10n.roleDriverDescription,
       };
 }

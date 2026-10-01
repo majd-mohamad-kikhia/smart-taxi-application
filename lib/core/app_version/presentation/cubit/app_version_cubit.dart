@@ -9,6 +9,18 @@ import '../../data/models/app_version_model.dart';
 import '../../data/repositories/app_version_repository.dart';
 import 'app_version_state.dart';
 
+/// What a manual "Try again" on a blocking screen found out.
+enum AppVersionRecheckResult {
+  /// The block is gone and the app continues.
+  cleared,
+
+  /// The server answered, and the app is still under maintenance.
+  stillDown,
+
+  /// The server could not be reached, so nothing is known yet.
+  noConnection,
+}
+
 /// App-wide answer to "may this version of the app continue?".
 ///
 /// Singleton (see injection.dart) so the launch check, the lifecycle
@@ -32,6 +44,9 @@ class AppVersionCubit extends Cubit<AppVersionState> {
   DateTime? _lastCheck;
   bool _busy = false;
   bool _recheckQueued = false;
+
+  /// Whether the last request failed (so its answer is unknown).
+  bool _lastCheckFailed = false;
 
   AppVersionCubit(this._repository, this._locale, this._session)
     : super(const AppVersionChecking()) {
@@ -87,10 +102,12 @@ class AppVersionCubit extends Cubit<AppVersionState> {
       } else if (!isClosed) {
         _checkedApp = app;
         _lastCheck = DateTime.now();
+        _lastCheckFailed = false;
         emit(next);
       }
     } catch (error, stackTrace) {
       // Fail open: a network/server problem must never lock users out.
+      _lastCheckFailed = true;
       debugPrint('App version check failed: $error');
       addError(error, stackTrace);
       if (!isClosed && state is AppVersionChecking) {
@@ -103,6 +120,16 @@ class AppVersionCubit extends Cubit<AppVersionState> {
         unawaited(check());
       }
     }
+  }
+
+  /// A manual "Try again" on a blocking screen: asks now, and says what it
+  /// found, so the screen can tell "still down" from "no connection".
+  Future<AppVersionRecheckResult> recheck() async {
+    await check();
+    if (_lastCheckFailed) return AppVersionRecheckResult.noConnection;
+    return state is AppVersionMaintenance
+        ? AppVersionRecheckResult.stillDown
+        : AppVersionRecheckResult.cleared;
   }
 
   /// `app:version_changed` arrived: ask again after a random 0–3 s delay so

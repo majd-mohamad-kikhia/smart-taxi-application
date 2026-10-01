@@ -5,6 +5,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/validators/auth_validators.dart';
+import '../../../../core/validators/phone_input_formatter.dart';
 import '../../../../core/widgets/privacy_policy_dialog_widget.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
@@ -39,7 +40,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (role == null) {
         Navigator.of(context).pushReplacementNamed(AppRouter.roleSelection);
       } else if (role == UserRole.driver) {
-        // Drivers don't self-register — only riders can sign up.
+        // Drivers don't self-register — only customers can sign up.
         Navigator.of(context).pushReplacementNamed(AppRouter.driverSignIn);
       }
     });
@@ -102,6 +103,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               label: l10n.firstNameLabel,
               hint: l10n.firstNameHint,
               prefixIcon: Icons.person_outline,
+              textCapitalization: TextCapitalization.words,
+              autofillHints: const [AutofillHints.givenName],
               validator: AuthValidators.name,
             ),
             AuthTextFieldWidget(
@@ -109,14 +112,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
               label: l10n.lastNameLabel,
               hint: l10n.lastNameHint,
               prefixIcon: Icons.badge_outlined,
+              textCapitalization: TextCapitalization.words,
+              autofillHints: const [AutofillHints.familyName],
               validator: AuthValidators.name,
             ),
             AuthTextFieldWidget(
               controller: _phoneController,
               label: l10n.phoneNumber,
-              hint: '05xxxxxxxx',
+              hint: '09xxxxxxxx',
               prefixIcon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
+              autofillHints: const [AutofillHints.telephoneNumber],
+              inputFormatters: const [PhoneInputFormatter()],
+              forceLtr: true,
               validator: AuthValidators.phone,
             ),
             AuthTextFieldWidget(
@@ -125,6 +133,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               hint: '••••••••',
               prefixIcon: Icons.lock_outline,
               isPassword: true,
+              autofillHints: const [AutofillHints.newPassword],
+              forceLtr: true,
               validator: AuthValidators.signupPassword,
             ),
             AuthTextFieldWidget(
@@ -134,6 +144,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
               prefixIcon: Icons.lock_outline,
               isPassword: true,
               textInputAction: TextInputAction.done,
+              onSubmitted: _submit,
+              autofillHints: const [AutofillHints.newPassword],
+              forceLtr: true,
               validator: (value) => AuthValidators.confirmPassword(
                 value,
                 _passwordController.text,

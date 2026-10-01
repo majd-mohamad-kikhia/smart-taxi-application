@@ -46,6 +46,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   GoogleMapController? _controller;
   late LatLng _center;
+
+  /// A GPS fix that arrived before the map was created.
+  LatLng? _pendingTarget;
   String? _mapStyle;
   String? _pickedAddress;
 
@@ -78,6 +81,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _pickedAddress = initial?.address;
     if (_pickedAddress != null) {
       _searchController.text = _pickedAddress!;
+    } else if (widget.isPickup) {
+      // The customer is almost always at the pickup: start there instead of
+      // on the default city centre.
+      _isResolvingAddress = true;
+      _startAtCurrentLocation();
     } else {
       // `onCameraIdle` never fires for the initial camera position, only
       // after a user-triggered move — without this, confirming the
@@ -86,6 +94,16 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       _reverseGeocodeCenter();
     }
     _loadMapStyle();
+  }
+
+  /// Moves the pin to the customer's GPS position, quietly: no message if it
+  /// can't (permission off, no signal) — the map just stays on the default
+  /// centre and resolves that address instead.
+  Future<void> _startAtCurrentLocation() async {
+    await _useCurrentLocation(silent: true);
+    if (mounted && _center == _defaultCenter && !_isLocating) {
+      _reverseGeocodeCenter();
+    }
   }
 
   @override
@@ -118,7 +136,14 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             mapToolbarEnabled: false,
-            onMapCreated: (controller) => _controller = controller,
+            onMapCreated: (controller) {
+              _controller = controller;
+              final pending = _pendingTarget;
+              if (pending != null) {
+                _pendingTarget = null;
+                controller.moveCamera(CameraUpdate.newLatLng(pending));
+              }
+            },
             onCameraMove: (position) {
               _center = position.target;
               // The old address belongs to the old pin position; drop it
@@ -379,18 +404,31 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     return isSamePlace ? suggestion.description : null;
   }
 
-  Future<void> _useCurrentLocation() async {
+  /// [silent] is the automatic try on opening: it never shows a message, and
+  /// it leaves the map alone if the customer has already moved it or searched.
+  Future<void> _useCurrentLocation({bool silent = false}) async {
     setState(() => _isLocating = true);
     try {
       final position = await sl<CurrentLocationService>().getCurrentLocation();
       // The GPS fix can arrive after the user has left this screen, at
       // which point the map (and its controller) is already disposed.
       if (!mounted) return;
+      if (silent &&
+          (_center != _defaultCenter || _searchController.text.isNotEmpty)) {
+        return;
+      }
       final target = LatLng(position.latitude, position.longitude);
-      await _controller?.animateCamera(CameraUpdate.newLatLng(target));
+      final controller = _controller;
+      if (controller == null) {
+        // The map isn't built yet; `onMapCreated` moves it there.
+        _pendingTarget = target;
+        _center = target;
+        return;
+      }
+      await controller.animateCamera(CameraUpdate.newLatLng(target));
       if (mounted) setState(() => _center = target);
     } on LocationPermissionDeniedException catch (e) {
-      if (!mounted) return;
+      if (!mounted || silent) return;
       final message = e.reason == LocationFailureReason.serviceDisabled
           ? context.l10n.errLocationServiceOff
           : context.l10n.errLocationDenied;
@@ -493,7 +531,7 @@ class _SuggestionsCard extends StatelessWidget {
               padding: const EdgeInsets.all(AppConstants.paddingL),
               child: Text(
                 errorMessage!,
-                style: const TextStyle(color: AppColors.error, fontSize: 13),
+                style: const TextStyle(color: AppColors.errorText, fontSize: 13),
               ),
             )
           : ListView.separated(

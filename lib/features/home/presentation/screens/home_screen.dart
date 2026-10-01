@@ -12,7 +12,7 @@ import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
-import '../../data/models/ride_quote_model.dart';
+import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/active_ride_card_widget.dart';
@@ -51,7 +51,7 @@ class _HomeView extends StatelessWidget {
           BlocListener<HomeCubit, HomeState>(
             listenWhen: (previous, current) =>
                 previous.quote != current.quote && current.quote != null,
-            listener: (context, state) => _openVehicleSheet(context, state.quote!),
+            listener: (context, state) => _openVehicleSheet(context, state),
           ),
           // The ride was just created — hand off to the live tracking
           // screen, which owns everything from here (accept, GPS, status,
@@ -69,10 +69,9 @@ class _HomeView extends StatelessWidget {
     );
   }
 
-  Future<void> _openVehicleSheet(
-    BuildContext context,
-    RideQuoteModel quote,
-  ) async {
+  Future<void> _openVehicleSheet(BuildContext context, HomeState state) async {
+    final quote = state.quote;
+    if (quote == null) return;
     final cubit = context.read<HomeCubit>();
     final vehicleTypeId = await showModalBottomSheet<int>(
       context: context,
@@ -83,7 +82,11 @@ class _HomeView extends StatelessWidget {
           top: Radius.circular(AppConstants.radiusXL),
         ),
       ),
-      builder: (_) => VehicleTypeSheetWidget(quote: quote),
+      builder: (_) => VehicleTypeSheetWidget(
+        quote: quote,
+        pickupLabel: state.fromLocation?.displayLabel ?? '',
+        dropoffLabel: state.toLocation?.displayLabel ?? '',
+      ),
     );
     if (vehicleTypeId != null) await cubit.chooseVehicle(vehicleTypeId);
   }
@@ -123,6 +126,9 @@ class _HomeBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final hasActiveRide = state.hasActiveRide;
+    // While a quote or booking is in flight, a changed pin would leave the
+    // prices (or the ride) for a different trip than the one on screen.
+    final isLocked = hasActiveRide || state.isBusy;
 
     return SafeArea(
       child: Padding(
@@ -162,7 +168,7 @@ class _HomeBody extends StatelessWidget {
                       accentColor: AppColors.primary,
                       value: state.fromLocation,
                       placeholder: l10n.pickPickupPoint,
-                      onTap: hasActiveRide
+                      onTap: isLocked
                           ? null
                           : () => _pickLocation(
                               context,
@@ -181,7 +187,7 @@ class _HomeBody extends StatelessWidget {
                       accentColor: AppColors.accent,
                       value: state.toLocation,
                       placeholder: l10n.pickDestination,
-                      onTap: hasActiveRide
+                      onTap: isLocked
                           ? null
                           : () => _pickLocation(
                               context,
@@ -208,13 +214,13 @@ class _HomeBody extends StatelessWidget {
               AppDestructiveButtonWidget(
                 label: l10n.cancelRequest,
                 isLoading: state.isCancelling,
-                onPressed: () => context.read<HomeCubit>().cancelRide(),
+                onPressed: () => _confirmCancel(context),
               )
             else
               // A block only stops new orders — a ride in progress (the
               // cancel button above) is unaffected.
               AccountBlockGateWidget(
-                blockedMessage: l10n.accountBlockedRiderMessage,
+                blockedMessage: l10n.accountBlockedCustomerMessage,
                 child: AuthPrimaryButtonWidget(
                   label: l10n.search,
                   isLoading: state.isSearching || state.isBooking,
@@ -227,6 +233,18 @@ class _HomeBody extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Asks for a reason first, like the tracking screen, so a request can't
+  /// be cancelled by one stray tap.
+  Future<void> _confirmCancel(BuildContext context) async {
+    final cubit = context.read<HomeCubit>();
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (_) =>
+          CancelReasonDialogWidget(title: context.l10n.cancelRequest),
+    );
+    if (reason != null) cubit.cancelRide(reason: reason);
   }
 
   Future<void> _pickLocation(

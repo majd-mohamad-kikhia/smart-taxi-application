@@ -12,6 +12,9 @@ class ApiEndpoints {
   // ─── Privacy policy (public) ───────────────────────────────
   String get privacyPolicy => '/api/privacy-policy';
 
+  // ─── Contact us numbers (public) ───────────────────────────
+  String get contactNumbers => '/api/contact-numbers';
+
   // ─── App version (public) ──────────────────────────────────
   String get appVersionCheck => '/api/app/version-check';
 
@@ -29,6 +32,10 @@ class ApiEndpoints {
 
   // ─── Customer Notifications ────────────────────────────────
   String get customerNotifications => '/api/customer/notifications';
+  String customerNotificationRead(int id) =>
+      '/api/customer/notifications/$id/read';
+  String get customerNotificationsReadAll =>
+      '/api/customer/notifications/read-all';
 
   // ─── Customer Rides ────────────────────────────────────────
   String get customerRides => '/api/customer/rides';

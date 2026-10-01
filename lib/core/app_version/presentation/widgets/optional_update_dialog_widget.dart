@@ -7,9 +7,12 @@ import '../../data/models/app_version_model.dart';
 import '../cubit/app_version_cubit.dart';
 import 'app_version_update_button_widget.dart';
 
-/// "A new version is available" dialog over the normal flow. Anything other
-/// than "Update" (the "Later" button, or backing out) counts as "Later": the
-/// choice is remembered so the dialog only returns for a newer release.
+/// "A new version is available" dialog over the normal flow. Only its two
+/// buttons decide: "Update" opens the store, and "Later" is remembered so the
+/// dialog only returns for a newer release. A stray tap on the scrim or the
+/// Back button does nothing, and neither does the dialog being closed because
+/// something more serious (a required update, maintenance) took over — none
+/// of those is a choice, so none is remembered as "Later".
 Future<void> showOptionalUpdateDialog(
   BuildContext context,
   AppVersionModel info,
@@ -18,7 +21,7 @@ Future<void> showOptionalUpdateDialog(
   final cubit = context.read<AppVersionCubit>();
   final messenger = ScaffoldMessenger.of(context);
   final notes = info.releaseNotes;
-  var updating = false;
+  var choseLater = false;
 
   await showAppDialog<void>(
     context: context,
@@ -27,21 +30,20 @@ Future<void> showOptionalUpdateDialog(
     icon: Icons.system_update_rounded,
     confirmLabel: l10n.appUpdateAction,
     cancelLabel: l10n.appUpdateLater,
+    barrierDismissible: false,
     content: notes == null
         ? null
         : Text(
             notes,
-            style: const TextStyle(
-              fontSize: 13,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               height: 1.5,
               color: AppColors.textTertiary,
             ),
           ),
-    onConfirm: () {
-      updating = true;
-      AppVersionUpdateButtonWidget.launch(messenger, info.storeUrl);
-    },
+    onConfirm: () =>
+        AppVersionUpdateButtonWidget.launch(messenger, info.storeUrl),
+    onCancel: () => choseLater = true,
   );
 
-  if (!updating) await cubit.skipOptional(info);
+  if (choseLater) await cubit.skipOptional(info);
 }

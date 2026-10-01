@@ -1,81 +1,126 @@
 import 'package:flutter/material.dart';
-import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/format_date.dart';
 import '../../data/models/notification_model.dart';
 
+/// One notification. An unread one is on the yellow wash with a bold title
+/// and a "New" label with a dot, so it never relies on color alone. The whole
+/// card is one button (it marks the notification read and, when it is about
+/// a trip, opens it) read as a single sentence.
 class NotificationCardWidget extends StatelessWidget {
   final NotificationModel notification;
+  final VoidCallback onTap;
 
-  const NotificationCardWidget({super.key, required this.notification});
+  const NotificationCardWidget({
+    super.key,
+    required this.notification,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _TypeIconWidget(type: notification.type),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  notification.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                if (notification.message.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    notification.message,
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      color: AppColors.textSecondary,
-                      height: 1.4,
+    final l10n = context.l10n;
+    final textTheme = Theme.of(context).textTheme;
+    final isUnread = !notification.isRead;
+    final date = formatDateTimeValue(context, notification.sentAt);
+    final hasMessage = notification.message.isNotEmpty;
+
+    return Semantics(
+      button: true,
+      excludeSemantics: true,
+      onTap: onTap,
+      label: [
+        if (isUnread) l10n.notificationNew,
+        notification.title,
+        if (hasMessage) notification.message,
+        date,
+      ].join('. '),
+      child: AnimatedContainer(
+        duration: AppConstants.animFast,
+        decoration: BoxDecoration(
+          color: isUnread ? AppColors.primarySurface : AppColors.backgroundWhite,
+          borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+          border: Border.all(
+            color: isUnread
+                ? AppColors.primary.withValues(alpha: 0.4)
+                : AppColors.border,
+          ),
+        ),
+        // The ink lives on a Material above the fill, so the ripple shows.
+        child: Material(
+          color: AppColors.transparent,
+          borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+            child: Padding(
+              padding: const EdgeInsets.all(AppConstants.paddingL),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _TypeIconWidget(type: notification.type),
+                  const SizedBox(width: AppConstants.paddingM),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          notification.title,
+                          style: textTheme.titleSmall?.copyWith(
+                            fontWeight:
+                                isUnread ? FontWeight.w800 : FontWeight.w600,
+                          ),
+                        ),
+                        if (hasMessage) ...[
+                          const SizedBox(height: AppConstants.paddingXS),
+                          Text(
+                            notification.message,
+                            style: textTheme.bodyMedium?.copyWith(height: 1.4),
+                          ),
+                        ],
+                        const SizedBox(height: AppConstants.paddingS),
+                        Wrap(
+                          spacing: AppConstants.paddingM,
+                          runSpacing: AppConstants.paddingXS,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(date, style: textTheme.bodySmall),
+                            if (isUnread)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: AppConstants.paddingXS),
+                                  Text(
+                                    l10n.notificationNew,
+                                    style: textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
-                const SizedBox(height: 8),
-                Text(
-                  _formatSentAt(context.l10n, notification.sentAt),
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textTertiary,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
-  }
-
-  /// Time only for today's notifications, otherwise date + time.
-  String _formatSentAt(AppLocalizations l10n, DateTime dt) {
-    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
-    final period = dt.hour >= 12 ? l10n.timePm : l10n.timeAm;
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final time = '$hour:$minute $period';
-
-    final now = DateTime.now();
-    if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
-      return time;
-    }
-    final month = dt.month.toString().padLeft(2, '0');
-    final day = dt.day.toString().padLeft(2, '0');
-    return '${dt.year}/$month/$day  $time';
   }
 }
 

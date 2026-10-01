@@ -48,54 +48,70 @@ class _DriverTripView extends StatelessWidget {
       canPop: false,
       child: Scaffold(
         backgroundColor: AppColors.backgroundGray,
-        body: BlocConsumer<DriverTripCubit, DriverTripState>(
-          listenWhen: (previous, current) =>
-              (!previous.isCancelled && current.isCancelled) ||
-              (previous.status != DriverTripStatus.completed &&
-                  current.status == DriverTripStatus.completed) ||
-              (current.errorMessage != null &&
-                  current.errorMessage != previous.errorMessage),
-          listener: (context, state) {
-            if (state.isCancelled) {
-              // A cancel from the customer can land while the cancel-reason
-              // or another dialog is open: close those, then this screen.
-              final navigator = Navigator.of(context);
-              final tripRoute = ModalRoute.of(context);
-              navigator.popUntil((route) => route == tripRoute || route.isFirst);
-              navigator.pop();
-              showAppSnackBar(
-                context,
-                switch (state.cancelledBy) {
-                  RideCancelledBy.customer => context.l10n.tripCancelledByCustomer,
-                  RideCancelledBy.manager => context.l10n.tripCancelledByManager,
-                  _ => context.l10n.tripCancelled,
-                },
-                type: AppSnackBarType.error,
-              );
-            } else if (state.status == DriverTripStatus.completed) {
-              _showFareAndExit(context);
-            } else if (state.errorMessage != null) {
-              showAppSnackBar(
+        body: MultiBlocListener(
+          // Each listener reacts to one thing happening once. (They used to
+          // be one listener that re-opened the fare dialog whenever an error
+          // arrived while the trip was completed, so a failed payment
+          // confirmation stacked a second dialog.)
+          listeners: [
+            BlocListener<DriverTripCubit, DriverTripState>(
+              listenWhen: (previous, current) =>
+                  !previous.isCancelled && current.isCancelled,
+              listener: (context, state) {
+                // A cancel from the customer can land while the cancel-reason
+                // or another dialog is open: close those, then this screen.
+                final navigator = Navigator.of(context);
+                final tripRoute = ModalRoute.of(context);
+                navigator.popUntil((route) => route == tripRoute || route.isFirst);
+                navigator.pop();
+                showAppSnackBar(
+                  context,
+                  switch (state.cancelledBy) {
+                    RideCancelledBy.customer => context.l10n.tripCancelledByCustomer,
+                    RideCancelledBy.manager => context.l10n.tripCancelledByManager,
+                    _ => context.l10n.tripCancelled,
+                  },
+                  type: AppSnackBarType.error,
+                );
+              },
+            ),
+            BlocListener<DriverTripCubit, DriverTripState>(
+              listenWhen: (previous, current) =>
+                  previous.status != DriverTripStatus.completed &&
+                  current.status == DriverTripStatus.completed,
+              listener: (context, state) => _showFareAndExit(context),
+            ),
+            BlocListener<DriverTripCubit, DriverTripState>(
+              // Once the trip is completed, errors (a failed payment
+              // confirmation) show inside the fare dialog instead.
+              listenWhen: (previous, current) =>
+                  !current.isCancelled &&
+                  current.status != DriverTripStatus.completed &&
+                  current.errorMessage != null &&
+                  current.errorMessage != previous.errorMessage,
+              listener: (context, state) => showAppSnackBar(
                 context,
                 state.errorMessage!,
                 type: AppSnackBarType.error,
+              ),
+            ),
+          ],
+          child: BlocBuilder<DriverTripCubit, DriverTripState>(
+            builder: (context, state) {
+              if (state.status == DriverTripStatus.inProgress) {
+                return _InProgressView(state: state);
+              }
+              return Stack(
+                children: [
+                  DriverPickupMapWidget(
+                    pickupLat: state.order.pickupLat,
+                    pickupLng: state.order.pickupLng,
+                  ),
+                  _BottomPanel(state: state),
+                ],
               );
-            }
-          },
-          builder: (context, state) {
-            if (state.status == DriverTripStatus.inProgress) {
-              return _InProgressView(state: state);
-            }
-            return Stack(
-              children: [
-                DriverPickupMapWidget(
-                  pickupLat: state.order.pickupLat,
-                  pickupLng: state.order.pickupLng,
-                ),
-                _BottomPanel(state: state),
-              ],
-            );
-          },
+            },
+          ),
         ),
       ),
     );
@@ -113,6 +129,7 @@ Future<void> _showFareAndExit(BuildContext context) async {
   await showDialog<void>(
     context: context,
     barrierDismissible: false,
+    barrierColor: AppColors.scrim,
     builder: (_) => PopScope(
       canPop: false,
       child: BlocProvider<DriverTripCubit>.value(

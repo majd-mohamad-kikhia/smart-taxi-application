@@ -81,13 +81,16 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(clearActiveRide: true, clearQuote: true, clearLocations: true));
   }
 
-  Future<void> cancelRide() async {
+  Future<void> cancelRide({String? reason}) async {
     final ride = state.activeRide;
     if (ride == null || isClosed) return;
 
     emit(state.copyWith(isCancelling: true, clearError: true));
     try {
-      await _repository.cancelRide(rideId: ride.id);
+      await _repository.cancelRide(
+        rideId: ride.id,
+        cancellationReason: reason,
+      );
       if (isClosed) return;
       emit(state.copyWith(
         isCancelling: false,

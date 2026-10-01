@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
-import 'driver_wallet_fines_screen.dart';
+import '../../../../core/widgets/app_loader_widget.dart';
+import '../../../../core/widgets/auth_error_banner_widget.dart';
+import '../../data/models/driver_financial_report_model.dart';
 import '../cubit/driver_financial_report_cubit.dart';
 import '../cubit/driver_financial_report_state.dart';
 import '../widgets/wallet_stat_card_widget.dart';
 import '../widgets/wallet_statement_summary_card_widget.dart';
+import 'driver_wallet_fines_screen.dart';
 
 List<String> _monthNames(AppLocalizations l10n) => [
   l10n.monthJan,
@@ -26,27 +31,16 @@ List<String> _monthNames(AppLocalizations l10n) => [
   l10n.monthDec,
 ];
 
-/// Groups [value] in thousands ("12,500"); with [withCurrency] the amount
-/// is wrapped in the localized currency label.
-String _formatAmount(
-  AppLocalizations l10n,
-  num value, {
-  bool withCurrency = true,
-}) {
-  final isNegative = value < 0;
-  final digits = value.abs().round().toString();
-  final buffer = StringBuffer();
-  for (var i = 0; i < digits.length; i++) {
-    if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(',');
-    buffer.write(digits[i]);
-  }
-  final amount = '${isNegative ? '-' : ''}$buffer';
-  return withCurrency ? l10n.priceSyp(amount) : amount;
-}
+/// The earliest month the financial-report endpoint accepts.
+const int _firstYear = 2020;
 
 /// Driver wallet tab — monthly financial statement, backed entirely by
 /// `GET /api/driver/financial-report`. The fines card drills into the
 /// itemized feed from `/api/driver/wallet`.
+///
+/// While a month loads there is a loader, never zeros; another month's
+/// numbers never stay on screen under this month's label; and a failure
+/// says so with a Retry.
 class DriverWalletScreen extends StatefulWidget {
   const DriverWalletScreen({super.key});
 
@@ -71,22 +65,26 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
     super.dispose();
   }
 
+  /// The selected (year, month): `DateTime` rolls the year over correctly in
+  /// both directions.
   (int, int) get _selectedYearMonth {
     final now = DateTime.now();
-    final total = now.month - 1 + _monthOffset;
-    final year = now.year + total ~/ 12;
-    final month = total % 12 + 1;
-    return (year, month);
+    final selected = DateTime(now.year, now.month + _monthOffset);
+    return (selected.year, selected.month);
   }
+
+  bool get _canGoBack =>
+      _selectedYearMonth.$1 > _firstYear ||
+      (_selectedYearMonth.$1 == _firstYear && _selectedYearMonth.$2 > 1);
 
   String _monthLabel(AppLocalizations l10n) {
     final (year, month) = _selectedYearMonth;
     return '${_monthNames(l10n)[month - 1]} $year';
   }
 
-  void _loadReport() {
+  Future<void> _loadReport() {
     final (year, month) = _selectedYearMonth;
-    _reportCubit.load(year: year, month: month);
+    return _reportCubit.load(year: year, month: month);
   }
 
   void _changeMonth(int delta) {
@@ -98,11 +96,6 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
     Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (_) => const DriverWalletFinesScreen()));
-  }
-
-  Future<void> _refresh() {
-    final (year, month) = _selectedYearMonth;
-    return _reportCubit.load(year: year, month: month);
   }
 
   @override
@@ -121,129 +114,226 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
           return RefreshIndicator(
             color: AppColors.primary,
             backgroundColor: AppColors.backgroundWhite,
-            onRefresh: _refresh,
+            onRefresh: _loadReport,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppConstants.paddingL),
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Start side = previous month, end side = next month.
-                    // These icons mirror themselves in RTL, so the arrows
-                    // point the right way in both languages.
-                    IconButton(
-                      icon: const Icon(Icons.chevron_left_rounded),
-                      color: AppColors.textSecondary,
-                      onPressed: () => _changeMonth(-1),
-                    ),
-                    SizedBox(
-                      width: 140,
-                      child: Text(
-                        _monthLabel(l10n),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.chevron_right_rounded),
-                      color: AppColors.textSecondary,
-                      onPressed: _monthOffset < 0
-                          ? () => _changeMonth(1)
-                          : null,
-                    ),
-                  ],
+                _MonthStepper(
+                  label: _monthLabel(l10n),
+                  onPrevious: _canGoBack ? () => _changeMonth(-1) : null,
+                  onNext: _monthOffset < 0 ? () => _changeMonth(1) : null,
                 ),
-                const SizedBox(height: 8),
-                if (state.errorMessage != null && report == null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Text(
-                      state.errorMessage!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppColors.error),
+                const SizedBox(height: AppConstants.paddingS),
+                if (report == null && state.errorMessage != null)
+                  _WalletError(
+                    message: state.errorMessage!,
+                    onRetry: _loadReport,
+                  )
+                else if (report == null)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: AppConstants.paddingXXL * 2,
                     ),
+                    child: AppLoaderWidget(),
                   )
                 else ...[
-                  WalletStatementSummaryCardWidget(
-                    amountOwed: _formatAmount(l10n, report?.walletBalance ?? 0),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: WalletStatCardWidget(
-                          label: l10n.walletFines,
-                          value: _formatAmount(
-                            l10n,
-                            report?.finesTotal ?? 0,
-                            withCurrency: false,
-                          ),
-                          icon: Icons.warning_amber_rounded,
-                          iconColor: AppColors.error,
-                          iconBackground: AppColors.errorSurface,
-                          onTap: () => _openFines(context),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: WalletStatCardWidget(
-                          label: l10n.walletTotalCommissions,
-                          value: _formatAmount(
-                            l10n,
-                            report?.managerEarnings ?? 0,
-                            withCurrency: false,
-                          ),
-                          icon: Icons.percent_rounded,
-                          iconColor: AppColors.primary,
-                          iconBackground: AppColors.primarySurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  WalletStatCardWidget(
-                    label: l10n.walletBonuses,
-                    value: _formatAmount(
-                      l10n,
-                      report?.rewardsTotal ?? 0,
-                      withCurrency: false,
-                    ),
-                    icon: Icons.card_giftcard_rounded,
-                    iconColor: AppColors.accent,
-                    iconBackground: AppColors.accentSurface,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: WalletStatCardWidget(
-                          label: l10n.walletCompletedTrips,
-                          value: l10n.walletTripsCount(
-                            '${report?.ordersCount ?? 0}',
-                          ),
-                          valueColor: AppColors.accent,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: WalletStatCardWidget(
-                          label: l10n.walletMonthlyIncome,
-                          value: _formatAmount(l10n, report?.netIncome ?? 0),
-                          valueColor: AppColors.primary,
-                        ),
-                      ),
-                    ],
+                  // A refresh that failed keeps the numbers and says so.
+                  if (state.errorMessage != null) ...[
+                    AuthErrorBannerWidget(message: state.errorMessage!),
+                    const SizedBox(height: AppConstants.paddingM),
+                  ],
+                  _Statement(
+                    report: report,
+                    onOpenFines: () => _openFines(context),
                   ),
                 ],
               ],
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Previous / next month around the month's name. The month announces
+/// itself to screen readers when it changes.
+class _MonthStepper extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
+
+  const _MonthStepper({
+    required this.label,
+    required this.onPrevious,
+    required this.onNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Start side = previous month, end side = next month. These icons
+        // mirror themselves in RTL, so the arrows point the right way in
+        // both languages.
+        IconButton(
+          tooltip: l10n.walletPreviousMonth,
+          icon: const Icon(Icons.chevron_left_rounded),
+          color: AppColors.textSecondary,
+          onPressed: onPrevious,
+        ),
+        Flexible(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 140),
+            child: Semantics(
+              header: true,
+              liveRegion: true,
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+        ),
+        IconButton(
+          tooltip: l10n.walletNextMonth,
+          icon: const Icon(Icons.chevron_right_rounded),
+          color: AppColors.textSecondary,
+          onPressed: onNext,
+        ),
+      ],
+    );
+  }
+}
+
+/// The hero balance and the grid of the month's figures. Only the balance
+/// is yellow; earnings are green, bonuses amber, fines red, and the rest
+/// neutral. Every money figure carries its currency.
+class _Statement extends StatelessWidget {
+  final DriverFinancialReportModel report;
+  final VoidCallback onOpenFines;
+
+  const _Statement({required this.report, required this.onOpenFines});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    String money(double amount) => l10n.priceSyp(formatPrice(amount));
+
+    return Column(
+      children: [
+        WalletStatementSummaryCardWidget(balance: report.walletBalance),
+        const SizedBox(height: AppConstants.paddingL),
+        Row(
+          children: [
+            Expanded(
+              child: WalletStatCardWidget(
+                label: l10n.walletEarnings,
+                value: money(report.driverEarnings),
+                icon: Icons.trending_up_rounded,
+                iconColor: AppColors.success,
+                iconBackground: AppColors.successSurface,
+              ),
+            ),
+            const SizedBox(width: AppConstants.paddingM),
+            Expanded(
+              child: WalletStatCardWidget(
+                label: l10n.walletCompletedTrips,
+                value: l10n.walletTripsCount('${report.ordersCount}'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppConstants.paddingM),
+        Row(
+          children: [
+            Expanded(
+              child: WalletStatCardWidget(
+                label: l10n.walletBonuses,
+                value: money(report.rewardsTotal),
+                icon: Icons.card_giftcard_rounded,
+                iconColor: AppColors.accent,
+                iconBackground: AppColors.accentSurface,
+              ),
+            ),
+            const SizedBox(width: AppConstants.paddingM),
+            Expanded(
+              child: WalletStatCardWidget(
+                label: l10n.walletTotalCommissions,
+                value: money(report.managerEarnings),
+                icon: Icons.percent_rounded,
+                iconColor: AppColors.textSecondary,
+                iconBackground: AppColors.backgroundMuted,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppConstants.paddingM),
+        Row(
+          children: [
+            Expanded(
+              child: WalletStatCardWidget(
+                label: l10n.walletFines,
+                value: money(report.finesTotal),
+                icon: Icons.warning_amber_rounded,
+                iconColor: AppColors.error,
+                iconBackground: AppColors.errorSurface,
+                onTap: onOpenFines,
+              ),
+            ),
+            const SizedBox(width: AppConstants.paddingM),
+            Expanded(
+              child: WalletStatCardWidget(
+                label: l10n.walletMonthlyIncome,
+                value: formatSignedPrice(l10n, report.netIncome),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _WalletError extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _WalletError({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingXXL),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            size: 40,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(height: AppConstants.paddingM),
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ),
+          const SizedBox(height: AppConstants.paddingL),
+          ElevatedButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: Text(context.l10n.retry),
+          ),
+        ],
       ),
     );
   }

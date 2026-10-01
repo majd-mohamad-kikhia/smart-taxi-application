@@ -189,11 +189,11 @@ void main() {
       expect(cubit.state, isA<AppVersionForceUpdate>());
     });
 
-    test('choosing the rider role does not ask again', () async {
+    test('choosing the customer role does not ask again', () async {
       repository.answers.add(_info(AppVersionStatus.ok));
       await cubit.check();
 
-      cubit.onRoleChosen(UserRole.rider);
+      cubit.onRoleChosen(UserRole.customer);
       await Future<void>.delayed(Duration.zero);
 
       expect(repository.askedApps, hasLength(1));

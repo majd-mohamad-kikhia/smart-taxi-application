@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../cubit/gps_status_cubit.dart';
 import '../cubit/gps_status_state.dart';
@@ -68,12 +69,12 @@ class _DriverGpsGuardWidgetState extends State<DriverGpsGuardWidget>
                 ),
               ),
               if (isBlocked) ...[
-                const ModalBarrier(dismissible: false, color: AppColors.scrimStrong),
-                Center(
-                  child: GpsRequiredDialogWidget(
-                    onOpenSettings: _cubit.openSettings,
-                  ),
+                ModalBarrier(
+                  dismissible: false,
+                  color: AppColors.scrimStrong,
+                  semanticsLabel: context.l10n.gpsRequiredTitle,
                 ),
+                GpsRequiredDialogWidget(onOpenSettings: _cubit.openSettings),
               ],
             ],
           ),

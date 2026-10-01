@@ -15,6 +15,12 @@ class DriverAccountDeletionCubit extends Cubit<DriverAccountDeletionState> {
   DriverAccountDeletionCubit(this._repository)
     : super(const DriverAccountDeletionState());
 
+  /// Forgets the last submit error, so reopening the dialog starts clean.
+  void clearSubmitError() {
+    if (isClosed || state.submitError == null) return;
+    emit(state.copyWith(clearSubmitError: true));
+  }
+
   Future<void> load() async {
     if (isClosed) return;
     emit(state.copyWith(isLoading: true, clearLoadError: true));

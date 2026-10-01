@@ -19,7 +19,10 @@
   "appUpdateRequiredMessage": "This version of the app is no longer supported. Please update to continue.",
   "appMaintenanceTitle": "Under maintenance",
   "appMaintenanceMessage": "We're improving the app and will be back shortly.",
-  "appMaintenanceBackAt": "Back at {time}",
+  "appMaintenanceBackAt": "Back: {time}",
+  "appMaintenanceAnyMinute": "Should be back any minute",
+  "appMaintenanceStillDown": "Still under maintenance. Try again in a little while.",
+  "appUpdateStoreFailed": "Couldn't open the store. Open it yourself, search for Smart Taxi and update.",
   "@appMaintenanceBackAt": {
     "placeholders": {
       "time": {
@@ -37,6 +40,8 @@
   "continueLabel": "Continue",
   "confirmCancellation": "Confirm cancellation",
   "noData": "No data",
+  "loading": "Loading",
+  "loadMoreFailed": "Couldn't load more",
   "navHome": "Home",
   "navWallet": "Wallet",
   "navProfile": "Profile",
@@ -83,16 +88,10 @@
       }
     }
   },
-  "priceLyd": "{amount} LYD",
-  "@priceLyd": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "phoneNumber": "Phone number",
   "password": "Password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
   "confirmPassword": "Confirm password",
   "email": "Email",
   "address": "Address",
@@ -174,15 +173,16 @@
   "errLocationDenied": "Location permission was denied",
   "errEnableGps": "Please turn on location services (GPS) in your device settings",
   "errEnableLocationPermission": "Please allow the app to use your location in your device settings",
-  "roleRider": "Rider",
+  "roleCustomer": "Rider",
   "roleDriver": "Captain",
-  "roleRiderDescription": "Book your rides and get around easily and safely",
-  "roleDriverDescription": "Join as a driver and start receiving rides",
+  "roleCustomerDescription": "Book your rides and get around easily and safely",
+  "roleDriverDescription": "Sign in to your driver account. Accounts are created by the company",
+  "forgotPasswordContactSupport": "Forgot your password? Contact support",
   "logoutTitle": "Log out?",
   "logoutConfirm": "Log out",
   "logoutFromAccount": "Log out of account",
   "logoutMessageDriver": "Are you sure you want to log out of your account?",
-  "logoutMessageRider": "Are you sure you want to log out of your account? You'll need to sign in again to continue.",
+  "logoutMessageCustomer": "Are you sure you want to log out of your account? You'll need to sign in again to continue.",
   "complaintSend": "Send a report",
   "complaintSubjectLabel": "Subject (optional)",
   "complaintSubjectHint": "A short title for the report",
@@ -193,9 +193,17 @@
   "complaintSendFailed": "Couldn't send the report",
   "complaintSent": "Report sent successfully",
   "cancelTrip": "Cancel trip",
-  "cancelTripReasonPrompt": "Please write the reason for cancelling the trip",
+  "cancelTripReasonChoosePrompt": "Choose a reason for cancelling the trip",
   "cancelReasonRequired": "Please write the cancellation reason",
-  "cancelReasonHint": "Write the reason here...",
+  "cancelReasonPick": "Choose a reason",
+  "cancelReasonWaitingTooLong": "Waiting too long",
+  "cancelReasonWrongLocation": "Wrong or unclear location",
+  "cancelReasonCannotReach": "Could not reach the other person",
+  "cancelReasonPlansChanged": "Plans changed",
+  "cancelReasonOther": "Other",
+  "cancelReasonNoteHint": "Add a note (optional)",
+  "cancelReasonNoteRequiredHint": "Describe the reason",
+  "cancelLimitWarning": "Cancelling too often can block your account.",
   "tripCancelled": "The trip was cancelled",
   "tripCancelledByCustomer": "The customer cancelled the trip",
   "tripCancelledByManager": "The trip was cancelled by the manager",
@@ -230,7 +238,13 @@
   "driverAvailabilityPaused": "Going online is disabled until your account is activated",
   "presenceOnline": "Available for trips",
   "presenceConnecting": "Connecting...",
-  "presenceOffline": "Unavailable",
+  "presenceYouAreOnline": "You're online",
+  "presenceYouAreOffline": "You're offline",
+  "presenceGoOnline": "Go online",
+  "presenceGoOffline": "Go offline",
+  "goOfflineConfirmTitle": "Go offline?",
+  "goOfflineConfirmMessage": "You'll stop receiving trip requests, and the offers on screen will disappear.",
+  "driverReconnectingStale": "Reconnecting… these offers may be out of date",
   "locationSharingTitle": "You're available for trips",
   "locationSharingText": "Your location is shared with the dispatcher while you're available",
   "locationSharingChannel": "Location sharing",
@@ -244,6 +258,10 @@
   "paymentCommissionDeducted": "Commission deducted from wallet",
   "paymentWalletBalance": "Wallet balance",
   "fareSummaryTitle": "Trip completed",
+  "fareCollectFromCustomer": "Collect from the customer",
+  "fareDetails": "Fare details",
+  "finishTripConfirmTitle": "Finish the trip?",
+  "finishTripConfirmMessage": "The fare will be calculated from the route driven so far. You'll then collect payment from the customer.",
   "fareFinalPrice": "Final price",
   "fareEstimatedPrice": "Estimated price",
   "fareDifference": "Difference",
@@ -254,6 +272,19 @@
   "driverReportArrival": "I've arrived",
   "driverFinishTrip": "Finish trip",
   "walletFines": "Administrative fines",
+  "walletBalanceHint": "Commissions are taken from this balance",
+  "walletPreviousMonth": "Previous month",
+  "walletNextMonth": "Next month",
+  "walletEarnings": "Trip earnings",
+  "walletBalanceAfter": "Balance after: {amount}",
+  "@walletBalanceAfter": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "txReward": "Reward",
   "walletNoFines": "No fines",
   "walletTotalCommissions": "Total commissions",
   "walletBonuses": "Bonuses",
@@ -272,8 +303,8 @@
   "txPenalty": "Penalty",
   "txCompensation": "Compensation",
   "profileName": "Name",
-  "profileRating": "Rating",
-  "profileNoRatingYet": "None yet",
+  "profileStatusRejectedNote": "Your application wasn't approved. Contact support for details",
+  "profileNoVehicle": "No vehicle is registered to your account yet",
   "profileWalletBalance": "Wallet balance",
   "vehicleInfo": "Vehicle details",
   "vehicleType": "Type",
@@ -324,6 +355,19 @@
   "pickVehicleType": "Choose vehicle type",
   "priceEstimateNote": "The price is an estimate and may differ with the actual route",
   "notAvailableNow": "Currently unavailable",
+  "priceUnavailable": "Price unavailable",
+  "noVehiclesAvailable": "No vehicles are available for this trip right now. Try again in a few minutes.",
+  "requestVehicle": "Request {name} · {price}",
+  "@requestVehicle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "confirmLocation": "Confirm location",
   "searchPlaceHint": "Search for a place...",
   "mapLocationFallback": "Location on the map",
@@ -346,9 +390,6 @@
   "payDriverMessage": "Please pay the driver",
   "payDriverWaiting": "Waiting for the driver to confirm your payment",
   "trackTrip": "Track trip",
-  "safeTripTitle": "Safe, verified trip",
-  "safeTripActive": "Route tracking and location sharing are on",
-  "safeTripActivating": "Safety features are being activated",
   "connectionErrorRetrying": "Couldn't reach the server — retrying",
   "connecting": "Connecting...",
   "errLoginRequired": "You must sign in",
@@ -380,8 +421,55 @@
   "detailDistance": "Distance",
   "detailEstimatedDuration": "Estimated duration",
   "detailStopsFee": "Stop fees",
+  "detailPaymentPaid": "Paid",
+  "detailPaymentUnpaid": "Waiting for payment",
+  "detailStopLabel": "Stop {number}",
+  "@detailStopLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "routeRecorded": "Route recorded",
+  "fareTripFare": "Trip fare",
+  "dateToday": "Today, {time}",
+  "@dateToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dateYesterday": "Yesterday, {time}",
+  "@dateYesterday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "noRidesYet": "No rides yet",
+  "settingsSectionTrips": "Trips",
+  "searchRadiusUnsaved": "Not saved yet",
+  "driverDeletionRejectedNoNote": "No note from the manager. You can keep working, or send a new request.",
+  "settingsSectionPreferences": "Preferences",
+  "settingsSectionHelp": "Help",
+  "discardChangesTitle": "Discard your changes?",
+  "discardChangesMessage": "You have changes that haven't been saved. If you leave now, they will be lost.",
+  "discardChangesConfirm": "Discard",
+  "keepEditing": "Keep editing",
   "notificationsTitle": "Notifications",
+  "notificationNew": "New",
+  "notificationsMarkAllRead": "Mark all as read",
+  "notificationsUnreadLabel": "Notifications, {count} unread",
+  "@notificationsUnreadLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notificationsEmpty": "No notifications",
   "errPlacesSearch": "Search is unavailable right now, please try again",
   "locationResolving": "Finding the address...",
@@ -392,6 +480,19 @@
     "placeholders": {
       "time": {
         "type": "String"
+      }
+    }
+  },
+  "liveFeeSoFar": "Fee so far",
+  "spokenMinutesSeconds": "{minutes, plural, =1{1 minute} other{{minutes} minutes}} {seconds, plural, =1{1 second} other{{seconds} seconds}}",
+  "@spokenMinutesSeconds": {
+    "description": "A duration read aloud by screen readers (not shown on screen).",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "int"
       }
     }
   },
@@ -489,6 +590,16 @@
   "gpsOpenSettings": "Open location settings",
   "navRoute": "Route",
   "routeStartNew": "Start a new route",
+  "routeStartRecording": "Start recording",
+  "routePause": "Pause",
+  "routeResume": "Resume",
+  "routeFinish": "Finish route",
+  "routeIdleHint": "A private route, kept on this phone only",
+  "routeRecordingStatus": "Recording · {time} · {distance}",
+  "routeFinishConfirmTitle": "Finish the route?",
+  "routeFinishConfirmMessage": "The route will stop recording and you'll see its summary.",
+  "routeStartNewConfirmTitle": "Start a new route?",
+  "routeStartNewConfirmMessage": "The current route and its summary will be deleted from this phone.",
   "routeSummaryTitle": "Route summary",
   "routeSummaryWaiting": "Waiting at start",
   "routeSummaryTripTime": "Trip time",
@@ -507,7 +618,7 @@
     }
   },
   "accountBlockedTitle": "Your account is temporarily blocked",
-  "accountBlockedRiderMessage": "You can't request new rides while the block is active. A ride already in progress isn't affected.",
+  "accountBlockedCustomerMessage": "You can't request new rides while the block is active. A ride already in progress isn't affected.",
   "accountBlockedDriverMessage": "You won't receive new ride offers while the block is active. A trip already in progress isn't affected.",
   "accountBlockedUntil": "Blocked until {date}",
   "@accountBlockedUntil": {
@@ -525,6 +636,10 @@
       }
     }
   },
+  "contactUs": "Contact us",
+  "noContactNumbers": "No contact numbers yet.",
+  "whatsappNotAvailable": "WhatsApp isn't available on this device",
+  "callNotAvailable": "Calls aren't supported on this device",
   "accountBlockedStrikes": "Cancellations: {count} of {limit}",
   "@accountBlockedStrikes": {
     "placeholders": {

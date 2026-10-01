@@ -11,7 +11,7 @@ import 'auth_primary_button_widget.dart';
 import 'privacy_policy_markdown_widget.dart';
 
 /// Opens the privacy policy in the shared [showAppDialog] shell, in the
-/// language the app is currently using. Shared by the rider sign-up screen
+/// language the app is currently using. Shared by the customer sign-up screen
 /// and both roles' settings screens.
 Future<void> showPrivacyPolicyDialog(BuildContext context) {
   final languageCode = Localizations.localeOf(context).languageCode;
@@ -52,7 +52,7 @@ class _PrivacyPolicyContentWidget extends StatelessWidget {
                     Text(
                       state.errorMessage ?? l10n.errServerUnreachable,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 13, color: AppColors.error),
+                      style: const TextStyle(fontSize: 13, color: AppColors.errorText),
                     ),
                     const SizedBox(height: 8),
                     OutlinedButton(

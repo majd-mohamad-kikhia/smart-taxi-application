@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/format_price.dart';
 import '../../data/models/tracked_ride_model.dart';
 
 class RideTripSummaryWidget extends StatelessWidget {
@@ -34,30 +35,71 @@ class RideTripSummaryWidget extends StatelessWidget {
             child: Divider(height: 1, color: AppColors.border),
           ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (ride.distanceKm != null) ...[
-                const Icon(Icons.route_outlined, size: 15, color: AppColors.textTertiary),
-                const SizedBox(width: 4),
-                Text(context.l10n.distanceKm(ride.distanceKm!.toStringAsFixed(1)), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                const SizedBox(width: 12),
-              ],
-              if (ride.estimatedDurationMin != null) ...[
-                const Icon(Icons.schedule_rounded, size: 15, color: AppColors.textTertiary),
-                const SizedBox(width: 4),
-                Text(context.l10n.durationMinutesShort('${ride.estimatedDurationMin}'), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-              ],
-              const Spacer(),
-              if (ride.price != null)
-                Text(
-                  ride.priceIsEstimate
-                      ? '~${context.l10n.priceLyd(ride.price!.toStringAsFixed(2))}'
-                      : context.l10n.priceLyd(ride.price!.toStringAsFixed(2)),
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.primary),
+              Expanded(
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 4,
+                  children: [
+                    if (ride.distanceKm != null)
+                      _MetaItem(
+                        icon: Icons.route_outlined,
+                        label: context.l10n.distanceKm(ride.distanceKm!.toStringAsFixed(1)),
+                      ),
+                    if (ride.estimatedDurationMin != null)
+                      _MetaItem(
+                        icon: Icons.schedule_rounded,
+                        label: context.l10n.durationMinutesShort('${ride.estimatedDurationMin}'),
+                      ),
+                  ],
                 ),
+              ),
+              if (ride.price != null) ...[
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      context.l10n.priceSyp(formatPrice(ride.price!)),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primary,
+                        fontFeatures: [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    if (ride.priceIsEstimate)
+                      Text(
+                        context.l10n.priceEstimateTag,
+                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                  ],
+                ),
+              ],
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MetaItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _MetaItem({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 15, color: AppColors.textTertiary),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+      ],
     );
   }
 }

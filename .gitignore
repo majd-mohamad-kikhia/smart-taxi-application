@@ -47,5 +47,7 @@ app.*.map.json
 # Secrets
 .env
 ios/Flutter/Secrets.xcconfig
-.claude/worktrees/
-.claude/worktrees/
+.claude
+.impeccable
+.PRODUCT
+.DESIGN

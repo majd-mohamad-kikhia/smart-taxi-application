@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/ride_pause_model.dart';
+import '../utils/format_price.dart';
 import 'fee_chip_widget.dart';
 import 'ride_pause_timer_widget.dart';
 
@@ -21,7 +22,7 @@ class TripFeesOverlayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    String price(double amount) => l10n.priceSyp(amount.toStringAsFixed(0));
+    String price(double amount) => l10n.priceSyp(formatPrice(amount));
     final pause = this.pause;
     final isPaused = pause?.isPaused ?? false;
     final pauseTotal = pause?.totalFee ?? 0;

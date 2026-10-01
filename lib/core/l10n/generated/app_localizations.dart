@@ -173,8 +173,26 @@ abstract class AppLocalizations {
   /// No description provided for @appMaintenanceBackAt.
   ///
   /// In en, this message translates to:
-  /// **'Back at {time}'**
+  /// **'Back: {time}'**
   String appMaintenanceBackAt(String time);
+
+  /// No description provided for @appMaintenanceAnyMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Should be back any minute'**
+  String get appMaintenanceAnyMinute;
+
+  /// No description provided for @appMaintenanceStillDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Still under maintenance. Try again in a little while.'**
+  String get appMaintenanceStillDown;
+
+  /// No description provided for @appUpdateStoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the store. Open it yourself, search for Smart Taxi and update.'**
+  String get appUpdateStoreFailed;
 
   /// No description provided for @cancel.
   ///
@@ -235,6 +253,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No data'**
   String get noData;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get loading;
+
+  /// No description provided for @loadMoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load more'**
+  String get loadMoreFailed;
 
   /// No description provided for @navHome.
   ///
@@ -302,12 +332,6 @@ abstract class AppLocalizations {
   /// **'{amount} SYP'**
   String priceSyp(String amount);
 
-  /// No description provided for @priceLyd.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} LYD'**
-  String priceLyd(String amount);
-
   /// No description provided for @phoneNumber.
   ///
   /// In en, this message translates to:
@@ -319,6 +343,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password'**
   String get password;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
 
   /// No description provided for @confirmPassword.
   ///
@@ -764,11 +800,11 @@ abstract class AppLocalizations {
   /// **'Please allow the app to use your location in your device settings'**
   String get errEnableLocationPermission;
 
-  /// No description provided for @roleRider.
+  /// No description provided for @roleCustomer.
   ///
   /// In en, this message translates to:
   /// **'Rider'**
-  String get roleRider;
+  String get roleCustomer;
 
   /// No description provided for @roleDriver.
   ///
@@ -776,17 +812,23 @@ abstract class AppLocalizations {
   /// **'Captain'**
   String get roleDriver;
 
-  /// No description provided for @roleRiderDescription.
+  /// No description provided for @roleCustomerDescription.
   ///
   /// In en, this message translates to:
   /// **'Book your rides and get around easily and safely'**
-  String get roleRiderDescription;
+  String get roleCustomerDescription;
 
   /// No description provided for @roleDriverDescription.
   ///
   /// In en, this message translates to:
-  /// **'Join as a driver and start receiving rides'**
+  /// **'Sign in to your driver account. Accounts are created by the company'**
   String get roleDriverDescription;
+
+  /// No description provided for @forgotPasswordContactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password? Contact support'**
+  String get forgotPasswordContactSupport;
 
   /// No description provided for @logoutTitle.
   ///
@@ -812,11 +854,11 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to log out of your account?'**
   String get logoutMessageDriver;
 
-  /// No description provided for @logoutMessageRider.
+  /// No description provided for @logoutMessageCustomer.
   ///
   /// In en, this message translates to:
   /// **'Are you sure you want to log out of your account? You\'ll need to sign in again to continue.'**
-  String get logoutMessageRider;
+  String get logoutMessageCustomer;
 
   /// No description provided for @complaintSend.
   ///
@@ -878,11 +920,11 @@ abstract class AppLocalizations {
   /// **'Cancel trip'**
   String get cancelTrip;
 
-  /// No description provided for @cancelTripReasonPrompt.
+  /// No description provided for @cancelTripReasonChoosePrompt.
   ///
   /// In en, this message translates to:
-  /// **'Please write the reason for cancelling the trip'**
-  String get cancelTripReasonPrompt;
+  /// **'Choose a reason for cancelling the trip'**
+  String get cancelTripReasonChoosePrompt;
 
   /// No description provided for @cancelReasonRequired.
   ///
@@ -890,11 +932,59 @@ abstract class AppLocalizations {
   /// **'Please write the cancellation reason'**
   String get cancelReasonRequired;
 
-  /// No description provided for @cancelReasonHint.
+  /// No description provided for @cancelReasonPick.
   ///
   /// In en, this message translates to:
-  /// **'Write the reason here...'**
-  String get cancelReasonHint;
+  /// **'Choose a reason'**
+  String get cancelReasonPick;
+
+  /// No description provided for @cancelReasonWaitingTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting too long'**
+  String get cancelReasonWaitingTooLong;
+
+  /// No description provided for @cancelReasonWrongLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong or unclear location'**
+  String get cancelReasonWrongLocation;
+
+  /// No description provided for @cancelReasonCannotReach.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the other person'**
+  String get cancelReasonCannotReach;
+
+  /// No description provided for @cancelReasonPlansChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans changed'**
+  String get cancelReasonPlansChanged;
+
+  /// No description provided for @cancelReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get cancelReasonOther;
+
+  /// No description provided for @cancelReasonNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note (optional)'**
+  String get cancelReasonNoteHint;
+
+  /// No description provided for @cancelReasonNoteRequiredHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the reason'**
+  String get cancelReasonNoteRequiredHint;
+
+  /// No description provided for @cancelLimitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling too often can block your account.'**
+  String get cancelLimitWarning;
 
   /// No description provided for @tripCancelled.
   ///
@@ -1100,11 +1190,47 @@ abstract class AppLocalizations {
   /// **'Connecting...'**
   String get presenceConnecting;
 
-  /// No description provided for @presenceOffline.
+  /// No description provided for @presenceYouAreOnline.
   ///
   /// In en, this message translates to:
-  /// **'Unavailable'**
-  String get presenceOffline;
+  /// **'You\'re online'**
+  String get presenceYouAreOnline;
+
+  /// No description provided for @presenceYouAreOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline'**
+  String get presenceYouAreOffline;
+
+  /// No description provided for @presenceGoOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Go online'**
+  String get presenceGoOnline;
+
+  /// No description provided for @presenceGoOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Go offline'**
+  String get presenceGoOffline;
+
+  /// No description provided for @goOfflineConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Go offline?'**
+  String get goOfflineConfirmTitle;
+
+  /// No description provided for @goOfflineConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll stop receiving trip requests, and the offers on screen will disappear.'**
+  String get goOfflineConfirmMessage;
+
+  /// No description provided for @driverReconnectingStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting… these offers may be out of date'**
+  String get driverReconnectingStale;
 
   /// No description provided for @locationSharingTitle.
   ///
@@ -1184,6 +1310,30 @@ abstract class AppLocalizations {
   /// **'Trip completed'**
   String get fareSummaryTitle;
 
+  /// No description provided for @fareCollectFromCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect from the customer'**
+  String get fareCollectFromCustomer;
+
+  /// No description provided for @fareDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare details'**
+  String get fareDetails;
+
+  /// No description provided for @finishTripConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the trip?'**
+  String get finishTripConfirmTitle;
+
+  /// No description provided for @finishTripConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The fare will be calculated from the route driven so far. You\'ll then collect payment from the customer.'**
+  String get finishTripConfirmMessage;
+
   /// No description provided for @fareFinalPrice.
   ///
   /// In en, this message translates to:
@@ -1243,6 +1393,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Administrative fines'**
   String get walletFines;
+
+  /// No description provided for @walletBalanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Commissions are taken from this balance'**
+  String get walletBalanceHint;
+
+  /// No description provided for @walletPreviousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get walletPreviousMonth;
+
+  /// No description provided for @walletNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get walletNextMonth;
+
+  /// No description provided for @walletEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip earnings'**
+  String get walletEarnings;
+
+  /// No description provided for @walletBalanceAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance after: {amount}'**
+  String walletBalanceAfter(String amount);
+
+  /// No description provided for @txReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward'**
+  String get txReward;
 
   /// No description provided for @walletNoFines.
   ///
@@ -1310,17 +1496,17 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get profileName;
 
-  /// No description provided for @profileRating.
+  /// No description provided for @profileStatusRejectedNote.
   ///
   /// In en, this message translates to:
-  /// **'Rating'**
-  String get profileRating;
+  /// **'Your application wasn\'t approved. Contact support for details'**
+  String get profileStatusRejectedNote;
 
-  /// No description provided for @profileNoRatingYet.
+  /// No description provided for @profileNoVehicle.
   ///
   /// In en, this message translates to:
-  /// **'None yet'**
-  String get profileNoRatingYet;
+  /// **'No vehicle is registered to your account yet'**
+  String get profileNoVehicle;
 
   /// No description provided for @profileWalletBalance.
   ///
@@ -1520,6 +1706,24 @@ abstract class AppLocalizations {
   /// **'Currently unavailable'**
   String get notAvailableNow;
 
+  /// No description provided for @priceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Price unavailable'**
+  String get priceUnavailable;
+
+  /// No description provided for @noVehiclesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No vehicles are available for this trip right now. Try again in a few minutes.'**
+  String get noVehiclesAvailable;
+
+  /// No description provided for @requestVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request {name} · {price}'**
+  String requestVehicle(String name, String price);
+
   /// No description provided for @confirmLocation.
   ///
   /// In en, this message translates to:
@@ -1651,24 +1855,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Track trip'**
   String get trackTrip;
-
-  /// No description provided for @safeTripTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Safe, verified trip'**
-  String get safeTripTitle;
-
-  /// No description provided for @safeTripActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Route tracking and location sharing are on'**
-  String get safeTripActive;
-
-  /// No description provided for @safeTripActivating.
-  ///
-  /// In en, this message translates to:
-  /// **'Safety features are being activated'**
-  String get safeTripActivating;
 
   /// No description provided for @connectionErrorRetrying.
   ///
@@ -1814,17 +2000,131 @@ abstract class AppLocalizations {
   /// **'Stop fees'**
   String get detailStopsFee;
 
+  /// No description provided for @detailPaymentPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get detailPaymentPaid;
+
+  /// No description provided for @detailPaymentUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment'**
+  String get detailPaymentUnpaid;
+
+  /// No description provided for @detailStopLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {number}'**
+  String detailStopLabel(int number);
+
+  /// No description provided for @routeRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Route recorded'**
+  String get routeRecorded;
+
+  /// No description provided for @fareTripFare.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip fare'**
+  String get fareTripFare;
+
+  /// No description provided for @dateToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, {time}'**
+  String dateToday(String time);
+
+  /// No description provided for @dateYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday, {time}'**
+  String dateYesterday(String time);
+
   /// No description provided for @noRidesYet.
   ///
   /// In en, this message translates to:
   /// **'No rides yet'**
   String get noRidesYet;
 
+  /// No description provided for @settingsSectionTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get settingsSectionTrips;
+
+  /// No description provided for @searchRadiusUnsaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved yet'**
+  String get searchRadiusUnsaved;
+
+  /// No description provided for @driverDeletionRejectedNoNote.
+  ///
+  /// In en, this message translates to:
+  /// **'No note from the manager. You can keep working, or send a new request.'**
+  String get driverDeletionRejectedNoNote;
+
+  /// No description provided for @settingsSectionPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get settingsSectionPreferences;
+
+  /// No description provided for @settingsSectionHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get settingsSectionHelp;
+
+  /// No description provided for @discardChangesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard your changes?'**
+  String get discardChangesTitle;
+
+  /// No description provided for @discardChangesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You have changes that haven\'t been saved. If you leave now, they will be lost.'**
+  String get discardChangesMessage;
+
+  /// No description provided for @discardChangesConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discardChangesConfirm;
+
+  /// No description provided for @keepEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get keepEditing;
+
   /// No description provided for @notificationsTitle.
   ///
   /// In en, this message translates to:
   /// **'Notifications'**
   String get notificationsTitle;
+
+  /// No description provided for @notificationNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get notificationNew;
+
+  /// No description provided for @notificationsMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get notificationsMarkAllRead;
+
+  /// No description provided for @notificationsUnreadLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications, {count} unread'**
+  String notificationsUnreadLabel(int count);
 
   /// No description provided for @notificationsEmpty.
   ///
@@ -1861,6 +2161,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Free time left: {time}'**
   String waitingFreeLeft(String time);
+
+  /// No description provided for @liveFeeSoFar.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee so far'**
+  String get liveFeeSoFar;
+
+  /// A duration read aloud by screen readers (not shown on screen).
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{1 minute} other{{minutes} minutes}} {seconds, plural, =1{1 second} other{{seconds} seconds}}'**
+  String spokenMinutesSeconds(int minutes, int seconds);
 
   /// No description provided for @waitingFreeOver.
   ///
@@ -2102,6 +2414,66 @@ abstract class AppLocalizations {
   /// **'Start a new route'**
   String get routeStartNew;
 
+  /// No description provided for @routeStartRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Start recording'**
+  String get routeStartRecording;
+
+  /// No description provided for @routePause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get routePause;
+
+  /// No description provided for @routeResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get routeResume;
+
+  /// No description provided for @routeFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish route'**
+  String get routeFinish;
+
+  /// No description provided for @routeIdleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A private route, kept on this phone only'**
+  String get routeIdleHint;
+
+  /// No description provided for @routeRecordingStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording · {time} · {distance}'**
+  String routeRecordingStatus(Object distance, Object time);
+
+  /// No description provided for @routeFinishConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the route?'**
+  String get routeFinishConfirmTitle;
+
+  /// No description provided for @routeFinishConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The route will stop recording and you\'ll see its summary.'**
+  String get routeFinishConfirmMessage;
+
+  /// No description provided for @routeStartNewConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new route?'**
+  String get routeStartNewConfirmTitle;
+
+  /// No description provided for @routeStartNewConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The current route and its summary will be deleted from this phone.'**
+  String get routeStartNewConfirmMessage;
+
   /// No description provided for @routeSummaryTitle.
   ///
   /// In en, this message translates to:
@@ -2150,11 +2522,11 @@ abstract class AppLocalizations {
   /// **'Your account is temporarily blocked'**
   String get accountBlockedTitle;
 
-  /// No description provided for @accountBlockedRiderMessage.
+  /// No description provided for @accountBlockedCustomerMessage.
   ///
   /// In en, this message translates to:
   /// **'You can\'t request new rides while the block is active. A ride already in progress isn\'t affected.'**
-  String get accountBlockedRiderMessage;
+  String get accountBlockedCustomerMessage;
 
   /// No description provided for @accountBlockedDriverMessage.
   ///
@@ -2173,6 +2545,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reason: {reason}'**
   String accountBlockedReason(String reason);
+
+  /// No description provided for @contactUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact us'**
+  String get contactUs;
+
+  /// No description provided for @noContactNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'No contact numbers yet.'**
+  String get noContactNumbers;
+
+  /// No description provided for @whatsappNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp isn\'t available on this device'**
+  String get whatsappNotAvailable;
+
+  /// No description provided for @callNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Calls aren\'t supported on this device'**
+  String get callNotAvailable;
 
   /// No description provided for @accountBlockedStrikes.
   ///

@@ -6,7 +6,7 @@ import 'complaint_state.dart';
 typedef ComplaintSubmitter =
     Future<void> Function({required String message, String? subject});
 
-/// Drives the shared complaint dialog. Each role (rider / driver)
+/// Drives the shared complaint dialog. Each role (customer / driver)
 /// registers its own instance with its own [ComplaintSubmitter].
 class ComplaintCubit extends Cubit<ComplaintState> {
   final ComplaintSubmitter _submitter;

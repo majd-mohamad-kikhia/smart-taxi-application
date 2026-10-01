@@ -1,32 +1,63 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Vertical pickup → (stops) → dropoff timeline.
+/// Vertical pickup → (stops) → drop-off timeline. Each point has its own
+/// glyph and a spoken label ("From", "Stop 1", "To"), so the order never
+/// depends on dot color. Pickup and drop-off use the same yellow and amber as
+/// the order screen.
+///
+/// Addresses are capped at [maxLines] on a card; leave it null on the
+/// details screen, where the full address is the point.
 class RideRouteWidget extends StatelessWidget {
   final String? pickup;
   final String? dropoff;
   final List<String?> stops;
+  final int? maxLines;
 
   const RideRouteWidget({
     super.key,
     required this.pickup,
     required this.dropoff,
     this.stops = const [],
+    this.maxLines,
   });
 
   @override
   Widget build(BuildContext context) {
-    final fallback = context.l10n.mapLocationFallback;
+    final l10n = context.l10n;
+    final fallback = l10n.mapLocationFallback;
     final points = <_Point>[
-      _Point(pickup ?? fallback, AppColors.success),
-      for (final s in stops) _Point(s ?? fallback, AppColors.accent),
-      _Point(dropoff ?? fallback, AppColors.error),
+      _Point(
+        text: pickup ?? fallback,
+        label: l10n.fromLabel,
+        icon: Icons.trip_origin_rounded,
+        color: AppColors.primary,
+      ),
+      for (var i = 0; i < stops.length; i++)
+        _Point(
+          text: stops[i] ?? fallback,
+          label: l10n.detailStopLabel(i + 1),
+          icon: Icons.circle,
+          color: AppColors.textSecondary,
+          iconSize: 10,
+        ),
+      _Point(
+        text: dropoff ?? fallback,
+        label: l10n.toLabel,
+        icon: Icons.location_on_rounded,
+        color: AppColors.accent,
+      ),
     ];
     return Column(
       children: [
         for (var i = 0; i < points.length; i++)
-          _RoutePointRow(point: points[i], isLast: i == points.length - 1),
+          _RoutePointRow(
+            point: points[i],
+            isLast: i == points.length - 1,
+            maxLines: maxLines,
+          ),
       ],
     );
   }
@@ -34,57 +65,73 @@ class RideRouteWidget extends StatelessWidget {
 
 class _Point {
   final String text;
+  final String label;
+  final IconData icon;
   final Color color;
+  final double iconSize;
 
-  const _Point(this.text, this.color);
+  const _Point({
+    required this.text,
+    required this.label,
+    required this.icon,
+    required this.color,
+    this.iconSize = 18,
+  });
 }
 
 class _RoutePointRow extends StatelessWidget {
   final _Point point;
   final bool isLast;
+  final int? maxLines;
 
-  const _RoutePointRow({required this.point, required this.isLast});
+  const _RoutePointRow({
+    required this.point,
+    required this.isLast,
+    required this.maxLines,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            width: 16,
-            child: Column(
-              children: [
-                const SizedBox(height: 4),
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration:
-                      BoxDecoration(color: point.color, shape: BoxShape.circle),
-                ),
-                if (!isLast)
-                  Expanded(
-                    child: Container(width: 1.5, color: AppColors.border),
+    return Semantics(
+      label: '${point.label}: ${point.text}',
+      excludeSemantics: true,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: 18,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 18,
+                    child: Icon(point.icon, size: point.iconSize, color: point.color),
                   ),
-              ],
+                  if (!isLast)
+                    Expanded(
+                      child: Container(width: 1.5, color: AppColors.border),
+                    ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
-              child: Text(
-                point.text,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textPrimary,
+            const SizedBox(width: AppConstants.paddingM),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: isLast ? 0 : AppConstants.paddingM,
+                ),
+                child: Text(
+                  point.text,
+                  maxLines: maxLines,
+                  overflow: maxLines == null ? null : TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

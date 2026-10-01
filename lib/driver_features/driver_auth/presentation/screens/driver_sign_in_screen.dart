@@ -5,6 +5,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/validators/auth_validators.dart';
+import '../../../../core/validators/phone_input_formatter.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
 import '../cubit/driver_auth_cubit.dart';
@@ -73,9 +74,12 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
             AuthTextFieldWidget(
               controller: _phoneController,
               label: l10n.phoneNumber,
-              hint: '05xxxxxxxx',
+              hint: '09xxxxxxxx',
               prefixIcon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
+              autofillHints: const [AutofillHints.username],
+              inputFormatters: const [PhoneInputFormatter()],
+              forceLtr: true,
               validator: AuthValidators.phone,
             ),
             AuthTextFieldWidget(
@@ -85,6 +89,9 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
               prefixIcon: Icons.lock_outline,
               isPassword: true,
               textInputAction: TextInputAction.done,
+              onSubmitted: _submit,
+              autofillHints: const [AutofillHints.password],
+              forceLtr: true,
               validator: AuthValidators.loginPassword,
             ),
           ],

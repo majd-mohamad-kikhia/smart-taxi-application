@@ -7,6 +7,7 @@ class NotificationsState extends Equatable {
   final bool hasMore;
   final bool isLoading;
   final bool isLoadingMore;
+  final int unreadCount;
   final String? errorMessage;
 
   const NotificationsState({
@@ -15,6 +16,7 @@ class NotificationsState extends Equatable {
     required this.hasMore,
     required this.isLoading,
     required this.isLoadingMore,
+    this.unreadCount = 0,
     this.errorMessage,
   });
 
@@ -34,6 +36,7 @@ class NotificationsState extends Equatable {
     bool? hasMore,
     bool? isLoading,
     bool? isLoadingMore,
+    int? unreadCount,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -43,6 +46,7 @@ class NotificationsState extends Equatable {
       hasMore: hasMore ?? this.hasMore,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      unreadCount: unreadCount ?? this.unreadCount,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
@@ -54,6 +58,7 @@ class NotificationsState extends Equatable {
     hasMore,
     isLoading,
     isLoadingMore,
+    unreadCount,
     errorMessage,
   ];
 }

@@ -6,7 +6,7 @@ import '../models/account_block_model.dart';
 import '../theme/app_colors.dart';
 
 /// "Your account is blocked until …" panel shown in place of the order
-/// button (rider) or the ride offers (driver) while a manager's block is
+/// button (customer) or the ride offers (driver) while a manager's block is
 /// active. [message] explains what the block means for the signed-in role.
 class AccountBlockedWidget extends StatelessWidget {
   final AccountBlockModel block;

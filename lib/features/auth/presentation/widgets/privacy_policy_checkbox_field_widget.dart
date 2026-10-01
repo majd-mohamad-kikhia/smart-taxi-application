@@ -90,7 +90,7 @@ class _PrivacyPolicyCheckboxFieldWidgetState
                 padding: const EdgeInsetsDirectional.only(start: 12, top: 4),
                 child: Text(
                   field.errorText!,
-                  style: const TextStyle(fontSize: 12, color: AppColors.error),
+                  style: const TextStyle(fontSize: 12, color: AppColors.errorText),
                 ),
               ),
           ],

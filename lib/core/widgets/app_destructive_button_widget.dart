@@ -4,6 +4,10 @@ import '../theme/app_colors.dart';
 /// Full-width destructive action button (cancel, delete, …) with a
 /// loading spinner state — the error-coloured counterpart to
 /// [AuthPrimaryButtonWidget].
+///
+/// While [isLoading] the button stays solid so the spinner stays visible, and
+/// the spinner keeps the button's label as its screen-reader name; when it is
+/// disabled for any other reason ([onPressed] is null) it is dimmed.
 class AppDestructiveButtonWidget extends StatelessWidget {
   final String label;
   final bool isLoading;
@@ -23,18 +27,23 @@ class AppDestructiveButtonWidget extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.error,
+          backgroundColor: AppColors.errorDark,
           foregroundColor: AppColors.white,
-          disabledBackgroundColor: AppColors.error.withValues(alpha: 0.4),
-          disabledForegroundColor: AppColors.white.withValues(alpha: 0.7),
+          disabledBackgroundColor: isLoading
+              ? AppColors.errorDark
+              : AppColors.errorDark.withValues(alpha: 0.4),
+          disabledForegroundColor: isLoading
+              ? AppColors.white
+              : AppColors.white.withValues(alpha: 0.7),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.2,
                   color: AppColors.white,
+                  semanticsLabel: label,
                 ),
               )
             : Text(label),

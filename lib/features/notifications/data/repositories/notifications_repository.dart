@@ -13,9 +13,25 @@ class NotificationsRepository {
 
   const NotificationsRepository(this._remote);
 
-  Future<NotificationsPageModel> getPage(int page) async {
+  Future<NotificationsPageModel> getPage(int page) =>
+      _guard(() => _remote.fetchNotifications(page: page, limit: pageSize));
+
+  /// How many notifications are unread (the bell's badge), without loading a
+  /// whole page of them.
+  Future<int> getUnreadCount() async {
+    final page = await _guard(
+      () => _remote.fetchNotifications(page: 1, limit: 1),
+    );
+    return page.unreadCount;
+  }
+
+  Future<void> markRead(int id) => _guard(() => _remote.markRead(id));
+
+  Future<void> markAllRead() => _guard(_remote.markAllRead);
+
+  Future<T> _guard<T>(Future<T> Function() request) async {
     try {
-      return await _remote.fetchNotifications(page: page, limit: pageSize);
+      return await request();
     } on DioException catch (e) {
       final error = e.error;
       throw error is ApiException

@@ -16,6 +16,7 @@ import 'core/routing/app_router.dart';
 import 'core/services/push_notification_service.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/app_splash_widget.dart';
 import 'driver_features/driver_auth/data/repositories/driver_repository.dart';
 import 'driver_features/driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
@@ -24,11 +25,6 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await dotenv.load(fileName: '.env');
-
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -44,6 +40,22 @@ Future<void> main() async {
     ),
   );
 
+  // The first frame is the splash with the taxi animation, shown at once and
+  // for as long as the startup work below takes; `_launch` then replaces it
+  // with the real app.
+  runApp(const _SplashApp());
+
+  await _start();
+}
+
+/// Everything the app needs before its first real screen: settings, Firebase,
+/// the saved session and the version check.
+Future<void> _start() async {
+  await dotenv.load(fileName: '.env');
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
   setupInjection();
 
   // Restore the saved language before the first frame.
@@ -53,19 +65,19 @@ Future<void> main() async {
   unawaited(sl<PushNotificationService>().initialize());
 
   // Skip the auth flow entirely if a session was already saved locally
-  // (rider or driver — a device is only ever logged into one at a time).
+  // (customer or driver — a device is only ever logged into one at a time).
   //
   // A restored session is first checked against the server: if it rejects
   // the token (expired, or the account was deleted) the session is dropped
   // and the user lands on role selection. Offline, the check is skipped and
   // the user stays signed in.
-  final riderRepository = sl<AuthRepository>();
-  final restoredRider = await riderRepository.restoreSession();
-  if (restoredRider != null) {
-    if (await riderRepository.isSessionRejected()) {
-      await riderRepository.logout();
+  final customerRepository = sl<AuthRepository>();
+  final restoredCustomer = await customerRepository.restoreSession();
+  if (restoredCustomer != null) {
+    if (await customerRepository.isSessionRejected()) {
+      await customerRepository.logout();
     } else {
-      sl<AuthCubit>().hydrate(restoredRider);
+      sl<AuthCubit>().hydrate(restoredCustomer);
       await _launch(AppRouter.home);
       return;
     }
@@ -86,9 +98,9 @@ Future<void> main() async {
   await _launch(AppRouter.roleSelection);
 }
 
-/// Asks the server whether this version may run — the native splash stays up
-/// while waiting (the cubit gives up and lets the user in after a few
-/// seconds) — then starts the app on [initialRoute], or on the force-update /
+/// Asks the server whether this version may run — the splash stays up while
+/// waiting (the cubit gives up and lets the user in after a few seconds) —
+/// then starts the app on [initialRoute], or on the force-update /
 /// maintenance screen when the server says so.
 Future<void> _launch(String initialRoute) async {
   final versionCubit = sl<AppVersionCubit>();
@@ -111,6 +123,24 @@ Future<void> _launch(String initialRoute) async {
       );
     case AppVersionAllowed() || AppVersionChecking():
       runApp(MshoarApp(initialRoute: initialRoute));
+  }
+}
+
+/// The app shown while it starts up: just the splash, in the dark theme. It
+/// has no navigator routes or localization because it has no text.
+class _SplashApp extends StatelessWidget {
+  const _SplashApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.darkTheme,
+      home: const Scaffold(
+        backgroundColor: AppColors.black,
+        body: AppSplashWidget(),
+      ),
+    );
   }
 }
 

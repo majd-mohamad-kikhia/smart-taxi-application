@@ -51,13 +51,13 @@ void main() {
     remote = _FakeRemote();
     logouts = 0;
     session = SessionCubit()
-      ..registerLogoutHandler(UserRole.rider, () async => logouts++)
+      ..registerLogoutHandler(UserRole.customer, () async => logouts++)
       ..setUser(
         const AppUser(
           id: 1,
           fullName: 'Test User',
           phone: '0999',
-          role: UserRole.rider,
+          role: UserRole.customer,
         ),
       );
     cubit = DeleteAccountCubit(ProfileRepository(remote), session);

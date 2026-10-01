@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
+import '../../../../core/widgets/fee_chip_widget.dart';
 import '../../../../core/widgets/live_trip_map_widget.dart';
 import '../../../../core/widgets/ride_waiting_timer_widget.dart';
 import '../../../../core/widgets/trip_fees_overlay_widget.dart';
@@ -19,7 +20,6 @@ import '../widgets/ride_payment_due_dialog_widget.dart';
 import '../widgets/ride_status_banner_widget.dart';
 import '../widgets/ride_tracking_map_widget.dart';
 import '../widgets/ride_trip_summary_widget.dart';
-import '../widgets/safety_banner_widget.dart';
 
 /// Full-screen ride tracking — from "waiting for a driver" right after
 /// `choose-vehicle` through pickup/in-progress/completion, fed entirely by
@@ -59,7 +59,7 @@ class RideTrackingScreen extends StatelessWidget {
 
 /// Blocking "pay the driver" dialog — no buttons and no back; the exit
 /// listener closes it once the driver confirms the payment.
-void _showPaymentDue(BuildContext context, double amount, RideFareBreakdownModel? fare) {
+void _showPaymentDue(BuildContext context, double? amount, RideFareBreakdownModel? fare) {
   showDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -90,7 +90,7 @@ class _RideTrackingView extends StatelessWidget {
               return;
             }
             if (state.exitReason == null) {
-              _showPaymentDue(context, state.finalPrice ?? state.ride.price ?? 0, state.fare);
+              _showPaymentDue(context, state.finalPrice ?? state.ride.price, state.fare);
               return;
             }
             final isSuccess = state.exitReason == RideTrackingExitReason.completed;
@@ -165,24 +165,9 @@ class _ScreenHeader extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Align(
           alignment: AlignmentDirectional.centerStart,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-            decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.95),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [BoxShadow(color: AppColors.shadowLight, blurRadius: 6, offset: Offset(0, 2))],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.directions_car_rounded, color: AppColors.primary, size: 16),
-                const SizedBox(width: 4),
-                Text(
-                  context.l10n.trackTrip,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                ),
-              ],
-            ),
+          child: FeeChipWidget(
+            icon: Icons.directions_car_rounded,
+            label: context.l10n.trackTrip,
           ),
         ),
       ),
@@ -230,8 +215,6 @@ class _TrackingSheet extends StatelessWidget {
                     const SizedBox(height: 14),
                   ],
                   RideTripSummaryWidget(pickup: state.pickup, dropoff: state.dropoff, ride: state.ride),
-                  const SizedBox(height: 12),
-                  const SafetyBannerWidget(isTrackingEnabled: true, isSharingEnabled: true),
                   const SizedBox(height: 14),
                   AppDestructiveButtonWidget(
                     label: context.l10n.cancelTrip,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/routing/app_router.dart';
@@ -73,42 +74,70 @@ class DriverHomeScreen extends StatelessWidget {
   }
 }
 
+/// What sits under the online control, by connection status: a hint while
+/// offline or failed (the reason is in the control above), a spinner while
+/// connecting, and the offers while online. A reconnect keeps the offers on
+/// screen with a warning that they may be stale, instead of hiding them
+/// mid-decision.
 class _OrdersSection extends StatelessWidget {
   const _OrdersSection();
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return BlocBuilder<DriverPresenceCubit, DriverPresenceState>(
       bloc: sl<DriverPresenceCubit>(),
       builder: (context, presenceState) {
-        if (presenceState.status != DriverPresenceStatus.online) {
-          return _OrdersPlaceholder(
-            icon: Icons.local_taxi_outlined,
-            message: context.l10n.driverGoOnlineHint,
-          );
-        }
-        return BlocBuilder<DriverOrdersCubit, DriverOrdersState>(
-          bloc: sl<DriverOrdersCubit>(),
-          builder: (context, ordersState) {
-            if (ordersState.orders.isEmpty) {
-              return _OrdersPlaceholder(
+        return switch (presenceState.status) {
+          DriverPresenceStatus.offline || DriverPresenceStatus.error =>
+            _OrdersPlaceholder(
+              icon: Icons.local_taxi_outlined,
+              message: l10n.driverGoOnlineHint,
+            ),
+          DriverPresenceStatus.connecting => _OrdersList(
+              isReconnecting: true,
+              emptyPlaceholder: _OrdersPlaceholder(
+                icon: Icons.wifi_tethering_rounded,
+                message: l10n.presenceConnecting,
+              ),
+            ),
+          DriverPresenceStatus.online => _OrdersList(
+              isReconnecting: false,
+              emptyPlaceholder: _OrdersPlaceholder(
                 icon: Icons.hourglass_empty_rounded,
-                message: context.l10n.driverWaitingForOrders,
-              );
-            }
-            return Column(
-              children: [
-                for (final order in ordersState.orders)
-                  DriverOrderCardWidget(
-                    key: ValueKey(order.rideId),
-                    order: order,
-                    isAccepting: ordersState.acceptingRideId == order.rideId,
-                    enabled: ordersState.acceptingRideId == null,
-                    onAccept: () => _acceptOrder(context, order),
-                  ),
-              ],
-            );
-          },
+                message: l10n.driverWaitingForOrders,
+              ),
+            ),
+        };
+      },
+    );
+  }
+}
+
+class _OrdersList extends StatelessWidget {
+  final bool isReconnecting;
+  final Widget emptyPlaceholder;
+
+  const _OrdersList({required this.isReconnecting, required this.emptyPlaceholder});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DriverOrdersCubit, DriverOrdersState>(
+      bloc: sl<DriverOrdersCubit>(),
+      builder: (context, ordersState) {
+        if (ordersState.orders.isEmpty) return emptyPlaceholder;
+        return Column(
+          children: [
+            if (isReconnecting) const _ReconnectingBanner(),
+            for (final order in ordersState.orders)
+              DriverOrderCardWidget(
+                key: ValueKey(order.rideId),
+                order: order,
+                isAccepting: ordersState.acceptingRideId == order.rideId,
+                enabled: ordersState.acceptingRideId == null,
+                onAccept: () => _acceptOrder(context, order),
+              ),
+          ],
         );
       },
     );
@@ -125,6 +154,9 @@ class _OrdersSection extends StatelessWidget {
   }
 }
 
+/// Shown in place of the offers: an icon and a message, centered and padded
+/// so long text wraps well. No spinner, even while connecting: the message
+/// says so in words.
 class _OrdersPlaceholder extends StatelessWidget {
   final IconData icon;
   final String message;
@@ -135,26 +167,79 @@ class _OrdersPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 40),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppConstants.paddingXXL,
+        vertical: AppConstants.paddingXXL,
+      ),
       decoration: BoxDecoration(
         color: AppColors.backgroundWhite,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 40, color: AppColors.textTertiary),
-          const SizedBox(height: 10),
-          Text(
-            message,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+          ExcludeSemantics(
+            child: Container(
+              width: 64,
+              height: 64,
+              decoration: const BoxDecoration(
+                color: AppColors.backgroundMuted,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, size: 28, color: AppColors.textSecondary),
             ),
           ),
+          const SizedBox(height: AppConstants.paddingL),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// Above the offers while the connection is being re-established: they were
+/// real a moment ago but may no longer be.
+class _ReconnectingBanner extends StatelessWidget {
+  const _ReconnectingBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      liveRegion: true,
+      container: true,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: AppConstants.paddingM),
+        padding: const EdgeInsets.all(AppConstants.paddingM),
+        decoration: BoxDecoration(
+          color: AppColors.accentSurface,
+          borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.sync_problem_rounded, color: AppColors.accent, size: 20),
+            const SizedBox(width: AppConstants.paddingS),
+            Expanded(
+              child: Text(
+                context.l10n.driverReconnectingStale,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: AppColors.textPrimary),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,16 +1,19 @@
 import 'notification_model.dart';
 
 /// One page of `GET /api/customer/notifications` (swagger
-/// `NotificationListData`): the rows and the pagination info.
+/// `NotificationListData`): the rows, the pagination info and how many
+/// notifications are unread in total (the bell's badge).
 class NotificationsPageModel {
   final List<NotificationModel> notifications;
   final int page;
   final int totalPages;
+  final int unreadCount;
 
   const NotificationsPageModel({
     required this.notifications,
     required this.page,
     required this.totalPages,
+    this.unreadCount = 0,
   });
 
   bool get hasMore => page < totalPages;
@@ -23,6 +26,7 @@ class NotificationsPageModel {
           .toList(),
       page: pagination['page'] as int,
       totalPages: pagination['total_pages'] as int,
+      unreadCount: (json['unread_count'] as num?)?.toInt() ?? 0,
     );
   }
 }

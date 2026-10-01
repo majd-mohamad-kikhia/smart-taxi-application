@@ -1,7 +1,7 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appVersion = '3.4.0';
+  static const String appVersion = '1.0.0';
   static const String logoPath =
       'assets/icons/app_logo_icons/icon-master-1024.png';
 

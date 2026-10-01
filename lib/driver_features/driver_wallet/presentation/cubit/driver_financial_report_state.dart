@@ -17,9 +17,10 @@ class DriverFinancialReportState extends Equatable {
     bool? isLoading,
     String? errorMessage,
     bool clearError = false,
+    bool clearReport = false,
   }) {
     return DriverFinancialReportState(
-      report: report ?? this.report,
+      report: clearReport ? null : (report ?? this.report),
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );

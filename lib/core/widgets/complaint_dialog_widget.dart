@@ -21,6 +21,9 @@ Future<void> showComplaintDialog(
     title: context.l10n.complaintSend,
     icon: Icons.report_gmailerrorred_rounded,
     tone: AppDialogTone.warning,
+    // A stray tap outside (or the back button) must not throw away a typed
+    // complaint or close the dialog mid-request; Cancel is in the form.
+    barrierDismissible: false,
     showActions: false,
     content: BlocProvider<ComplaintCubit>(
       create: (_) => createCubit(),
@@ -110,7 +113,7 @@ class _ComplaintFormWidgetState extends State<_ComplaintFormWidget> {
                 const SizedBox(height: 4),
                 Text(
                   state.errorMessage ?? l10n.complaintSendFailed,
-                  style: const TextStyle(fontSize: 13, color: AppColors.error),
+                  style: const TextStyle(fontSize: 13, color: AppColors.errorText),
                 ),
               ],
               const SizedBox(height: 12),

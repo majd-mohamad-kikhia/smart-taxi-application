@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'privacy_policy_repository.dart';
 import 'privacy_policy_state.dart';
 
-/// Loads the privacy policy for its dialog — shared by the rider sign-up
+/// Loads the privacy policy for its dialog — shared by the customer sign-up
 /// screen and both roles' settings screens.
 class PrivacyPolicyCubit extends Cubit<PrivacyPolicyState> {
   final PrivacyPolicyRepository _repository;

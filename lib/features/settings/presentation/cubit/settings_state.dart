@@ -9,13 +9,7 @@ class SettingsState extends Equatable {
 
   factory SettingsState.initial() {
     return const SettingsState(
-      profile: UserProfileModel(
-        id: 'u1',
-        fullName: 'أحمد بن خالد السبيعي',
-        phone: '+966 50 123 4567',
-        email: 'ahmed.khalid@domain.com',
-        isVerified: true,
-      ),
+      profile: UserProfileModel.empty(),
       isLoggingOut: false,
     );
   }

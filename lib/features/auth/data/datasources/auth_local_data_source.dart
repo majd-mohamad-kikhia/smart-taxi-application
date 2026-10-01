@@ -44,11 +44,17 @@ class AuthLocalDataSource {
       email: json['email'] as String?,
       photoUrl: json['photo_url'] as String?,
       address: json['address'] as String?,
-      role: UserRole.values.byName(json['role'] as String),
+      role: _roleFromStored(json['role'] as String),
       accessToken: json['access_token'] as String,
       refreshToken: json['refresh_token'] as String,
     );
   }
+
+  /// Sessions saved before the customer role was renamed stored it as
+  /// "rider"; read those as [UserRole.customer] so nobody is signed out by
+  /// the update.
+  static UserRole _roleFromStored(String name) =>
+      name == 'rider' ? UserRole.customer : UserRole.values.byName(name);
 
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();

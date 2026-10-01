@@ -10,6 +10,8 @@ class AuthValidators {
   AuthValidators._();
 
   static final RegExp _phoneRegExp = RegExp(r'^\+?\d{8,15}$');
+  static final RegExp _letterRegExp = RegExp(r'\p{L}', unicode: true);
+  static final RegExp _digitRegExp = RegExp(r'\d');
   static final RegExp _nameRegExp =
       RegExp(r"^[\p{L} '\-]{2,100}$", unicode: true);
 
@@ -31,9 +33,13 @@ class AuthValidators {
 
   static String? signupPassword(String? value) {
     final password = value ?? '';
+    // The message promises a letter and a number, so the check does too
+    // (the server requires both).
     if (password.length < 8 ||
         password.length > 64 ||
-        password.contains(' ')) {
+        password.contains(' ') ||
+        !_letterRegExp.hasMatch(password) ||
+        !_digitRegExp.hasMatch(password)) {
       return AppStrings.current.valPasswordRule;
     }
     return null;

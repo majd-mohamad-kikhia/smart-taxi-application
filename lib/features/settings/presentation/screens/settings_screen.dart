@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/complaints/complaint_cubit.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
@@ -8,12 +10,12 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
-import '../../../../core/widgets/complaint_button_widget.dart';
 import '../../../../core/widgets/complaint_dialog_widget.dart';
 import '../../../../core/widgets/language_dropdown_widget.dart';
 import '../../../../core/widgets/logout_footer_widget.dart';
-import '../../../../core/widgets/privacy_policy_button_widget.dart';
 import '../../../../core/widgets/privacy_policy_dialog_widget.dart';
+import '../../../../core/widgets/settings_row_widget.dart';
+import '../../../../core/widgets/settings_section_widget.dart';
 import '../cubit/delete_account_cubit.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
@@ -46,33 +48,64 @@ class _SettingsView extends StatelessWidget {
       ),
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
-          return ListView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            children: [
-              ProfileCardWidget(
-                profile: state.profile,
-                onEdit: () => _openEditProfile(context),
-              ),
-              const SizedBox(height: 14),
-              const LanguageDropdownWidget(),
-              const SizedBox(height: 14),
-              PrivacyPolicyButtonWidget(
-                onPressed: () => showPrivacyPolicyDialog(context),
-              ),
-              const SizedBox(height: 12),
-              ComplaintButtonWidget(
-                onPressed: () => _openComplaintDialog(context),
-              ),
-              const SizedBox(height: 12),
-              LogoutFooterWidget(
-                isLoading: state.isLoggingOut,
-                onLogout: () => _confirmLogout(context),
-                belowLogout: DeleteAccountButtonWidget(
-                  onPressed: () => _openDeleteAccountDialog(context),
+          final l10n = context.l10n;
+          // Three groups instead of eight loose controls: who you are, how
+          // the app behaves, where to get help; then the account actions,
+          // with the permanent one set well apart from logout.
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(
+                  AppConstants.paddingL,
+                  AppConstants.paddingS,
+                  AppConstants.paddingL,
+                  AppConstants.paddingXXL,
                 ),
+                children: [
+                  ProfileCardWidget(
+                    profile: state.profile,
+                    onEdit: () => _openEditProfile(context),
+                  ),
+                  const SizedBox(height: AppConstants.paddingXXL),
+                  SettingsHeadingWidget(title: l10n.settingsSectionPreferences),
+                  const LanguageDropdownWidget(),
+                  const SizedBox(height: AppConstants.paddingXXL),
+                  SettingsSectionWidget(
+                    title: l10n.settingsSectionHelp,
+                    children: [
+                      SettingsRowWidget(
+                        icon: Icons.privacy_tip_outlined,
+                        label: l10n.privacyPolicy,
+                        onTap: () => showPrivacyPolicyDialog(context),
+                      ),
+                      SettingsRowWidget(
+                        icon: Icons.support_agent_rounded,
+                        label: l10n.contactUs,
+                        onTap: () => Navigator.of(context).pushNamed(
+                          AppRouter.contactUs,
+                          arguments: UserRole.customer,
+                        ),
+                      ),
+                      SettingsRowWidget(
+                        icon: Icons.report_gmailerrorred_rounded,
+                        label: l10n.complaintSend,
+                        onTap: () => _openComplaintDialog(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppConstants.paddingXXL),
+                  LogoutFooterWidget(
+                    isLoading: state.isLoggingOut,
+                    onLogout: () => _confirmLogout(context),
+                    belowLogout: DeleteAccountButtonWidget(
+                      onPressed: () => _openDeleteAccountDialog(context),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           );
         },
       ),
@@ -121,11 +154,12 @@ class _SettingsView extends StatelessWidget {
     showAppDialog(
       context: context,
       title: l10n.logoutTitle,
-      message: l10n.logoutMessageRider,
+      message: l10n.logoutMessageCustomer,
       confirmLabel: l10n.logoutConfirm,
       cancelLabel: l10n.goBack,
       icon: Icons.logout_rounded,
-      tone: AppDialogTone.destructive,
+      // Logging out is reversible; red is kept for deleting the account.
+      tone: AppDialogTone.primary,
       onConfirm: () => _logout(context),
     );
   }

@@ -4,6 +4,7 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/format_price.dart';
 
 /// Summary of the ride the customer just requested — its status and
 /// estimated price — shown in place of nothing while the order is live.
@@ -39,14 +40,7 @@ class ActiveRideCardWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.primary,
-                ),
-              ),
+              _StatusIndicator(status: ride.status, label: _statusLabel(context.l10n)),
               const SizedBox(width: AppConstants.paddingS),
               Expanded(
                 child: Text(
@@ -72,11 +66,12 @@ class ActiveRideCardWidget extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  context.l10n.priceSyp(ride.price!.toStringAsFixed(0)),
+                  context.l10n.priceSyp(formatPrice(ride.price!)),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: AppColors.primary,
+                    fontFeatures: [FontFeature.tabularFigures()],
                   ),
                 ),
                 const SizedBox(width: AppConstants.paddingS),
@@ -94,5 +89,36 @@ class ActiveRideCardWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// A spinner only while the request still waits for a driver; every other
+/// status gets an icon that says where the ride stands.
+class _StatusIndicator extends StatelessWidget {
+  final String status;
+  final String label;
+
+  const _StatusIndicator({required this.status, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    if (status == 'requested') {
+      return SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: AppColors.primary,
+          semanticsLabel: label,
+        ),
+      );
+    }
+    final icon = switch (status) {
+      'completed' => Icons.check_circle_rounded,
+      'cancelled' => Icons.cancel_rounded,
+      'in_progress' => Icons.route_rounded,
+      _ => Icons.local_taxi_rounded,
+    };
+    return Icon(icon, size: 18, color: AppColors.primary);
   }
 }

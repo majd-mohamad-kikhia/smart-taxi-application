@@ -20,6 +20,10 @@ class NotificationModel extends Equatable {
   final String message;
   final NotificationType type;
   final DateTime sentAt;
+  final bool isRead;
+
+  /// The trip this notification is about, when it is about one.
+  final int? relatedRideId;
 
   const NotificationModel({
     required this.id,
@@ -27,6 +31,8 @@ class NotificationModel extends Equatable {
     required this.message,
     required this.type,
     required this.sentAt,
+    this.isRead = false,
+    this.relatedRideId,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
@@ -36,9 +42,22 @@ class NotificationModel extends Equatable {
       message: json['body'] as String? ?? '',
       type: NotificationType.fromKey(json['notification_type'] as String),
       sentAt: DateTime.parse(json['sent_at'] as String),
+      isRead: json['is_read'] as bool? ?? false,
+      relatedRideId: (json['related_ride_id'] as num?)?.toInt(),
     );
   }
 
+  NotificationModel copyWith({bool? isRead}) => NotificationModel(
+        id: id,
+        title: title,
+        message: message,
+        type: type,
+        sentAt: sentAt,
+        isRead: isRead ?? this.isRead,
+        relatedRideId: relatedRideId,
+      );
+
   @override
-  List<Object?> get props => [id, title, message, type, sentAt];
+  List<Object?> get props =>
+      [id, title, message, type, sentAt, isRead, relatedRideId];
 }

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// A single labeled value tile used in the wallet statement grid (fines,
-/// commissions, compensations, trip count, monthly income, ...). Pass
-/// [icon] to render the round badge, or omit it for a plain label/value
-/// tile. Pass [onTap] to make the tile tappable.
+/// A single labeled value tile in the wallet statement grid. Money values
+/// are tabular and scale down instead of wrapping. Pass [icon] for the round
+/// badge. Pass [onTap] to make the tile open something: it then shows a
+/// chevron and reads as a button.
 class WalletStatCardWidget extends StatelessWidget {
   final String label;
   final String value;
@@ -27,33 +28,38 @@ class WalletStatCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     final card = Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(AppConstants.paddingL),
       decoration: BoxDecoration(
         color: AppColors.backgroundWhite,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: valueColor,
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      value,
+                      style: textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: valueColor,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppConstants.paddingXS),
                 Text(
                   label,
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style: textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.textSecondary,
                   ),
@@ -62,7 +68,7 @@ class WalletStatCardWidget extends StatelessWidget {
             ),
           ),
           if (icon != null) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: AppConstants.paddingS),
             Container(
               width: 36,
               height: 36,
@@ -73,18 +79,32 @@ class WalletStatCardWidget extends StatelessWidget {
               child: Icon(icon, size: 18, color: iconColor ?? AppColors.primary),
             ),
           ],
+          if (onTap != null) ...[
+            const SizedBox(width: AppConstants.paddingXS),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textTertiary,
+            ),
+          ],
         ],
       ),
     );
 
-    if (onTap == null) return card;
-    return Material(
-      color: AppColors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: card,
-      ),
+    return Semantics(
+      button: onTap != null,
+      excludeSemantics: true,
+      label: '$label: $value',
+      onTap: onTap,
+      child: onTap == null
+          ? card
+          : Material(
+              color: AppColors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+                onTap: onTap,
+                child: card,
+              ),
+            ),
     );
   }
 }

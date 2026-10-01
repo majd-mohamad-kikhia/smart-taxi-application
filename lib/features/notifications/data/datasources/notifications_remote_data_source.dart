@@ -22,4 +22,14 @@ class NotificationsRemoteDataSource {
       response.data['data'] as Map<String, dynamic>,
     );
   }
+
+  /// `PUT /api/customer/notifications/{id}/read`.
+  Future<void> markRead(int id) async {
+    await _dio.put(_endpoints.customerNotificationRead(id));
+  }
+
+  /// `PUT /api/customer/notifications/read-all`.
+  Future<void> markAllRead() async {
+    await _dio.put(_endpoints.customerNotificationsReadAll);
+  }
 }

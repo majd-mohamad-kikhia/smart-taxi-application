@@ -3,7 +3,7 @@ import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
 
 /// Quiet destructive "delete my account" button at the bottom of the
-/// settings screens (rider and driver).
+/// settings screens (customer and driver).
 class DeleteAccountButtonWidget extends StatelessWidget {
   final VoidCallback onPressed;
 
@@ -16,8 +16,8 @@ class DeleteAccountButtonWidget extends StatelessWidget {
       icon: const Icon(Icons.delete_outline_rounded, size: 20),
       label: Text(context.l10n.deleteAccount),
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.error,
-        minimumSize: const Size.fromHeight(44),
+        foregroundColor: AppColors.errorText,
+        minimumSize: const Size.fromHeight(48),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );

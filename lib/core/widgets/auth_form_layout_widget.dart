@@ -3,6 +3,7 @@ import '../constants/app_constants.dart';
 import '../enums/user_role.dart';
 import 'auth_error_banner_widget.dart';
 import 'auth_header_widget.dart';
+import 'auth_language_toggle_widget.dart';
 import 'auth_primary_button_widget.dart';
 import 'role_badge_widget.dart';
 
@@ -49,39 +50,50 @@ class AuthFormLayoutWidget extends StatelessWidget {
           padding: const EdgeInsets.all(AppConstants.paddingXXL),
           child: Form(
             key: formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: AppConstants.paddingL),
-                AuthHeaderWidget(title: title, subtitle: subtitle),
-                const SizedBox(height: AppConstants.paddingL),
-                if (role != null)
-                  Center(
-                    child: RoleBadgeWidget(role: role!, onChange: onChangeRole),
+            // Lets the keyboard and password managers fill the whole form
+            // and offer to save the sign-in.
+            child: AutofillGroup(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: AuthLanguageToggleWidget(),
                   ),
-                const SizedBox(height: AppConstants.paddingXXL),
-                for (var i = 0; i < fields.length; i++) ...[
-                  fields[i],
-                  SizedBox(
-                    height: i == fields.length - 1
-                        ? AppConstants.paddingXL
-                        : AppConstants.paddingL,
+                  const SizedBox(height: AppConstants.paddingS),
+                  AuthHeaderWidget(title: title, subtitle: subtitle),
+                  const SizedBox(height: AppConstants.paddingL),
+                  if (role != null)
+                    Center(
+                      child: RoleBadgeWidget(
+                        role: role!,
+                        onChange: onChangeRole,
+                      ),
+                    ),
+                  const SizedBox(height: AppConstants.paddingXXL),
+                  for (var i = 0; i < fields.length; i++) ...[
+                    fields[i],
+                    SizedBox(
+                      height: i == fields.length - 1
+                          ? AppConstants.paddingXL
+                          : AppConstants.paddingL,
+                    ),
+                  ],
+                  if (errorMessage != null) ...[
+                    AuthErrorBannerWidget(message: errorMessage!),
+                    const SizedBox(height: AppConstants.paddingM),
+                  ],
+                  AuthPrimaryButtonWidget(
+                    label: submitLabel,
+                    isLoading: isSubmitting,
+                    onPressed: onSubmit,
                   ),
+                  if (footer != null) ...[
+                    const SizedBox(height: AppConstants.paddingXL),
+                    footer!,
+                  ],
                 ],
-                if (errorMessage != null) ...[
-                  AuthErrorBannerWidget(message: errorMessage!),
-                  const SizedBox(height: AppConstants.paddingM),
-                ],
-                AuthPrimaryButtonWidget(
-                  label: submitLabel,
-                  isLoading: isSubmitting,
-                  onPressed: onSubmit,
-                ),
-                if (footer != null) ...[
-                  const SizedBox(height: AppConstants.paddingXL),
-                  footer!,
-                ],
-              ],
+              ),
             ),
           ),
         ),

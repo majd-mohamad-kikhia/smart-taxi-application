@@ -7,7 +7,7 @@ import 'account_block_state.dart';
 
 /// App-wide "is the signed-in account blocked from rides" state, fed by
 /// [AccountBlockSocketService]. Singleton (see injection.dart): started when
-/// a rider/driver session begins and stopped on logout, so any screen can
+/// a customer/driver session begins and stopped on logout, so any screen can
 /// read it without owning a connection.
 class AccountBlockCubit extends Cubit<AccountBlockState> {
   final AccountBlockSocketService _socketService;

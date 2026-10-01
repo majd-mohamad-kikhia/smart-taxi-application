@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/ride_fare_breakdown_model.dart';
-import '../theme/app_colors.dart';
+import '../utils/format_price.dart';
+import 'bill_row_widget.dart';
 import 'live_fee_card_widget.dart';
 
 /// Bill lines for a finished ride — base fare, distance, stops, waiting
@@ -21,18 +22,18 @@ class FareBreakdownWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    String price(double amount) => l10n.priceSyp(amount.toStringAsFixed(0));
+    String price(double amount) => l10n.priceSyp(formatPrice(amount));
     final waiting = fare.waiting;
 
     return Column(
       children: [
         if (fare.baseFare > 0)
-          _BillRow(label: l10n.fareBaseFare, value: price(fare.baseFare)),
-        _BillRow(label: l10n.fareDistanceFare, value: price(fare.distanceFare)),
+          BillRowWidget(label: l10n.fareBaseFare, value: price(fare.baseFare)),
+        BillRowWidget(label: l10n.fareDistanceFare, value: price(fare.distanceFare)),
         if (fare.stopsFeeTotal > 0)
-          _BillRow(label: l10n.fareStopsFee, value: price(fare.stopsFeeTotal)),
+          BillRowWidget(label: l10n.fareStopsFee, value: price(fare.stopsFeeTotal)),
         if (fare.waitingFee > 0)
-          _BillRow(
+          BillRowWidget(
             label: l10n.fareWaiting,
             detail: waiting == null
                 ? null
@@ -43,7 +44,7 @@ class FareBreakdownWidget extends StatelessWidget {
             value: price(fare.waitingFee),
           ),
         if (fare.pauseFeeTotal > 0)
-          _BillRow(
+          BillRowWidget(
             label: l10n.farePauses,
             detail: l10n.farePausesDetail(
               '${fare.pauseCount}',
@@ -52,68 +53,12 @@ class FareBreakdownWidget extends StatelessWidget {
             value: price(fare.pauseFeeTotal),
           ),
         if (showTotal)
-          _BillRow(
+          BillRowWidget(
             label: l10n.fareTotal,
             value: price(fare.finalPrice),
             isBold: true,
           ),
       ],
-    );
-  }
-}
-
-class _BillRow extends StatelessWidget {
-  final String label;
-  final String? detail;
-  final String value;
-  final bool isBold;
-
-  const _BillRow({
-    required this.label,
-    required this.value,
-    this.detail,
-    this.isBold = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final weight = isBold ? FontWeight.w800 : FontWeight.w600;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text.rich(
-              TextSpan(
-                text: label,
-                children: [
-                  if (detail != null)
-                    TextSpan(
-                      text: '  ($detail)',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textTertiary,
-                      ),
-                    ),
-                ],
-              ),
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: weight,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: weight,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

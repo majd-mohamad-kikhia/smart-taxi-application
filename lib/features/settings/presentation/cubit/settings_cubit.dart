@@ -7,8 +7,8 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   SettingsCubit(this._sessionCubit) : super(SettingsState.initial());
 
-  /// The verification badge stays mock data — only the identity fields
-  /// come from the real signed-in user.
+  /// Fills the profile from the signed-in customer. With nobody signed in the
+  /// card stays blank.
   void initialize() {
     if (isClosed) return;
     final user = _sessionCubit.state;

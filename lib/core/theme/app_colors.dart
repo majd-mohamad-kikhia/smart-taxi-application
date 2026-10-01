@@ -48,28 +48,42 @@ class AppColors {
   static const Color border = neutralBorder;
   static const Color borderLight = neutralDivider;
 
+  /// The outline of an input or an outlined button, where the edge itself
+  /// tells you it is a control: 3.5:1 on a surface and 4.1:1 on the page.
+  /// [border] stays for cards, which are separated by their fill.
+  static const Color borderStrong = Color(0xFF70747D);
+
   static const Color textPrimary = Color(0xFFF5F6F7);
   static const Color textSecondary = Color(0xFFB4B8C0);
-  static const Color textTertiary = Color(0xFF7D818A);
+  static const Color textTertiary = Color(0xFF999DA6);
   static const Color textLink = orangeGold;
 
   /// Foreground used on top of [primary]. Dark, because the brand
   /// primary is a light yellow — white would be unreadable on it.
   static const Color textOnPrimary = darkGray;
 
+  /// A disabled primary button: the brand yellow dimmed to 40%, with a
+  /// light label, so it still reads as "the yellow button, not available"
+  /// instead of falling back to Material's neutral gray.
+  static const Color primaryDisabled = Color(0x66FFD600);
+  static const Color textOnPrimaryDisabled = Color(0xB3F5F6F7);
+
   static const Color success = Color(0xFF10B981);
   static const Color successSurface = Color(0xFF123420);
   static const Color error = Color(0xFFEF4444);
   static const Color errorSurface = Color(0xFF3B1619);
+
+  /// Error as small text (a validation or failure line): [error] is only
+  /// 4.4:1 on a surface, this is 6:1 there and 5.1:1 on the muted fill.
+  static const Color errorText = Color(0xFFF87171);
   static const Color warning = orangeGold;
 
-  /// Deeper end of each status gradient (see the gradients below).
-  static const Color successDark = Color(0xFF059669);
+  /// Solid fill for a destructive action: white text on it is 4.8:1,
+  /// where white on [error] is only 3.8:1.
   static const Color errorDark = Color(0xFFDC2626);
 
-  /// The orange-red used by the warning dialog's icon gradient.
-  static const Color alertOrange = Color(0xFFFF6535);
-  static const Color alertOrangeDeep = Color(0xFFE5521E);
+  /// Foreground on [success] (dark: white on this green is only 2.5:1).
+  static const Color textOnSuccess = neutralPage;
 
   static const Color navBackground = neutralSurface;
   static const Color navActive = orangeGold;
@@ -90,23 +104,5 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [primaryYellow, orangeGold],
-  );
-
-  static const LinearGradient successGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [success, successDark],
-  );
-
-  static const LinearGradient errorGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [error, errorDark],
-  );
-
-  static const LinearGradient alertGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [alertOrange, alertOrangeDeep],
   );
 }

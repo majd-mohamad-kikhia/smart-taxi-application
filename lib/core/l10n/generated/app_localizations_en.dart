@@ -50,8 +50,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String appMaintenanceBackAt(String time) {
-    return 'Back at $time';
+    return 'Back: $time';
   }
+
+  @override
+  String get appMaintenanceAnyMinute => 'Should be back any minute';
+
+  @override
+  String get appMaintenanceStillDown =>
+      'Still under maintenance. Try again in a little while.';
+
+  @override
+  String get appUpdateStoreFailed =>
+      'Couldn\'t open the store. Open it yourself, search for Smart Taxi and update.';
 
   @override
   String get cancel => 'Cancel';
@@ -82,6 +93,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noData => 'No data';
+
+  @override
+  String get loading => 'Loading';
+
+  @override
+  String get loadMoreFailed => 'Couldn\'t load more';
 
   @override
   String get navHome => 'Home';
@@ -127,15 +144,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String priceLyd(String amount) {
-    return '$amount LYD';
-  }
-
-  @override
   String get phoneNumber => 'Phone number';
 
   @override
   String get password => 'Password';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
 
   @override
   String get confirmPassword => 'Confirm password';
@@ -378,18 +396,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please allow the app to use your location in your device settings';
 
   @override
-  String get roleRider => 'Rider';
+  String get roleCustomer => 'Rider';
 
   @override
   String get roleDriver => 'Captain';
 
   @override
-  String get roleRiderDescription =>
+  String get roleCustomerDescription =>
       'Book your rides and get around easily and safely';
 
   @override
   String get roleDriverDescription =>
-      'Join as a driver and start receiving rides';
+      'Sign in to your driver account. Accounts are created by the company';
+
+  @override
+  String get forgotPasswordContactSupport =>
+      'Forgot your password? Contact support';
 
   @override
   String get logoutTitle => 'Log out?';
@@ -405,7 +427,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you sure you want to log out of your account?';
 
   @override
-  String get logoutMessageRider =>
+  String get logoutMessageCustomer =>
       'Are you sure you want to log out of your account? You\'ll need to sign in again to continue.';
 
   @override
@@ -439,14 +461,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancelTrip => 'Cancel trip';
 
   @override
-  String get cancelTripReasonPrompt =>
-      'Please write the reason for cancelling the trip';
+  String get cancelTripReasonChoosePrompt =>
+      'Choose a reason for cancelling the trip';
 
   @override
   String get cancelReasonRequired => 'Please write the cancellation reason';
 
   @override
-  String get cancelReasonHint => 'Write the reason here...';
+  String get cancelReasonPick => 'Choose a reason';
+
+  @override
+  String get cancelReasonWaitingTooLong => 'Waiting too long';
+
+  @override
+  String get cancelReasonWrongLocation => 'Wrong or unclear location';
+
+  @override
+  String get cancelReasonCannotReach => 'Could not reach the other person';
+
+  @override
+  String get cancelReasonPlansChanged => 'Plans changed';
+
+  @override
+  String get cancelReasonOther => 'Other';
+
+  @override
+  String get cancelReasonNoteHint => 'Add a note (optional)';
+
+  @override
+  String get cancelReasonNoteRequiredHint => 'Describe the reason';
+
+  @override
+  String get cancelLimitWarning =>
+      'Cancelling too often can block your account.';
 
   @override
   String get tripCancelled => 'The trip was cancelled';
@@ -555,7 +602,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get presenceConnecting => 'Connecting...';
 
   @override
-  String get presenceOffline => 'Unavailable';
+  String get presenceYouAreOnline => 'You\'re online';
+
+  @override
+  String get presenceYouAreOffline => 'You\'re offline';
+
+  @override
+  String get presenceGoOnline => 'Go online';
+
+  @override
+  String get presenceGoOffline => 'Go offline';
+
+  @override
+  String get goOfflineConfirmTitle => 'Go offline?';
+
+  @override
+  String get goOfflineConfirmMessage =>
+      'You\'ll stop receiving trip requests, and the offers on screen will disappear.';
+
+  @override
+  String get driverReconnectingStale =>
+      'Reconnecting… these offers may be out of date';
 
   @override
   String get locationSharingTitle => 'You\'re available for trips';
@@ -598,6 +665,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fareSummaryTitle => 'Trip completed';
 
   @override
+  String get fareCollectFromCustomer => 'Collect from the customer';
+
+  @override
+  String get fareDetails => 'Fare details';
+
+  @override
+  String get finishTripConfirmTitle => 'Finish the trip?';
+
+  @override
+  String get finishTripConfirmMessage =>
+      'The fare will be calculated from the route driven so far. You\'ll then collect payment from the customer.';
+
+  @override
   String get fareFinalPrice => 'Final price';
 
   @override
@@ -626,6 +706,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletFines => 'Administrative fines';
+
+  @override
+  String get walletBalanceHint => 'Commissions are taken from this balance';
+
+  @override
+  String get walletPreviousMonth => 'Previous month';
+
+  @override
+  String get walletNextMonth => 'Next month';
+
+  @override
+  String get walletEarnings => 'Trip earnings';
+
+  @override
+  String walletBalanceAfter(String amount) {
+    return 'Balance after: $amount';
+  }
+
+  @override
+  String get txReward => 'Reward';
 
   @override
   String get walletNoFines => 'No fines';
@@ -663,10 +763,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileName => 'Name';
 
   @override
-  String get profileRating => 'Rating';
+  String get profileStatusRejectedNote =>
+      'Your application wasn\'t approved. Contact support for details';
 
   @override
-  String get profileNoRatingYet => 'None yet';
+  String get profileNoVehicle => 'No vehicle is registered to your account yet';
 
   @override
   String get profileWalletBalance => 'Wallet balance';
@@ -773,6 +874,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notAvailableNow => 'Currently unavailable';
 
   @override
+  String get priceUnavailable => 'Price unavailable';
+
+  @override
+  String get noVehiclesAvailable =>
+      'No vehicles are available for this trip right now. Try again in a few minutes.';
+
+  @override
+  String requestVehicle(String name, String price) {
+    return 'Request $name · $price';
+  }
+
+  @override
   String get confirmLocation => 'Confirm location';
 
   @override
@@ -840,15 +953,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackTrip => 'Track trip';
-
-  @override
-  String get safeTripTitle => 'Safe, verified trip';
-
-  @override
-  String get safeTripActive => 'Route tracking and location sharing are on';
-
-  @override
-  String get safeTripActivating => 'Safety features are being activated';
 
   @override
   String get connectionErrorRetrying => 'Couldn\'t reach the server — retrying';
@@ -925,10 +1029,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String get detailStopsFee => 'Stop fees';
 
   @override
+  String get detailPaymentPaid => 'Paid';
+
+  @override
+  String get detailPaymentUnpaid => 'Waiting for payment';
+
+  @override
+  String detailStopLabel(int number) {
+    return 'Stop $number';
+  }
+
+  @override
+  String get routeRecorded => 'Route recorded';
+
+  @override
+  String get fareTripFare => 'Trip fare';
+
+  @override
+  String dateToday(String time) {
+    return 'Today, $time';
+  }
+
+  @override
+  String dateYesterday(String time) {
+    return 'Yesterday, $time';
+  }
+
+  @override
   String get noRidesYet => 'No rides yet';
 
   @override
+  String get settingsSectionTrips => 'Trips';
+
+  @override
+  String get searchRadiusUnsaved => 'Not saved yet';
+
+  @override
+  String get driverDeletionRejectedNoNote =>
+      'No note from the manager. You can keep working, or send a new request.';
+
+  @override
+  String get settingsSectionPreferences => 'Preferences';
+
+  @override
+  String get settingsSectionHelp => 'Help';
+
+  @override
+  String get discardChangesTitle => 'Discard your changes?';
+
+  @override
+  String get discardChangesMessage =>
+      'You have changes that haven\'t been saved. If you leave now, they will be lost.';
+
+  @override
+  String get discardChangesConfirm => 'Discard';
+
+  @override
+  String get keepEditing => 'Keep editing';
+
+  @override
   String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationNew => 'New';
+
+  @override
+  String get notificationsMarkAllRead => 'Mark all as read';
+
+  @override
+  String notificationsUnreadLabel(int count) {
+    return 'Notifications, $count unread';
+  }
 
   @override
   String get notificationsEmpty => 'No notifications';
@@ -950,6 +1121,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String waitingFreeLeft(String time) {
     return 'Free time left: $time';
+  }
+
+  @override
+  String get liveFeeSoFar => 'Fee so far';
+
+  @override
+  String spokenMinutesSeconds(int minutes, int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '1 minute',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '$seconds seconds',
+      one: '1 second',
+    );
+    return '$_temp0 $_temp1';
   }
 
   @override
@@ -1090,6 +1281,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeStartNew => 'Start a new route';
 
   @override
+  String get routeStartRecording => 'Start recording';
+
+  @override
+  String get routePause => 'Pause';
+
+  @override
+  String get routeResume => 'Resume';
+
+  @override
+  String get routeFinish => 'Finish route';
+
+  @override
+  String get routeIdleHint => 'A private route, kept on this phone only';
+
+  @override
+  String routeRecordingStatus(Object distance, Object time) {
+    return 'Recording · $time · $distance';
+  }
+
+  @override
+  String get routeFinishConfirmTitle => 'Finish the route?';
+
+  @override
+  String get routeFinishConfirmMessage =>
+      'The route will stop recording and you\'ll see its summary.';
+
+  @override
+  String get routeStartNewConfirmTitle => 'Start a new route?';
+
+  @override
+  String get routeStartNewConfirmMessage =>
+      'The current route and its summary will be deleted from this phone.';
+
+  @override
   String get routeSummaryTitle => 'Route summary';
 
   @override
@@ -1117,7 +1342,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountBlockedTitle => 'Your account is temporarily blocked';
 
   @override
-  String get accountBlockedRiderMessage =>
+  String get accountBlockedCustomerMessage =>
       'You can\'t request new rides while the block is active. A ride already in progress isn\'t affected.';
 
   @override
@@ -1133,6 +1358,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String accountBlockedReason(String reason) {
     return 'Reason: $reason';
   }
+
+  @override
+  String get contactUs => 'Contact us';
+
+  @override
+  String get noContactNumbers => 'No contact numbers yet.';
+
+  @override
+  String get whatsappNotAvailable => 'WhatsApp isn\'t available on this device';
+
+  @override
+  String get callNotAvailable => 'Calls aren\'t supported on this device';
 
   @override
   String accountBlockedStrikes(int count, int limit) {

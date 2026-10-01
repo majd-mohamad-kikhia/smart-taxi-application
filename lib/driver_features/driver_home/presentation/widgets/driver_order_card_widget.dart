@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/auth_primary_button_widget.dart';
 
 /// A single ride offer on the driver home screen. [isAccepting] shows a
-/// spinner in place of the button; [enabled] disables it while another
-/// card's accept is in flight (only one accept at a time).
+/// spinner in place of the button's label; [enabled] disables the button
+/// while another card's accept is in flight (only one accept at a time).
 class DriverOrderCardWidget extends StatelessWidget {
   final OrderOfferModel order;
   final bool isAccepting;
@@ -83,31 +85,13 @@ class DriverOrderCardWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: enabled ? onAccept : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.textOnPrimary,
-                disabledBackgroundColor: AppColors.backgroundMuted,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: isAccepting
-                  ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.textOnPrimary,
-                      ),
-                    )
-                  : Text(
-                      context.l10n.driverAcceptTrip,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                    ),
-            ),
+          // The card being accepted stays full yellow with a visible spinner;
+          // the other cards' buttons dim to a muted yellow while it is in
+          // flight (only one accept at a time).
+          AuthPrimaryButtonWidget(
+            label: context.l10n.driverAcceptTrip,
+            isLoading: isAccepting,
+            onPressed: enabled ? onAccept : null,
           ),
         ],
       ),
@@ -131,9 +115,14 @@ class _PricePill extends StatelessWidget {
       ),
       child: Text(
         isEstimate
-            ? '~${context.l10n.priceLyd(price.toStringAsFixed(2))}'
-            : context.l10n.priceLyd(price.toStringAsFixed(2)),
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary),
+            ? '~${context.l10n.priceSyp(formatPrice(price))}'
+            : context.l10n.priceSyp(formatPrice(price)),
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: AppColors.primary,
+          fontFeatures: [FontFeature.tabularFigures()],
+        ),
       ),
     );
   }

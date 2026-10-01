@@ -49,8 +49,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String appMaintenanceBackAt(String time) {
-    return 'نعود في $time';
+    return 'نعود: $time';
   }
+
+  @override
+  String get appMaintenanceAnyMinute => 'من المتوقع أن نعود بعد لحظات';
+
+  @override
+  String get appMaintenanceStillDown =>
+      'ما زال التطبيق تحت الصيانة. حاول مرة أخرى بعد قليل.';
+
+  @override
+  String get appUpdateStoreFailed =>
+      'تعذّر فتح المتجر. افتحه بنفسك وابحث عن Smart Taxi ثم حدّث التطبيق.';
 
   @override
   String get cancel => 'إلغاء';
@@ -83,6 +94,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noData => 'لا توجد بيانات';
 
   @override
+  String get loading => 'جارٍ التحميل';
+
+  @override
+  String get loadMoreFailed => 'تعذّر تحميل المزيد';
+
+  @override
   String get navHome => 'الرئيسية';
 
   @override
@@ -95,7 +112,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navSettings => 'الإعدادات';
 
   @override
-  String get navCreateRequest => 'انشاء طلب';
+  String get navCreateRequest => 'إنشاء طلب';
 
   @override
   String get navMyRequests => 'طلباتي';
@@ -126,15 +143,16 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String priceLyd(String amount) {
-    return '$amount د.ل';
-  }
-
-  @override
   String get phoneNumber => 'رقم الجوال';
 
   @override
   String get password => 'كلمة المرور';
+
+  @override
+  String get showPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get hidePassword => 'إخفاء كلمة المرور';
 
   @override
   String get confirmPassword => 'تأكيد كلمة المرور';
@@ -368,16 +386,20 @@ class AppLocalizationsAr extends AppLocalizations {
       'يرجى تفعيل صلاحية الموقع للتطبيق من إعدادات الجهاز';
 
   @override
-  String get roleRider => 'راكب';
+  String get roleCustomer => 'راكب';
 
   @override
   String get roleDriver => 'كابتن';
 
   @override
-  String get roleRiderDescription => 'احجز رحلاتك وتنقّل بسهولة وأمان';
+  String get roleCustomerDescription => 'احجز رحلاتك وتنقّل بسهولة وأمان';
 
   @override
-  String get roleDriverDescription => 'انضم كسائق وابدأ استقبال الرحلات';
+  String get roleDriverDescription =>
+      'سجّل الدخول إلى حساب الكابتن. الحسابات تُنشأ من قبل الشركة';
+
+  @override
+  String get forgotPasswordContactSupport => 'نسيت كلمة المرور؟ تواصل مع الدعم';
 
   @override
   String get logoutTitle => 'تسجيل الخروج؟';
@@ -393,7 +415,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟';
 
   @override
-  String get logoutMessageRider =>
+  String get logoutMessageCustomer =>
       'هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟ ستحتاج لتسجيل الدخول مجدداً للمتابعة.';
 
   @override
@@ -427,13 +449,37 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cancelTrip => 'إلغاء الرحلة';
 
   @override
-  String get cancelTripReasonPrompt => 'يرجى كتابة سبب إلغاء الرحلة';
+  String get cancelTripReasonChoosePrompt => 'اختر سبب إلغاء الرحلة';
 
   @override
   String get cancelReasonRequired => 'يرجى كتابة سبب الإلغاء';
 
   @override
-  String get cancelReasonHint => 'اكتب السبب هنا...';
+  String get cancelReasonPick => 'اختر سبباً';
+
+  @override
+  String get cancelReasonWaitingTooLong => 'الانتظار طويل جداً';
+
+  @override
+  String get cancelReasonWrongLocation => 'الموقع خاطئ أو غير واضح';
+
+  @override
+  String get cancelReasonCannotReach => 'تعذّر التواصل مع الطرف الآخر';
+
+  @override
+  String get cancelReasonPlansChanged => 'تغيّرت الخطط';
+
+  @override
+  String get cancelReasonOther => 'سبب آخر';
+
+  @override
+  String get cancelReasonNoteHint => 'أضف ملاحظة (اختياري)';
+
+  @override
+  String get cancelReasonNoteRequiredHint => 'اشرح السبب';
+
+  @override
+  String get cancelLimitWarning => 'الإلغاء المتكرر قد يؤدي إلى حظر حسابك.';
 
   @override
   String get tripCancelled => 'تم إلغاء الرحلة';
@@ -540,7 +586,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get presenceConnecting => 'جاري الاتصال...';
 
   @override
-  String get presenceOffline => 'غير متاح';
+  String get presenceYouAreOnline => 'أنت متصل';
+
+  @override
+  String get presenceYouAreOffline => 'أنت غير متصل';
+
+  @override
+  String get presenceGoOnline => 'ابدأ العمل';
+
+  @override
+  String get presenceGoOffline => 'توقّف عن العمل';
+
+  @override
+  String get goOfflineConfirmTitle => 'التوقف عن العمل؟';
+
+  @override
+  String get goOfflineConfirmMessage =>
+      'ستتوقف عن استقبال طلبات الرحلات، وستختفي العروض المعروضة الآن.';
+
+  @override
+  String get driverReconnectingStale =>
+      'جارٍ إعادة الاتصال… قد تكون هذه العروض قديمة';
 
   @override
   String get locationSharingTitle => 'أنت متاح لاستقبال الرحلات';
@@ -582,6 +648,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fareSummaryTitle => 'اكتملت الرحلة';
 
   @override
+  String get fareCollectFromCustomer => 'المبلغ المطلوب من العميل';
+
+  @override
+  String get fareDetails => 'تفاصيل الأجرة';
+
+  @override
+  String get finishTripConfirmTitle => 'إنهاء الرحلة؟';
+
+  @override
+  String get finishTripConfirmMessage =>
+      'ستُحتسب الأجرة بحسب المسار الذي قطعته حتى الآن، ثم تستلم الدفعة من العميل.';
+
+  @override
   String get fareFinalPrice => 'السعر النهائي';
 
   @override
@@ -610,6 +689,26 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get walletFines => 'الغرامات الإدارية';
+
+  @override
+  String get walletBalanceHint => 'تُخصم العمولات من هذا الرصيد';
+
+  @override
+  String get walletPreviousMonth => 'الشهر السابق';
+
+  @override
+  String get walletNextMonth => 'الشهر التالي';
+
+  @override
+  String get walletEarnings => 'أرباح الرحلات';
+
+  @override
+  String walletBalanceAfter(String amount) {
+    return 'الرصيد بعد العملية: $amount';
+  }
+
+  @override
+  String get txReward => 'مكافأة';
 
   @override
   String get walletNoFines => 'لا توجد غرامات';
@@ -647,10 +746,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileName => 'الاسم';
 
   @override
-  String get profileRating => 'التقييم';
+  String get profileStatusRejectedNote =>
+      'لم تتم الموافقة على طلبك. تواصل مع الدعم لمعرفة التفاصيل';
 
   @override
-  String get profileNoRatingYet => 'لا يوجد بعد';
+  String get profileNoVehicle => 'لا توجد مركبة مسجّلة على حسابك بعد';
 
   @override
   String get profileWalletBalance => 'رصيد المحفظة';
@@ -757,6 +857,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notAvailableNow => 'غير متاح حالياً';
 
   @override
+  String get priceUnavailable => 'السعر غير متوفر';
+
+  @override
+  String get noVehiclesAvailable =>
+      'لا توجد مركبات متاحة لهذه الرحلة الآن. حاول مرة أخرى بعد قليل.';
+
+  @override
+  String requestVehicle(String name, String price) {
+    return 'اطلب $name · $price';
+  }
+
+  @override
   String get confirmLocation => 'تأكيد الموقع';
 
   @override
@@ -822,15 +934,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get trackTrip => 'تتبع الرحلة';
-
-  @override
-  String get safeTripTitle => 'رحلة آمنة وموثقة';
-
-  @override
-  String get safeTripActive => 'تتبع المسار ومشاركة الموقع مفعلين';
-
-  @override
-  String get safeTripActivating => 'ميزات الأمان قيد التفعيل';
 
   @override
   String get connectionErrorRetrying =>
@@ -908,10 +1011,77 @@ class AppLocalizationsAr extends AppLocalizations {
   String get detailStopsFee => 'رسوم التوقفات';
 
   @override
+  String get detailPaymentPaid => 'تم الدفع';
+
+  @override
+  String get detailPaymentUnpaid => 'بانتظار الدفع';
+
+  @override
+  String detailStopLabel(int number) {
+    return 'محطة $number';
+  }
+
+  @override
+  String get routeRecorded => 'تم تسجيل المسار';
+
+  @override
+  String get fareTripFare => 'أجرة الرحلة';
+
+  @override
+  String dateToday(String time) {
+    return 'اليوم، $time';
+  }
+
+  @override
+  String dateYesterday(String time) {
+    return 'أمس، $time';
+  }
+
+  @override
   String get noRidesYet => 'لا توجد طلبات بعد';
 
   @override
+  String get settingsSectionTrips => 'الرحلات';
+
+  @override
+  String get searchRadiusUnsaved => 'لم يتم الحفظ بعد';
+
+  @override
+  String get driverDeletionRejectedNoNote =>
+      'لا توجد ملاحظة من المدير. يمكنك متابعة العمل أو إرسال طلب جديد.';
+
+  @override
+  String get settingsSectionPreferences => 'التفضيلات';
+
+  @override
+  String get settingsSectionHelp => 'المساعدة';
+
+  @override
+  String get discardChangesTitle => 'تجاهل التعديلات؟';
+
+  @override
+  String get discardChangesMessage =>
+      'لديك تعديلات لم تُحفظ. إذا غادرت الآن فستضيع.';
+
+  @override
+  String get discardChangesConfirm => 'تجاهل';
+
+  @override
+  String get keepEditing => 'متابعة التعديل';
+
+  @override
   String get notificationsTitle => 'الإشعارات';
+
+  @override
+  String get notificationNew => 'جديد';
+
+  @override
+  String get notificationsMarkAllRead => 'تعليم الكل كمقروء';
+
+  @override
+  String notificationsUnreadLabel(int count) {
+    return 'الإشعارات، $count غير مقروء';
+  }
 
   @override
   String get notificationsEmpty => 'لا توجد إشعارات';
@@ -932,6 +1102,28 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String waitingFreeLeft(String time) {
     return 'الوقت المجاني المتبقي: $time';
+  }
+
+  @override
+  String get liveFeeSoFar => 'الرسوم حتى الآن';
+
+  @override
+  String spokenMinutesSeconds(int minutes, int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes دقيقة',
+      two: 'دقيقتان',
+      one: 'دقيقة',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '$seconds ثانية',
+      two: 'ثانيتان',
+      one: 'ثانية',
+    );
+    return '$_temp0 $_temp1';
   }
 
   @override
@@ -1072,6 +1264,39 @@ class AppLocalizationsAr extends AppLocalizations {
   String get routeStartNew => 'بداية مسار جديد';
 
   @override
+  String get routeStartRecording => 'ابدأ التسجيل';
+
+  @override
+  String get routePause => 'إيقاف مؤقت';
+
+  @override
+  String get routeResume => 'استئناف';
+
+  @override
+  String get routeFinish => 'إنهاء المسار';
+
+  @override
+  String get routeIdleHint => 'مسار خاص، يُحفظ على هذا الهاتف فقط';
+
+  @override
+  String routeRecordingStatus(Object distance, Object time) {
+    return 'جارٍ التسجيل · $time · $distance';
+  }
+
+  @override
+  String get routeFinishConfirmTitle => 'إنهاء المسار؟';
+
+  @override
+  String get routeFinishConfirmMessage => 'سيتوقف تسجيل المسار وسترى ملخصه.';
+
+  @override
+  String get routeStartNewConfirmTitle => 'بدء مسار جديد؟';
+
+  @override
+  String get routeStartNewConfirmMessage =>
+      'سيتم حذف المسار الحالي وملخصه من هذا الهاتف.';
+
+  @override
   String get routeSummaryTitle => 'ملخص المسار';
 
   @override
@@ -1099,7 +1324,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get accountBlockedTitle => 'حسابك محظور مؤقتًا';
 
   @override
-  String get accountBlockedRiderMessage =>
+  String get accountBlockedCustomerMessage =>
       'لا يمكنك طلب رحلات جديدة أثناء الحظر. الرحلة الجارية حاليًا لا تتأثر.';
 
   @override
@@ -1115,6 +1340,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String accountBlockedReason(String reason) {
     return 'السبب: $reason';
   }
+
+  @override
+  String get contactUs => 'تواصل معنا';
+
+  @override
+  String get noContactNumbers => 'لا توجد أرقام تواصل بعد.';
+
+  @override
+  String get whatsappNotAvailable => 'واتساب غير متاح على هذا الجهاز';
+
+  @override
+  String get callNotAvailable => 'الاتصال غير مدعوم على هذا الجهاز';
 
   @override
   String accountBlockedStrikes(int count, int limit) {

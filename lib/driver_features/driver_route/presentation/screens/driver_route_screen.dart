@@ -80,7 +80,9 @@ class _TopOverlay extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.phase != current.phase ||
           previous.session.isPaused != current.session.isPaused ||
-          previous.session.finishedAt != current.session.finishedAt,
+          previous.session.finishedAt != current.session.finishedAt ||
+          // The recording chip shows the distance driven so far.
+          previous.session.distanceMeters != current.session.distanceMeters,
       builder: (context, state) {
         if (state.phase == RoutePhase.finished) {
           return RouteSummaryCardWidget(session: state.session);

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -28,7 +29,9 @@ class _RideRouteMapWidgetState extends State<RideRouteMapWidget> {
   }
 
   Future<void> _loadMapStyle() async {
-    final style = await rootBundle.loadString('assets/map_styles/dark_map_style.json');
+    final style = await rootBundle.loadString(
+      'assets/map_styles/dark_map_style.json',
+    );
     if (mounted) setState(() => _mapStyle = style);
   }
 
@@ -46,47 +49,58 @@ class _RideRouteMapWidgetState extends State<RideRouteMapWidget> {
     final points = [for (final p in widget.route) LatLng(p.lat, p.lng)];
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
       child: AspectRatio(
         aspectRatio: 16 / 10,
-        child: GoogleMap(
-          style: _mapStyle,
-          initialCameraPosition: CameraPosition(target: points.first, zoom: 14),
-          onMapCreated: (controller) => controller.moveCamera(
-            CameraUpdate.newLatLngBounds(_bounds(points), 40),
-          ),
-          myLocationEnabled: false,
-          myLocationButtonEnabled: false,
-          zoomControlsEnabled: false,
-          mapToolbarEnabled: false,
-          scrollGesturesEnabled: false,
-          zoomGesturesEnabled: false,
-          rotateGesturesEnabled: false,
-          tiltGesturesEnabled: false,
-          polylines: {
-            Polyline(
-              polylineId: const PolylineId('driven_route'),
-              points: points,
-              color: AppColors.mapRouteDriven,
-              width: 5,
-              jointType: JointType.round,
-              startCap: Cap.roundCap,
-              endCap: Cap.roundCap,
-            ),
-          },
-          markers: {
-            Marker(
-              markerId: const MarkerId('start'),
-              position: points.first,
-              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-            ),
-            Marker(
-              markerId: const MarkerId('end'),
-              position: points.last,
-              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-            ),
-          },
-        ),
+        // Until the dark style has loaded, a plain card-colored box stands
+        // in, so a light default map never flashes.
+        child: _mapStyle == null
+            ? const ColoredBox(color: AppColors.backgroundMuted)
+            : GoogleMap(
+                style: _mapStyle,
+                initialCameraPosition: CameraPosition(
+                  target: points.first,
+                  zoom: 14,
+                ),
+                onMapCreated: (controller) => controller.moveCamera(
+                  CameraUpdate.newLatLngBounds(_bounds(points), 40),
+                ),
+                myLocationEnabled: false,
+                myLocationButtonEnabled: false,
+                zoomControlsEnabled: false,
+                mapToolbarEnabled: false,
+                scrollGesturesEnabled: false,
+                zoomGesturesEnabled: false,
+                rotateGesturesEnabled: false,
+                tiltGesturesEnabled: false,
+                polylines: {
+                  Polyline(
+                    polylineId: const PolylineId('driven_route'),
+                    points: points,
+                    color: AppColors.mapRouteDriven,
+                    width: 5,
+                    jointType: JointType.round,
+                    startCap: Cap.roundCap,
+                    endCap: Cap.roundCap,
+                  ),
+                },
+                markers: {
+                  Marker(
+                    markerId: const MarkerId('start'),
+                    position: points.first,
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueGreen,
+                    ),
+                  ),
+                  Marker(
+                    markerId: const MarkerId('end'),
+                    position: points.last,
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueRed,
+                    ),
+                  ),
+                },
+              ),
       ),
     );
   }

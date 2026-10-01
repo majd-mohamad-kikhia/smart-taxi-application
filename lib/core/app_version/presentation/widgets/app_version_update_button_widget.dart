@@ -23,7 +23,7 @@ class AppVersionUpdateButtonWidget extends StatelessWidget {
     if (!opened) {
       showAppSnackBarOn(
         messenger,
-        AppStrings.current.errUnexpected,
+        AppStrings.current.appUpdateStoreFailed,
         type: AppSnackBarType.error,
       );
     }

@@ -7,7 +7,7 @@ import '../theme/app_colors.dart';
 import 'app_snack_bar_widget.dart';
 
 /// Settings card with a dropdown to switch the app language. Shared by the
-/// rider and driver settings screens; the choice is saved on the server
+/// customer and driver settings screens; the choice is saved on the server
 /// and persisted by [LocaleCubit] — and only takes effect (text and layout
 /// direction, app-wide) once the server accepted it.
 class LanguageDropdownWidget extends StatelessWidget {
@@ -105,6 +105,8 @@ class _LanguagePickerState extends State<_LanguagePicker> {
               ),
           ],
           child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
+            alignment: AlignmentDirectional.centerStart,
             padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 8, 8),
             decoration: BoxDecoration(
               color: AppColors.backgroundMuted,

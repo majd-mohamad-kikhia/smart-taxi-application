@@ -44,13 +44,16 @@ class _DeletionSectionView extends StatelessWidget {
       builder: (context, state) {
         final l10n = context.l10n;
         if (state.isLoading) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: Center(
               child: SizedBox(
                 width: 22,
                 height: 22,
-                child: CircularProgressIndicator(strokeWidth: 2.2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.2,
+                  semanticsLabel: l10n.loading,
+                ),
               ),
             ),
           );
@@ -86,7 +89,11 @@ class _DeletionSectionView extends StatelessWidget {
               DriverDeletionStatusCardWidget(
                 icon: Icons.cancel_outlined,
                 title: l10n.driverDeletionRejectedTitle,
-                body: request!.reviewNote,
+                // The manager's note, or — when there is none — what the
+                // driver can do next.
+                body: (request!.reviewNote?.isNotEmpty ?? false)
+                    ? request.reviewNote
+                    : l10n.driverDeletionRejectedNoNote,
                 isError: true,
               ),
               const SizedBox(height: 8),

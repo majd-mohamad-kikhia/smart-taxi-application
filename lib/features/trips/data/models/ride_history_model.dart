@@ -60,8 +60,26 @@ class RideHistoryModel extends Equatable {
   final String? dropoffAddress;
   final double? distanceKm;
   final int? estimatedDurationMin;
+  /// The estimate until the ride is completed; the final price after.
   final double price;
+  final double? estimatedPrice;
+
+  /// Amount due, set once the ride is completed.
+  final double? finalPrice;
   final double stopsFeeTotal;
+  final double waitingFee;
+  final double pauseFeeTotal;
+
+  /// Number and total length of the trip's pauses (detail only).
+  final int pauseCount;
+  final int pauseTotalSeconds;
+
+  /// Distance the driver reported at finish; null until completed.
+  final double? actualDistanceKm;
+
+  /// The driver (or a manager) confirmed the customer paid.
+  final bool isPaid;
+  final String? paidAt;
   final String requestedAt;
   final String? acceptedAt;
   final String? startedAt;
@@ -85,7 +103,16 @@ class RideHistoryModel extends Equatable {
     this.distanceKm,
     this.estimatedDurationMin,
     required this.price,
+    this.estimatedPrice,
+    this.finalPrice,
     required this.stopsFeeTotal,
+    this.waitingFee = 0,
+    this.pauseFeeTotal = 0,
+    this.pauseCount = 0,
+    this.pauseTotalSeconds = 0,
+    this.actualDistanceKm,
+    this.isPaid = false,
+    this.paidAt,
     required this.requestedAt,
     this.acceptedAt,
     this.startedAt,
@@ -105,6 +132,7 @@ class RideHistoryModel extends Equatable {
               (p['lng'] as num).toDouble(),
             ))
         .toList();
+    final pauses = json['pauses'] is List ? json['pauses'] as List : const [];
     return RideHistoryModel(
       id: json['id'] as int,
       status: RideStatus.fromId(json['status_id'] as int),
@@ -113,7 +141,20 @@ class RideHistoryModel extends Equatable {
       distanceKm: (json['distance_km'] as num?)?.toDouble(),
       estimatedDurationMin: json['estimated_duration_min'] as int?,
       price: (json['price'] as num?)?.toDouble() ?? 0,
+      estimatedPrice: (json['estimated_price'] as num?)?.toDouble(),
+      finalPrice: (json['final_price'] as num?)?.toDouble(),
       stopsFeeTotal: (json['stops_fee_total'] as num?)?.toDouble() ?? 0,
+      waitingFee: (json['waiting_fee'] as num?)?.toDouble() ?? 0,
+      pauseFeeTotal: (json['pause_fee_total'] as num?)?.toDouble() ?? 0,
+      pauseCount: pauses.length,
+      pauseTotalSeconds: pauses.fold<int>(
+        0,
+        (sum, p) =>
+            sum + (p is Map ? (p['duration_seconds'] as num?)?.toInt() ?? 0 : 0),
+      ),
+      actualDistanceKm: (json['actual_distance_km'] as num?)?.toDouble(),
+      isPaid: json['payment_status'] == 'paid',
+      paidAt: json['paid_at'] as String?,
       requestedAt: json['requested_at'] as String? ?? '',
       acceptedAt: json['accepted_at'] as String?,
       startedAt: json['started_at'] as String?,
@@ -129,6 +170,28 @@ class RideHistoryModel extends Equatable {
     );
   }
 
+  bool get isCompleted => status == RideStatus.completed;
+
+  /// The price to show for this ride, or null when none should be shown: a
+  /// cancelled ride shows no price, so it never reads as a charge.
+  double? get shownPrice => switch (status) {
+        RideStatus.cancelled => null,
+        RideStatus.completed => finalPrice ?? price,
+        _ => price,
+      };
+
+  /// Until the ride is completed the price is only the estimate.
+  bool get isPriceEstimate => !isCompleted;
+
+  /// The distance driven when known, otherwise the order-time estimate.
+  double? get shownDistanceKm => actualDistanceKm ?? distanceKm;
+
+  /// Base fare plus distance fare: what is left of the final price once the
+  /// stop, waiting and pause fees are taken out (the API sends no separate
+  /// base and distance amounts).
+  double get tripFare =>
+      (finalPrice ?? price) - stopsFeeTotal - waitingFee - pauseFeeTotal;
+
   @override
   List<Object?> get props => [
         id,
@@ -138,7 +201,16 @@ class RideHistoryModel extends Equatable {
         distanceKm,
         estimatedDurationMin,
         price,
+        estimatedPrice,
+        finalPrice,
         stopsFeeTotal,
+        waitingFee,
+        pauseFeeTotal,
+        pauseCount,
+        pauseTotalSeconds,
+        actualDistanceKm,
+        isPaid,
+        paidAt,
         requestedAt,
         acceptedAt,
         startedAt,

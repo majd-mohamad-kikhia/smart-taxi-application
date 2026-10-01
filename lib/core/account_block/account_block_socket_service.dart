@@ -3,7 +3,7 @@ import '../enums/user_role.dart';
 import '../network/socket_client.dart';
 
 /// Holds the always-on Socket.IO connection whose main job is the account
-/// block feed: `customer:block_status` for riders, `driver:block_status`
+/// block feed: `customer:block_status` for customers,`driver:block_status`
 /// for drivers. The server emits the current state once on every connect
 /// (`action: snapshot`), then `blocked` / `unblocked` / `expired` as they
 /// happen.
@@ -43,7 +43,7 @@ class AccountBlockSocketService {
   }
 
   static String _eventFor(UserRole role) => switch (role) {
-    UserRole.rider => 'customer:block_status',
+    UserRole.customer => 'customer:block_status',
     UserRole.driver => 'driver:block_status',
   };
 

@@ -67,7 +67,7 @@
       { "name": "toast", "value": "0 6px 16px rgba(0,0,0,0.20)", "purpose": "Snack bars." }
     ],
     "motion": [
-      { "name": "dialog-enter", "value": "380ms ease-out-back (scale 0.82 to 1.0 plus fade)", "purpose": "Branded dialog entrance." },
+      { "name": "dialog-enter", "value": "200ms ease-out-cubic (scale 0.96 to 1.0 plus fade); instant under reduced motion", "purpose": "Branded dialog entrance." },
       { "name": "fast", "value": "200ms", "purpose": "Navigation icon swap and small state transitions." }
     ],
     "breakpoints": []
@@ -95,7 +95,7 @@
       "refersTo": "button-destructive",
       "description": "Cancel and delete actions in Stop Red.",
       "html": "<button class=\"ds-btn-destructive\">Cancel trip</button>",
-      "css": ".ds-btn-destructive { background: #EF4444; color: #FFFFFF; border: none; border-radius: 12px; padding: 14px 24px; font-family: Tajawal, sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; } .ds-btn-destructive:hover { filter: brightness(1.08); } .ds-btn-destructive:focus-visible { outline: 2px solid #F5F6F7; outline-offset: 2px; }"
+      "css": ".ds-btn-destructive { background: #DC2626; color: #FFFFFF; border: none; border-radius: 12px; padding: 14px 24px; font-family: Tajawal, sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; } .ds-btn-destructive:hover { filter: brightness(1.08); } .ds-btn-destructive:focus-visible { outline: 2px solid #F5F6F7; outline-offset: 2px; }"
     },
     {
       "name": "Text Field",
@@ -103,7 +103,7 @@
       "refersTo": "input-field",
       "description": "Dash Surface fill with a steel border that turns Meter Yellow on focus.",
       "html": "<input class=\"ds-input\" placeholder=\"Phone number\" />",
-      "css": ".ds-input { background: #1E1F22; color: #F5F6F7; border: 1px solid #34363B; border-radius: 12px; padding: 14px 16px; font-family: Tajawal, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box; } .ds-input::placeholder { color: #7D818A; } .ds-input:focus { outline: none; border: 1.5px solid #FFD600; }"
+      "css": ".ds-input { background: #1E1F22; color: #F5F6F7; border: 1px solid #34363B; border-radius: 12px; padding: 14px 16px; font-family: Tajawal, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box; } .ds-input::placeholder { color: #999DA6; } .ds-input:focus { outline: none; border: 1.5px solid #FFD600; }"
     },
     {
       "name": "Card",
@@ -140,7 +140,7 @@
   ],
   "narrative": {
     "northStar": "The Meter Light",
-    "overview": "Picture the inside of a cab at night: dark, quiet, and lit by one warm source, the meter or the roof sign. Near-black surfaces recede into a cabin, and a single yellow does the work of light. It tells a rider this is their next action and a driver this is the number that matters. Everything else is steel-gray text and tonal layers so that the yellow stays rare and means something.\n\nThe voice is calm, confident and utilitarian: built for scanning, with big filled tactile controls, clear 1dp borders around cards, tabular figures for money and clocks, and status shown by color plus icon plus text.",
+    "overview": "Picture the inside of a cab at night: dark, quiet, and lit by one warm source, the meter or the roof sign. Near-black surfaces recede into a cabin, and a single yellow does the work of light. It tells a customer this is their next action and a driver this is the number that matters. Everything else is steel-gray text and tonal layers so that the yellow stays rare and means something.\n\nThe voice is calm, confident and utilitarian: built for scanning, with big filled tactile controls, clear 1dp borders around cards, tabular figures for money and clocks, and status shown by color plus icon plus text.",
     "keyCharacteristics": [
       "One dark theme; yellow #FFD600 is the single dominant signal, amber #F59E0B its secondary.",
       "Depth by tonal layering and hairline borders, not shadows.",
