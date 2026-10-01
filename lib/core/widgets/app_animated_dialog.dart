@@ -29,7 +29,7 @@ Future<T?> showAppDialog<T>({
     context: context,
     barrierDismissible: barrierDismissible,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withValues(alpha: 0.45),
+    barrierColor: AppColors.scrim,
     transitionDuration: const Duration(milliseconds: 380),
     pageBuilder: (context, animation, secondaryAnimation) {
       return const SizedBox.shrink();
@@ -119,11 +119,7 @@ class AppAnimatedDialog extends StatelessWidget {
       AppDialogTone.destructive => const _DialogPalette(
           accent: AppColors.error,
           surface: AppColors.errorSurface,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
-          ),
+          gradient: AppColors.errorGradient,
         ),
       AppDialogTone.primary => const _DialogPalette(
           accent: AppColors.primary,
@@ -133,20 +129,12 @@ class AppAnimatedDialog extends StatelessWidget {
       AppDialogTone.success => const _DialogPalette(
           accent: AppColors.success,
           surface: AppColors.successSurface,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF10B981), Color(0xFF059669)],
-          ),
+          gradient: AppColors.successGradient,
         ),
       AppDialogTone.warning => const _DialogPalette(
           accent: AppColors.accent,
           surface: AppColors.accentSurface,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFFF6535), Color(0xFFE5521E)],
-          ),
+          gradient: AppColors.alertGradient,
         ),
     };
   }
@@ -157,7 +145,7 @@ class AppAnimatedDialog extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     return Material(
-      color: Colors.transparent,
+      color: AppColors.transparent,
       child: Container(
         width: width * 0.86,
         constraints: const BoxConstraints(maxWidth: 360),
@@ -326,7 +314,7 @@ class _PulseIconBadgeState extends State<_PulseIconBadge>
             ),
           ],
         ),
-        child: Icon(widget.icon, color: Colors.white, size: 32),
+        child: Icon(widget.icon, color: AppColors.white, size: 32),
       ),
     );
   }
@@ -352,7 +340,7 @@ class _DialogButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: AppColors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
@@ -382,7 +370,7 @@ class _DialogButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: filled ? Colors.white : accent,
+                color: filled ? AppColors.white : accent,
               ),
             ),
           ),

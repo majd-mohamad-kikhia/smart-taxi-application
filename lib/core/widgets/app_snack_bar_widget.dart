@@ -26,7 +26,7 @@ void showAppSnackBarOn(
       SnackBar(
         content: AppSnackBarWidget(message: message, type: type),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.transparent,
         elevation: 0,
         padding: EdgeInsets.zero,
         margin: const EdgeInsets.all(AppConstants.paddingL),

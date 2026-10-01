@@ -193,7 +193,7 @@ class _LanguageOption extends StatelessWidget {
         Icon(
           Icons.check_rounded,
           size: 18,
-          color: isSelected ? AppColors.primary : Colors.transparent,
+          color: isSelected ? AppColors.primary : AppColors.transparent,
         ),
       ],
     );

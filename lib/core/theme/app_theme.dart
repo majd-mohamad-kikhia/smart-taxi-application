@@ -6,7 +6,7 @@ import 'app_colors.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme {
+  static ThemeData get darkTheme {
     final base = ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
@@ -108,7 +108,7 @@ class AppTheme {
         scrolledUnderElevation: 0.5,
         shadowColor: AppColors.shadowLight,
         systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
-          statusBarColor: Colors.transparent,
+          statusBarColor: AppColors.transparent,
         ),
         titleTextStyle: GoogleFonts.tajawal(
           fontSize: 18,

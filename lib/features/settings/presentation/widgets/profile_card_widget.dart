@@ -156,7 +156,7 @@ class _Avatar extends StatelessWidget {
               ),
               child: const Icon(
                 Icons.check_rounded,
-                color: Colors.white,
+                color: AppColors.white,
                 size: 12,
               ),
             ),

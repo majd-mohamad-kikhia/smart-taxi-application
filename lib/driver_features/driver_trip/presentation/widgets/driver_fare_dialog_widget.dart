@@ -163,14 +163,14 @@ class _ActionButton extends StatelessWidget {
           : context.read<DriverTripCubit>().confirmPayment,
       style: ElevatedButton.styleFrom(
         backgroundColor: isPaid ? AppColors.primary : AppColors.success,
-        foregroundColor: isPaid ? AppColors.textOnPrimary : Colors.white,
+        foregroundColor: isPaid ? AppColors.textOnPrimary : AppColors.white,
         padding: const EdgeInsets.symmetric(vertical: 14),
       ),
       child: state.isConfirmingPayment
           ? const SizedBox(
               width: 18,
               height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.white),
             )
           : Text(isPaid ? l10n.done : l10n.paymentReceived),
     );

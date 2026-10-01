@@ -102,7 +102,7 @@ class DriverTripActionsWidget extends StatelessWidget {
                     : (isInProgress ? cubit.finishRide : cubit.startRide),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isInProgress ? AppColors.success : AppColors.primary,
-                  foregroundColor: isInProgress ? Colors.white : AppColors.textOnPrimary,
+                  foregroundColor: isInProgress ? AppColors.white : AppColors.textOnPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 child: isUpdating

@@ -29,7 +29,7 @@ class SafetyBannerWidget extends StatelessWidget {
               color: AppColors.success,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.check_rounded, color: Colors.white, size: 18),
+            child: const Icon(Icons.check_rounded, color: AppColors.white, size: 18),
           ),
           const SizedBox(width: 10),
           Expanded(

@@ -55,7 +55,7 @@ class RouteActionsWidget extends StatelessWidget {
               ? AppColors.success
               : AppColors.primary,
           foreground: phase == RoutePhase.inProgress
-              ? Colors.white
+              ? AppColors.white
               : AppColors.textOnPrimary,
           isLoading: isStarting,
           onPressed: switch (phase) {

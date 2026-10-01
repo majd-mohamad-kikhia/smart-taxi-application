@@ -92,7 +92,7 @@ class _CancelReasonDialogWidgetState extends State<CancelReasonDialogWidget> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _submit,
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.error, foregroundColor: Colors.white),
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.error, foregroundColor: AppColors.white),
                     child: Text(l10n.confirmCancellation),
                   ),
                 ),
