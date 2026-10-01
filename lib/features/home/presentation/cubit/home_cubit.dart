@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/session/session_cubit.dart';
-import '../../data/models/picked_location_model.dart';
 import '../../data/repositories/ride_request_repository.dart';
 import 'home_state.dart';
 
-/// Cubit driving the "إنشاء طلب" (create request) order flow:
+/// Cubit driving the "create request" order flow:
 /// pick two points → resolve a price quote per vehicle type → choose a
 /// vehicle (which creates the ride) → cancel it.
 class HomeCubit extends Cubit<HomeState> {
@@ -13,25 +13,10 @@ class HomeCubit extends Cubit<HomeState> {
 
   HomeCubit(this._sessionCubit, this._repository) : super(HomeState.initial());
 
-  /// Called when the screen first loads.
   void initialize() {
     if (isClosed) return;
     final user = _sessionCubit.state;
     emit(state.copyWith(userName: user?.firstName));
-  }
-
-  /// Updates the greeting based on the current time of day.
-  void refreshGreeting() {
-    final hour = DateTime.now().hour;
-    final greeting = hour < 12
-        ? 'صباح الخير'
-        : hour < 17
-            ? 'مساء الخير'
-            : 'مساء النور';
-
-    if (!isClosed && state.greeting != greeting) {
-      emit(state.copyWith(greeting: greeting));
-    }
   }
 
   void setFromLocation(PickedLocationModel location) {
@@ -88,13 +73,24 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  Future<void> cancelRide() async {
+  /// Resets the order flow once `RideTrackingScreen` has ended the ride
+  /// (completed/cancelled) — no REST call here, that already happened
+  /// server-side via the tracking screen's socket events.
+  void resetAfterRideEnded() {
+    if (isClosed) return;
+    emit(state.copyWith(clearActiveRide: true, clearQuote: true, clearLocations: true));
+  }
+
+  Future<void> cancelRide({String? reason}) async {
     final ride = state.activeRide;
     if (ride == null || isClosed) return;
 
     emit(state.copyWith(isCancelling: true, clearError: true));
     try {
-      await _repository.cancelRide(rideId: ride.id);
+      await _repository.cancelRide(
+        rideId: ride.id,
+        cancellationReason: reason,
+      );
       if (isClosed) return;
       emit(state.copyWith(
         isCancelling: false,

@@ -1,3 +1,9 @@
+import '../l10n/generated/app_localizations.dart';
+
+/// A localized message, resolved against whichever language is active at
+/// the moment an error is mapped.
+typedef LocalizedMessage = String Function(AppLocalizations l10n);
+
 /// Exact, full-string lookup tables for every error literal documented in
 /// `lib/features/auth/data/swagger.json`.
 ///
@@ -7,6 +13,9 @@
 /// weak") is never mistaken for it. An undocumented literal simply misses
 /// the table and falls through to [ApiErrorHandler]'s status-code
 /// fallback instead of being guessed at.
+///
+/// Values are [LocalizedMessage]s (not plain strings) so the same table
+/// serves every supported language.
 class ApiErrorMessages {
   ApiErrorMessages._();
 
@@ -14,43 +23,42 @@ class ApiErrorMessages {
   /// `components/responses` (BadRequest, Unauthorized, Forbidden,
   /// Conflict, ValidationError, NotFound, InternalError) plus the two
   /// `POST /api/driver/auth/login` 403 examples (pending/suspended).
-  static const Map<String, String> byMessage = {
-    'invalid json body': 'طلب غير صالح',
-    'invalid phone number or password': 'رقم الجوال أو كلمة المرور غير صحيحة',
-    'customer access only': 'هذا الحساب غير مخصص لهذا التطبيق',
-    'account already exists': 'الحساب موجود بالفعل',
-    'validation failed': 'تحقق من البيانات المدخلة',
-    'route not found': 'الخدمة المطلوبة غير متوفرة',
-    'internal server error': 'حدث خطأ في الخادم، حاول لاحقاً',
-    'your account is pending approval':
-        'حسابك قيد المراجعة، سيتم تفعيله بعد الموافقة',
-    'your account is suspended': 'تم إيقاف حسابك، يرجى التواصل مع الدعم',
+  static final Map<String, LocalizedMessage> byMessage = {
+    'invalid json body': (l) => l.errInvalidRequest,
+    'invalid phone number or password': (l) => l.errWrongCredentials,
+    'customer access only': (l) => l.errAccountNotForApp,
+    'account already exists': (l) => l.errAccountExists,
+    'validation failed': (l) => l.errCheckInput,
+    'route not found': (l) => l.errServiceUnavailable,
+    'internal server error': (l) => l.errServer,
+    'your account is pending approval': (l) => l.errAccountPending,
+    'your account is suspended': (l) => l.errAccountSuspended,
+    // 401 on any call once a driver's deletion request was approved.
+    'this account has been deleted': (l) => l.errAccountDeleted,
   };
 
   /// `ErrorResponse.errors` reason literals — from the `ErrorResponse`
   /// schema example and the response examples across the spec. The
   /// reason text already embeds its field's meaning, so one flat table
   /// (keyed by reason, not by field+reason) covers every field.
-  static const Map<String, String> byFieldReason = {
-    'first_name is required': 'هذا الحقل مطلوب',
-    'phone_number is required': 'رقم الجوال مطلوب',
-    'phone_number is already registered': 'رقم الجوال مسجل مسبقاً',
-    'password must be between 8 and 64 characters':
-        'كلمة المرور يجب أن تكون بين 8 و64 حرفاً',
-    'password must contain at least one number':
-        'يجب أن تحتوي كلمة المرور على حرف ورقم على الأقل',
-    'current status is pending; must be active':
-        'حسابك قيد المراجعة، سيتم تفعيله بعد الموافقة',
-    'current status is suspended; must be active':
-        'تم إيقاف حسابك، يرجى التواصل مع الدعم',
+  static final Map<String, LocalizedMessage> byFieldReason = {
+    'first_name is required': (l) => l.errFieldRequired,
+    'phone_number is required': (l) => l.errPhoneRequired,
+    'phone_number is already registered': (l) => l.errPhoneRegistered,
+    'password must be between 8 and 64 characters': (l) => l.errPasswordLength,
+    'password must contain at least one number': (l) =>
+        l.errPasswordNeedsNumber,
+    'current status is pending; must be active': (l) => l.errAccountPending,
+    'current status is suspended; must be active': (l) =>
+        l.errAccountSuspended,
   };
 
   /// Shown for a field whose reason is not in [byFieldReason] — the
   /// field is known to have failed, but the sentence describing why is
   /// not documented, so nothing about it is inferred.
-  static const String unknownField = 'تحقق من هذا الحقل';
+  static String unknownField(AppLocalizations l10n) => l10n.errCheckThisField;
 
-  /// Arabic label for every request field (body or query) the app itself
+  /// Label for every request field (body or query) the app itself
   /// ever sends, across every endpoint documented in swagger.json that
   /// this app calls (customer + driver — the spec's `/api/admin/*`
   /// endpoints have no UI in this app and are intentionally excluded).
@@ -60,31 +68,31 @@ class ApiErrorMessages {
   /// confirmed), so [ApiErrorHandler] never guesses that sentence — but
   /// the field *name* that failed is always given verbatim in the
   /// response's `errors` object, and is reliable. This table lets the
-  /// handler name that field in Arabic instead of falling back to a
-  /// fully generic "check your input" with no actionable detail.
-  static const Map<String, String> fieldLabels = {
+  /// handler name that field in the user's language instead of falling
+  /// back to a fully generic "check your input" with no actionable detail.
+  static final Map<String, LocalizedMessage> fieldLabels = {
     // Auth (customer + driver share the same field names)
-    'first_name': 'الاسم الأول',
-    'last_name': 'الاسم الأخير',
-    'phone_number': 'رقم الجوال',
-    'password': 'كلمة المرور',
-    'email': 'البريد الإلكتروني',
-    'address': 'العنوان',
-    'refresh_token': 'جلسة الدخول',
+    'first_name': (l) => l.fieldFirstName,
+    'last_name': (l) => l.fieldLastName,
+    'phone_number': (l) => l.phoneNumber,
+    'password': (l) => l.password,
+    'email': (l) => l.email,
+    'address': (l) => l.address,
+    'refresh_token': (l) => l.fieldSession,
     // Complaints (customer + driver)
-    'message': 'نص الرسالة',
-    'subject': 'الموضوع',
+    'message': (l) => l.fieldMessage,
+    'subject': (l) => l.fieldSubject,
     // Customer rides
-    'vehicle_type_id': 'نوع المركبة',
-    'pickup_lat': 'موقع الانطلاق',
-    'pickup_lng': 'موقع الانطلاق',
-    'pickup_address': 'عنوان الانطلاق',
-    'dropoff_lat': 'موقع الوصول',
-    'dropoff_lng': 'موقع الوصول',
-    'dropoff_address': 'عنوان الوصول',
-    'cancellation_reason': 'سبب الإلغاء',
+    'vehicle_type_id': (l) => l.fieldVehicleType,
+    'pickup_lat': (l) => l.fieldPickupLocation,
+    'pickup_lng': (l) => l.fieldPickupLocation,
+    'pickup_address': (l) => l.fieldPickupAddress,
+    'dropoff_lat': (l) => l.fieldDropoffLocation,
+    'dropoff_lng': (l) => l.fieldDropoffLocation,
+    'dropoff_address': (l) => l.fieldDropoffAddress,
+    'cancellation_reason': (l) => l.fieldCancelReason,
     // Driver settings
-    'search_radius_km': 'نطاق البحث',
+    'search_radius_km': (l) => l.fieldSearchRadius,
   };
 
   /// Concrete, actionable requirement text for a field, built from
@@ -102,14 +110,13 @@ class ApiErrorMessages {
   /// a space has no matching [byFieldReason] literal, so without this it
   /// would fall to a vague "check the password" — this spells out the
   /// full rule instead, which covers whichever part actually failed.
-  static const Map<String, String> fieldGuidance = {
-    'password':
-        'كلمة المرور يجب أن تكون بين 8 و64 حرفاً، بدون مسافات، وتحتوي على حرف ورقم على الأقل',
-    'first_name': 'الاسم الأول يجب أن يكون بين حرفين و100 حرف',
-    'last_name': 'الاسم الأخير يجب أن يكون بين حرفين و100 حرف',
-    'message': 'نص الرسالة يجب أن يكون بين 5 و1000 حرف',
-    'subject': 'الموضوع يجب ألا يتجاوز 150 حرفاً',
-    'search_radius_km': 'نطاق البحث يجب أن يكون بين 0.1 و100 كم',
-    'cancellation_reason': 'سبب الإلغاء يجب ألا يتجاوز 255 حرفاً',
+  static final Map<String, LocalizedMessage> fieldGuidance = {
+    'password': (l) => l.guidePassword,
+    'first_name': (l) => l.guideFirstName,
+    'last_name': (l) => l.guideLastName,
+    'message': (l) => l.guideMessage,
+    'subject': (l) => l.guideSubject,
+    'search_radius_km': (l) => l.guideSearchRadius,
+    'cancellation_reason': (l) => l.guideCancelReason,
   };
 }

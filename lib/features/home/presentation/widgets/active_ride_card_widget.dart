@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/models/ride_model.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../data/models/ride_model.dart';
+import '../../../../core/utils/format_price.dart';
 
 /// Summary of the ride the customer just requested — its status and
 /// estimated price — shown in place of nothing while the order is live.
@@ -10,15 +13,16 @@ class ActiveRideCardWidget extends StatelessWidget {
 
   const ActiveRideCardWidget({super.key, required this.ride});
 
-  /// Swagger's `status` enum → Arabic. Unknown values fall back to the
-  /// raw value rather than an empty string.
-  static const _statusLabels = {
-    'requested': 'بانتظار قبول السائق',
-    'accepted': 'تم قبول طلبك',
-    'arrived': 'السائق وصل',
-    'in_progress': 'الرحلة جارية',
-    'completed': 'اكتملت الرحلة',
-    'cancelled': 'تم إلغاء الطلب',
+  /// Swagger's `status` enum → localized label. Unknown values fall back
+  /// to the raw value rather than an empty string.
+  String _statusLabel(AppLocalizations l10n) => switch (ride.status) {
+    'requested' => l10n.rideAwaitingDriver,
+    'accepted' => l10n.rideAccepted,
+    'arrived' => l10n.rideDriverArrived,
+    'in_progress' => l10n.rideInProgress,
+    'completed' => l10n.rideCompleted,
+    'cancelled' => l10n.rideRequestCancelled,
+    _ => ride.status,
   };
 
   @override
@@ -36,18 +40,11 @@ class ActiveRideCardWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.primary,
-                ),
-              ),
+              _StatusIndicator(status: ride.status, label: _statusLabel(context.l10n)),
               const SizedBox(width: AppConstants.paddingS),
               Expanded(
                 child: Text(
-                  _statusLabels[ride.status] ?? ride.status,
+                  _statusLabel(context.l10n),
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -69,18 +66,19 @@ class ActiveRideCardWidget extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  '${ride.price!.toStringAsFixed(0)} ل.س',
+                  context.l10n.priceSyp(formatPrice(ride.price!)),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: AppColors.primary,
+                    fontFeatures: [FontFeature.tabularFigures()],
                   ),
                 ),
                 const SizedBox(width: AppConstants.paddingS),
                 if (ride.priceIsEstimate)
-                  const Text(
-                    '(سعر تقديري)',
-                    style: TextStyle(
+                  Text(
+                    context.l10n.priceEstimateTag,
+                    style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.textTertiary,
                     ),
@@ -91,5 +89,36 @@ class ActiveRideCardWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// A spinner only while the request still waits for a driver; every other
+/// status gets an icon that says where the ride stands.
+class _StatusIndicator extends StatelessWidget {
+  final String status;
+  final String label;
+
+  const _StatusIndicator({required this.status, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    if (status == 'requested') {
+      return SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: AppColors.primary,
+          semanticsLabel: label,
+        ),
+      );
+    }
+    final icon = switch (status) {
+      'completed' => Icons.check_circle_rounded,
+      'cancelled' => Icons.cancel_rounded,
+      'in_progress' => Icons.route_rounded,
+      _ => Icons.local_taxi_rounded,
+    };
+    return Icon(icon, size: 18, color: AppColors.primary);
   }
 }

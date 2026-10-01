@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/validators/auth_validators.dart';
+import '../../../../core/validators/phone_input_formatter.dart';
+import '../../../../core/widgets/privacy_policy_dialog_widget.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_footer_link_widget.dart';
+import '../widgets/privacy_policy_checkbox_field_widget.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -36,7 +40,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (role == null) {
         Navigator.of(context).pushReplacementNamed(AppRouter.roleSelection);
       } else if (role == UserRole.driver) {
-        // Drivers don't self-register — only riders can sign up.
+        // Drivers don't self-register — only customers can sign up.
         Navigator.of(context).pushReplacementNamed(AppRouter.driverSignIn);
       }
     });
@@ -86,65 +90,81 @@ class _SignUpScreenState extends State<SignUpScreen> {
       bloc: _cubit,
       listener: _onStateChanged,
       builder: (context, state) {
+        final l10n = context.l10n;
         return AuthFormLayoutWidget(
           formKey: _formKey,
-          title: 'إنشاء حساب',
-          subtitle: 'أدخل بياناتك لإنشاء حساب جديد في مشوار',
+          title: l10n.signUp,
+          subtitle: l10n.signUpSubtitle,
           role: state.selectedRole,
           onChangeRole: _changeRole,
           fields: [
             AuthTextFieldWidget(
               controller: _firstNameController,
-              label: 'الاسم',
-              hint: 'مثال: محمد',
+              label: l10n.firstNameLabel,
+              hint: l10n.firstNameHint,
               prefixIcon: Icons.person_outline,
+              textCapitalization: TextCapitalization.words,
+              autofillHints: const [AutofillHints.givenName],
               validator: AuthValidators.name,
             ),
             AuthTextFieldWidget(
               controller: _lastNameController,
-              label: 'الكنية',
-              hint: 'مثال: العتيبي',
+              label: l10n.lastNameLabel,
+              hint: l10n.lastNameHint,
               prefixIcon: Icons.badge_outlined,
+              textCapitalization: TextCapitalization.words,
+              autofillHints: const [AutofillHints.familyName],
               validator: AuthValidators.name,
             ),
             AuthTextFieldWidget(
               controller: _phoneController,
-              label: 'رقم الجوال',
-              hint: '05xxxxxxxx',
+              label: l10n.phoneNumber,
+              hint: '09xxxxxxxx',
               prefixIcon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
+              autofillHints: const [AutofillHints.telephoneNumber],
+              inputFormatters: const [PhoneInputFormatter()],
+              forceLtr: true,
               validator: AuthValidators.phone,
             ),
             AuthTextFieldWidget(
               controller: _passwordController,
-              label: 'كلمة المرور',
+              label: l10n.password,
               hint: '••••••••',
               prefixIcon: Icons.lock_outline,
               isPassword: true,
+              autofillHints: const [AutofillHints.newPassword],
+              forceLtr: true,
               validator: AuthValidators.signupPassword,
             ),
             AuthTextFieldWidget(
               controller: _confirmPasswordController,
-              label: 'تأكيد كلمة المرور',
+              label: l10n.confirmPassword,
               hint: '••••••••',
               prefixIcon: Icons.lock_outline,
               isPassword: true,
               textInputAction: TextInputAction.done,
+              onSubmitted: _submit,
+              autofillHints: const [AutofillHints.newPassword],
+              forceLtr: true,
               validator: (value) => AuthValidators.confirmPassword(
                 value,
                 _passwordController.text,
               ),
             ),
+            PrivacyPolicyCheckboxFieldWidget(
+              onOpenPolicy: () => showPrivacyPolicyDialog(context),
+            ),
           ],
           errorMessage: state.status == AuthStatus.failure
               ? state.errorMessage
               : null,
-          submitLabel: 'إنشاء حساب',
+          submitLabel: l10n.signUp,
           isSubmitting: state.status == AuthStatus.submitting,
           onSubmit: _submit,
           footer: AuthFooterLinkWidget(
-            text: 'لديك حساب بالفعل؟',
-            actionLabel: 'تسجيل الدخول',
+            text: l10n.hasAccount,
+            actionLabel: l10n.signIn,
             onTap: _goToSignIn,
           ),
         );

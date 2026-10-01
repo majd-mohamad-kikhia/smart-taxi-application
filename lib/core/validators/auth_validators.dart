@@ -1,16 +1,23 @@
+import '../localization/app_strings.dart';
+
 /// Centralized form-field validators shared by every auth screen
 /// (customer and driver) — kept in sync with the rules documented in
 /// `lib/features/auth/data/swagger.json`.
+///
+/// Messages are resolved through [AppStrings] at validation time, so they
+/// come out in whichever language is active.
 class AuthValidators {
   AuthValidators._();
 
   static final RegExp _phoneRegExp = RegExp(r'^\+?\d{8,15}$');
+  static final RegExp _letterRegExp = RegExp(r'\p{L}', unicode: true);
+  static final RegExp _digitRegExp = RegExp(r'\d');
   static final RegExp _nameRegExp =
       RegExp(r"^[\p{L} '\-]{2,100}$", unicode: true);
 
   static String? phone(String? value) {
     if (!_phoneRegExp.hasMatch(value?.trim() ?? '')) {
-      return 'أدخل رقم جوال صحيح';
+      return AppStrings.current.valPhone;
     }
     return null;
   }
@@ -19,31 +26,35 @@ class AuthValidators {
   /// login, so existing accounts are never locked out.
   static String? loginPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'أدخل كلمة المرور';
+      return AppStrings.current.valPasswordRequired;
     }
     return null;
   }
 
   static String? signupPassword(String? value) {
     final password = value ?? '';
+    // The message promises a letter and a number, so the check does too
+    // (the server requires both).
     if (password.length < 8 ||
         password.length > 64 ||
-        password.contains(' ')) {
-      return 'كلمة المرور 8 أحرف على الأقل وتحتوي حرفاً ورقماً';
+        password.contains(' ') ||
+        !_letterRegExp.hasMatch(password) ||
+        !_digitRegExp.hasMatch(password)) {
+      return AppStrings.current.valPasswordRule;
     }
     return null;
   }
 
   static String? confirmPassword(String? value, String original) {
     if (value != original) {
-      return 'كلمتا المرور غير متطابقتين';
+      return AppStrings.current.valPasswordMismatch;
     }
     return null;
   }
 
   static String? name(String? value) {
     if (!_nameRegExp.hasMatch(value?.trim() ?? '')) {
-      return 'حروف فقط، بحد أدنى حرفين';
+      return AppStrings.current.valNameLetters;
     }
     return null;
   }

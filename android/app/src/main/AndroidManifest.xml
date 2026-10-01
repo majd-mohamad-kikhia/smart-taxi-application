@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Flutter only adds INTERNET to the debug/profile manifests, so release
+         builds need it declared here to reach the API and the socket. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Runtime notification permission on Android 13+. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- Keeps the driver's location stream + socket alive while the app is
@@ -8,7 +13,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
-        android:label="mshoar"
+        android:label="Smart Taxi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -57,6 +62,16 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Lets url_launcher open the store link (Android 11+ package visibility). -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <!-- Lets url_launcher open the phone dialer for Contact us numbers. -->
+        <intent>
+            <action android:name="android.intent.action.DIAL"/>
+            <data android:scheme="tel"/>
         </intent>
     </queries>
 </manifest>

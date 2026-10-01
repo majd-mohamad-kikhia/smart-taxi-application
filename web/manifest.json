@@ -1,6 +1,6 @@
 {
-    "name": "mshoar",
-    "short_name": "mshoar",
+    "name": "Smart Taxi",
+    "short_name": "Smart Taxi",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -1,11 +1,24 @@
 import 'package:equatable/equatable.dart';
-import '../../data/models/picked_location_model.dart';
-import '../../data/models/ride_model.dart';
+import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/models/ride_model.dart';
 import '../../data/models/ride_quote_model.dart';
 
-/// Immutable state for the "إنشاء طلب" (create request) screen.
+/// Part of the day the greeting is for — the text itself is resolved in the
+/// UI so it follows the active language.
+enum GreetingPeriod {
+  morning,
+  afternoon,
+  evening;
+
+  static GreetingPeriod fromHour(int hour) => hour < 12
+      ? GreetingPeriod.morning
+      : hour < 17
+          ? GreetingPeriod.afternoon
+          : GreetingPeriod.evening;
+}
+
 class HomeState extends Equatable {
-  final String greeting;
+  final GreetingPeriod greeting;
   final String userName;
   final PickedLocationModel? fromLocation;
   final PickedLocationModel? toLocation;
@@ -19,8 +32,8 @@ class HomeState extends Equatable {
   /// Step 2 in flight — creating the ride with the chosen vehicle.
   final bool isBooking;
 
-  /// The created ride. While this is set the screen shows "إلغاء الطلب"
-  /// instead of "بحث".
+  /// The created ride. While this is set the screen shows "Cancel request"
+  /// instead of "Search".
   final RideModel? activeRide;
 
   final bool isCancelling;
@@ -40,15 +53,8 @@ class HomeState extends Equatable {
   });
 
   factory HomeState.initial() {
-    final hour = DateTime.now().hour;
-    final greeting = hour < 12
-        ? 'صباح الخير'
-        : hour < 17
-            ? 'مساء الخير'
-            : 'مساء النور';
-
     return HomeState(
-      greeting: greeting,
+      greeting: GreetingPeriod.fromHour(DateTime.now().hour),
       userName: '',
       isSearching: false,
       isBooking: false,
@@ -56,7 +62,7 @@ class HomeState extends Equatable {
     );
   }
 
-  /// Both pickup and dropoff must be picked before "بحث" is enabled.
+  /// Both pickup and dropoff must be picked before "Search" is enabled.
   bool get canSearch => fromLocation != null && toLocation != null;
 
   /// A ride exists, so the primary action becomes cancelling it.
@@ -65,7 +71,7 @@ class HomeState extends Equatable {
   bool get isBusy => isSearching || isBooking || isCancelling;
 
   HomeState copyWith({
-    String? greeting,
+    GreetingPeriod? greeting,
     String? userName,
     PickedLocationModel? fromLocation,
     PickedLocationModel? toLocation,
@@ -78,12 +84,13 @@ class HomeState extends Equatable {
     bool clearError = false,
     bool clearQuote = false,
     bool clearActiveRide = false,
+    bool clearLocations = false,
   }) {
     return HomeState(
       greeting: greeting ?? this.greeting,
       userName: userName ?? this.userName,
-      fromLocation: fromLocation ?? this.fromLocation,
-      toLocation: toLocation ?? this.toLocation,
+      fromLocation: clearLocations ? null : (fromLocation ?? this.fromLocation),
+      toLocation: clearLocations ? null : (toLocation ?? this.toLocation),
       isSearching: isSearching ?? this.isSearching,
       quote: clearQuote ? null : (quote ?? this.quote),
       isBooking: isBooking ?? this.isBooking,

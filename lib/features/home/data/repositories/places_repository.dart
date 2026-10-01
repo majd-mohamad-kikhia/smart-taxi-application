@@ -1,9 +1,8 @@
 import 'package:dio/dio.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../datasources/places_remote_data_source.dart';
 import '../models/place_suggestion_model.dart';
 
-/// Structured failure thrown by [PlacesRepository], so the UI only ever
-/// has to catch one exception type.
 class PlacesException implements Exception {
   final String message;
 
@@ -13,9 +12,8 @@ class PlacesException implements Exception {
   String toString() => message;
 }
 
-/// Repository for the Photon-backed search used by the location picker
-/// (search-as-you-type + naming the dropped pin). The UI talks to this,
-/// never to [PlacesRemoteDataSource] directly.
+/// Photon-backed search for the location picker (search-as-you-type +
+/// naming the dropped pin).
 class PlacesRepository {
   final PlacesRemoteDataSource _remoteDataSource;
 
@@ -37,7 +35,7 @@ class PlacesRepository {
         nearLongitude: nearLongitude,
       );
     } on DioException {
-      throw const PlacesException('تعذر البحث حالياً، حاول مرة أخرى');
+      throw PlacesException(AppStrings.current.errPlacesSearch);
     }
   }
 

@@ -10,18 +10,32 @@ class DriverFinancialReportCubit extends Cubit<DriverFinancialReportState> {
   DriverFinancialReportCubit(this._repository)
       : super(const DriverFinancialReportState());
 
+  /// Which request is the latest, so a slow earlier month can never overwrite
+  /// a later one.
+  int _latestRequest = 0;
+
   Future<void> load({required int year, required int month}) async {
     if (isClosed) return;
-    emit(state.copyWith(isLoading: true, clearError: true));
+    final request = ++_latestRequest;
+    // Another month's numbers must not stay on screen under this month's
+    // label while it loads; a refresh of the same month keeps its own.
+    final current = state.report;
+    final isOtherMonth =
+        current != null && (current.year != year || current.month != month);
+    emit(state.copyWith(
+      isLoading: true,
+      clearError: true,
+      clearReport: isOtherMonth,
+    ));
     try {
       final report = await _repository.getFinancialReport(
         year: year,
         month: month,
       );
-      if (isClosed) return;
+      if (isClosed || request != _latestRequest) return;
       emit(state.copyWith(report: report, isLoading: false));
     } on DriverWalletException catch (e) {
-      if (isClosed) return;
+      if (isClosed || request != _latestRequest) return;
       emit(state.copyWith(isLoading: false, errorMessage: e.message));
     }
   }

@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-01T00:00:00Z",
+  "title": "Design System: Smart Taxi",
+  "extensions": {
+    "colorMeta": {
+      "meter-yellow": {
+        "role": "primary",
+        "displayName": "Meter Yellow",
+        "canonical": "#FFD600",
+        "tonalRamp": ["#4C4000", "#877100", "#C1A200", "#FBD300", "#FFDF37", "#FFE871", "#FFF2AB", "#FFFBE5"]
+      },
+      "meter-yellow-wash": {
+        "role": "primary",
+        "displayName": "Meter-Yellow Wash",
+        "canonical": "#3A3216",
+        "tonalRamp": ["#373015", "#625425", "#8C7935", "#B69D45", "#C8B46E", "#D8CA98", "#E8E0C2", "#F8F5ED"]
+      },
+      "amber": {
+        "role": "secondary",
+        "displayName": "Amber",
+        "canonical": "#F59E0B",
+        "tonalRamp": ["#492F03", "#815305", "#B97708", "#F19B0A", "#F7B23F", "#F9C977", "#FCDFAF", "#FEF5E7"]
+      },
+      "cabin-black": {
+        "role": "neutral",
+        "displayName": "Cabin Black",
+        "canonical": "#0F1012",
+        "tonalRamp": ["#23252A", "#3D414A", "#585E69", "#727A89", "#9298A4", "#B2B6BE", "#D1D4D9", "#F1F2F3"]
+      },
+      "dash-surface": {
+        "role": "neutral",
+        "displayName": "Dash Surface",
+        "canonical": "#1E1F22",
+        "tonalRamp": ["#242529", "#3F4148", "#5B5E67", "#767A86", "#9598A1", "#B4B6BC", "#D2D4D8", "#F1F2F3"]
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "Text Primary",
+        "canonical": "#F5F6F7",
+        "tonalRamp": ["#22262A", "#3C434B", "#56616B", "#707E8C", "#909BA6", "#B0B8C0", "#D0D5DA", "#F1F2F4"]
+      },
+      "go-green": {
+        "role": "status",
+        "displayName": "Go Green",
+        "canonical": "#10B981",
+        "tonalRamp": ["#064631", "#0B7C57", "#0FB27C", "#14E7A1", "#47EFB7", "#7CF4CC", "#B2F8E1", "#E8FDF6"]
+      },
+      "stop-red": {
+        "role": "status",
+        "displayName": "Stop Red",
+        "canonical": "#EF4444",
+        "tonalRamp": ["#460606", "#7C0B0B", "#B20F0F", "#E81414", "#EF4646", "#F47C7C", "#F8B2B2", "#FDE8E8"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Rare hero numbers and dominant screen titles." },
+      "headline": { "displayName": "Headline", "purpose": "Screen and section headings." },
+      "title": { "displayName": "Title", "purpose": "Card titles and primary-button labels." },
+      "body": { "displayName": "Body", "purpose": "Paragraphs and list text." },
+      "label": { "displayName": "Label", "purpose": "Chips, captions and navigation labels." },
+      "figure": { "displayName": "Figure", "purpose": "Timers and money; tabular numerals so digits never shift." }
+    },
+    "shadows": [
+      { "name": "nav-lift", "value": "0 -3px 12px rgba(0,0,0,0.10)", "purpose": "Top edge of the bottom navigation bar." },
+      { "name": "float-chip", "value": "0 2px 6px rgba(0,0,0,0.04)", "purpose": "Fee and status pills floating over the map." },
+      { "name": "toast", "value": "0 6px 16px rgba(0,0,0,0.20)", "purpose": "Snack bars." }
+    ],
+    "motion": [
+      { "name": "dialog-enter", "value": "200ms ease-out-cubic (scale 0.96 to 1.0 plus fade); instant under reduced motion", "purpose": "Branded dialog entrance." },
+      { "name": "fast", "value": "200ms", "purpose": "Navigation icon swap and small state transitions." }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one dominant action per screen: filled Meter Yellow with dark text.",
+      "html": "<button class=\"ds-btn-primary\">Confirm trip</button>",
+      "css": ".ds-btn-primary { background: #FFD600; color: #374151; border: none; border-radius: 12px; padding: 14px 24px; font-family: Tajawal, sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: filter 0.2s; } .ds-btn-primary:hover { filter: brightness(1.05); } .ds-btn-primary:focus-visible { outline: 2px solid #F5F6F7; outline-offset: 2px; } .ds-btn-primary:active { filter: brightness(0.95); }"
+    },
+    {
+      "name": "Outlined Button",
+      "kind": "button",
+      "refersTo": "button-outlined",
+      "description": "Secondary action in Amber with a 1.5dp outline.",
+      "html": "<button class=\"ds-btn-outlined\">Change</button>",
+      "css": ".ds-btn-outlined { background: transparent; color: #F59E0B; border: 1.5px solid #F59E0B; border-radius: 12px; padding: 14px 24px; font-family: Tajawal, sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; } .ds-btn-outlined:hover { background: #3D2A14; } .ds-btn-outlined:focus-visible { outline: 2px solid #F5F6F7; outline-offset: 2px; }"
+    },
+    {
+      "name": "Destructive Button",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "Cancel and delete actions in Stop Red.",
+      "html": "<button class=\"ds-btn-destructive\">Cancel trip</button>",
+      "css": ".ds-btn-destructive { background: #DC2626; color: #FFFFFF; border: none; border-radius: 12px; padding: 14px 24px; font-family: Tajawal, sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; } .ds-btn-destructive:hover { filter: brightness(1.08); } .ds-btn-destructive:focus-visible { outline: 2px solid #F5F6F7; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Dash Surface fill with a steel border that turns Meter Yellow on focus.",
+      "html": "<input class=\"ds-input\" placeholder=\"Phone number\" />",
+      "css": ".ds-input { background: #1E1F22; color: #F5F6F7; border: 1px solid #34363B; border-radius: 12px; padding: 14px 16px; font-family: Tajawal, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box; } .ds-input::placeholder { color: #999DA6; } .ds-input:focus { outline: none; border: 1.5px solid #FFD600; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat Dash Surface container separated from the page by a 1dp border, with no shadow.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Total income this month</div><div class=\"ds-card-figure\">125,000 SYP</div></div>",
+      "css": ".ds-card { background: #1E1F22; border: 1px solid #34363B; border-radius: 16px; padding: 16px; font-family: Tajawal, sans-serif; } .ds-card-title { color: #B4B8C0; font-size: 13px; font-weight: 700; } .ds-card-figure { color: #F5F6F7; font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 4px; }"
+    },
+    {
+      "name": "Live Fee Card",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "Signature card for waiting and pause timers: accent-tinted surface, clock, status and fee.",
+      "html": "<div class=\"ds-fee\"><span class=\"ds-fee-icon\">&#9201;</span><div><div class=\"ds-fee-title\">Waiting at pickup</div><div class=\"ds-fee-clock\">02:35</div><div class=\"ds-fee-status\">Free time left</div></div></div>",
+      "css": ".ds-fee { display: flex; align-items: center; gap: 12px; background: color-mix(in srgb, #F59E0B 8%, #1E1F22); border: 1px solid rgba(245,158,11,0.3); border-radius: 14px; padding: 12px 14px; font-family: Tajawal, sans-serif; } .ds-fee-icon { color: #F59E0B; font-size: 28px; } .ds-fee-title { color: #B4B8C0; font-size: 13px; font-weight: 700; } .ds-fee-clock { color: #F5F6F7; font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; } .ds-fee-status { color: #F59E0B; font-size: 12px; font-weight: 600; }"
+    },
+    {
+      "name": "Role Badge",
+      "kind": "chip",
+      "refersTo": "role-badge",
+      "description": "Pill showing the chosen role, with an Amber change action.",
+      "html": "<span class=\"ds-badge\">Driver <button class=\"ds-badge-action\">Change</button></span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 8px; background: #3A3216; color: #FFD600; border-radius: 100px; padding: 8px 12px; font-family: Tajawal, sans-serif; font-size: 12px; font-weight: 500; } .ds-badge-action { background: none; border: none; color: #F59E0B; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; } .ds-badge-action:focus-visible { outline: 2px solid #F5F6F7; }"
+    },
+    {
+      "name": "Bottom Navigation",
+      "kind": "nav",
+      "refersTo": "bottom-nav",
+      "description": "Shared 60dp bar; Amber for the active destination, gray for the rest.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item ds-nav-active\">Home</a><a class=\"ds-nav-item\">Trips</a><a class=\"ds-nav-item\">Wallet</a></nav>",
+      "css": ".ds-nav { display: flex; height: 60px; background: #1E1F22; border-top: 1px solid #26282C; box-shadow: 0 -3px 12px rgba(0,0,0,0.10); font-family: Tajawal, sans-serif; } .ds-nav-item { flex: 1; display: flex; align-items: center; justify-content: center; color: #9CA3AF; font-size: 11px; font-weight: 400; cursor: pointer; } .ds-nav-active { color: #F59E0B; font-weight: 600; } .ds-nav-item:focus-visible { outline: 2px solid #F5F6F7; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Meter Light",
+    "overview": "Picture the inside of a cab at night: dark, quiet, and lit by one warm source, the meter or the roof sign. Near-black surfaces recede into a cabin, and a single yellow does the work of light. It tells a customer this is their next action and a driver this is the number that matters. Everything else is steel-gray text and tonal layers so that the yellow stays rare and means something.\n\nThe voice is calm, confident and utilitarian: built for scanning, with big filled tactile controls, clear 1dp borders around cards, tabular figures for money and clocks, and status shown by color plus icon plus text.",
+    "keyCharacteristics": [
+      "One dark theme; yellow #FFD600 is the single dominant signal, amber #F59E0B its secondary.",
+      "Depth by tonal layering and hairline borders, not shadows.",
+      "Filled, generously rounded (12–16dp) controls with large touch areas.",
+      "Tajawal throughout, with heavy weights (700–800) for figures and headings.",
+      "Semantic color always paired with an icon or label."
+    ],
+    "rules": [
+      { "name": "The One Light Rule", "body": "Yellow is the only light in the cabin. If a screen has more than a few yellow things, one of them has stopped meaning 'act here' or 'this is the number'.", "section": "colors" },
+      { "name": "The Wash Rule", "body": "Colored content sits on its tinted wash (yellow on yellow-wash, red on red-wash), never directly on black.", "section": "colors" },
+      { "name": "The Paired Signal Rule", "body": "Status is never color alone. Pair green, red and amber with an icon and a word.", "section": "colors" },
+      { "name": "The Tabular Money Rule", "body": "Anything that counts or sums (timers, fares, fees, earnings) uses tabular figures and the heaviest weight in its row.", "section": "typography" },
+      { "name": "The Flat-At-Rest Rule", "body": "A surface in a list or a stack gets a border, not a shadow. Shadow is a response to being above something else.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep Meter Yellow rare: one primary action per screen, plus the few places that mean \"this is the number\".",
+      "Do put dark text (On-Yellow Slate #374151) on yellow, always.",
+      "Do build from the existing tokens (AppColors, AppConstants radii and padding, and the theme's text roles) and reuse the widgets in core/widgets/ before creating new ones.",
+      "Do pair every status color with an icon and a label.",
+      "Do use tabular figures and heavy weight for money and clocks.",
+      "Do use direction-aware spacing and alignment so every screen mirrors correctly in Arabic.",
+      "Do keep touch targets at 48dp or more, with at least 8dp between them.",
+      "Do show loading, success and error states on every async surface."
+    ],
+    "donts": [
+      "Don't introduce a light theme or invert colors; the system is dark-only.",
+      "Don't hardcode hex colors or Colors.white/black/red in feature code. Use AppColors.",
+      "Don't add drop shadows to cards in lists; use the border.",
+      "Don't use gradients on routine surfaces; the yellow-to-amber gradient is reserved for hero summaries and brand accents.",
+      "Don't hand-pick font sizes per widget; map text to the theme's roles.",
+      "Don't convey state by color alone.",
+      "Don't use orange-red or another warm color that could be read as the error color.",
+      "Don't stack primary buttons; one primary action per view."
+    ]
+  }
+}

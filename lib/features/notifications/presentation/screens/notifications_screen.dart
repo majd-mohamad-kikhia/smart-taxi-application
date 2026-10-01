@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_loader_widget.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
+import '../../../../core/widgets/paginated_list_widget.dart';
+import '../../data/models/notification_model.dart';
 import '../cubit/notifications_cubit.dart';
 import '../cubit/notifications_state.dart';
 import '../widgets/notification_card_widget.dart';
-import '../widgets/notifications_header_widget.dart';
 
-/// Notifications inbox screen: trip updates, promos, payments, and system alerts.
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
@@ -24,141 +27,82 @@ class NotificationsScreen extends StatelessWidget {
 class _NotificationsView extends StatelessWidget {
   const _NotificationsView();
 
+  /// Marks it read, and opens the trip when it is about one.
+  void _open(BuildContext context, NotificationModel notification) {
+    context.read<NotificationsCubit>().markRead(notification.id);
+    final rideId = notification.relatedRideId;
+    if (rideId != null) {
+      Navigator.of(context).pushNamed(AppRouter.rideDetails, arguments: rideId);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<NotificationsCubit>();
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: AppColors.backgroundGray,
-      body: SafeArea(
-        bottom: false,
-        child: BlocBuilder<NotificationsCubit, NotificationsState>(
-          builder: (context, state) {
-            final notifications = state.notifications;
-
-            return Column(
-              children: [
-                NotificationsHeaderWidget(
-                  onBack: () => Navigator.of(context).maybePop(),
-                ),
-                Expanded(
-                  child: state.isLoading
-                      ? const AppLoaderWidget()
-                      : state.errorMessage != null
-                      ? _ErrorView(
-                          message: state.errorMessage!,
-                          onRetry: () =>
-                              context.read<NotificationsCubit>().initialize(),
-                        )
-                      : notifications.isEmpty
-                      ? const _EmptyNotifications()
-                      : ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
-                          itemCount: notifications.length,
-                          itemBuilder: (context, index) {
-                            return NotificationCardWidget(
-                              notification: notifications[index],
-                            );
-                          },
-                        ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback? onRetry;
-
-  const _ErrorView({required this.message, this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.wifi_off_rounded,
-              size: 48,
-              color: AppColors.textTertiary,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap: onRetry,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.refresh_rounded, size: 16, color: Colors.white),
-                    SizedBox(width: 6),
-                    Text(
-                      'إعادة المحاولة',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
+      appBar: AppBar(
+        title: Text(l10n.notificationsTitle),
+        actions: [
+          BlocSelector<NotificationsCubit, NotificationsState, int>(
+            selector: (state) => state.unreadCount,
+            builder: (context, unread) => unread == 0
+                ? const SizedBox.shrink()
+                : TextButton(
+                    onPressed: cubit.markAllRead,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.textLink,
+                      minimumSize: const Size(48, 48),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyNotifications extends StatelessWidget {
-  const _EmptyNotifications();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.notifications_off_outlined,
-            size: 48,
-            color: AppColors.textTertiary,
-          ),
-          SizedBox(height: 12),
-          Text(
-            'لا توجد إشعارات',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
+                    child: Text(l10n.notificationsMarkAllRead),
+                  ),
           ),
         ],
+      ),
+      // The list itself shows a failed first load; a failed "load more" or
+      // "mark as read" with rows already on screen surfaces as a snackbar.
+      body: BlocListener<NotificationsCubit, NotificationsState>(
+        listenWhen: (previous, current) =>
+            current.errorMessage != null &&
+            current.errorMessage != previous.errorMessage &&
+            current.notifications.isNotEmpty,
+        listener: (context, state) => showAppSnackBar(
+          context,
+          state.errorMessage!,
+          type: AppSnackBarType.error,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: BlocBuilder<NotificationsCubit, NotificationsState>(
+              builder: (context, state) =>
+                  PaginatedListWidget<NotificationModel>(
+                    items: state.notifications,
+                    isLoading: state.isLoading,
+                    isLoadingMore: state.isLoadingMore,
+                    hasMore: state.hasMore,
+                    errorMessage: state.errorMessage,
+                    emptyMessage: l10n.notificationsEmpty,
+                    emptyIcon: Icons.notifications_off_outlined,
+                    padding: const EdgeInsets.fromLTRB(
+                      AppConstants.paddingL,
+                      AppConstants.paddingL,
+                      AppConstants.paddingL,
+                      AppConstants.paddingXXL,
+                    ),
+                    onLoadMore: cubit.loadMore,
+                    onRetry: cubit.initialize,
+                    onRefresh: cubit.initialize,
+                    itemBuilder: (context, notification, _) =>
+                        NotificationCardWidget(
+                          notification: notification,
+                          onTap: () => _open(context, notification),
+                        ),
+                  ),
+            ),
+          ),
+        ),
       ),
     );
   }

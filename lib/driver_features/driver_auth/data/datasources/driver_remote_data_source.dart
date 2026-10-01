@@ -36,6 +36,11 @@ class DriverRemoteDataSource {
     );
   }
 
+  /// Cheapest authenticated driver call (`GET .../account/deletion-request`),
+  /// used only to find out whether the saved token is still accepted — it
+  /// answers 401 once the account is deleted or the token has expired.
+  Future<void> checkSession() => _dio.get(_endpoints.driverAccountDeletionRequest);
+
   Future<void> logout({required String refreshToken}) {
     return _dio.post(
       _endpoints.driverLogout,

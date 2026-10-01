@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/validators/auth_validators.dart';
+import '../../../../core/validators/phone_input_formatter.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
 import '../cubit/driver_auth_cubit.dart';
@@ -61,35 +63,42 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
       bloc: _cubit,
       listener: _onStateChanged,
       builder: (context, state) {
+        final l10n = context.l10n;
         return AuthFormLayoutWidget(
           formKey: _formKey,
-          title: 'تسجيل دخول الكباتن',
-          subtitle: 'أدخل بياناتك للمتابعة إلى مشوار',
+          title: l10n.driverSignInTitle,
+          subtitle: l10n.signInSubtitle,
           role: UserRole.driver,
           onChangeRole: _changeRole,
           fields: [
             AuthTextFieldWidget(
               controller: _phoneController,
-              label: 'رقم الجوال',
-              hint: '05xxxxxxxx',
+              label: l10n.phoneNumber,
+              hint: '09xxxxxxxx',
               prefixIcon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
+              autofillHints: const [AutofillHints.username],
+              inputFormatters: const [PhoneInputFormatter()],
+              forceLtr: true,
               validator: AuthValidators.phone,
             ),
             AuthTextFieldWidget(
               controller: _passwordController,
-              label: 'كلمة المرور',
+              label: l10n.password,
               hint: '••••••••',
               prefixIcon: Icons.lock_outline,
               isPassword: true,
               textInputAction: TextInputAction.done,
+              onSubmitted: _submit,
+              autofillHints: const [AutofillHints.password],
+              forceLtr: true,
               validator: AuthValidators.loginPassword,
             ),
           ],
           errorMessage: state.status == DriverAuthStatus.failure
               ? state.errorMessage
               : null,
-          submitLabel: 'تسجيل الدخول',
+          submitLabel: l10n.signIn,
           isSubmitting: state.status == DriverAuthStatus.submitting,
           onSubmit: _submit,
         );

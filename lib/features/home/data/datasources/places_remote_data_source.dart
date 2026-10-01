@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../models/place_suggestion_model.dart';
 
 /// Talks to Photon (komoot.io's free, keyless OSM-based geocoder) for
@@ -90,6 +91,6 @@ class PlacesRemoteDataSource {
     ];
 
     final seen = <String>{};
-    return parts.where((p) => seen.add(p)).join('، ');
+    return parts.where((p) => seen.add(p)).join(AppStrings.current.listSeparator);
   }
 }

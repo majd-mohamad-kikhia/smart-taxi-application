@@ -3,11 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// Global app theme – Tajawal Arabic font + Mshoar brand colors.
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme {
+  static ThemeData get darkTheme {
     final base = ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
@@ -109,7 +108,7 @@ class AppTheme {
         scrolledUnderElevation: 0.5,
         shadowColor: AppColors.shadowLight,
         systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
-          statusBarColor: Colors.transparent,
+          statusBarColor: AppColors.transparent,
         ),
         titleTextStyle: GoogleFonts.tajawal(
           fontSize: 18,
@@ -172,11 +171,15 @@ class AppTheme {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(color: AppColors.borderStrong),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(color: AppColors.borderStrong),
+        ),
+        errorStyle: GoogleFonts.tajawal(
+          fontSize: 12,
+          color: AppColors.errorText,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

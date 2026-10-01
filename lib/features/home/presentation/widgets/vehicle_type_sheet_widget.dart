@@ -1,19 +1,80 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/app_neutral_button_widget.dart';
+import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../data/models/ride_quote_model.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
+import 'vehicle_type_tile_widget.dart';
 
-/// Bottom sheet listing every vehicle type with its quoted price for the
-/// requested trip. Purely presentational — it pops itself with the
-/// chosen `vehicle_type_id`, and the caller fires the booking request.
-class VehicleTypeSheetWidget extends StatelessWidget {
+/// Bottom sheet where the customer compares the quoted price of every vehicle
+/// type for their trip, picks one, and then confirms with a single yellow
+/// "Request {vehicle} · {price}" button. Choosing a tile only selects it —
+/// the ride is not requested until that button is pressed.
+///
+/// Purely presentational — it pops itself with the chosen
+/// `vehicle_type_id`, and the caller fires the booking request.
+class VehicleTypeSheetWidget extends StatefulWidget {
   final RideQuoteModel quote;
+  final String pickupLabel;
+  final String dropoffLabel;
 
-  const VehicleTypeSheetWidget({super.key, required this.quote});
+  const VehicleTypeSheetWidget({
+    super.key,
+    required this.quote,
+    required this.pickupLabel,
+    required this.dropoffLabel,
+  });
+
+  @override
+  State<VehicleTypeSheetWidget> createState() => _VehicleTypeSheetWidgetState();
+}
+
+class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
+  int? _selectedId;
+
+  /// Guards against a second tap popping the sheet twice.
+  bool _isLeaving = false;
+
+  double? _priceOf(VehicleTypeQuoteModel type) =>
+      type.displayPrice(widget.quote.distanceKm);
+
+  /// A type can be requested only when it is available and has a price.
+  bool _isChoosable(VehicleTypeQuoteModel type) =>
+      type.available && _priceOf(type) != null;
+
+  VehicleTypeQuoteModel? get _selected {
+    for (final type in widget.quote.vehicleTypes) {
+      if (type.vehicleTypeId == _selectedId) return type;
+    }
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // With a single choice there is nothing to compare — start selected.
+    final choosable = widget.quote.vehicleTypes.where(_isChoosable).toList();
+    if (choosable.length == 1) _selectedId = choosable.first.vehicleTypeId;
+  }
+
+  void _request(int vehicleTypeId) {
+    if (_isLeaving) return;
+    _isLeaving = true;
+    Navigator.of(context).pop(vehicleTypeId);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final quote = widget.quote;
+    final types = quote.vehicleTypes;
+    final hasChoice = types.any(_isChoosable);
+    final selected = _selected;
+    final selectedPrice = selected == null ? null : _priceOf(selected);
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(AppConstants.paddingXL),
@@ -32,42 +93,65 @@ class VehicleTypeSheetWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppConstants.paddingXL),
-            const Text(
-              'اختر نوع المركبة',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: AppConstants.paddingS),
-            const SizedBox(height: AppConstants.paddingXL),
-            Flexible(
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: quote.vehicleTypes.length,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(height: AppConstants.paddingM),
-                itemBuilder: (context, index) {
-                  final vehicleType = quote.vehicleTypes[index];
-                  return _VehicleTypeTileWidget(
-                    vehicleType: vehicleType,
-                    distanceKm: quote.distanceKm,
-                    onTap: vehicleType.available
-                        ? () => Navigator.of(
-                            context,
-                          ).pop(vehicleType.vehicleTypeId)
-                        : null,
-                  );
-                },
+            Semantics(
+              header: true,
+              child: Text(
+                l10n.pickVehicleType,
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
             const SizedBox(height: AppConstants.paddingM),
-            const Text(
-              'السعر تقديري وقد يختلف حسب المسار الفعلي للرحلة',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+            _TripSummary(
+              pickupLabel: widget.pickupLabel,
+              dropoffLabel: widget.dropoffLabel,
+              distanceKm: quote.distanceKm,
+              durationMin: quote.estimatedDurationMin,
             ),
+            const SizedBox(height: AppConstants.paddingL),
+            Flexible(
+              child: hasChoice
+                  ? ListView(
+                      shrinkWrap: true,
+                      children: [
+                        for (final type in types) ...[
+                          VehicleTypeTileWidget(
+                            vehicleType: type,
+                            price: _priceOf(type),
+                            selected: type.vehicleTypeId == _selectedId,
+                            onTap: _isChoosable(type)
+                                ? () => setState(
+                                    () => _selectedId = type.vehicleTypeId,
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(height: AppConstants.paddingM),
+                        ],
+                        _FeeRules(quote: quote),
+                      ],
+                    )
+                  : const _NoVehicles(),
+            ),
+            const SizedBox(height: AppConstants.paddingM),
+            if (hasChoice) ...[
+              const _EstimateNote(),
+              const SizedBox(height: AppConstants.paddingM),
+              AuthPrimaryButtonWidget(
+                label: selected == null || selectedPrice == null
+                    ? l10n.pickVehicleType
+                    : l10n.requestVehicle(
+                        selected.name,
+                        l10n.priceSyp(formatPrice(selectedPrice)),
+                      ),
+                isLoading: false,
+                onPressed: selected == null
+                    ? null
+                    : () => _request(selected.vehicleTypeId),
+              ),
+            ] else
+              AppNeutralButtonWidget(
+                label: l10n.close,
+                onPressed: () => Navigator.of(context).pop(),
+              ),
           ],
         ),
       ),
@@ -75,103 +159,194 @@ class VehicleTypeSheetWidget extends StatelessWidget {
   }
 }
 
-/// A single selectable vehicle type row with its quoted price.
-class _VehicleTypeTileWidget extends StatelessWidget {
-  final VehicleTypeQuoteModel vehicleType;
+/// The trip these prices are for — pickup, drop-off, distance and time — so
+/// the customer never compares prices for a trip they can no longer see.
+class _TripSummary extends StatelessWidget {
+  final String pickupLabel;
+  final String dropoffLabel;
   final double distanceKm;
-  final VoidCallback? onTap;
+  final int durationMin;
 
-  const _VehicleTypeTileWidget({
-    required this.vehicleType,
+  const _TripSummary({
+    required this.pickupLabel,
+    required this.dropoffLabel,
     required this.distanceKm,
-    required this.onTap,
+    required this.durationMin,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isAvailable = vehicleType.available;
-    final price = vehicleType.displayPrice(distanceKm);
-
-    return Material(
-      color: AppColors.backgroundMuted,
-      borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        child: Opacity(
-          opacity: isAvailable ? 1 : 0.45,
-          child: Container(
-            padding: const EdgeInsets.all(AppConstants.paddingL),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-              border: Border.all(color: AppColors.border),
+    final l10n = context.l10n;
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _AddressRow(
+          icon: Icons.trip_origin_rounded,
+          color: AppColors.primary,
+          label: pickupLabel,
+        ),
+        const SizedBox(height: AppConstants.paddingS),
+        _AddressRow(
+          icon: Icons.location_on_rounded,
+          color: AppColors.accent,
+          label: dropoffLabel,
+        ),
+        if (distanceKm > 0 || durationMin > 0) ...[
+          const SizedBox(height: AppConstants.paddingS),
+          Text(
+            [
+              if (distanceKm > 0)
+                l10n.distanceKm(distanceKm.toStringAsFixed(1)),
+              if (durationMin > 0) l10n.durationMinutesShort('$durationMin'),
+            ].join(' · '),
+            style: textTheme.bodyMedium?.copyWith(
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.local_taxi_rounded,
-                    color: AppColors.primary,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: AppConstants.paddingM),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        vehicleType.name,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      if (vehicleType.description != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          vehicleType.description!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                      if (!isAvailable) ...[
-                        const SizedBox(height: 2),
-                        const Text(
-                          'غير متاح حالياً',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.error,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (price != null)
-                  Text(
-                    '${price.toStringAsFixed(0)} ل.س',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.primary,
-                    ),
-                  ),
-              ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _AddressRow extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+
+  const _AddressRow({
+    required this.icon,
+    required this.color,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: AppConstants.paddingS),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The waiting and stop fee rules, folded away until the customer wants them.
+class _FeeRules extends StatelessWidget {
+  final RideQuoteModel quote;
+
+  const _FeeRules({required this.quote});
+
+  @override
+  Widget build(BuildContext context) {
+    final waiting = quote.waitingFee;
+    final pause = quote.pauseFee;
+    final hasWaiting = waiting?.isCharged ?? false;
+    final hasPause = pause?.isCharged ?? false;
+    if (!hasWaiting && !hasPause) return const SizedBox.shrink();
+
+    final l10n = context.l10n;
+    final textTheme = Theme.of(context).textTheme;
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: AppColors.transparent),
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: EdgeInsets.zero,
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        shape: const Border(),
+        collapsedShape: const Border(),
+        iconColor: AppColors.textSecondary,
+        collapsedIconColor: AppColors.textSecondary,
+        title: Text(l10n.fareDetails, style: textTheme.titleSmall),
+        children: [
+          if (hasWaiting)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppConstants.paddingS),
+              child: Text(
+                '${l10n.waitingAtPickup}: ${l10n.waitingRules(
+                  '${waiting!.freeMinutes}',
+                  l10n.priceSyp(formatPrice(waiting.pricePerMinute)),
+                )}',
+                style: textTheme.bodyMedium,
+              ),
+            ),
+          if (hasPause)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppConstants.paddingS),
+              child: Text(
+                '${l10n.pauseStopLabel}: ${l10n.pauseRules(
+                  l10n.priceSyp(formatPrice(pause!.baseFee)),
+                  '${pause.includedMinutes}',
+                  l10n.priceSyp(formatPrice(pause.pricePerMinute)),
+                )}',
+                style: textTheme.bodyMedium,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "The price is an estimate…" next to the button that commits to it.
+class _EstimateNote extends StatelessWidget {
+  const _EstimateNote();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(
+          Icons.info_outline_rounded,
+          size: 16,
+          color: AppColors.textSecondary,
+        ),
+        const SizedBox(width: AppConstants.paddingS),
+        Expanded(
+          child: Text(
+            context.l10n.priceEstimateNote,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _NoVehicles extends StatelessWidget {
+  const _NoVehicles();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingXL),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.local_taxi_outlined,
+            size: 40,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(height: AppConstants.paddingM),
+          Text(
+            context.l10n.noVehiclesAvailable,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ],
       ),
     );
   }

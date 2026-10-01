@@ -4,7 +4,6 @@ import '../../data/models/auth_user_model.dart';
 
 enum AuthStatus { idle, submitting, success, failure }
 
-/// Immutable state for the auth flow (role selection → sign in / sign up).
 class AuthState extends Equatable {
   final UserRole? selectedRole;
   final AuthStatus status;

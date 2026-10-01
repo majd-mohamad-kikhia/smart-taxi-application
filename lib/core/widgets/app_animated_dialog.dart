@@ -1,81 +1,101 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import '../constants/app_constants.dart';
+import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
+import 'app_dialog_layout_widget.dart';
+import 'app_neutral_button_widget.dart';
 
 /// Visual tone for branded dialogs.
 enum AppDialogTone { destructive, primary, success, warning }
 
-/// Shows a beautiful scale+fade animated dialog with brand colors.
+/// Shows the app's branded confirm dialog: a flat card with an icon, a
+/// title, an optional message and a confirm / "go back" pair.
 ///
 /// Pass [content] to render custom widgets (e.g. a form) below the title
 /// instead of/alongside [message]. Set [showActions] to false to hide the
 /// built-in Cancel/Confirm row when [content] renders its own actions.
+///
+/// With [barrierDismissible] false the dialog can be left only through its
+/// own buttons: the Android back button is blocked as well as scrim taps.
+/// The entrance is a quick fade and is skipped when the system asks for
+/// reduced motion.
 Future<T?> showAppDialog<T>({
   required BuildContext context,
   required String title,
   String? message,
   String? confirmLabel,
-  String cancelLabel = 'تراجع',
+  String? cancelLabel,
   IconData icon = Icons.info_rounded,
   AppDialogTone tone = AppDialogTone.primary,
   VoidCallback? onConfirm,
+
+  /// Runs when the dialog's own "go back" button is pressed — not when it is
+  /// dismissed any other way (scrim, Back, or the route being removed).
+  VoidCallback? onCancel,
   bool barrierDismissible = true,
   Widget? content,
   bool showActions = true,
 }) {
+  // The buttons stay tappable while the dialog animates out, so a quick
+  // second tap would otherwise pop the screen underneath (and run the
+  // confirm action twice). Only the first tap counts.
+  var handled = false;
+  void once(VoidCallback action) {
+    if (handled) return;
+    handled = true;
+    action();
+  }
+
   return showGeneralDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withValues(alpha: 0.45),
-    transitionDuration: const Duration(milliseconds: 380),
+    barrierColor: AppColors.scrim,
+    transitionDuration: MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : AppConstants.animFast,
     pageBuilder: (context, animation, secondaryAnimation) {
-      return const SizedBox.shrink();
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      final curved = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutBack,
-        reverseCurve: Curves.easeInCubic,
-      );
-      final fade = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOut,
-        reverseCurve: Curves.easeIn,
-      );
-
-      return FadeTransition(
-        opacity: fade,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.82, end: 1.0).animate(curved),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-            child: Center(
-              child: AppAnimatedDialog(
-                title: title,
-                message: message,
-                confirmLabel: confirmLabel,
-                cancelLabel: cancelLabel,
-                icon: icon,
-                tone: tone,
-                content: content,
-                showActions: showActions,
-                onConfirm: () {
-                  Navigator.of(context).pop();
-                  onConfirm?.call();
-                },
-                onCancel: () => Navigator.of(context).pop(),
-              ),
+      return PopScope(
+        canPop: barrierDismissible,
+        child: Semantics(
+          namesRoute: true,
+          label: title,
+          child: AppDialogLayoutWidget(
+            child: AppAnimatedDialog(
+              title: title,
+              message: message,
+              confirmLabel: confirmLabel,
+              cancelLabel: cancelLabel ?? context.l10n.goBack,
+              icon: icon,
+              tone: tone,
+              content: content,
+              showActions: showActions,
+              onConfirm: () => once(() {
+                Navigator.of(context).pop();
+                onConfirm?.call();
+              }),
+              onCancel: () => once(() {
+                Navigator.of(context).pop();
+                onCancel?.call();
+              }),
             ),
           ),
+        ),
+      );
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final eased = animation.drive(CurveTween(curve: Curves.easeOutCubic));
+      return FadeTransition(
+        opacity: eased,
+        child: ScaleTransition(
+          scale: eased.drive(Tween<double>(begin: 0.96, end: 1.0)),
+          child: child,
         ),
       );
     },
   );
 }
 
-/// Polished centered dialog card used by [showAppDialog].
 class AppAnimatedDialog extends StatelessWidget {
   final String title;
   final String? message;
@@ -107,34 +127,26 @@ class AppAnimatedDialog extends StatelessWidget {
       AppDialogTone.destructive => const _DialogPalette(
           accent: AppColors.error,
           surface: AppColors.errorSurface,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
-          ),
+          solid: AppColors.errorDark,
+          onSolid: AppColors.white,
         ),
       AppDialogTone.primary => const _DialogPalette(
           accent: AppColors.primary,
           surface: AppColors.primarySurface,
-          gradient: AppColors.primaryGradient,
+          solid: AppColors.primary,
+          onSolid: AppColors.textOnPrimary,
         ),
       AppDialogTone.success => const _DialogPalette(
           accent: AppColors.success,
           surface: AppColors.successSurface,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF10B981), Color(0xFF059669)],
-          ),
+          solid: AppColors.success,
+          onSolid: AppColors.textOnSuccess,
         ),
       AppDialogTone.warning => const _DialogPalette(
           accent: AppColors.accent,
           surface: AppColors.accentSurface,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFFF6535), Color(0xFFE5521E)],
-          ),
+          solid: AppColors.accent,
+          onSolid: AppColors.textOnPrimary,
         ),
     };
   }
@@ -142,242 +154,126 @@ class AppAnimatedDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = _palette;
-    final width = MediaQuery.of(context).size.width;
+    final textTheme = Theme.of(context).textTheme;
 
     return Material(
-      color: Colors.transparent,
+      color: AppColors.transparent,
       child: Container(
-        width: width * 0.86,
+        width: MediaQuery.sizeOf(context).width * 0.86,
         constraints: const BoxConstraints(maxWidth: 360),
+        padding: const EdgeInsets.fromLTRB(
+          AppConstants.paddingXXL,
+          AppConstants.paddingXXL,
+          AppConstants.paddingXXL,
+          AppConstants.paddingXL,
+        ),
         decoration: BoxDecoration(
           color: AppColors.backgroundWhite,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
+          borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+          border: Border.all(color: AppColors.border),
+          boxShadow: const [
             BoxShadow(
-              color: palette.accent.withValues(alpha: 0.18),
-              blurRadius: 32,
-              offset: const Offset(0, 12),
-            ),
-            const BoxShadow(
               color: AppColors.shadowStrong,
               blurRadius: 24,
               offset: Offset(0, 8),
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Colored top strip
-              Container(
-                height: 6,
-                decoration: BoxDecoration(gradient: palette.gradient),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _DialogBadge(icon: icon, palette: palette),
+            const SizedBox(height: AppConstants.paddingL),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: textTheme.headlineMedium,
+            ),
+            if (message != null) ...[
+              const SizedBox(height: AppConstants.paddingM),
+              Text(
+                message!,
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(height: 1.5),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
-                child: Column(
+            ],
+            if (content != null) ...[
+              const SizedBox(height: AppConstants.paddingL),
+              content!,
+            ],
+            if (showActions) ...[
+              const SizedBox(height: AppConstants.paddingXXL),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Animated icon badge
-                    _PulseIconBadge(
-                      icon: icon,
-                      palette: palette,
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                        height: 1.3,
+                    Expanded(
+                      child: AppNeutralButtonWidget(
+                        label: cancelLabel,
+                        onPressed: onCancel,
                       ),
                     ),
-                    if (message != null) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        message!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          height: 1.55,
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w400,
+                    if (confirmLabel != null) ...[
+                      const SizedBox(width: AppConstants.paddingM),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: onConfirm,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: palette.solid,
+                            foregroundColor: palette.onSolid,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppConstants.paddingM,
+                              vertical: 14,
+                            ),
+                          ),
+                          child: Text(confirmLabel!, textAlign: TextAlign.center),
                         ),
-                      ),
-                    ],
-                    if (content != null) ...[
-                      const SizedBox(height: 16),
-                      content!,
-                    ],
-                    if (showActions) ...[
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _DialogButton(
-                              label: cancelLabel,
-                              filled: false,
-                              accent: palette.accent,
-                              surface: palette.surface,
-                              onTap: onCancel,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _DialogButton(
-                              label: confirmLabel ?? '',
-                              filled: true,
-                              accent: palette.accent,
-                              surface: palette.surface,
-                              gradient: palette.gradient,
-                              onTap: onConfirm,
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ],
                 ),
               ),
             ],
-          ),
+          ],
         ),
       ),
     );
   }
 }
 
+/// The colors of one [AppDialogTone]. The confirm button is a solid fill
+/// ([solid]) with a foreground ([onSolid]) chosen for contrast, so white is
+/// used only on the dark red and never on yellow, amber or green.
 class _DialogPalette {
   final Color accent;
   final Color surface;
-  final Gradient gradient;
+  final Color solid;
+  final Color onSolid;
 
   const _DialogPalette({
     required this.accent,
     required this.surface,
-    required this.gradient,
+    required this.solid,
+    required this.onSolid,
   });
 }
 
-/// Soft pulsing icon circle at the top of the dialog.
-class _PulseIconBadge extends StatefulWidget {
+/// Flat round icon tile: the accent icon on its wash. Decorative, so it is
+/// hidden from screen readers (the title names the dialog).
+class _DialogBadge extends StatelessWidget {
   final IconData icon;
   final _DialogPalette palette;
 
-  const _PulseIconBadge({
-    required this.icon,
-    required this.palette,
-  });
-
-  @override
-  State<_PulseIconBadge> createState() => _PulseIconBadgeState();
-}
-
-class _PulseIconBadgeState extends State<_PulseIconBadge>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _pulse;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat(reverse: true);
-    _pulse = Tween<double>(begin: 0.92, end: 1.08).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  const _DialogBadge({required this.icon, required this.palette});
 
   @override
   Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _pulse,
+    return ExcludeSemantics(
       child: Container(
-        width: 68,
-        height: 68,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: widget.palette.gradient,
-          boxShadow: [
-            BoxShadow(
-              color: widget.palette.accent.withValues(alpha: 0.35),
-              blurRadius: 18,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Icon(widget.icon, color: Colors.white, size: 32),
-      ),
-    );
-  }
-}
-
-class _DialogButton extends StatelessWidget {
-  final String label;
-  final bool filled;
-  final Color accent;
-  final Color surface;
-  final Gradient? gradient;
-  final VoidCallback? onTap;
-
-  const _DialogButton({
-    required this.label,
-    required this.filled,
-    required this.accent,
-    required this.surface,
-    this.gradient,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: filled ? gradient : null,
-            color: filled ? null : surface,
-            borderRadius: BorderRadius.circular(14),
-            border: filled
-                ? null
-                : Border.all(color: accent.withValues(alpha: 0.25)),
-            boxShadow: filled
-                ? [
-                    BoxShadow(
-                      color: accent.withValues(alpha: 0.28),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(vertical: 13),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: filled ? Colors.white : accent,
-              ),
-            ),
-          ),
-        ),
+        width: 64,
+        height: 64,
+        decoration: BoxDecoration(color: palette.surface, shape: BoxShape.circle),
+        child: Icon(icon, color: palette.accent, size: 30),
       ),
     );
   }

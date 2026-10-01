@@ -1,5 +1,5 @@
 name: mshoar
-description: "مشوار - تطبيق رحلات ذكي"
+description: "Smart Taxi - تطبيق رحلات ذكي"
 publish_to: 'none'
 version: 1.0.0+4
 
@@ -11,8 +11,9 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-
-  cupertino_icons: ^1.0.8
+  # Required by the generated AppLocalizations (already resolved
+  # transitively through flutter_localizations at this version).
+  intl: ^0.20.2
 
   # State Management
   flutter_bloc: ^8.1.6
@@ -23,10 +24,6 @@ dependencies:
 
   # Fonts
   google_fonts: ^6.2.1
-
-  # Map
-  flutter_map: ^7.0.2
-  latlong2: ^0.9.1
 
   # Networking
   dio: ^5.7.0
@@ -43,6 +40,9 @@ dependencies:
   firebase_core: 4.14.0
   firebase_messaging: 16.6.0
   flutter_local_notifications: ^22.3.1
+  flutter_markdown_plus: ^1.0.12
+  package_info_plus: ^10.2.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -53,6 +53,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
 
   assets:
     - assets/loader/taxi_loader_yellow.json

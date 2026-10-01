@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/datasources/driver_socket_service.dart';
 import '../../data/location_ticker.dart';
@@ -42,9 +43,9 @@ class DriverPresenceCubit extends Cubit<DriverPresenceState> {
           locationFailureReason: e.reason,
           errorMessage: switch (e.reason) {
             LocationFailureReason.serviceDisabled =>
-              'يرجى تفعيل خدمة الموقع (GPS) في إعدادات الجهاز',
+              AppStrings.current.errEnableGps,
             LocationFailureReason.permissionDenied =>
-              'يرجى تفعيل صلاحية الموقع للتطبيق من إعدادات الجهاز',
+              AppStrings.current.errEnableLocationPermission,
           },
         ));
       }
@@ -65,7 +66,7 @@ class DriverPresenceCubit extends Cubit<DriverPresenceState> {
         if (!isClosed) {
           emit(state.copyWith(
             status: DriverPresenceStatus.error,
-            errorMessage: 'تعذر الاتصال بالخادم',
+            errorMessage: AppStrings.current.errServerUnreachable,
           ));
         }
       },

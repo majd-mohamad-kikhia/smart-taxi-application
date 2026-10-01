@@ -2,10 +2,9 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/status_code.dart';
 import '../../../driver_auth/data/models/driver_vehicle_model.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../datasources/driver_vehicle_remote_data_source.dart';
 
-/// Structured failure thrown by [DriverVehicleRepository], so the Cubit
-/// never has to interpret a raw exception.
 class DriverVehicleException implements Exception {
   final String message;
 
@@ -15,8 +14,6 @@ class DriverVehicleException implements Exception {
   String toString() => message;
 }
 
-/// Repository for the driver profile's vehicle card. The Cubit talks to
-/// this, never to [DriverVehicleRemoteDataSource] directly.
 class DriverVehicleRepository {
   final DriverVehicleRemoteDataSource _remoteDataSource;
 
@@ -33,7 +30,7 @@ class DriverVehicleRepository {
         return null;
       }
       throw DriverVehicleException(
-        error is ApiException ? error.message : 'تعذر الاتصال بالخادم',
+        error is ApiException ? error.message : AppStrings.current.errServerUnreachable,
       );
     }
   }

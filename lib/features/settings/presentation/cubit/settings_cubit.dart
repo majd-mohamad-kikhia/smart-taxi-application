@@ -2,14 +2,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/session/session_cubit.dart';
 import 'settings_state.dart';
 
-/// Cubit managing the Profile / Settings screen state.
 class SettingsCubit extends Cubit<SettingsState> {
   final SessionCubit _sessionCubit;
 
   SettingsCubit(this._sessionCubit) : super(SettingsState.initial());
 
-  /// Wallet balance / verification badge stay mock data (no wallet API
-  /// yet) — only the identity fields come from the real signed-in user.
+  /// Fills the profile from the signed-in customer. With nobody signed in the
+  /// card stays blank.
   void initialize() {
     if (isClosed) return;
     final user = _sessionCubit.state;
@@ -18,14 +17,17 @@ class SettingsCubit extends Cubit<SettingsState> {
       emit(initial);
       return;
     }
-    emit(initial.copyWith(
-      profile: initial.profile.copyWith(
-        id: user.id.toString(),
-        fullName: user.fullName,
-        phone: user.phone,
-        email: user.email,
+    emit(
+      initial.copyWith(
+        profile: initial.profile.copyWith(
+          id: user.id.toString(),
+          fullName: user.fullName,
+          phone: user.phone,
+          photoUrl: user.photoUrl,
+          email: user.email ?? '',
+        ),
       ),
-    ));
+    );
   }
 
   Future<void> logout() async {
@@ -35,9 +37,5 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (!isClosed) {
       emit(state.copyWith(isLoggingOut: false));
     }
-  }
-
-  void onItemTapped(String itemId) {
-    // Placeholder – route to sub-screens in later iterations
   }
 }

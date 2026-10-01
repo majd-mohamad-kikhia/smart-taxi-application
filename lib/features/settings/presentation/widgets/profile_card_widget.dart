@@ -1,129 +1,129 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/network_photo_widget.dart';
 import '../../data/models/user_profile_model.dart';
 
-/// Profile card with avatar, contact info, and edit button.
+/// Profile card: avatar, name, contact lines, and a tappable "edit personal
+/// info" row. Flat like every card at rest: a border, no shadow, no gradient.
+/// A phone number and an email are left-to-right values, kept in order inside
+/// Arabic text.
 class ProfileCardWidget extends StatelessWidget {
   final UserProfileModel profile;
   final VoidCallback? onEdit;
 
-  const ProfileCardWidget({
-    super.key,
-    required this.profile,
-    this.onEdit,
-  });
+  const ProfileCardWidget({super.key, required this.profile, this.onEdit});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final textTheme = Theme.of(context).textTheme;
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.backgroundWhite,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
         border: Border.all(color: AppColors.border),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          Row(
-            children: [
-              // Avatar + verified
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.backgroundMuted,
-                      border: Border.all(color: AppColors.border, width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.person_rounded,
-                      color: AppColors.textSecondary,
-                      size: 34,
-                    ),
-                  ),
-                  if (profile.isVerified)
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: AppColors.success,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(
-                          Icons.check_rounded,
-                          color: Colors.white,
-                          size: 12,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      profile.fullName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    _ContactRow(
-                      icon: Icons.phone_outlined,
-                      text: profile.phone,
-                    ),
-                    const SizedBox(height: 4),
-                    _ContactRow(
-                      icon: Icons.email_outlined,
-                      text: profile.email,
-                    ),
-                  ],
+          Padding(
+            padding: const EdgeInsets.all(AppConstants.paddingL),
+            child: Row(
+              children: [
+                NetworkPhotoWidget(
+                  imagePath: profile.photoUrl,
+                  width: 64,
+                  height: 64,
+                  borderRadius: 32,
+                  placeholderIcon: Icons.person_rounded,
                 ),
-              ),
-            ],
+                const SizedBox(width: AppConstants.paddingL),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        profile.fullName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      if (profile.phone.isNotEmpty) ...[
+                        const SizedBox(height: AppConstants.paddingS),
+                        _ContactRow(
+                          icon: Icons.phone_outlined,
+                          text: profile.phone,
+                        ),
+                      ],
+                      if (profile.email.isNotEmpty) ...[
+                        const SizedBox(height: AppConstants.paddingXS),
+                        _ContactRow(
+                          icon: Icons.email_outlined,
+                          text: profile.email,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
-          GestureDetector(
-            onTap: onEdit,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 11),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8EEF8),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.edit_outlined, size: 16, color: AppColors.primary),
-                  SizedBox(width: 6),
-                  Text(
-                    'تعديل البيانات الشخصية',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
+          const Divider(height: 1, color: AppColors.borderLight),
+          // The ink lives on a Material above the card's fill, so the press
+          // shows.
+          Material(
+            color: AppColors.transparent,
+            child: Semantics(
+              button: true,
+              excludeSemantics: true,
+              label: l10n.editPersonalInfo,
+              onTap: onEdit,
+              child: InkWell(
+                onTap: onEdit,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 56),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.paddingL,
+                      vertical: AppConstants.paddingM,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(AppConstants.paddingS),
+                          decoration: BoxDecoration(
+                            color: AppColors.primarySurface,
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.radiusMedium,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: AppConstants.paddingM),
+                        Expanded(
+                          child: Text(
+                            l10n.editPersonalInfo,
+                            style: textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          color: AppColors.textTertiary,
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -143,17 +143,17 @@ class _ContactRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 14, color: AppColors.textSecondary),
-        const SizedBox(width: 6),
+        Icon(icon, size: 16, color: AppColors.textSecondary),
+        const SizedBox(width: AppConstants.paddingS),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            // Phone numbers and emails read left to right in any language.
+            textDirection: TextDirection.ltr,
+            textAlign: TextAlign.start,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
       ],

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 
 /// Kind of wallet movement — mirrors `WalletTransaction.transaction_type`
 /// in swagger.json.
@@ -6,13 +7,15 @@ enum WalletTransactionType {
   topup,
   commissionDeduction,
   penalty,
-  compensation;
+  compensation,
+  reward;
 
   static WalletTransactionType fromApi(String value) => switch (value) {
     'topup' => WalletTransactionType.topup,
     'commission_deduction' => WalletTransactionType.commissionDeduction,
     'penalty' => WalletTransactionType.penalty,
     'compensation' => WalletTransactionType.compensation,
+    'reward' => WalletTransactionType.reward,
     _ => WalletTransactionType.topup,
   };
 
@@ -21,14 +24,23 @@ enum WalletTransactionType {
     WalletTransactionType.commissionDeduction => 'commission_deduction',
     WalletTransactionType.penalty => 'penalty',
     WalletTransactionType.compensation => 'compensation',
+    WalletTransactionType.reward => 'reward',
   };
 
-  String get label => switch (this) {
-    WalletTransactionType.topup => 'شحن رصيد',
-    WalletTransactionType.commissionDeduction => 'عمولة',
-    WalletTransactionType.penalty => 'غرامة',
-    WalletTransactionType.compensation => 'تعويض',
+  String label(AppLocalizations l10n) => switch (this) {
+    WalletTransactionType.topup => l10n.txTopup,
+    WalletTransactionType.commissionDeduction => l10n.txCommission,
+    WalletTransactionType.penalty => l10n.txPenalty,
+    WalletTransactionType.compensation => l10n.txCompensation,
+    WalletTransactionType.reward => l10n.txReward,
   };
+
+  /// Whether this kind of movement takes money out of the wallet. Decided by
+  /// the type, not by the amount's sign, so it reads right whichever way the
+  /// server stores a deduction.
+  bool get isDebit =>
+      this == WalletTransactionType.commissionDeduction ||
+      this == WalletTransactionType.penalty;
 }
 
 /// A single row from `/api/driver/wallet` — mirrors `WalletTransaction`

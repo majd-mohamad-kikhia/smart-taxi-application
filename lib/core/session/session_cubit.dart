@@ -7,7 +7,7 @@ import 'app_user.dart';
 /// Lives in core (not a feature) because several features need to read
 /// it (Settings' profile card, Home's greeting, the driver app's own
 /// screens, ...) and/or trigger a logout, and features must not import
-/// each other. Each account-holding feature (auth for riders, driver for
+/// each other. Each account-holding feature (auth for customers, driver for
 /// drivers) is the only writer for its own role — it calls
 /// [setUser]/[clear] right after login/restore/logout, and plugs its
 /// real logout implementation in via [registerLogoutHandler] keyed by

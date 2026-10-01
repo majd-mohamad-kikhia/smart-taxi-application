@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../driver_auth/data/models/driver_status.dart';
 import '../../../driver_auth/data/models/driver_user_model.dart';
@@ -90,7 +91,7 @@ class _StatusBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(100),
       ),
       child: Text(
-        status.label,
+        status.label(context.l10n),
         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _color),
       ),
     );

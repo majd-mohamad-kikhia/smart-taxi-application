@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/services/current_location_service.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../data/models/picked_location_model.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../data/models/place_suggestion_model.dart';
 import '../../data/repositories/places_repository.dart';
 
@@ -17,11 +19,15 @@ import '../../data/repositories/places_repository.dart';
 /// `Navigator.pop` when the user confirms, or `null` if they back out.
 class LocationPickerScreen extends StatefulWidget {
   final String title;
+
+  /// Pickup picks use the primary pin color, drop-off the accent one.
+  final bool isPickup;
   final PickedLocationModel? initialLocation;
 
   const LocationPickerScreen({
     super.key,
     required this.title,
+    required this.isPickup,
     this.initialLocation,
   });
 
@@ -40,9 +46,25 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   GoogleMapController? _controller;
   late LatLng _center;
+
+  /// A GPS fix that arrived before the map was created.
+  LatLng? _pendingTarget;
   String? _mapStyle;
   String? _pickedAddress;
+
+  /// A reverse-geocode for the current pin is in flight.
+  bool _isResolvingAddress = false;
+
+  /// The place last chosen from the search list. It already is a real
+  /// address, so it stands in if the reverse lookup for that same spot
+  /// fails.
+  PlaceSuggestionModel? _selectedSuggestion;
   bool _isLocating = false;
+
+  /// Confirming is only allowed once the pin has a real, resolved address
+  /// — never a bare coordinate pair, and never a stale address left over
+  /// from a previous pin position.
+  bool get _canConfirm => _pickedAddress != null && !_isResolvingAddress;
 
   Timer? _debounce;
   List<PlaceSuggestionModel> _suggestions = [];
@@ -59,6 +81,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _pickedAddress = initial?.address;
     if (_pickedAddress != null) {
       _searchController.text = _pickedAddress!;
+    } else if (widget.isPickup) {
+      // The customer is almost always at the pickup: start there instead of
+      // on the default city centre.
+      _isResolvingAddress = true;
+      _startAtCurrentLocation();
     } else {
       // `onCameraIdle` never fires for the initial camera position, only
       // after a user-triggered move — without this, confirming the
@@ -69,10 +96,23 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _loadMapStyle();
   }
 
+  /// Moves the pin to the customer's GPS position, quietly: no message if it
+  /// can't (permission off, no signal) — the map just stays on the default
+  /// centre and resolves that address instead.
+  Future<void> _startAtCurrentLocation() async {
+    await _useCurrentLocation(silent: true);
+    if (mounted && _center == _defaultCenter && !_isLocating) {
+      _reverseGeocodeCenter();
+    }
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
     _searchController.dispose();
+    // Drop the reference so no late async callback can reach a controller
+    // whose GoogleMap widget is gone.
+    _controller = null;
     super.dispose();
   }
 
@@ -89,7 +129,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       backgroundColor: AppColors.backgroundGray,
       body: Stack(
         children: [
-          // ── Map ──────────────────────────────────────────
           GoogleMap(
             style: _mapStyle,
             initialCameraPosition: CameraPosition(target: _center, zoom: 15),
@@ -97,8 +136,22 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             mapToolbarEnabled: false,
-            onMapCreated: (controller) => _controller = controller,
-            onCameraMove: (position) => _center = position.target,
+            onMapCreated: (controller) {
+              _controller = controller;
+              final pending = _pendingTarget;
+              if (pending != null) {
+                _pendingTarget = null;
+                controller.moveCamera(CameraUpdate.newLatLng(pending));
+              }
+            },
+            onCameraMove: (position) {
+              _center = position.target;
+              // The old address belongs to the old pin position; drop it
+              // right away so it can't be confirmed for the new one.
+              if (_pickedAddress != null) {
+                setState(() => _pickedAddress = null);
+              }
+            },
             onCameraIdle: () {
               setState(() {});
               _reverseGeocodeCenter();
@@ -108,7 +161,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               setState(() => _suggestions = []);
             },
           ),
-          // ── Fixed center pin ─────────────────────────────
           IgnorePointer(
             child: Align(
               alignment: Alignment.center,
@@ -116,16 +168,12 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 padding: const EdgeInsets.only(bottom: 36),
                 child: Icon(
                   Icons.location_on_rounded,
-                  color: widget.title.contains('انطلاق') ||
-                          widget.title.contains('من')
-                      ? AppColors.primary
-                      : AppColors.accent,
+                  color: widget.isPickup ? AppColors.primary : AppColors.accent,
                   size: 44,
                 ),
               ),
             ),
           ),
-          // ── Top bar: back + title + search ────────────────
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(AppConstants.paddingL),
@@ -135,7 +183,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   Row(
                     children: [
                       _CircularIconButton(
-                        icon: Icons.arrow_forward_ios_rounded,
+                        icon: Icons.arrow_back_ios_new_rounded,
                         onTap: () => Navigator.of(context).pop(),
                       ),
                       const SizedBox(width: AppConstants.paddingM),
@@ -147,8 +195,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.neutralSurface,
-                            borderRadius:
-                                BorderRadius.circular(AppConstants.radiusFull),
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.radiusFull,
+                            ),
                           ),
                           child: Text(
                             widget.title,
@@ -164,11 +213,25 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     ],
                   ),
                   const SizedBox(height: AppConstants.paddingM),
-                  _SearchField(
-                    controller: _searchController,
-                    isSearching: _isSearching,
-                    onChanged: _onSearchChanged,
-                    onClear: _clearSearch,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _SearchField(
+                          controller: _searchController,
+                          isSearching: _isSearching,
+                          onChanged: _onSearchChanged,
+                          onClear: _clearSearch,
+                        ),
+                      ),
+                      const SizedBox(width: AppConstants.paddingM),
+                      _CircularIconButton(
+                        icon: Icons.my_location_rounded,
+                        iconColor: AppColors.primary,
+                        padding: 13,
+                        isLoading: _isLocating,
+                        onTap: _isLocating ? null : _useCurrentLocation,
+                      ),
+                    ],
                   ),
                   if (_suggestions.isNotEmpty || _searchError != null) ...[
                     const SizedBox(height: AppConstants.paddingS),
@@ -182,28 +245,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               ),
             ),
           ),
-          // ── GPS button ────────────────────────────────────
-          Positioned(
-            bottom: 160,
-            left: AppConstants.paddingL,
-            child: FloatingActionButton(
-              heroTag: 'location_picker_gps',
-              backgroundColor: AppColors.neutralSurface,
-              foregroundColor: AppColors.primary,
-              onPressed: _isLocating ? null : _useCurrentLocation,
-              child: _isLocating
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.2,
-                        color: AppColors.primary,
-                      ),
-                    )
-                  : const Icon(Icons.my_location_rounded),
-            ),
-          ),
-          // ── Bottom confirm card ───────────────────────────
           Align(
             alignment: Alignment.bottomCenter,
             child: SafeArea(
@@ -212,8 +253,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 padding: const EdgeInsets.all(AppConstants.paddingL),
                 decoration: BoxDecoration(
                   color: AppColors.neutralSurface,
-                  borderRadius:
-                      BorderRadius.circular(AppConstants.radiusLarge),
+                  borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
@@ -231,31 +271,41 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                         Expanded(
                           child: Text(
                             _pickedAddress ??
-                                '${_center.latitude.toStringAsFixed(5)}, '
-                                    '${_center.longitude.toStringAsFixed(5)}',
+                                (_isResolvingAddress
+                                    ? context.l10n.locationResolving
+                                    : context.l10n.locationUnresolved),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: _pickedAddress != null
+                                  ? AppColors.textPrimary
+                                  : AppColors.textSecondary,
                             ),
                           ),
                         ),
+                        if (_pickedAddress == null && !_isResolvingAddress)
+                          TextButton(
+                            onPressed: _reverseGeocodeCenter,
+                            child: Text(context.l10n.retry),
+                          ),
                       ],
                     ),
                     const SizedBox(height: AppConstants.paddingM),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(
-                          PickedLocationModel(
-                            latitude: _center.latitude,
-                            longitude: _center.longitude,
-                            address: _pickedAddress,
-                          ),
-                        ),
-                        child: const Text('تأكيد الموقع'),
+                        onPressed: _canConfirm
+                            ? () => Navigator.of(context).pop(
+                                PickedLocationModel(
+                                  latitude: _center.latitude,
+                                  longitude: _center.longitude,
+                                  address: _pickedAddress,
+                                ),
+                              )
+                            : null,
+                        child: Text(context.l10n.confirmLocation),
                       ),
                     ),
                   ],
@@ -315,6 +365,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     final target = LatLng(suggestion.latitude, suggestion.longitude);
     _controller?.animateCamera(CameraUpdate.newLatLngZoom(target, 17));
     setState(() {
+      _selectedSuggestion = suggestion;
       _center = target;
       _pickedAddress = suggestion.description;
       _suggestions = [];
@@ -324,28 +375,64 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   Future<void> _reverseGeocodeCenter() async {
     final target = _center;
+    setState(() {
+      _pickedAddress = null;
+      _isResolvingAddress = true;
+    });
     final address = await sl<PlacesRepository>().addressFor(
       target.latitude,
       target.longitude,
     );
+    // The pin moved on while this lookup ran; the newer lookup owns the
+    // state now.
     if (!mounted || _center != target) return;
-    setState(() => _pickedAddress = address);
+    setState(() {
+      _pickedAddress = address ?? _selectedSuggestionAddressAt(target);
+      _isResolvingAddress = false;
+    });
   }
 
-  Future<void> _useCurrentLocation() async {
+  /// The chosen suggestion's address, if the pin is still on that place
+  /// (within a few meters — the camera may settle a hair off).
+  String? _selectedSuggestionAddressAt(LatLng target) {
+    final suggestion = _selectedSuggestion;
+    if (suggestion == null) return null;
+    const tolerance = 0.0001;
+    final isSamePlace =
+        (suggestion.latitude - target.latitude).abs() < tolerance &&
+        (suggestion.longitude - target.longitude).abs() < tolerance;
+    return isSamePlace ? suggestion.description : null;
+  }
+
+  /// [silent] is the automatic try on opening: it never shows a message, and
+  /// it leaves the map alone if the customer has already moved it or searched.
+  Future<void> _useCurrentLocation({bool silent = false}) async {
     setState(() => _isLocating = true);
     try {
-      final position =
-          await sl<CurrentLocationService>().getCurrentLocation();
+      final position = await sl<CurrentLocationService>().getCurrentLocation();
+      // The GPS fix can arrive after the user has left this screen, at
+      // which point the map (and its controller) is already disposed.
+      if (!mounted) return;
+      if (silent &&
+          (_center != _defaultCenter || _searchController.text.isNotEmpty)) {
+        return;
+      }
       final target = LatLng(position.latitude, position.longitude);
-      await _controller?.animateCamera(CameraUpdate.newLatLng(target));
+      final controller = _controller;
+      if (controller == null) {
+        // The map isn't built yet; `onMapCreated` moves it there.
+        _pendingTarget = target;
+        _center = target;
+        return;
+      }
+      await controller.animateCamera(CameraUpdate.newLatLng(target));
       if (mounted) setState(() => _center = target);
     } on LocationPermissionDeniedException catch (e) {
-      if (!mounted) return;
+      if (!mounted || silent) return;
       final message = e.reason == LocationFailureReason.serviceDisabled
-          ? 'خدمة الموقع غير مفعّلة على جهازك'
-          : 'تم رفض إذن الوصول إلى الموقع';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+          ? context.l10n.errLocationServiceOff
+          : context.l10n.errLocationDenied;
+      showAppSnackBar(context, message, type: AppSnackBarType.warning);
     } finally {
       if (mounted) setState(() => _isLocating = false);
     }
@@ -378,7 +465,7 @@ class _SearchField extends StatelessWidget {
         onChanged: onChanged,
         style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
         decoration: InputDecoration(
-          hintText: 'ابحث عن مكان...',
+          hintText: context.l10n.searchPlaceHint,
           hintStyle: const TextStyle(
             color: AppColors.textTertiary,
             fontSize: 14,
@@ -400,18 +487,19 @@ class _SearchField extends StatelessWidget {
                   ),
                 )
               : (controller.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        color: AppColors.textTertiary,
-                        size: 18,
-                      ),
-                      onPressed: onClear,
-                    )
-                  : null),
+                    ? IconButton(
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          color: AppColors.textTertiary,
+                          size: 18,
+                        ),
+                        onPressed: onClear,
+                      )
+                    : null),
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: AppConstants.paddingM),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: AppConstants.paddingM,
+          ),
         ),
       ),
     );
@@ -443,13 +531,14 @@ class _SuggestionsCard extends StatelessWidget {
               padding: const EdgeInsets.all(AppConstants.paddingL),
               child: Text(
                 errorMessage!,
-                style: const TextStyle(color: AppColors.error, fontSize: 13),
+                style: const TextStyle(color: AppColors.errorText, fontSize: 13),
               ),
             )
           : ListView.separated(
               shrinkWrap: true,
-              padding:
-                  const EdgeInsets.symmetric(vertical: AppConstants.paddingS),
+              padding: const EdgeInsets.symmetric(
+                vertical: AppConstants.paddingS,
+              ),
               itemCount: suggestions.length,
               separatorBuilder: (_, _) =>
                   const Divider(height: 1, color: AppColors.borderLight),
@@ -481,21 +570,45 @@ class _SuggestionsCard extends StatelessWidget {
 
 class _CircularIconButton extends StatelessWidget {
   final IconData icon;
-  final VoidCallback onTap;
 
-  const _CircularIconButton({required this.icon, required this.onTap});
+  /// `null` disables the button (e.g. while [isLoading]).
+  final VoidCallback? onTap;
+  final Color iconColor;
+  final double padding;
+
+  /// Swaps the icon for a small spinner.
+  final bool isLoading;
+
+  const _CircularIconButton({
+    required this.icon,
+    required this.onTap,
+    this.iconColor = AppColors.textPrimary,
+    this.padding = 10,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.neutralSurface,
-      shape: const CircleBorder(),
+      shape: const BeveledRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(5)),
+      ),
       child: InkWell(
         onTap: onTap,
         customBorder: const CircleBorder(),
         child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Icon(icon, color: AppColors.textPrimary, size: 18),
+          padding: EdgeInsets.all(padding),
+          child: isLoading
+              ? SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.2,
+                    color: iconColor,
+                  ),
+                )
+              : Icon(icon, color: iconColor, size: 25),
         ),
       ),
     );

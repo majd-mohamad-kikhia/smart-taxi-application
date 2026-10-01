@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../constants/app_constants.dart';
+import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
 import 'app_loader_widget.dart';
 
@@ -19,7 +21,8 @@ class PaginatedListWidget<T> extends StatefulWidget {
   final VoidCallback? onLoadMore;
   final String? errorMessage;
   final VoidCallback? onRetry;
-  final String emptyMessage;
+  /// Defaults to the localized "No data" text.
+  final String? emptyMessage;
   final IconData emptyIcon;
   final EdgeInsetsGeometry padding;
   final Widget separator;
@@ -39,7 +42,7 @@ class PaginatedListWidget<T> extends StatefulWidget {
     this.onLoadMore,
     this.errorMessage,
     this.onRetry,
-    this.emptyMessage = 'لا توجد بيانات',
+    this.emptyMessage,
     this.emptyIcon = Icons.inbox_outlined,
     this.padding = const EdgeInsets.fromLTRB(16, 14, 16, 8),
     this.separator = const SizedBox(height: 10),
@@ -115,10 +118,17 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
     }
     if (widget.items.isEmpty) {
       return _fillWithScroll(
-        _EmptyState(message: widget.emptyMessage, icon: widget.emptyIcon),
+        _EmptyState(
+          message: widget.emptyMessage ?? context.l10n.noData,
+          icon: widget.emptyIcon,
+        ),
       );
     }
-    final itemCount = widget.items.length + (widget.isLoadingMore ? 1 : 0);
+    // With rows on screen, a failed request shows as a footer under the
+    // last row (instead of silently doing nothing) so the user can retry.
+    final hasFooterError = widget.errorMessage != null && !widget.isLoadingMore;
+    final itemCount =
+        widget.items.length + (widget.isLoadingMore || hasFooterError ? 1 : 0);
     return ListView.separated(
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
@@ -127,19 +137,9 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
       separatorBuilder: (_, _) => widget.separator,
       itemBuilder: (context, index) {
         if (index >= widget.items.length) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(
-              child: SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.2,
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-          );
+          return widget.isLoadingMore
+              ? const _LoadMoreSpinner()
+              : _LoadMoreError(onRetry: widget.onLoadMore ?? widget.onRetry);
         }
         return widget.itemBuilder(context, widget.items[index], index);
       },
@@ -162,6 +162,104 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
   }
 }
 
+/// The spinner row under the last item while the next page loads.
+class _LoadMoreSpinner extends StatelessWidget {
+  const _LoadMoreSpinner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingL),
+      child: Center(
+        child: SizedBox(
+          width: 22,
+          height: 22,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.2,
+            color: AppColors.primary,
+            semanticsLabel: context.l10n.loading,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The footer shown under the last item when loading more failed, with a
+/// retry that is a real button (48dp, ripple, screen-reader role).
+class _LoadMoreError extends StatelessWidget {
+  final VoidCallback? onRetry;
+
+  const _LoadMoreError({this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingS),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: AppConstants.paddingS,
+        children: [
+          const Icon(Icons.error_outline_rounded, size: 18, color: AppColors.textSecondary),
+          Text(l10n.loadMoreFailed, style: Theme.of(context).textTheme.bodyMedium),
+          if (onRetry != null)
+            TextButton(onPressed: onRetry, child: Text(l10n.retry)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shared layout of the full-area states (error and empty): a round icon
+/// tile, a centered message and an optional action.
+class _StateView extends StatelessWidget {
+  final IconData icon;
+  final String message;
+  final Widget? action;
+
+  const _StateView({required this.icon, required this.message, this.action});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppConstants.paddingXXL),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ExcludeSemantics(
+              child: Container(
+                width: 64,
+                height: 64,
+                decoration: const BoxDecoration(
+                  color: AppColors.backgroundMuted,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 28, color: AppColors.textSecondary),
+              ),
+            ),
+            const SizedBox(height: AppConstants.paddingL),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+            ),
+            if (action != null) ...[
+              const SizedBox(height: AppConstants.paddingL),
+              action!,
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ErrorState extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
@@ -170,54 +268,16 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.wifi_off_rounded, size: 48, color: AppColors.textTertiary),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-              ),
+    return _StateView(
+      icon: Icons.error_outline_rounded,
+      message: message,
+      action: onRetry == null
+          ? null
+          : ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: Text(context.l10n.retry),
             ),
-            if (onRetry != null) ...[
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: onRetry,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.refresh_rounded, size: 16, color: AppColors.textOnPrimary),
-                      SizedBox(width: 6),
-                      Text(
-                        'إعادة المحاولة',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textOnPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
     );
   }
 }
@@ -229,23 +289,5 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState({required this.message, required this.icon});
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 48, color: AppColors.textTertiary),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => _StateView(icon: icon, message: message);
 }
