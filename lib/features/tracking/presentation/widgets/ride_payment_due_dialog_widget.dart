@@ -32,6 +32,7 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
     return Semantics(
       scopesRoute: true,
       namesRoute: true,
+      explicitChildNodes: true,
       label: l10n.payDriverTitle,
       child: Dialog(
         backgroundColor: AppColors.backgroundWhite,

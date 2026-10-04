@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/route_point_model.dart';
 import '../theme/app_colors.dart';
+import '../utils/car_heading_tracker.dart';
+import '../utils/taxi_marker_icon.dart';
 
-/// Full-bleed map for a trip that is underway: the moving car pin, the
+/// Full-bleed map for a trip that is underway: the moving taxi, the
 /// destination pin, and two lines: the planned road route ([routePoints],
 /// yellow, fixed from start to end) and the path the car has actually
 /// driven ([drivenPath], blue). Shared by the driver's and the customer's
@@ -38,6 +40,8 @@ class LiveTripMapWidget extends StatefulWidget {
 class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
   GoogleMapController? _mapController;
   String? _mapStyle;
+  BitmapDescriptor? _taxiIcon;
+  final _heading = CarHeadingTracker();
   bool _hasFitted = false;
 
   LatLng get _destination => LatLng(widget.destinationLat, widget.destinationLng);
@@ -52,6 +56,9 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
   void initState() {
     super.initState();
     _loadMapStyle();
+    _loadTaxiIcon();
+    final car = _car;
+    if (car != null) _heading.update(car);
   }
 
   Future<void> _loadMapStyle() async {
@@ -59,10 +66,17 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
     if (mounted) setState(() => _mapStyle = style);
   }
 
+  Future<void> _loadTaxiIcon() async {
+    final icon = await TaxiMarkerIcon.load();
+    if (mounted) setState(() => _taxiIcon = icon);
+  }
+
   @override
   void didUpdateWidget(covariant LiveTripMapWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.carLat != widget.carLat || oldWidget.carLng != widget.carLng) {
+      final car = _car;
+      if (car != null) _heading.update(car);
       _moveCamera();
     }
   }
@@ -103,6 +117,7 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
   @override
   Widget build(BuildContext context) {
     final car = _car;
+    final taxiIcon = _taxiIcon;
     return GoogleMap(
       style: _mapStyle,
       initialCameraPosition: CameraPosition(target: car ?? _destination, zoom: 15),
@@ -126,11 +141,15 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
           position: _destination,
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         ),
-        if (car != null)
+        if (car != null && taxiIcon != null)
           Marker(
             markerId: const MarkerId('car'),
             position: car,
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+            icon: taxiIcon,
+            rotation: _heading.bearing,
+            flat: true,
+            anchor: const Offset(0.5, 0.5),
+            zIndexInt: 1,
           ),
       },
     );

@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/car_heading_tracker.dart';
+import '../../../../core/utils/taxi_marker_icon.dart';
 import '../../data/models/ride_location_model.dart';
 
-/// Live map: pickup/dropoff pins always shown, driver pin + re-centering
+/// Live map: pickup/dropoff pins always shown, driver taxi + re-centering
 /// once GPS starts arriving over `customer:driver_location`. Styled the
 /// same way as the pickup/dropoff location pickers (dark map style, no
 /// native controls).
@@ -28,11 +30,16 @@ class RideTrackingMapWidget extends StatefulWidget {
 class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
   GoogleMapController? _mapController;
   String? _mapStyle;
+  BitmapDescriptor? _taxiIcon;
+  final _heading = CarHeadingTracker();
 
   @override
   void initState() {
     super.initState();
     _loadMapStyle();
+    _loadTaxiIcon();
+    final location = widget.driverLocation;
+    if (location != null) _heading.update(LatLng(location.lat, location.lng));
   }
 
   Future<void> _loadMapStyle() async {
@@ -40,12 +47,19 @@ class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
     if (mounted) setState(() => _mapStyle = style);
   }
 
+  Future<void> _loadTaxiIcon() async {
+    final icon = await TaxiMarkerIcon.load();
+    if (mounted) setState(() => _taxiIcon = icon);
+  }
+
   @override
   void didUpdateWidget(covariant RideTrackingMapWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     final location = widget.driverLocation;
     if (location != null && location != oldWidget.driverLocation) {
-      _mapController?.animateCamera(CameraUpdate.newLatLng(LatLng(location.lat, location.lng)));
+      final point = LatLng(location.lat, location.lng);
+      _heading.update(point);
+      _mapController?.animateCamera(CameraUpdate.newLatLng(point));
     }
   }
 
@@ -55,6 +69,7 @@ class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
     final dropoffPoint = LatLng(widget.dropoff.latitude, widget.dropoff.longitude);
     final location = widget.driverLocation;
     final driverPoint = location != null ? LatLng(location.lat, location.lng) : null;
+    final taxiIcon = _taxiIcon;
 
     return GoogleMap(
       style: _mapStyle,
@@ -84,11 +99,15 @@ class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
           position: dropoffPoint,
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         ),
-        if (driverPoint != null)
+        if (driverPoint != null && taxiIcon != null)
           Marker(
             markerId: const MarkerId('driver'),
             position: driverPoint,
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+            icon: taxiIcon,
+            rotation: _heading.bearing,
+            flat: true,
+            anchor: const Offset(0.5, 0.5),
+            zIndexInt: 1,
           ),
       },
     );

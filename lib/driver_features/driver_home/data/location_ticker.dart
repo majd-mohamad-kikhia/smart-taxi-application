@@ -37,29 +37,78 @@ class LocationTicker {
   StreamSubscription<Position>? _positionSub;
   Timer? _heartbeat;
   Position? _lastPosition;
+  void Function(Position position)? _onPosition;
+
+  /// Bumped on every [start]/[stop] so a slow first fix from an earlier run
+  /// can't report after it was stopped.
+  int _run = 0;
 
   Future<void> start(void Function(Position position) onPosition) async {
+    // A retry after a failed attempt must not stack a second subscription
+    // (and heartbeat) on top of the one still running.
+    await stop();
     await _ensurePermission();
 
+    final run = ++_run;
+    _onPosition = onPosition;
     _positionSub = Geolocator.getPositionStream(
       locationSettings: _locationSettings(),
-    ).listen((position) {
-      _lastPosition = position;
-      onPosition(position);
-    });
+    ).listen(
+      (position) {
+        _lastPosition = position;
+        onPosition(position);
+      },
+      onError: (Object error) => debugPrint('LocationTicker: position stream error: $error'),
+    );
 
     _heartbeat = Timer.periodic(_heartbeatInterval, (_) {
       final position = _lastPosition;
       if (position != null) onPosition(position);
     });
+
+    unawaited(_seedFirstFix(run));
+  }
+
+  /// Sends the latest known position again right now. Called when the socket
+  /// (re)connects: fixes that arrived before it existed were dropped, and the
+  /// server only lists the driver as available once it has a location.
+  void resend() {
+    final position = _lastPosition;
+    if (position != null) _onPosition?.call(position);
+  }
+
+  /// The position stream can take a while to deliver its first fix (and with
+  /// a distance filter, only delivers on movement), so ask for one directly:
+  /// the last known one at once, then a fresh one.
+  Future<void> _seedFirstFix(int run) async {
+    try {
+      final known = await Geolocator.getLastKnownPosition();
+      if (known != null && run == _run && _lastPosition == null) {
+        _lastPosition = known;
+        _onPosition?.call(known);
+      }
+      final current = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 15),
+        ),
+      );
+      if (run != _run) return;
+      _lastPosition = current;
+      _onPosition?.call(current);
+    } catch (e) {
+      debugPrint('LocationTicker: could not get a first fix: $e');
+    }
   }
 
   Future<void> stop() async {
+    _run++;
     await _positionSub?.cancel();
     _positionSub = null;
     _heartbeat?.cancel();
     _heartbeat = null;
     _lastPosition = null;
+    _onPosition = null;
   }
 
   /// Android keeps the stream (and with it the process, and so the

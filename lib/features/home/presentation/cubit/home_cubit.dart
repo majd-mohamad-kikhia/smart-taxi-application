@@ -25,6 +25,27 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(userName: user?.firstName));
   }
 
+  /// Puts the customer back on a ride that was live when the app closed.
+  /// Sets the ride and its two points together, which is what the screen
+  /// waits for to open the tracking screen — the same path as a ride just
+  /// ordered. Does nothing when a ride is already shown or being ordered.
+  Future<void> restoreActiveRide() async {
+    if (isClosed || state.hasActiveRide || state.isBusy) return;
+    try {
+      final restored = await _repository.fetchActiveRide();
+      if (isClosed || restored == null || state.hasActiveRide) return;
+      emit(state.copyWith(
+        activeRide: restored.ride,
+        fromLocation: restored.pickup,
+        toLocation: restored.dropoff,
+        clearQuote: true,
+      ));
+    } on RideRequestException catch (e) {
+      if (isClosed) return;
+      emit(state.copyWith(errorMessage: e.message));
+    }
+  }
+
   void setFromLocation(PickedLocationModel location) {
     if (isClosed) return;
     // Any previous quote priced a different trip.

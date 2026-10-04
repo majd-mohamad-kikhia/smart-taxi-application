@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/network/api_endpoints.dart';
+import '../models/restored_ride_model.dart';
 import '../models/ride_booking_options_model.dart';
 import '../models/ride_quote_model.dart';
 
@@ -17,6 +18,9 @@ import '../models/ride_quote_model.dart';
 /// `status_id = 1`, so calling it after [chooseVehicle] would create a
 /// duplicate order.
 class RideRequestRemoteDataSource {
+  /// How many of the newest rides [fetchActiveRide] looks through.
+  static const int _recentRidesLimit = 10;
+
   final Dio _dio;
   final ApiEndpoints _endpoints;
 
@@ -53,6 +57,26 @@ class RideRequestRemoteDataSource {
       },
     );
     return RideModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  /// The customer's ride that is still being served, or null. There is no
+  /// "active" endpoint for customers, so this reads the newest rides
+  /// (`GET /api/customer/rides`, newest first) and picks the first live
+  /// one — a customer has one live ride at a time, so it is always near the
+  /// top.
+  Future<RestoredRideModel?> fetchActiveRide() async {
+    final response = await _dio.get(
+      _endpoints.customerRides,
+      queryParameters: {'page': 1, 'limit': _recentRidesLimit},
+    );
+    final rides = (response.data['data']['rides'] as List)
+        .cast<Map<String, dynamic>>();
+    for (final json in rides) {
+      if (RestoredRideModel.isLiveStatus(json['status_id'] as int)) {
+        return RestoredRideModel.fromJson(json);
+      }
+    }
+    return null;
   }
 
   Future<RideModel> cancelRide({

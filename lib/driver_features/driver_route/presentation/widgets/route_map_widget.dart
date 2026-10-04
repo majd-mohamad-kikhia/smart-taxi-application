@@ -5,9 +5,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/car_heading_tracker.dart';
+import '../../../../core/utils/taxi_marker_icon.dart';
 
 /// Full-bleed map for the driver's private route: the path driven so far,
-/// the driver's own pin, and — once the route is finished — start and end
+/// the driver's own taxi, and — once the route is finished — start and end
 /// pins with the camera fitted to the whole route.
 class RouteMapWidget extends StatefulWidget {
   final double? carLat;
@@ -18,7 +20,7 @@ class RouteMapWidget extends StatefulWidget {
   final bool isFinished;
 
   /// Changes every time the driver taps the locate button; the map then
-  /// centres on the yellow pin.
+  /// centres on the taxi.
   final int locateRequest;
 
   const RouteMapWidget({
@@ -43,6 +45,8 @@ class _RouteMapWidgetState extends State<RouteMapWidget> {
 
   GoogleMapController? _controller;
   String? _mapStyle;
+  BitmapDescriptor? _taxiIcon;
+  final _heading = CarHeadingTracker();
 
   LatLng? get _car {
     final lat = widget.carLat;
@@ -54,6 +58,14 @@ class _RouteMapWidgetState extends State<RouteMapWidget> {
   void initState() {
     super.initState();
     _loadMapStyle();
+    _loadTaxiIcon();
+    final car = _car;
+    if (car != null) _heading.update(car);
+  }
+
+  Future<void> _loadTaxiIcon() async {
+    final icon = await TaxiMarkerIcon.load();
+    if (mounted) setState(() => _taxiIcon = icon);
   }
 
   Future<void> _loadMapStyle() async {
@@ -66,6 +78,10 @@ class _RouteMapWidgetState extends State<RouteMapWidget> {
   @override
   void didUpdateWidget(covariant RouteMapWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.carLat != oldWidget.carLat || widget.carLng != oldWidget.carLng) {
+      final car = _car;
+      if (car != null) _heading.update(car);
+    }
     if (widget.locateRequest != oldWidget.locateRequest) {
       _centerOnCar();
       return;
@@ -93,7 +109,7 @@ class _RouteMapWidgetState extends State<RouteMapWidget> {
     }
   }
 
-  /// The locate button: centre on the yellow pin, in any step.
+  /// The locate button: centre on the taxi, in any step.
   void _centerOnCar() {
     final car = _car;
     if (car == null) return;
@@ -118,6 +134,7 @@ class _RouteMapWidgetState extends State<RouteMapWidget> {
   @override
   Widget build(BuildContext context) {
     final car = _car;
+    final taxiIcon = _taxiIcon;
     final path = [for (final p in widget.path) LatLng(p.lat, p.lng)];
 
     return GoogleMap(
@@ -163,14 +180,16 @@ class _RouteMapWidgetState extends State<RouteMapWidget> {
             ),
           ),
         },
-        // The driver's own yellow pin, in every step (also once finished).
-        if (car != null)
+        // The driver's own taxi, in every step (also once finished).
+        if (car != null && taxiIcon != null)
           Marker(
             markerId: const MarkerId('car'),
             position: car,
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueYellow,
-            ),
+            icon: taxiIcon,
+            rotation: _heading.bearing,
+            flat: true,
+            anchor: const Offset(0.5, 0.5),
+            zIndexInt: 1,
           ),
       },
     );

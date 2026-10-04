@@ -6,6 +6,7 @@ import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/status_code.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../datasources/ride_request_remote_data_source.dart';
+import '../models/restored_ride_model.dart';
 import '../models/ride_booking_options_model.dart';
 import '../models/ride_quote_model.dart';
 
@@ -59,6 +60,16 @@ class RideRequestRepository {
         pickup: pickup,
         dropoff: dropoff,
       );
+    } on DioException catch (e) {
+      throw _mapDioException(e);
+    }
+  }
+
+  /// The ride the customer was in the middle of when the app last closed,
+  /// or null when there is none.
+  Future<RestoredRideModel?> fetchActiveRide() async {
+    try {
+      return await _remoteDataSource.fetchActiveRide();
     } on DioException catch (e) {
       throw _mapDioException(e);
     }
