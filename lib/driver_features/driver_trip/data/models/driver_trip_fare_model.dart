@@ -1,10 +1,12 @@
 import 'package:equatable/equatable.dart';
+import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
 
 /// The server's final fare for a finished ride — the `ride.fare` object
 /// returned by `POST /api/driver/rides/{id}/finish` (or the
 /// `driver:ride_finish` ack):
-/// `final_price = base_fare + distance_fare + stops_fee_total + waiting_fee`.
+/// `final_price = base_fare + distance_fare + stops_fee_total + waiting_fee
+/// + pause_fee_total + passengers_fee`.
 class DriverTripFareModel extends Equatable {
   final double finalPrice;
   final double estimatedPrice;
@@ -52,6 +54,7 @@ class DriverTripFareModel extends Equatable {
       breakdown: RideFareBreakdownModel.fromJson(
         Map<String, dynamic>.from(fare),
         fallbackFinalPrice: finalPrice,
+        fallbackPassengersCount: OrderOfferModel.countOrNull(ride['passengers_count']),
       ),
     );
   }

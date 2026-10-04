@@ -708,6 +708,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fareDistanceDriven => 'Distance driven';
 
   @override
+  String get billSendWhatsApp => 'Send bill on WhatsApp';
+
+  @override
+  String get billSendFailed => 'Couldn\'t send the bill. Try again';
+
+  @override
+  String get billTitle => 'Trip bill';
+
+  @override
+  String get billNumber => 'Bill no.';
+
+  @override
+  String get billDate => 'Date';
+
+  @override
+  String get billCustomer => 'Customer';
+
+  @override
+  String get billDriver => 'Driver';
+
+  @override
+  String get billItem => 'Item';
+
+  @override
+  String get billOldSyp => 'old SYP';
+
+  @override
+  String get billPayment => 'Payment';
+
+  @override
+  String get billPaidCash => 'Paid in cash';
+
+  @override
+  String get billThanks => 'Thank you for riding with Smart Taxi';
+
+  @override
+  String billMessage(String number) {
+    return 'Your Smart Taxi trip bill no. $number';
+  }
+
+  @override
   String get fareCommission => 'Commission';
 
   @override
@@ -1182,6 +1223,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fareStopsFee => 'Stops';
+
+  @override
+  String get farePassengersFee => 'Extra passengers fee';
+
+  @override
+  String farePassengersFeeIncluded(String amount) {
+    return 'Includes extra passengers fee: $amount';
+  }
 
   @override
   String get fareWaiting => 'Waiting';

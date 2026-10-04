@@ -3,11 +3,12 @@ import '../localization/l10n_context_extension.dart';
 import '../models/order_offer_model.dart';
 import '../theme/app_colors.dart';
 import 'meta_item_widget.dart';
+import 'passengers_fee_meta_widget.dart';
 import 'ride_note_widget.dart';
 
 /// Where an order goes, for the driver: pickup, any [stops], drop-off —
 /// with the customer's address details under each point — how many people
-/// get in (once known) and the customer's note.
+/// get in (once known) and any extra price for them, and the customer's note.
 /// Once the ride is underway ([showPickup] false) only the drop-off and the
 /// note are left.
 class OrderRouteDetailsWidget extends StatelessWidget {
@@ -55,11 +56,19 @@ class OrderRouteDetailsWidget extends StatelessWidget {
           address: order.dropoffAddress,
           details: order.dropoffAddressDetails,
         ),
-        if (order.passengersCount != null) ...[
+        if (order.passengersCount != null || order.passengersFee > 0) ...[
           const SizedBox(height: 12),
-          MetaItemWidget(
-            icon: Icons.groups_rounded,
-            label: l10n.passengersCount(order.passengersCount!),
+          Wrap(
+            spacing: 12,
+            runSpacing: 4,
+            children: [
+              if (order.passengersCount != null)
+                MetaItemWidget(
+                  icon: Icons.groups_rounded,
+                  label: l10n.passengersCount(order.passengersCount!),
+                ),
+              if (order.passengersFee > 0) PassengersFeeMetaWidget(fee: order.passengersFee),
+            ],
           ),
         ],
         if (order.note != null) ...[

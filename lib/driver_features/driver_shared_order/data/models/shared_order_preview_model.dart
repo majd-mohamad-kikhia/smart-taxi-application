@@ -121,6 +121,7 @@ class SharedOrderPreviewModel extends Equatable {
       dropoffAddressDetails: OrderOfferModel.textOrNull(json['dropoff_address_details']),
       note: OrderOfferModel.textOrNull(json['note']),
       passengersCount: OrderOfferModel.countOrNull(json['passengers_count']),
+      passengersFee: OrderOfferModel.feeOf(json),
     );
   }
 

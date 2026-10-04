@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/models/route_point_model.dart';
@@ -104,6 +105,10 @@ class RideHistoryModel extends Equatable {
   /// Amount due, set once the ride is completed.
   final double? finalPrice;
   final double stopsFeeTotal;
+
+  /// Extra price the office adds for 5 or 6 people, already inside the
+  /// price; 0 for app orders.
+  final double passengersFee;
   final double waitingFee;
   final double pauseFeeTotal;
 
@@ -155,6 +160,7 @@ class RideHistoryModel extends Equatable {
     this.estimatedPrice,
     this.finalPrice,
     required this.stopsFeeTotal,
+    this.passengersFee = 0,
     this.waitingFee = 0,
     this.pauseFeeTotal = 0,
     this.pauseCount = 0,
@@ -205,6 +211,7 @@ class RideHistoryModel extends Equatable {
       estimatedPrice: (json['estimated_price'] as num?)?.toDouble(),
       finalPrice: (json['final_price'] as num?)?.toDouble(),
       stopsFeeTotal: (json['stops_fee_total'] as num?)?.toDouble() ?? 0,
+      passengersFee: OrderOfferModel.feeOf(json),
       waitingFee: (json['waiting_fee'] as num?)?.toDouble() ?? 0,
       pauseFeeTotal: (json['pause_fee_total'] as num?)?.toDouble() ?? 0,
       pauseCount: pauses.length,
@@ -278,10 +285,14 @@ class RideHistoryModel extends Equatable {
   double? get shownDistanceKm => actualDistanceKm ?? distanceKm;
 
   /// Base fare plus distance fare: what is left of the final price once the
-  /// stop, waiting and pause fees are taken out (the API sends no separate
-  /// base and distance amounts).
+  /// stop, passengers, waiting and pause fees are taken out (the API sends
+  /// no separate base and distance amounts).
   double get tripFare =>
-      (finalPrice ?? price) - stopsFeeTotal - waitingFee - pauseFeeTotal;
+      (finalPrice ?? price) -
+      stopsFeeTotal -
+      passengersFee -
+      waitingFee -
+      pauseFeeTotal;
 
   @override
   List<Object?> get props => [
@@ -307,6 +318,7 @@ class RideHistoryModel extends Equatable {
         estimatedPrice,
         finalPrice,
         stopsFeeTotal,
+        passengersFee,
         waitingFee,
         pauseFeeTotal,
         pauseCount,

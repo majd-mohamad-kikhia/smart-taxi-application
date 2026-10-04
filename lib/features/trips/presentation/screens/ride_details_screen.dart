@@ -234,7 +234,7 @@ class _Summary extends StatelessWidget {
 
 /// What the ride cost: the price as the hero, then (once completed) where it
 /// came from and whether the customer has paid. Before completion the price
-/// is labelled as an estimate.
+/// is labelled as an estimate, with only the extra passengers fee it holds.
 class _Fare extends StatelessWidget {
   final RideHistoryModel ride;
 
@@ -247,6 +247,12 @@ class _Fare extends StatelessWidget {
     final price = ride.shownPrice;
     if (price == null) return const SizedBox.shrink();
     String money(double amount) => formatSyp(l10n, amount);
+    final passengers = ride.passengersCount;
+    final passengersFee = BillRowWidget(
+      label: l10n.farePassengersFee,
+      detail: passengers == null ? null : l10n.passengersCount(passengers),
+      value: money(ride.passengersFee),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -279,6 +285,7 @@ class _Fare extends StatelessWidget {
               label: l10n.fareStopsFee,
               value: money(ride.stopsFeeTotal),
             ),
+          if (ride.passengersFee > 0) passengersFee,
           if (ride.waitingFee > 0)
             BillRowWidget(
               label: l10n.fareWaiting,
@@ -297,6 +304,9 @@ class _Fare extends StatelessWidget {
             ),
           const Divider(height: AppConstants.paddingXXL),
           _PaymentStatus(ride: ride),
+        ] else if (ride.passengersFee > 0) ...[
+          const Divider(height: AppConstants.paddingXXL),
+          passengersFee,
         ],
       ],
     );

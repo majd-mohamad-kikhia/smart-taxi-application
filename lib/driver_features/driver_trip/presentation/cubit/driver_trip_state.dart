@@ -3,9 +3,11 @@ import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/models/route_point_model.dart';
+import '../../data/models/driver_trip_customer_model.dart';
 import '../../data/models/driver_trip_fare_model.dart';
 import '../../data/models/driver_trip_payment_model.dart';
 import '../../data/models/ride_cancellation_model.dart';
+import '../../data/models/ride_order_source.dart';
 
 /// Where the driver is in the ride after accepting it:
 /// accepted (2) → arrived (3, optional) → inProgress (4) → completed (5).
@@ -49,6 +51,12 @@ class DriverTripState extends Equatable {
   /// The server's final fare — set once the ride is finished.
   final DriverTripFareModel? fare;
 
+  /// From the finish reply: how the ride was ordered, the rider, and when
+  /// the trip ended (UTC) — what the bill of an office order needs.
+  final RideOrderSource orderSource;
+  final DriverTripCustomerModel? customer;
+  final DateTime? completedAt;
+
   /// Cash-payment confirmation after the ride is finished. [payment] is the
   /// server's money split, when it sent one.
   final bool isConfirmingPayment;
@@ -74,6 +82,9 @@ class DriverTripState extends Equatable {
     this.waiting,
     this.pause,
     this.fare,
+    this.orderSource = RideOrderSource.app,
+    this.customer,
+    this.completedAt,
     this.isConfirmingPayment = false,
     this.isPaid = false,
     this.payment,
@@ -111,6 +122,10 @@ class DriverTripState extends Equatable {
   /// The trip is in progress but stopped (e.g. for a coffee).
   bool get isPaused => status == DriverTripStatus.inProgress && (pause?.isPaused ?? false);
 
+  /// An office order that is finished and paid: its customer often has no
+  /// app, so the driver sends them the bill on WhatsApp.
+  bool get canSendBill => isPaid && fare != null && orderSource.isOffice;
+
   DriverTripState copyWith({
     OrderOfferModel? order,
     DriverTripStatus? status,
@@ -126,6 +141,9 @@ class DriverTripState extends Equatable {
     RideWaitingModel? waiting,
     RidePauseModel? pause,
     DriverTripFareModel? fare,
+    RideOrderSource? orderSource,
+    DriverTripCustomerModel? customer,
+    DateTime? completedAt,
     bool? isConfirmingPayment,
     bool? isPaid,
     DriverTripPaymentModel? payment,
@@ -147,6 +165,9 @@ class DriverTripState extends Equatable {
       waiting: waiting ?? this.waiting,
       pause: pause ?? this.pause,
       fare: fare ?? this.fare,
+      orderSource: orderSource ?? this.orderSource,
+      customer: customer ?? this.customer,
+      completedAt: completedAt ?? this.completedAt,
       isConfirmingPayment: isConfirmingPayment ?? this.isConfirmingPayment,
       isPaid: isPaid ?? this.isPaid,
       payment: payment ?? this.payment,
@@ -170,6 +191,9 @@ class DriverTripState extends Equatable {
     waiting,
     pause,
     fare,
+    orderSource,
+    customer,
+    completedAt,
     isConfirmingPayment,
     isPaid,
     payment,

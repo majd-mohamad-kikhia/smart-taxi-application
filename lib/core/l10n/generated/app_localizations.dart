@@ -1382,6 +1382,84 @@ abstract class AppLocalizations {
   /// **'Distance driven'**
   String get fareDistanceDriven;
 
+  /// No description provided for @billSendWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send bill on WhatsApp'**
+  String get billSendWhatsApp;
+
+  /// No description provided for @billSendFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send the bill. Try again'**
+  String get billSendFailed;
+
+  /// No description provided for @billTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip bill'**
+  String get billTitle;
+
+  /// No description provided for @billNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill no.'**
+  String get billNumber;
+
+  /// No description provided for @billDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get billDate;
+
+  /// No description provided for @billCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get billCustomer;
+
+  /// No description provided for @billDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get billDriver;
+
+  /// No description provided for @billItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get billItem;
+
+  /// No description provided for @billOldSyp.
+  ///
+  /// In en, this message translates to:
+  /// **'old SYP'**
+  String get billOldSyp;
+
+  /// No description provided for @billPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get billPayment;
+
+  /// No description provided for @billPaidCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid in cash'**
+  String get billPaidCash;
+
+  /// No description provided for @billThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for riding with Smart Taxi'**
+  String get billThanks;
+
+  /// No description provided for @billMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Smart Taxi trip bill no. {number}'**
+  String billMessage(String number);
+
   /// No description provided for @fareCommission.
   ///
   /// In en, this message translates to:
@@ -2233,6 +2311,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stops'**
   String get fareStopsFee;
+
+  /// No description provided for @farePassengersFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra passengers fee'**
+  String get farePassengersFee;
+
+  /// Under an office order's price: the extra charge for 5 or 6 people is already part of it.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes extra passengers fee: {amount}'**
+  String farePassengersFeeIncluded(String amount);
 
   /// No description provided for @fareWaiting.
   ///

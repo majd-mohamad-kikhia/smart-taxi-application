@@ -73,6 +73,7 @@ class DriverActiveRideModel extends Equatable {
         ),
         note: OrderOfferModel.textOrNull(json['note']),
         passengersCount: OrderOfferModel.countOrNull(json['passengers_count']),
+        passengersFee: OrderOfferModel.feeOf(json),
       ),
       isArrived: status == 'arrived',
       isInProgress: status == 'in_progress',

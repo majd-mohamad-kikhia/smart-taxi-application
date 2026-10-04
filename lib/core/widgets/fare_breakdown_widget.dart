@@ -5,8 +5,8 @@ import '../utils/format_price.dart';
 import 'bill_row_widget.dart';
 import 'live_fee_card_widget.dart';
 
-/// Bill lines for a finished ride — base fare, distance, stops, waiting
-/// (e.g. "3 min × 500") and the total. Zero-value optional lines are
+/// Bill lines for a finished ride — base fare, distance, stops, extra
+/// passengers fee, waiting (e.g. "3 min × 500") and the total. Zero-value optional lines are
 /// hidden; the total is the server's `final_price`. Shared by the driver's
 /// and the customer's end-of-trip dialogs.
 class FareBreakdownWidget extends StatelessWidget {
@@ -32,6 +32,14 @@ class FareBreakdownWidget extends StatelessWidget {
         BillRowWidget(label: l10n.fareDistanceFare, value: price(fare.distanceFare)),
         if (fare.stopsFeeTotal > 0)
           BillRowWidget(label: l10n.fareStopsFee, value: price(fare.stopsFeeTotal)),
+        if (fare.passengersFee > 0)
+          BillRowWidget(
+            label: l10n.farePassengersFee,
+            detail: fare.passengersCount == null
+                ? null
+                : l10n.passengersCount(fare.passengersCount!),
+            value: price(fare.passengersFee),
+          ),
         if (fare.waitingFee > 0)
           BillRowWidget(
             label: l10n.fareWaiting,

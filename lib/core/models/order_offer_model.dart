@@ -35,6 +35,10 @@ class OrderOfferModel extends Equatable {
   /// trip starts. Null until someone wrote it.
   final int? passengersCount;
 
+  /// Extra price the office adds for 5 or 6 people, already inside
+  /// [estimatedPrice]; 0 for app orders.
+  final double passengersFee;
+
   const OrderOfferModel({
     required this.rideId,
     required this.vehicleTypeId,
@@ -54,6 +58,7 @@ class OrderOfferModel extends Equatable {
     this.dropoffAddressDetails,
     this.note,
     this.passengersCount,
+    this.passengersFee = 0,
   });
 
   factory OrderOfferModel.fromJson(Map<String, dynamic> json) {
@@ -76,6 +81,7 @@ class OrderOfferModel extends Equatable {
       dropoffAddressDetails: textOrNull(json['dropoff_address_details']),
       note: textOrNull(json['note']),
       passengersCount: countOrNull(json['passengers_count']),
+      passengersFee: feeOf(json),
     );
   }
 
@@ -109,6 +115,7 @@ class OrderOfferModel extends Equatable {
       passengersCount: json.containsKey('passengers_count')
           ? countOrNull(json['passengers_count'])
           : passengersCount,
+      passengersFee: json.containsKey('passengers_fee') ? feeOf(json) : passengersFee,
     );
   }
 
@@ -121,6 +128,12 @@ class OrderOfferModel extends Equatable {
     if (value is! num) return null;
     final count = value.toInt();
     return count > 0 ? count : null;
+  }
+
+  /// `passengers_fee` of a ride payload, never negative.
+  static double feeOf(Map<String, dynamic> json) {
+    final fee = (json['passengers_fee'] as num?)?.toDouble() ?? 0;
+    return fee > 0 ? fee : 0;
   }
 
   /// A trimmed, non-empty string, or null.
@@ -150,5 +163,6 @@ class OrderOfferModel extends Equatable {
         dropoffAddressDetails,
         note,
         passengersCount,
+        passengersFee,
       ];
 }

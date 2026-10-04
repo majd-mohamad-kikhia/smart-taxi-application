@@ -4,7 +4,7 @@ import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../models/driver_active_ride_model.dart';
 import '../models/driver_ride_start_model.dart';
-import '../models/driver_trip_fare_model.dart';
+import '../models/driver_ride_finish_model.dart';
 import '../models/driver_trip_payment_model.dart';
 import '../models/recorded_route_point_model.dart';
 
@@ -75,7 +75,7 @@ class DriverTripRemoteDataSource {
 
   /// in_progress → completed. The server prices the trip from the distance
   /// actually driven and returns the final fare.
-  Future<DriverTripFareModel> finishRide({
+  Future<DriverRideFinishModel> finishRide({
     required int rideId,
     required double distanceKm,
   }) async {
@@ -84,7 +84,7 @@ class DriverTripRemoteDataSource {
       data: {'distance_km': distanceKm},
     );
     final body = Map<String, dynamic>.from(response.data as Map);
-    return DriverTripFareModel.fromRideJson(
+    return DriverRideFinishModel.fromRideJson(
       Map<String, dynamic>.from(body['data'] as Map),
     );
   }

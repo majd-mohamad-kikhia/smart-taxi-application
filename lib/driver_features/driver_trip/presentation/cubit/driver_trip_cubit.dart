@@ -247,7 +247,7 @@ class DriverTripCubit extends Cubit<DriverTripState> {
         _latestFix = end;
         _recordSample();
       }
-      final fare = await _repository.finishRide(
+      final finish = await _repository.finishRide(
         rideId: state.order.rideId,
         distanceKm: _distanceDrivenKm(),
       );
@@ -263,7 +263,10 @@ class DriverTripCubit extends Cubit<DriverTripState> {
       emit(state.copyWith(
         isUpdating: false,
         status: DriverTripStatus.completed,
-        fare: fare,
+        fare: finish.fare,
+        orderSource: finish.orderSource,
+        customer: finish.customer,
+        completedAt: finish.completedAt,
       ));
     } on DriverTripException catch (e) {
       if (!isClosed) emit(state.copyWith(isUpdating: false, errorMessage: e.message));

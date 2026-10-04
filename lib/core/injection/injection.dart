@@ -37,11 +37,14 @@ import '../../driver_features/driver_trip/data/datasources/driver_trip_location_
 import '../../driver_features/driver_trip/data/datasources/driver_trip_remote_data_source.dart';
 import '../../driver_features/driver_trip/data/datasources/driver_trip_route_local_data_source.dart';
 import '../../driver_features/driver_trip/data/datasources/open_trip_registry.dart';
+import '../../driver_features/driver_trip/data/datasources/ride_bill_pdf_builder.dart';
 import '../../driver_features/driver_trip/data/models/driver_active_ride_model.dart';
 import '../../driver_features/driver_trip/data/repositories/driver_trip_route_repository.dart';
 import '../../driver_features/driver_trip/data/repositories/driver_trip_repository.dart';
+import '../../driver_features/driver_trip/data/repositories/ride_bill_repository.dart';
 import '../../driver_features/driver_trip/presentation/cubit/driver_active_ride_cubit.dart';
 import '../../driver_features/driver_trip/presentation/cubit/driver_trip_cubit.dart';
+import '../../driver_features/driver_trip/presentation/cubit/ride_bill_cubit.dart';
 import '../../driver_features/driver_shared_order/data/datasources/shared_order_remote_data_source.dart';
 import '../../driver_features/driver_shared_order/data/repositories/shared_order_repository.dart';
 import '../../driver_features/driver_shared_order/presentation/cubit/shared_order_cubit.dart';
@@ -78,6 +81,7 @@ import '../services/local_notification_service.dart';
 import '../services/push_notification_service.dart';
 import '../models/order_offer_model.dart';
 import '../notifications/unread_notifications_cubit.dart';
+import '../services/whatsapp_file_sender.dart';
 import '../session/session_cubit.dart';
 import '../../features/home/data/datasources/places_remote_data_source.dart';
 import '../../features/home/data/datasources/ride_request_remote_data_source.dart';
@@ -378,6 +382,12 @@ void setupInjection() {
     ),
   );
   sl.registerLazySingleton<OpenTripRegistry>(() => OpenTripRegistry());
+  sl.registerLazySingleton<RideBillRepository>(
+    () => const RideBillRepository(RideBillPdfBuilder(), WhatsAppFileSender()),
+  );
+  sl.registerFactory<RideBillCubit>(
+    () => RideBillCubit(sl<RideBillRepository>(), sl<SessionCubit>()),
+  );
   sl.registerFactoryParam<DriverTripCubit, OrderOfferModel, DriverActiveRideModel?>(
     (order, resume) => DriverTripCubit(
       sl<DriverTripRepository>(),

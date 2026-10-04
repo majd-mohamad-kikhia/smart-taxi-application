@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/meta_item_widget.dart';
+import '../../../../core/widgets/passengers_fee_meta_widget.dart';
 import '../../../../core/widgets/ride_note_widget.dart';
 
 /// A single ride offer on the driver home screen. [isAccepting] shows a
@@ -92,6 +93,7 @@ class DriverOrderCardWidget extends StatelessWidget {
                   icon: Icons.groups_rounded,
                   label: context.l10n.passengersCount(order.passengersCount!),
                 ),
+              if (order.passengersFee > 0) PassengersFeeMetaWidget(fee: order.passengersFee),
             ],
           ),
           const SizedBox(height: 14),

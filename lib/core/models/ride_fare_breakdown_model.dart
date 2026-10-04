@@ -1,14 +1,19 @@
 import 'package:equatable/equatable.dart';
+import 'order_offer_model.dart';
 import 'ride_waiting_model.dart';
 
 /// The bill lines of a finished ride — the `fare` object on the
 /// `completed` status event and the driver's `finish` reply:
 /// `final_price = base_fare + distance_fare + stops_fee_total + waiting_fee
-/// + pause_fee_total`.
+/// + pause_fee_total + passengers_fee`.
 class RideFareBreakdownModel extends Equatable {
   final double baseFare;
   final double distanceFare;
   final double stopsFeeTotal;
+
+  /// Extra price the office adds for 5 or 6 people; 0 for app orders.
+  final double passengersFee;
+  final int? passengersCount;
   final double waitingFee;
   final RideWaitingModel? waiting;
 
@@ -22,6 +27,8 @@ class RideFareBreakdownModel extends Equatable {
     required this.baseFare,
     required this.distanceFare,
     required this.stopsFeeTotal,
+    this.passengersFee = 0,
+    this.passengersCount,
     required this.waitingFee,
     required this.waiting,
     this.pauseFeeTotal = 0,
@@ -30,11 +37,13 @@ class RideFareBreakdownModel extends Equatable {
     required this.finalPrice,
   });
 
-  /// [fare] is the `fare` object; [fallbackFinalPrice] is used when the
-  /// server omitted `final_price` from it.
+  /// [fare] is the `fare` object; [fallbackFinalPrice] and
+  /// [fallbackPassengersCount] (the ride's own count) are used when the
+  /// server omitted them from it.
   factory RideFareBreakdownModel.fromJson(
     Map<String, dynamic> fare, {
     double fallbackFinalPrice = 0,
+    int? fallbackPassengersCount,
   }) {
     double number(String key) => (fare[key] as num?)?.toDouble() ?? 0;
     final pauses = fare['pauses'] is Map ? fare['pauses'] as Map : const {};
@@ -42,6 +51,9 @@ class RideFareBreakdownModel extends Equatable {
       baseFare: number('base_fare'),
       distanceFare: number('distance_fare'),
       stopsFeeTotal: number('stops_fee_total'),
+      passengersFee: number('passengers_fee'),
+      passengersCount: OrderOfferModel.countOrNull(fare['passengers_count']) ??
+          fallbackPassengersCount,
       waitingFee: number('waiting_fee'),
       waiting: RideWaitingModel.fromParent(fare),
       pauseFeeTotal: number('pause_fee_total'),
@@ -62,6 +74,7 @@ class RideFareBreakdownModel extends Equatable {
         ? RideFareBreakdownModel.fromJson(
             Map<String, dynamic>.from(fare),
             fallbackFinalPrice: fallbackFinalPrice,
+            fallbackPassengersCount: OrderOfferModel.countOrNull(json['passengers_count']),
           )
         : null;
   }
@@ -71,6 +84,8 @@ class RideFareBreakdownModel extends Equatable {
     baseFare,
     distanceFare,
     stopsFeeTotal,
+    passengersFee,
+    passengersCount,
     waitingFee,
     waiting,
     pauseFeeTotal,

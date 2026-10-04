@@ -15,6 +15,7 @@ import '../../data/models/driver_trip_fare_model.dart';
 import '../../data/models/driver_trip_payment_model.dart';
 import '../cubit/driver_trip_cubit.dart';
 import '../cubit/driver_trip_state.dart';
+import 'ride_bill_button_widget.dart';
 
 /// Shown to the driver once a ride is finished. First what to collect from
 /// the customer (the final fare, and the driver's earnings under it) with a
@@ -66,6 +67,10 @@ class _DriverFareDialogWidgetState extends State<DriverFareDialogWidget> {
                   _PaymentDetails(payment: state.payment, fare: fare)
                 else
                   _FareDetails(fare: fare),
+                if (state.canSendBill) ...[
+                  const SizedBox(height: AppConstants.paddingL),
+                  const RideBillButtonWidget(),
+                ],
                 if (state.errorMessage != null && !isPaid) ...[
                   const SizedBox(height: AppConstants.paddingM),
                   AuthErrorBannerWidget(message: state.errorMessage!),

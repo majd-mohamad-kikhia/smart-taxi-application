@@ -7,7 +7,7 @@ import '../../../../core/network/status_code.dart';
 import '../datasources/driver_trip_remote_data_source.dart';
 import '../models/driver_active_ride_model.dart';
 import '../models/driver_ride_start_model.dart';
-import '../models/driver_trip_fare_model.dart';
+import '../models/driver_ride_finish_model.dart';
 import '../models/driver_trip_payment_model.dart';
 
 class DriverTripException implements Exception {
@@ -45,7 +45,7 @@ class DriverTripRepository {
   Future<RidePauseModel?> resumeRide(int rideId) =>
       _guard(() => _remoteDataSource.resumeRide(rideId));
 
-  Future<DriverTripFareModel> finishRide({
+  Future<DriverRideFinishModel> finishRide({
     required int rideId,
     required double distanceKm,
   }) => _guard(

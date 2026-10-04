@@ -295,6 +295,26 @@
   "fareEstimatedPrice": "Estimated price",
   "fareDifference": "Difference",
   "fareDistanceDriven": "Distance driven",
+  "billSendWhatsApp": "Send bill on WhatsApp",
+  "billSendFailed": "Couldn't send the bill. Try again",
+  "billTitle": "Trip bill",
+  "billNumber": "Bill no.",
+  "billDate": "Date",
+  "billCustomer": "Customer",
+  "billDriver": "Driver",
+  "billItem": "Item",
+  "billOldSyp": "old SYP",
+  "billPayment": "Payment",
+  "billPaidCash": "Paid in cash",
+  "billThanks": "Thank you for riding with Smart Taxi",
+  "billMessage": "Your Smart Taxi trip bill no. {number}",
+  "@billMessage": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "fareCommission": "Commission",
   "fareYourEarning": "Your earnings",
   "done": "Done",
@@ -548,6 +568,16 @@
   "fareDistanceFare": "Distance",
   "fareBaseFare": "Base fare",
   "fareStopsFee": "Stops",
+  "farePassengersFee": "Extra passengers fee",
+  "farePassengersFeeIncluded": "Includes extra passengers fee: {amount}",
+  "@farePassengersFeeIncluded": {
+    "description": "Under an office order's price: the extra charge for 5 or 6 people is already part of it.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "fareWaiting": "Waiting",
   "fareWaitingDetail": "{minutes} min × {price}",
   "@fareWaitingDetail": {

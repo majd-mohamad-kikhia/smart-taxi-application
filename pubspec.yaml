@@ -46,6 +46,8 @@ dependencies:
 
   # Deep links: office orders opened from their WhatsApp link
   app_links: ^7.0.0
+  pdf: ^3.12.0
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +66,9 @@ flutter:
     - assets/icons/app_logo_icons/icon-master-1024.png
     - assets/icons/app_logo_icons/icon-splash-android12.png
     - assets/map_styles/dark_map_style.json
+    # Embedded in the PDF trip bill (Arabic + Latin).
+    - assets/fonts/Tajawal-Regular.ttf
+    - assets/fonts/Tajawal-Bold.ttf
 
 # ── App launcher icon ──────────────────────────────────────────
 # Regenerate with: dart run flutter_launcher_icons

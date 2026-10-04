@@ -56,6 +56,17 @@
             <!-- Links are read by the app_links plugin, not Flutter's router. -->
             <meta-data android:name="flutter_deeplinking_enabled" android:value="false"/>
         </activity>
+        <!-- Files sent to other apps from the cache dir, e.g. the trip bill
+             a driver sends to the customer's WhatsApp chat. -->
+        <provider
+            android:name=".SharedFileProvider"
+            android:authorities="${applicationId}.shared_files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/shared_files" />
+        </provider>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
@@ -86,6 +97,9 @@
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="https"/>
         </intent>
+        <!-- WhatsApp / WhatsApp Business, for sending a trip bill to a chat. -->
+        <package android:name="com.whatsapp"/>
+        <package android:name="com.whatsapp.w4b"/>
         <!-- Lets url_launcher open the phone dialer for Contact us numbers. -->
         <intent>
             <action android:name="android.intent.action.DIAL"/>

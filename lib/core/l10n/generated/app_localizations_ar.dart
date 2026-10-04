@@ -691,6 +691,47 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fareDistanceDriven => 'المسافة المقطوعة';
 
   @override
+  String get billSendWhatsApp => 'إرسال الفاتورة عبر واتساب';
+
+  @override
+  String get billSendFailed => 'تعذّر إرسال الفاتورة. حاول مرة أخرى';
+
+  @override
+  String get billTitle => 'فاتورة رحلة';
+
+  @override
+  String get billNumber => 'رقم الفاتورة';
+
+  @override
+  String get billDate => 'التاريخ';
+
+  @override
+  String get billCustomer => 'الزبون';
+
+  @override
+  String get billDriver => 'السائق';
+
+  @override
+  String get billItem => 'البند';
+
+  @override
+  String get billOldSyp => 'ل.س قديمة';
+
+  @override
+  String get billPayment => 'الدفع';
+
+  @override
+  String get billPaidCash => 'مدفوعة نقداً';
+
+  @override
+  String get billThanks => 'شكراً لاختيارك Smart Taxi';
+
+  @override
+  String billMessage(String number) {
+    return 'فاتورة رحلتك مع Smart Taxi رقم $number';
+  }
+
+  @override
   String get fareCommission => 'العمولة';
 
   @override
@@ -1165,6 +1206,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fareStopsFee => 'التوقفات';
+
+  @override
+  String get farePassengersFee => 'سعر إضافي لعدد الركاب';
+
+  @override
+  String farePassengersFeeIncluded(String amount) {
+    return 'يشمل سعراً إضافياً لعدد الركاب: $amount';
+  }
 
   @override
   String get fareWaiting => 'الانتظار';
