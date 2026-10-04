@@ -19,10 +19,8 @@ class WalletStatementSummaryCardWidget extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     // The number reads left to right (so a minus stays attached to it), and
-    // the currency is the localized "SYP" / "ل.س" taken out of the price
-    // string so it can be set on its own, smaller, on the same baseline.
+    // the currency is set on its own, smaller, on the same baseline.
     final number = '${balance < 0 ? '−' : ''}${formatPrice(balance.abs())}';
-    final currency = l10n.priceSyp('').trim();
 
     return Semantics(
       container: true,
@@ -70,13 +68,22 @@ class WalletStatementSummaryCardWidget extends StatelessWidget {
                   ),
                   const SizedBox(width: AppConstants.paddingS),
                   Text(
-                    currency,
+                    l10n.priceSypNewCurrency,
                     style: textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: AppColors.textOnPrimary,
                     ),
                   ),
                 ],
+              ),
+            ),
+            Text(
+              formatOldSyp(l10n, balance),
+              textAlign: TextAlign.center,
+              style: textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textOnPrimary,
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
             const SizedBox(height: AppConstants.paddingM),

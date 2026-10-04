@@ -25,6 +25,7 @@ class ApiEndpoints {
 
   // ─── Customer Profile ──────────────────────────────────────
   String get customerProfile => '/api/customer/profile';
+  String get customerProfileBlock => '/api/customer/profile/block';
   String get customerLanguage => '/api/customer/profile/language';
 
   // ─── Customer Complaints ───────────────────────────────────
@@ -44,6 +45,11 @@ class ApiEndpoints {
   String customerRideById(int id) => '/api/customer/rides/$id';
   String customerRideCancel(int id) => '/api/customer/rides/$id/cancel';
 
+  // ─── Customer Saved Addresses ──────────────────────────────
+  String get customerSavedAddresses => '/api/customer/saved-addresses';
+  String customerSavedAddressById(int id) =>
+      '/api/customer/saved-addresses/$id';
+
   // ─── Driver Auth ───────────────────────────────────────────
   String get driverSignup => '/api/driver/auth/signup';
   String get driverLogin => '/api/driver/auth/login';
@@ -62,6 +68,11 @@ class ApiEndpoints {
   String driverRideRoute(int id) => '/api/driver/rides/$id/route';
   String driverRideConfirmPayment(int id) =>
       '/api/driver/rides/$id/confirm-payment';
+
+  /// Office orders opened from their WhatsApp link (`/o/{token}`).
+  String driverSharedRide(String token) => '/api/driver/rides/shared/$token';
+  String driverSharedRideAccept(String token) =>
+      '/api/driver/rides/shared/$token/accept';
 
   // ─── Driver Settings ───────────────────────────────────────
   String get driverSearchRadius => '/api/driver/search-radius';

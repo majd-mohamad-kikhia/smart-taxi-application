@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'cancel_penalty_model.dart';
 
 /// A ride order as returned by `POST /api/customer/rides/choose-vehicle`
 /// and `POST /api/customer/rides/{id}/cancel`.
@@ -11,6 +12,8 @@ import 'package:equatable/equatable.dart';
 /// ride-tracking feature also needs it once the order moves past
 /// `choose-vehicle` — see the "move to core" rule for cross-feature types.
 class RideModel extends Equatable {
+  static const int scheduledStatusId = 7;
+
   final int id;
   final int vehicleTypeId;
   final double? distanceKm;
@@ -18,6 +21,14 @@ class RideModel extends Equatable {
   final bool priceIsEstimate;
   final int statusId;
   final String status;
+
+  /// Pickup time of a scheduled ride, UTC `YYYY-MM-DD HH:MM:SS`; null for
+  /// an immediate ride.
+  final String? scheduledAt;
+
+  /// Set on a cancel that counted against the customer (a driver had
+  /// accepted).
+  final CancelPenaltyModel? cancelPenalty;
 
   const RideModel({
     required this.id,
@@ -27,6 +38,8 @@ class RideModel extends Equatable {
     required this.priceIsEstimate,
     required this.statusId,
     required this.status,
+    this.scheduledAt,
+    this.cancelPenalty,
   });
 
   factory RideModel.fromJson(Map<String, dynamic> json) {
@@ -39,8 +52,13 @@ class RideModel extends Equatable {
       priceIsEstimate: json['price_is_estimate'] as bool? ?? false,
       statusId: json['status_id'] as int,
       status: json['status'] as String? ?? '',
+      scheduledAt: json['scheduled_at'] as String?,
+      cancelPenalty: CancelPenaltyModel.fromRide(json),
     );
   }
+
+  /// Waiting for its time; nothing is offered to drivers yet.
+  bool get isScheduled => statusId == scheduledStatusId;
 
   @override
   List<Object?> get props => [
@@ -51,5 +69,7 @@ class RideModel extends Equatable {
         priceIsEstimate,
         statusId,
         status,
+        scheduledAt,
+        cancelPenalty,
       ];
 }

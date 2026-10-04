@@ -28,7 +28,7 @@ class RideWaitingTimerWidget extends StatelessWidget {
       builder: (context) {
         final l10n = context.l10n;
         final snapshot = waiting.snapshotAt(DateTime.now());
-        String price(double amount) => l10n.priceSyp(formatPrice(amount));
+        String price(double amount) => formatSyp(l10n, amount);
 
         final isCharged = waiting.pricePerMinute > 0;
         final isFree = snapshot.isFree;

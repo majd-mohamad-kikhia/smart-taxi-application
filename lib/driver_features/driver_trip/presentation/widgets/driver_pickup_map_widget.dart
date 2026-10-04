@@ -22,11 +22,29 @@ class DriverPickupMapWidget extends StatefulWidget {
 
 class _DriverPickupMapWidgetState extends State<DriverPickupMapWidget> {
   String? _mapStyle;
+  GoogleMapController? _controller;
 
   @override
   void initState() {
     super.initState();
     _loadMapStyle();
+  }
+
+  @override
+  void didUpdateWidget(DriverPickupMapWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.pickupLat != widget.pickupLat ||
+        oldWidget.pickupLng != widget.pickupLng) {
+      _controller?.animateCamera(
+        CameraUpdate.newLatLng(LatLng(widget.pickupLat, widget.pickupLng)),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
   }
 
   Future<void> _loadMapStyle() async {
@@ -40,6 +58,7 @@ class _DriverPickupMapWidgetState extends State<DriverPickupMapWidget> {
     return GoogleMap(
       style: _mapStyle,
       initialCameraPosition: CameraPosition(target: point, zoom: 15),
+      onMapCreated: (controller) => _controller = controller,
       myLocationEnabled: false,
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,

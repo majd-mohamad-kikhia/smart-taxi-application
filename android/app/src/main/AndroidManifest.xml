@@ -37,6 +37,24 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Office order links posted in the drivers' WhatsApp group:
+                 https://smart-taxi.co/o/{token}, verified against
+                 https://smart-taxi.co/.well-known/assetlinks.json. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="smart-taxi.co" android:pathPrefix="/o/"/>
+            </intent-filter>
+            <!-- Fallback from that web page's "open in the app" button. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="smarttaxidriver" android:host="order"/>
+            </intent-filter>
+            <!-- Links are read by the app_links plugin, not Flutter's router. -->
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="false"/>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
@@ -51,7 +69,7 @@
              high-importance channel as the ones shown in the foreground. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="mshoar_notifications" />
+            android:value="mshoar_notifications_honk" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

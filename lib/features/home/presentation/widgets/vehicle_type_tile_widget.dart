@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/vehicle_type_icon_widget.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
 
@@ -112,8 +112,8 @@ class VehicleTypeTileWidget extends StatelessWidget {
                 ),
                 if (price != null) ...[
                   const SizedBox(width: AppConstants.paddingM),
-                  Text(
-                    l10n.priceSyp(formatPrice(price!)),
+                  PriceTextWidget(
+                    price: price!,
                     style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: isChoosable

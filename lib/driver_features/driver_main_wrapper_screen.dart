@@ -5,6 +5,7 @@ import '../core/l10n/generated/app_localizations.dart';
 import '../core/localization/l10n_context_extension.dart';
 import '../core/routing/app_router.dart';
 import '../core/widgets/app_bottom_nav_widget.dart';
+import '../core/widgets/app_snack_bar_widget.dart';
 import 'driver_home/presentation/screens/driver_home_screen.dart';
 import 'driver_profile/presentation/screens/driver_profile_screen.dart';
 import 'driver_route/presentation/screens/driver_route_screen.dart';
@@ -57,13 +58,24 @@ class _DriverMainWrapperScreenState extends State<DriverMainWrapperScreen> {
     return BlocProvider<DriverActiveRideCubit>(
       create: (_) => sl<DriverActiveRideCubit>()..checkForActiveRide(),
       child: BlocListener<DriverActiveRideCubit, DriverActiveRideState>(
-        listenWhen: (previous, current) => previous.ride == null && current.ride != null,
-        // The app was closed mid-ride: go back to the trip screen (and its
-        // waiting timer) instead of leaving the driver on the home tab.
-        listener: (context, state) => Navigator.of(context).pushNamed(
-          AppRouter.driverTrip,
-          arguments: DriverTripRouteArgs(order: state.ride!.order, resume: state.ride),
-        ),
+        listenWhen: (previous, current) =>
+            current.ride != null && current.version != previous.version,
+        // The app was closed mid-ride, or the office assigned a trip: open
+        // the trip screen (and its waiting timer) instead of leaving the
+        // driver on the home tab.
+        listener: (context, state) {
+          if (state.isAssigned) {
+            showAppSnackBar(
+              context,
+              context.l10n.tripAssignedToYou,
+              type: AppSnackBarType.info,
+            );
+          }
+          Navigator.of(context).pushNamed(
+            AppRouter.driverTrip,
+            arguments: DriverTripRouteArgs(order: state.ride!.order, resume: state.ride),
+          );
+        },
         child: Scaffold(
           body: IndexedStack(index: _currentIndex, children: _tabs),
           bottomNavigationBar: AppBottomNavWidget(

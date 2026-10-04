@@ -88,6 +88,35 @@
       }
     }
   },
+  "priceSypNewOld": "{amount} new SYP ({oldAmount} old)",
+  "@priceSypNewOld": {
+    "description": "A price in new Syrian pounds with the same price in old pounds (×100) after it.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "oldAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "priceSypNew": "{amount} new SYP",
+  "@priceSypNew": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "priceSypOld": "{amount} old SYP",
+  "@priceSypOld": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "priceSypNewCurrency": "new SYP",
   "phoneNumber": "Phone number",
   "password": "Password",
   "showPassword": "Show password",
@@ -647,6 +676,212 @@
         "type": "int"
       },
       "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "savedAddressesTitle": "Saved places",
+  "savedAddressHome": "Home",
+  "savedAddressWork": "Work",
+  "savedAddressOther": "Other",
+  "savedAddressAddHome": "Add home",
+  "savedAddressAddWork": "Add work",
+  "savedAddressOtherPlaces": "Other places",
+  "savedAddressAddPlace": "Add a place",
+  "savedAddressReplaced": "{type} address updated",
+  "@savedAddressReplaced": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "savedAddressSaved": "Place saved",
+  "savedAddressDeleteTitle": "Delete \"{name}\"?",
+  "@savedAddressDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "savedAddressAddTitle": "Add {type}",
+  "@savedAddressAddTitle": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "savedAddressEditTitle": "Edit {name}",
+  "@savedAddressEditTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "savedAddressLocation": "Location",
+  "savedAddressPickOnMap": "Choose on the map",
+  "savedAddressLabel": "Name",
+  "savedAddressLabelHint": "e.g. Gym, Mom's house",
+  "savedAddressLabelRequired": "Give this place a name",
+  "addressDetailsLabel": "Address details (optional)",
+  "addressDetailsHint": "Building, floor, landmark…",
+  "rideWhenLabel": "When",
+  "rideWhenNow": "Now",
+  "rideWhenLater": "Later",
+  "rideWhenChange": "Change time",
+  "rideScheduleOutOfRange": "Pick a time between 30 minutes and 7 days from now",
+  "scheduleVehicle": "Schedule {name} · {price}",
+  "@scheduleVehicle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "rideNoteLabel": "Note for the driver",
+  "rideNoteHint": "e.g. I'm at the main gate",
+  "rideScheduledFor": "Ride scheduled for {time}",
+  "@rideScheduledFor": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "rideStatusScheduled": "Scheduled",
+  "rideScheduledAt": "Scheduled for {time}",
+  "@rideScheduledAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelScheduledRide": "Cancel scheduled ride",
+  "trackRide": "Track ride",
+  "tripDetailsUpdated": "Trip details updated",
+  "tripAssignedToYou": "A trip has been assigned to you",
+  "vehicleOwnership": "Ownership",
+  "vehicleOwnershipOwner": "Owner",
+  "vehicleOwnershipCompany": "Company",
+  "vehicleOwnershipUnknown": "Not set",
+  "sharedOrderTitle": "Order",
+  "sharedOrderAccept": "Accept order",
+  "sharedOrderAvailable": "You can accept this order",
+  "sharedOrderOpensAt": "Can be accepted from {time}",
+  "@sharedOrderOpensAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedOrderOpensIn": "Opens in {time}",
+  "@sharedOrderOpensIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedOrderNotOpenYet": "This order can't be accepted yet",
+  "sharedOrderBusy": "Finish your current trip first",
+  "sharedOrderGoToTrip": "Go to my current trip",
+  "sharedOrderWrongVehicle": "This order needs a {type} car",
+  "@sharedOrderWrongVehicle": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedOrderNoVehicle": "Register your car first",
+  "sharedOrderNotActive": "Your account is not active",
+  "sharedOrderBlocked": "Your account is blocked for now",
+  "sharedOrderYours": "This order is already yours",
+  "sharedOrderTaken": "This order was already taken by another driver",
+  "sharedOrderCancelled": "This order was cancelled",
+  "sharedOrderUnavailable": "This order can't be accepted right now",
+  "sharedOrderInvalidLink": "This link is not valid",
+  "sharedOrderAcceptFailed": "Couldn't accept the order. Try again",
+  "sharedOrderDriversOnly": "Open this link with a driver account",
+  "passengersCount": "{count, plural, =1{1 passenger} other{{count} passengers}}",
+  "@passengersCount": {
+    "description": "How many people ride in the car.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passengersCountQuestion": "How many passengers?",
+  "fieldPassengersCount": "Number of passengers",
+  "guidePassengersCount": "This car can't take that many passengers. Check the number",
+  "orderingBlockedTitle": "Ordering is paused",
+  "cancelCountedTitle": "This cancel counted",
+  "gotIt": "Got it",
+  "accountBlockedEndsIn": "Ends in {time}",
+  "@accountBlockedEndsIn": {
+    "description": "Countdown to the end of the block, e.g. 23:59:12.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "countdownWithDays": "{days, plural, =1{1 day} other{{days} days}} {time}",
+  "@countdownWithDays": {
+    "description": "A countdown longer than a day: days, then H:MM:SS.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelStrikeWarning": "Cancelling after a driver accepted counts against you ({count} of {limit}). At {limit} you can't order for {hours} hours. Cancel anyway?",
+  "@cancelStrikeWarning": {
+    "description": "Before cancelling a ride a driver accepted.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelStrikeWarningLast": "You've cancelled {count} of {limit} after a driver accepted. This cancel will pause ordering for {hours} hours. Cancel anyway?",
+  "@cancelStrikeWarningLast": {
+    "description": "Before the cancel that will block ordering.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelStrikeWarningUnknown": "Cancelling after a driver accepted counts against you. Too many and you can't order for {hours} hours. Cancel anyway?",
+  "@cancelStrikeWarningUnknown": {
+    "description": "Before cancelling an accepted ride when the count isn't known.",
+    "placeholders": {
+      "hours": {
         "type": "int"
       }
     }

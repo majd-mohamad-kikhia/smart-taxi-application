@@ -13,10 +13,11 @@ import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../data/models/place_suggestion_model.dart';
 import '../../data/repositories/places_repository.dart';
 
-/// Full-screen map picker pushed directly via `Navigator.push` (not
-/// through `AppRouter`, which has no support for passing constructor
-/// arguments to a route today). Returns a [PickedLocationModel] via
-/// `Navigator.pop` when the user confirms, or `null` if they back out.
+/// Full-screen map picker, pushed directly by the order screen and through
+/// `AppRouter.locationPicker` by other features. Returns a
+/// [PickedLocationModel] (with the optional address details typed under the
+/// address) via `Navigator.pop` when the user confirms, or `null` if they
+/// back out.
 class LocationPickerScreen extends StatefulWidget {
   final String title;
 
@@ -41,8 +42,12 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     AppConstants.defaultMapLng,
   );
   static const _searchDebounce = Duration(milliseconds: 400);
+  static const _maxDetailsLength = 255;
 
   final TextEditingController _searchController = TextEditingController();
+  late final TextEditingController _detailsController = TextEditingController(
+    text: widget.initialLocation?.addressDetails ?? '',
+  );
 
   GoogleMapController? _controller;
   late LatLng _center;
@@ -110,6 +115,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   void dispose() {
     _debounce?.cancel();
     _searchController.dispose();
+    _detailsController.dispose();
     // Drop the reference so no late async callback can reach a controller
     // whose GoogleMap widget is gone.
     _controller = null;
@@ -293,18 +299,15 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       ],
                     ),
                     const SizedBox(height: AppConstants.paddingM),
+                    _AddressDetailsField(
+                      controller: _detailsController,
+                      maxLength: _maxDetailsLength,
+                    ),
+                    const SizedBox(height: AppConstants.paddingM),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _canConfirm
-                            ? () => Navigator.of(context).pop(
-                                PickedLocationModel(
-                                  latitude: _center.latitude,
-                                  longitude: _center.longitude,
-                                  address: _pickedAddress,
-                                ),
-                              )
-                            : null,
+                        onPressed: _canConfirm ? _confirm : null,
                         child: Text(context.l10n.confirmLocation),
                       ),
                     ),
@@ -314,6 +317,18 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _confirm() {
+    final details = _detailsController.text.trim();
+    Navigator.of(context).pop(
+      PickedLocationModel(
+        latitude: _center.latitude,
+        longitude: _center.longitude,
+        address: _pickedAddress,
+        addressDetails: details.isEmpty ? null : details,
       ),
     );
   }
@@ -501,6 +516,37 @@ class _SearchField extends StatelessWidget {
             vertical: AppConstants.paddingM,
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Optional directions the map can't show: building, floor, landmark.
+class _AddressDetailsField extends StatelessWidget {
+  final TextEditingController controller;
+  final int maxLength;
+
+  const _AddressDetailsField({
+    required this.controller,
+    required this.maxLength,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      maxLength: maxLength,
+      maxLines: 2,
+      minLines: 1,
+      textInputAction: TextInputAction.done,
+      textCapitalization: TextCapitalization.sentences,
+      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+      decoration: InputDecoration(
+        isDense: true,
+        counterText: '',
+        labelText: context.l10n.addressDetailsLabel,
+        hintText: context.l10n.addressDetailsHint,
+        prefixIcon: const Icon(Icons.apartment_rounded, size: 20),
       ),
     );
   }

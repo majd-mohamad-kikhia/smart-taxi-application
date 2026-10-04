@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
+import '../../../../core/widgets/meta_item_widget.dart';
+import '../../../../core/widgets/ride_note_widget.dart';
 
 /// A single ride offer on the driver home screen. [isAccepting] shows a
 /// spinner in place of the button's label; [enabled] disables the button
@@ -53,6 +55,7 @@ class DriverOrderCardWidget extends StatelessWidget {
             icon: Icons.radio_button_checked_rounded,
             iconColor: AppColors.success,
             label: order.pickupAddress,
+            details: order.pickupAddressDetails,
           ),
           const Padding(
             padding: EdgeInsetsDirectional.only(start: 9),
@@ -65,23 +68,30 @@ class DriverOrderCardWidget extends StatelessWidget {
             icon: Icons.location_on_rounded,
             iconColor: AppColors.error,
             label: order.dropoffAddress,
+            details: order.dropoffAddressDetails,
           ),
+          if (order.note != null) ...[
+            const SizedBox(height: 12),
+            RideNoteWidget(note: order.note!, maxLines: 3),
+          ],
           const SizedBox(height: 14),
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 4,
             children: [
-              Icon(Icons.route_outlined, size: 16, color: AppColors.textTertiary),
-              const SizedBox(width: 4),
-              Text(
-                context.l10n.distanceKm(order.distanceKm.toStringAsFixed(1)),
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              MetaItemWidget(
+                icon: Icons.route_outlined,
+                label: context.l10n.distanceKm(order.distanceKm.toStringAsFixed(1)),
               ),
-              const SizedBox(width: 12),
-              const Icon(Icons.schedule_rounded, size: 16, color: AppColors.textTertiary),
-              const SizedBox(width: 4),
-              Text(
-                context.l10n.durationMinutesShort('${order.estimatedDurationMin}'),
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              MetaItemWidget(
+                icon: Icons.schedule_rounded,
+                label: context.l10n.durationMinutesShort('${order.estimatedDurationMin}'),
               ),
+              if (order.passengersCount != null)
+                MetaItemWidget(
+                  icon: Icons.groups_rounded,
+                  label: context.l10n.passengersCount(order.passengersCount!),
+                ),
             ],
           ),
           const SizedBox(height: 14),
@@ -113,10 +123,10 @@ class _PricePill extends StatelessWidget {
         color: AppColors.primarySurface,
         borderRadius: BorderRadius.circular(100),
       ),
-      child: Text(
-        isEstimate
-            ? '~${context.l10n.priceSyp(formatPrice(price))}'
-            : context.l10n.priceSyp(formatPrice(price)),
+      child: PriceTextWidget(
+        price: price,
+        prefix: isEstimate ? '~' : '',
+        alignment: CrossAxisAlignment.start,
         style: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w700,
@@ -132,8 +142,14 @@ class _LocationRow extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String label;
+  final String? details;
 
-  const _LocationRow({required this.icon, required this.iconColor, required this.label});
+  const _LocationRow({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    this.details,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -143,11 +159,23 @@ class _LocationRow extends StatelessWidget {
         Icon(icon, size: 18, color: iconColor),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (details != null)
+                Text(
+                  details!,
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+            ],
           ),
         ),
       ],

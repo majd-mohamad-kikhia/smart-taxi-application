@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import '../account_block/account_block_push.dart';
 import 'local_notification_service.dart';
 
 /// Runs in a separate isolate for messages received while the app is
@@ -31,6 +32,16 @@ class PushNotificationService {
   final _rideCancelled = StreamController<Map<String, dynamic>>.broadcast();
   Stream<Map<String, dynamic>> get rideCancelled => _rideCancelled.stream;
 
+  /// Pushes that change whether the customer may order, received in the
+  /// foreground or tapped while the app was in the background.
+  static const _accountBlockTypes = {
+    'customer_auto_blocked',
+    'customer_blocked',
+    'account_unblocked',
+  };
+  final _accountBlockPushes = StreamController<AccountBlockPush>.broadcast();
+  Stream<AccountBlockPush> get accountBlockPushes => _accountBlockPushes.stream;
+
   PushNotificationService(this._messaging, this._localNotifications);
 
   Future<void> initialize() async {
@@ -39,8 +50,12 @@ class PushNotificationService {
       if (message.data['notification_type'] == 'ride_cancelled') {
         _rideCancelled.add(Map<String, dynamic>.from(message.data));
       }
+      _reportAccountBlock(message, opened: false);
       _showMessage(_localNotifications, message);
     });
+    FirebaseMessaging.onMessageOpenedApp.listen(
+      (message) => _reportAccountBlock(message, opened: true),
+    );
 
     await _messaging.requestPermission();
 
@@ -48,6 +63,13 @@ class PushNotificationService {
       (token) => debugPrint('FCM token refreshed: $token'),
     );
     debugPrint('FCM token: ${await _getToken()}');
+  }
+
+  void _reportAccountBlock(RemoteMessage message, {required bool opened}) {
+    final type = message.data['notification_type'];
+    if (type is String && _accountBlockTypes.contains(type)) {
+      _accountBlockPushes.add((type: type, opened: opened));
+    }
   }
 
   /// The optional `fcm_token` / `platform` body fields the backend stores

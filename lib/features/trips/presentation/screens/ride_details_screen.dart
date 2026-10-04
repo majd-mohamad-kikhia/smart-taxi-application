@@ -3,13 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/format_date.dart';
 import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
+import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/bill_row_widget.dart';
+import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../../../../core/widgets/live_fee_card_widget.dart';
 import '../../../../core/widgets/meta_item_widget.dart';
+import '../../../../core/widgets/ride_note_widget.dart';
 import '../../data/models/ride_history_model.dart';
 import '../cubit/ride_details_cubit.dart';
 import '../widgets/ride_detail_row_widget.dart';
@@ -31,7 +37,15 @@ class RideDetailsScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.backgroundGray,
         appBar: AppBar(title: Text(context.l10n.rideDetailsTitle('$rideId'))),
-        body: BlocBuilder<RideDetailsCubit, RideDetailsState>(
+        body: BlocConsumer<RideDetailsCubit, RideDetailsState>(
+          listenWhen: (previous, current) =>
+              current.actionError != null &&
+              current.actionError != previous.actionError,
+          listener: (context, state) => showAppSnackBar(
+            context,
+            state.actionError!,
+            type: AppSnackBarType.error,
+          ),
           builder: (context, state) {
             final ride = state.ride;
             if (state.isLoading) return const AppLoaderWidget();
@@ -54,10 +68,20 @@ class RideDetailsScreen extends StatelessWidget {
                       const SizedBox(height: AppConstants.paddingM),
                     ],
                     _Section(
-                      child: RideRouteWidget(
-                        pickup: ride.pickupAddress,
-                        dropoff: ride.dropoffAddress,
-                        stops: ride.stops.map((s) => s.address).toList(),
+                      child: Column(
+                        children: [
+                          RideRouteWidget(
+                            pickup: ride.pickupAddress,
+                            dropoff: ride.dropoffAddress,
+                            pickupDetails: ride.pickupAddressDetails,
+                            dropoffDetails: ride.dropoffAddressDetails,
+                            stops: ride.stops.map((s) => s.address).toList(),
+                          ),
+                          if (ride.note != null && ride.note!.trim().isNotEmpty) ...[
+                            const SizedBox(height: AppConstants.paddingM),
+                            RideNoteWidget(note: ride.note!.trim()),
+                          ],
+                        ],
                       ),
                     ),
                     if (ride.route.length >= 2) ...[
@@ -70,6 +94,21 @@ class RideDetailsScreen extends StatelessWidget {
                     ],
                     const SizedBox(height: AppConstants.paddingM),
                     _Section(child: _Times(ride: ride)),
+                    if (ride.isScheduled) ...[
+                      const SizedBox(height: AppConstants.paddingL),
+                      AppDestructiveButtonWidget(
+                        label: context.l10n.cancelScheduledRide,
+                        isLoading: state.isCancelling,
+                        onPressed: () => _confirmCancel(context),
+                      ),
+                    ] else if (ride.canTrack) ...[
+                      const SizedBox(height: AppConstants.paddingL),
+                      AuthPrimaryButtonWidget(
+                        label: context.l10n.trackRide,
+                        isLoading: false,
+                        onPressed: () => _openTracking(context, ride),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -79,6 +118,34 @@ class RideDetailsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _confirmCancel(BuildContext context) async {
+  final cubit = context.read<RideDetailsCubit>();
+  final reason = await showDialog<String>(
+    context: context,
+    builder: (_) =>
+        CancelReasonDialogWidget(
+          title: context.l10n.cancelScheduledRide,
+          showCancelLimit: false,
+        ),
+  );
+  if (reason != null) cubit.cancelScheduled(reason: reason);
+}
+
+/// Follows a live ride (e.g. a scheduled one that was just sent to drivers)
+/// on the tracking screen, then refreshes the details.
+Future<void> _openTracking(BuildContext context, RideHistoryModel ride) async {
+  final cubit = context.read<RideDetailsCubit>();
+  await Navigator.of(context).pushNamed(
+    AppRouter.rideTracking,
+    arguments: RideTrackingRouteArgs(
+      initialRide: ride.toRideModel(),
+      pickup: ride.pickupLocation,
+      dropoff: ride.dropoffLocation,
+    ),
+  );
+  cubit.load();
 }
 
 class _Section extends StatelessWidget {
@@ -101,7 +168,8 @@ class _Section extends StatelessWidget {
   }
 }
 
-/// Status, when it was requested, and how far and how long it was.
+/// Status, when it was requested, how far and how long it was, and how
+/// many people rode.
 class _Summary extends StatelessWidget {
   final RideHistoryModel ride;
 
@@ -112,6 +180,7 @@ class _Summary extends StatelessWidget {
     final l10n = context.l10n;
     final distance = ride.shownDistanceKm;
     final duration = ride.estimatedDurationMin;
+    final passengers = ride.passengersCount;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -127,7 +196,14 @@ class _Summary extends StatelessWidget {
             ),
           ],
         ),
-        if (distance != null || duration != null) ...[
+        if (ride.scheduledAt != null) ...[
+          const SizedBox(height: AppConstants.paddingM),
+          MetaItemWidget(
+            icon: Icons.event_rounded,
+            label: l10n.rideScheduledAt(formatUtcDateTime(context, ride.scheduledAt)),
+          ),
+        ],
+        if (distance != null || duration != null || passengers != null) ...[
           const SizedBox(height: AppConstants.paddingM),
           Wrap(
             spacing: AppConstants.paddingL,
@@ -142,6 +218,11 @@ class _Summary extends StatelessWidget {
                 MetaItemWidget(
                   icon: Icons.schedule_rounded,
                   label: l10n.durationMinutesShort('$duration'),
+                ),
+              if (passengers != null)
+                MetaItemWidget(
+                  icon: Icons.groups_rounded,
+                  label: l10n.passengersCount(passengers),
                 ),
             ],
           ),
@@ -165,7 +246,7 @@ class _Fare extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final price = ride.shownPrice;
     if (price == null) return const SizedBox.shrink();
-    String money(double amount) => l10n.priceSyp(formatPrice(amount));
+    String money(double amount) => formatSyp(l10n, amount);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -55,6 +55,10 @@ class DriverTripState extends Equatable {
   final bool isPaid;
   final DriverTripPaymentModel? payment;
 
+  /// How many times the office edited this trip while it was open; each
+  /// increase tells the driver once.
+  final int detailsUpdateCount;
+
   const DriverTripState({
     required this.order,
     required this.status,
@@ -73,6 +77,7 @@ class DriverTripState extends Equatable {
     this.isConfirmingPayment = false,
     this.isPaid = false,
     this.payment,
+    this.detailsUpdateCount = 0,
   });
 
   factory DriverTripState.initial(
@@ -92,12 +97,22 @@ class DriverTripState extends Equatable {
     );
   }
 
+  /// Most people the driver can pick before starting. The car type's own
+  /// maximum isn't sent to the driver app, so the server rejects a number
+  /// above it with a 422.
+  static const maxPickablePassengers = 8;
+
   bool get isBusy => isUpdating || isCancelling;
+
+  /// A customer app order: the driver writes how many got in when starting.
+  /// An office order already has the reception's number.
+  bool get needsPassengersCount => order.passengersCount == null;
 
   /// The trip is in progress but stopped (e.g. for a coffee).
   bool get isPaused => status == DriverTripStatus.inProgress && (pause?.isPaused ?? false);
 
   DriverTripState copyWith({
+    OrderOfferModel? order,
     DriverTripStatus? status,
     bool? isUpdating,
     bool? isCancelling,
@@ -114,10 +129,11 @@ class DriverTripState extends Equatable {
     bool? isConfirmingPayment,
     bool? isPaid,
     DriverTripPaymentModel? payment,
+    int? detailsUpdateCount,
     bool clearError = false,
   }) {
     return DriverTripState(
-      order: order,
+      order: order ?? this.order,
       status: status ?? this.status,
       isUpdating: isUpdating ?? this.isUpdating,
       isCancelling: isCancelling ?? this.isCancelling,
@@ -134,6 +150,7 @@ class DriverTripState extends Equatable {
       isConfirmingPayment: isConfirmingPayment ?? this.isConfirmingPayment,
       isPaid: isPaid ?? this.isPaid,
       payment: payment ?? this.payment,
+      detailsUpdateCount: detailsUpdateCount ?? this.detailsUpdateCount,
     );
   }
 
@@ -156,5 +173,6 @@ class DriverTripState extends Equatable {
     isConfirmingPayment,
     isPaid,
     payment,
+    detailsUpdateCount,
   ];
 }

@@ -4,6 +4,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_dialog_layout_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
@@ -91,7 +92,7 @@ class _DriverFareDialogWidgetState extends State<DriverFareDialogWidget> {
 }
 
 String _price(BuildContext context, double amount) =>
-    context.l10n.priceSyp(formatPrice(amount));
+    formatSyp(context.l10n, amount);
 
 /// What to collect, the driver's earnings, and the rest of the bill folded
 /// away under "Fare details".
@@ -109,7 +110,7 @@ class _FareDetails extends StatelessWidget {
       children: [
         _HeadlineAmount(
           label: l10n.fareCollectFromCustomer,
-          value: _price(context, fare.finalPrice),
+          amount: fare.finalPrice,
         ),
         const SizedBox(height: AppConstants.paddingM),
         _EarningsChip(
@@ -170,7 +171,7 @@ class _PaymentDetails extends StatelessWidget {
       children: [
         _HeadlineAmount(
           label: l10n.paymentTotalPaid,
-          value: _price(context, payment?.totalPaid ?? fare.finalPrice),
+          amount: payment?.totalPaid ?? fare.finalPrice,
         ),
         const SizedBox(height: AppConstants.paddingM),
         _EarningsChip(
@@ -196,9 +197,9 @@ class _PaymentDetails extends StatelessWidget {
 /// squeezed or cut off.
 class _HeadlineAmount extends StatelessWidget {
   final String label;
-  final String value;
+  final double amount;
 
-  const _HeadlineAmount({required this.label, required this.value});
+  const _HeadlineAmount({required this.label, required this.amount});
 
   @override
   Widget build(BuildContext context) {
@@ -208,9 +209,9 @@ class _HeadlineAmount extends StatelessWidget {
         Text(label, textAlign: TextAlign.center, style: textTheme.bodyMedium),
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text(
-            value,
-            textAlign: TextAlign.center,
+          child: PriceTextWidget(
+            price: amount,
+            alignment: CrossAxisAlignment.center,
             style: textTheme.displayMedium?.copyWith(
               fontWeight: FontWeight.w800,
               fontFeatures: const [FontFeature.tabularFigures()],

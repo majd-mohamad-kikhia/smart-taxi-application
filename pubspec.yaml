@@ -1,7 +1,7 @@
 name: mshoar
 description: "Smart Taxi - تطبيق رحلات ذكي"
 publish_to: 'none'
-version: 1.0.0+4
+version: 1.0.0+5
 
 environment:
   sdk: ^3.11.4
@@ -43,6 +43,9 @@ dependencies:
   flutter_markdown_plus: ^1.0.12
   package_info_plus: ^10.2.1
   url_launcher: ^6.3.2
+
+  # Deep links: office orders opened from their WhatsApp link
+  app_links: ^7.0.0
 
 dev_dependencies:
   flutter_test:

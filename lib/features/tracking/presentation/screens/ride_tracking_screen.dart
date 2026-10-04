@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/account_block/account_block_cubit.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/models/account_block_model.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/models/ride_model.dart';
@@ -231,12 +234,26 @@ class _TrackingSheet extends StatelessWidget {
     );
   }
 
+  /// Once a driver accepted, cancelling counts against the customer, so the
+  /// dialog says so with the current count. Before that it can't count.
   Future<void> _showCancelDialog(BuildContext context) async {
     final cubit = context.read<RideTrackingCubit>();
+    final warning = cubit.state.isAccepted
+        ? _cancelStrikeWarning(context.l10n, sl<AccountBlockCubit>().state.block)
+        : null;
     final reason = await showDialog<String>(
       context: context,
-      builder: (_) => const CancelReasonDialogWidget(),
+      builder: (_) => CancelReasonDialogWidget(warning: warning, showCancelLimit: false),
     );
     if (reason != null) cubit.submitCancellation(reason);
   }
+}
+
+String _cancelStrikeWarning(AppLocalizations l10n, AccountBlockModel block) {
+  final hours = block.blockHours > 0 ? block.blockHours : 24;
+  if (block.strikeLimit <= 0) return l10n.cancelStrikeWarningUnknown(hours);
+  if (block.nextCancelBlocks) {
+    return l10n.cancelStrikeWarningLast(block.cancelStrikes, block.strikeLimit, hours);
+  }
+  return l10n.cancelStrikeWarning(block.cancelStrikes, block.strikeLimit, hours);
 }

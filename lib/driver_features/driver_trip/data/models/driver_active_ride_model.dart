@@ -65,6 +65,14 @@ class DriverActiveRideModel extends Equatable {
             DateTime.tryParse(json['requested_at'] as String? ?? '') ??
             DateTime.now(),
         distanceToPickupKm: 0,
+        pickupAddressDetails: OrderOfferModel.textOrNull(
+          json['pickup_address_details'],
+        ),
+        dropoffAddressDetails: OrderOfferModel.textOrNull(
+          json['dropoff_address_details'],
+        ),
+        note: OrderOfferModel.textOrNull(json['note']),
+        passengersCount: OrderOfferModel.countOrNull(json['passengers_count']),
       ),
       isArrived: status == 'arrived',
       isInProgress: status == 'in_progress',

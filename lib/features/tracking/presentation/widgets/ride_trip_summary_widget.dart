@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/price_text_widget.dart';
 import '../../data/models/tracked_ride_model.dart';
 
 class RideTripSummaryWidget extends StatelessWidget {
@@ -60,8 +60,8 @@ class RideTripSummaryWidget extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      context.l10n.priceSyp(formatPrice(ride.price!)),
+                    PriceTextWidget(
+                      price: ride.price!,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,

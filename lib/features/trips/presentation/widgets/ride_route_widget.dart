@@ -13,6 +13,10 @@ import '../../../../core/theme/app_colors.dart';
 class RideRouteWidget extends StatelessWidget {
   final String? pickup;
   final String? dropoff;
+
+  /// Building, floor, landmark — a quieter line under the address.
+  final String? pickupDetails;
+  final String? dropoffDetails;
   final List<String?> stops;
   final int? maxLines;
 
@@ -20,6 +24,8 @@ class RideRouteWidget extends StatelessWidget {
     super.key,
     required this.pickup,
     required this.dropoff,
+    this.pickupDetails,
+    this.dropoffDetails,
     this.stops = const [],
     this.maxLines,
   });
@@ -31,6 +37,7 @@ class RideRouteWidget extends StatelessWidget {
     final points = <_Point>[
       _Point(
         text: pickup ?? fallback,
+        details: pickupDetails,
         label: l10n.fromLabel,
         icon: Icons.trip_origin_rounded,
         color: AppColors.primary,
@@ -45,6 +52,7 @@ class RideRouteWidget extends StatelessWidget {
         ),
       _Point(
         text: dropoff ?? fallback,
+        details: dropoffDetails,
         label: l10n.toLabel,
         icon: Icons.location_on_rounded,
         color: AppColors.accent,
@@ -65,6 +73,7 @@ class RideRouteWidget extends StatelessWidget {
 
 class _Point {
   final String text;
+  final String? details;
   final String label;
   final IconData icon;
   final Color color;
@@ -72,6 +81,7 @@ class _Point {
 
   const _Point({
     required this.text,
+    this.details,
     required this.label,
     required this.icon,
     required this.color,
@@ -92,8 +102,13 @@ class _RoutePointRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final details = point.details?.trim();
+    final hasDetails = details != null && details.isNotEmpty;
+    final textTheme = Theme.of(context).textTheme;
     return Semantics(
-      label: '${point.label}: ${point.text}',
+      label: hasDetails
+          ? '${point.label}: ${point.text}. $details'
+          : '${point.label}: ${point.text}',
       excludeSemantics: true,
       child: IntrinsicHeight(
         child: Row(
@@ -120,13 +135,25 @@ class _RoutePointRow extends StatelessWidget {
                 padding: EdgeInsets.only(
                   bottom: isLast ? 0 : AppConstants.paddingM,
                 ),
-                child: Text(
-                  point.text,
-                  maxLines: maxLines,
-                  overflow: maxLines == null ? null : TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: 14,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      point.text,
+                      maxLines: maxLines,
+                      overflow: maxLines == null ? null : TextOverflow.ellipsis,
+                      style: textTheme.bodyLarge?.copyWith(fontSize: 14),
+                    ),
+                    if (hasDetails)
+                      Text(
+                        details,
+                        maxLines: maxLines,
+                        overflow: maxLines == null ? null : TextOverflow.ellipsis,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),

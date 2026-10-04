@@ -4,9 +4,12 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
+import '../../data/models/ride_booking_options_model.dart';
 import '../../data/models/ride_quote_model.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
+import 'ride_schedule_selector_widget.dart';
 import 'vehicle_type_tile_widget.dart';
 
 /// Bottom sheet where the customer compares the quoted price of every vehicle
@@ -14,8 +17,11 @@ import 'vehicle_type_tile_widget.dart';
 /// "Request {vehicle} · {price}" button. Choosing a tile only selects it —
 /// the ride is not requested until that button is pressed.
 ///
-/// Purely presentational — it pops itself with the chosen
-/// `vehicle_type_id`, and the caller fires the booking request.
+/// The customer can also leave a note for the driver and pick "Later" to
+/// schedule the ride.
+///
+/// Purely presentational — it pops itself with a [RideBookingOptionsModel],
+/// and the caller fires the booking request.
 class VehicleTypeSheetWidget extends StatefulWidget {
   final RideQuoteModel quote;
   final String pickupLabel;
@@ -33,10 +39,20 @@ class VehicleTypeSheetWidget extends StatefulWidget {
 }
 
 class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
+  static const _maxNoteLength = 500;
+
   int? _selectedId;
+  DateTime? _scheduledAt;
+  final TextEditingController _noteController = TextEditingController();
 
   /// Guards against a second tap popping the sheet twice.
   bool _isLeaving = false;
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
 
   double? _priceOf(VehicleTypeQuoteModel type) =>
       type.displayPrice(widget.quote.distanceKm);
@@ -62,8 +78,27 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
 
   void _request(int vehicleTypeId) {
     if (_isLeaving) return;
+    final scheduledAt = _scheduledAt;
+    if (scheduledAt != null &&
+        scheduledAt.isBefore(DateTime.now().add(RideScheduleSelectorWidget.minLead))) {
+      // The sheet stayed open long enough for the picked time to get too close.
+      setState(() => _scheduledAt = null);
+      showAppSnackBar(
+        context,
+        context.l10n.rideScheduleOutOfRange,
+        type: AppSnackBarType.warning,
+      );
+      return;
+    }
     _isLeaving = true;
-    Navigator.of(context).pop(vehicleTypeId);
+    final note = _noteController.text.trim();
+    Navigator.of(context).pop(
+      RideBookingOptionsModel(
+        vehicleTypeId: vehicleTypeId,
+        note: note.isEmpty ? null : note,
+        scheduledAt: scheduledAt,
+      ),
+    );
   }
 
   @override
@@ -77,7 +112,13 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(AppConstants.paddingXL),
+        // Keeps the note field above the keyboard.
+        padding: EdgeInsets.fromLTRB(
+          AppConstants.paddingXL,
+          AppConstants.paddingXL,
+          AppConstants.paddingXL,
+          AppConstants.paddingXL + MediaQuery.viewInsetsOf(context).bottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -126,6 +167,17 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
                           ),
                           const SizedBox(height: AppConstants.paddingM),
                         ],
+                        const SizedBox(height: AppConstants.paddingS),
+                        RideScheduleSelectorWidget(
+                          value: _scheduledAt,
+                          onChanged: (value) => setState(() => _scheduledAt = value),
+                        ),
+                        const SizedBox(height: AppConstants.paddingL),
+                        _NoteField(
+                          controller: _noteController,
+                          maxLength: _maxNoteLength,
+                        ),
+                        const SizedBox(height: AppConstants.paddingS),
                         _FeeRules(quote: quote),
                       ],
                     )
@@ -138,9 +190,9 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
               AuthPrimaryButtonWidget(
                 label: selected == null || selectedPrice == null
                     ? l10n.pickVehicleType
-                    : l10n.requestVehicle(
+                    : (_scheduledAt == null ? l10n.requestVehicle : l10n.scheduleVehicle)(
                         selected.name,
-                        l10n.priceSyp(formatPrice(selectedPrice)),
+                        formatSyp(l10n, selectedPrice),
                       ),
                 isLoading: false,
                 onPressed: selected == null
@@ -274,7 +326,7 @@ class _FeeRules extends StatelessWidget {
               child: Text(
                 '${l10n.waitingAtPickup}: ${l10n.waitingRules(
                   '${waiting!.freeMinutes}',
-                  l10n.priceSyp(formatPrice(waiting.pricePerMinute)),
+                  formatSyp(l10n, waiting.pricePerMinute),
                 )}',
                 style: textTheme.bodyMedium,
               ),
@@ -284,14 +336,38 @@ class _FeeRules extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: AppConstants.paddingS),
               child: Text(
                 '${l10n.pauseStopLabel}: ${l10n.pauseRules(
-                  l10n.priceSyp(formatPrice(pause!.baseFee)),
+                  formatSyp(l10n, pause!.baseFee),
                   '${pause.includedMinutes}',
-                  l10n.priceSyp(formatPrice(pause.pricePerMinute)),
+                  formatSyp(l10n, pause.pricePerMinute),
                 )}',
                 style: textTheme.bodyMedium,
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// Optional note for the driver ("I have two suitcases").
+class _NoteField extends StatelessWidget {
+  final TextEditingController controller;
+  final int maxLength;
+
+  const _NoteField({required this.controller, required this.maxLength});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      maxLength: maxLength,
+      minLines: 1,
+      maxLines: 3,
+      textCapitalization: TextCapitalization.sentences,
+      decoration: InputDecoration(
+        labelText: context.l10n.rideNoteLabel,
+        hintText: context.l10n.rideNoteHint,
+        prefixIcon: const Icon(Icons.sticky_note_2_outlined),
       ),
     );
   }

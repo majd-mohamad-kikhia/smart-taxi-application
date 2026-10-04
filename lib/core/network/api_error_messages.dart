@@ -91,6 +91,8 @@ class ApiErrorMessages {
     'dropoff_lng': (l) => l.fieldDropoffLocation,
     'dropoff_address': (l) => l.fieldDropoffAddress,
     'cancellation_reason': (l) => l.fieldCancelReason,
+    // Driver rides
+    'passengers_count': (l) => l.fieldPassengersCount,
     // Driver settings
     'search_radius_km': (l) => l.fieldSearchRadius,
   };
@@ -118,5 +120,8 @@ class ApiErrorMessages {
     'subject': (l) => l.guideSubject,
     'search_radius_km': (l) => l.guideSearchRadius,
     'cancellation_reason': (l) => l.guideCancelReason,
+    // Starting a trip: the driver picks 1–8, so the only realistic failure
+    // is more people than the car type's `max_passengers`.
+    'passengers_count': (l) => l.guidePassengersCount,
   };
 }

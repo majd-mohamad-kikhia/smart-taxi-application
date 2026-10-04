@@ -1,9 +1,13 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/models/ride_model.dart';
 import '../../../../core/models/route_point_model.dart';
 
 /// Ride lifecycle status (`status_id` in swagger.json's `Ride` schema).
+/// Listed with [scheduled] first so the filter reads "upcoming → done".
 enum RideStatus {
+  scheduled(7),
   requested(1),
   accepted(2),
   arrived(3),
@@ -16,6 +20,7 @@ enum RideStatus {
   const RideStatus(this.id);
 
   String label(AppLocalizations l10n) => switch (this) {
+        RideStatus.scheduled => l10n.rideStatusScheduled,
         RideStatus.requested => l10n.rideStatusPending,
         RideStatus.accepted => l10n.rideStatusAcceptedHist,
         RideStatus.arrived => l10n.rideStatusArrivedHist,
@@ -28,6 +33,17 @@ enum RideStatus {
         (s) => s.id == id,
         orElse: () => RideStatus.requested,
       );
+
+  /// Waiting for, or on its way with, a driver — the tracking screen can
+  /// follow it.
+  bool get isLive => switch (this) {
+        RideStatus.requested ||
+        RideStatus.accepted ||
+        RideStatus.arrived ||
+        RideStatus.inProgress =>
+          true,
+        _ => false,
+      };
 }
 
 /// An intermediate stop (`RideStop` schema).
@@ -56,8 +72,29 @@ class RideStopModel extends Equatable {
 class RideHistoryModel extends Equatable {
   final int id;
   final RideStatus status;
+
+  /// The server's status key (`requested`, `accepted`, …).
+  final String statusName;
+  final int vehicleTypeId;
+  final double? pickupLat;
+  final double? pickupLng;
   final String? pickupAddress;
+  final String? pickupAddressDetails;
+  final double? dropoffLat;
+  final double? dropoffLng;
   final String? dropoffAddress;
+  final String? dropoffAddressDetails;
+
+  /// The customer's note for the driver.
+  final String? note;
+
+  /// People in the car, written by the office or the driver at the start.
+  final int? passengersCount;
+
+  /// Scheduled rides only (UTC): the pickup time, and when it was offered
+  /// to drivers.
+  final String? scheduledAt;
+  final String? dispatchedAt;
   final double? distanceKm;
   final int? estimatedDurationMin;
   /// The estimate until the ride is completed; the final price after.
@@ -98,8 +135,20 @@ class RideHistoryModel extends Equatable {
   const RideHistoryModel({
     required this.id,
     required this.status,
+    this.statusName = '',
+    this.vehicleTypeId = 0,
+    this.pickupLat,
+    this.pickupLng,
     this.pickupAddress,
+    this.pickupAddressDetails,
+    this.dropoffLat,
+    this.dropoffLng,
     this.dropoffAddress,
+    this.dropoffAddressDetails,
+    this.note,
+    this.passengersCount,
+    this.scheduledAt,
+    this.dispatchedAt,
     this.distanceKm,
     this.estimatedDurationMin,
     required this.price,
@@ -136,8 +185,20 @@ class RideHistoryModel extends Equatable {
     return RideHistoryModel(
       id: json['id'] as int,
       status: RideStatus.fromId(json['status_id'] as int),
+      statusName: json['status'] as String? ?? '',
+      vehicleTypeId: (json['vehicle_type_id'] as num?)?.toInt() ?? 0,
+      pickupLat: (json['pickup_lat'] as num?)?.toDouble(),
+      pickupLng: (json['pickup_lng'] as num?)?.toDouble(),
       pickupAddress: json['pickup_address'] as String?,
+      pickupAddressDetails: json['pickup_address_details'] as String?,
+      dropoffLat: (json['dropoff_lat'] as num?)?.toDouble(),
+      dropoffLng: (json['dropoff_lng'] as num?)?.toDouble(),
       dropoffAddress: json['dropoff_address'] as String?,
+      dropoffAddressDetails: json['dropoff_address_details'] as String?,
+      note: json['note'] as String?,
+      passengersCount: (json['passengers_count'] as num?)?.toInt(),
+      scheduledAt: json['scheduled_at'] as String?,
+      dispatchedAt: json['dispatched_at'] as String?,
       distanceKm: (json['distance_km'] as num?)?.toDouble(),
       estimatedDurationMin: json['estimated_duration_min'] as int?,
       price: (json['price'] as num?)?.toDouble() ?? 0,
@@ -172,6 +233,36 @@ class RideHistoryModel extends Equatable {
 
   bool get isCompleted => status == RideStatus.completed;
 
+  bool get isScheduled => status == RideStatus.scheduled;
+
+  bool get canTrack => status.isLive && pickupLat != null && dropoffLat != null;
+
+  /// The ride as the tracking screen starts from.
+  RideModel toRideModel() => RideModel(
+        id: id,
+        vehicleTypeId: vehicleTypeId,
+        distanceKm: distanceKm,
+        price: price,
+        priceIsEstimate: isPriceEstimate,
+        statusId: status.id,
+        status: statusName,
+        scheduledAt: scheduledAt,
+      );
+
+  PickedLocationModel get pickupLocation => PickedLocationModel(
+        latitude: pickupLat ?? 0,
+        longitude: pickupLng ?? 0,
+        address: pickupAddress,
+        addressDetails: pickupAddressDetails,
+      );
+
+  PickedLocationModel get dropoffLocation => PickedLocationModel(
+        latitude: dropoffLat ?? 0,
+        longitude: dropoffLng ?? 0,
+        address: dropoffAddress,
+        addressDetails: dropoffAddressDetails,
+      );
+
   /// The price to show for this ride, or null when none should be shown: a
   /// cancelled ride shows no price, so it never reads as a charge.
   double? get shownPrice => switch (status) {
@@ -196,8 +287,20 @@ class RideHistoryModel extends Equatable {
   List<Object?> get props => [
         id,
         status,
+        statusName,
+        vehicleTypeId,
+        pickupLat,
+        pickupLng,
         pickupAddress,
+        pickupAddressDetails,
+        dropoffLat,
+        dropoffLng,
         dropoffAddress,
+        dropoffAddressDetails,
+        note,
+        passengersCount,
+        scheduledAt,
+        dispatchedAt,
         distanceKm,
         estimatedDurationMin,
         price,

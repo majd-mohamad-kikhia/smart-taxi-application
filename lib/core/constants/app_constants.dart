@@ -5,6 +5,9 @@ class AppConstants {
   static const String logoPath =
       'assets/icons/app_logo_icons/icon-master-1024.png';
 
+  /// The brand slogan, the same in every language.
+  static const String appSlogan = 'Smart Taxi ... Smart Life';
+
   /// Where every map opens until the phone's own position is known:
   /// Latakia, Syria.
   static const double defaultMapLat = 35.5317;

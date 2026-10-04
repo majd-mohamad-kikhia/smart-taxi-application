@@ -6,6 +6,7 @@ import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/status_code.dart';
 import '../datasources/driver_trip_remote_data_source.dart';
 import '../models/driver_active_ride_model.dart';
+import '../models/driver_ride_start_model.dart';
 import '../models/driver_trip_fare_model.dart';
 import '../models/driver_trip_payment_model.dart';
 
@@ -34,8 +35,9 @@ class DriverTripRepository {
   Future<RideWaitingModel?> markArrived(int rideId) =>
       _guard(() => _remoteDataSource.markArrived(rideId));
 
-  Future<RideWaitingModel?> startRide(int rideId) =>
-      _guard(() => _remoteDataSource.startRide(rideId));
+  Future<DriverRideStartModel> startRide(int rideId, {int? passengersCount}) => _guard(
+    () => _remoteDataSource.startRide(rideId, passengersCount: passengersCount),
+  );
 
   Future<RidePauseModel?> pauseRide(int rideId) =>
       _guard(() => _remoteDataSource.pauseRide(rideId));

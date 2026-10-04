@@ -1,15 +1,21 @@
 import 'package:dio/dio.dart';
+import '../../../../core/models/account_block_model.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/status_code.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../datasources/ride_request_remote_data_source.dart';
+import '../models/ride_booking_options_model.dart';
 import '../models/ride_quote_model.dart';
 
 class RideRequestException implements Exception {
   final String message;
 
-  const RideRequestException(this.message);
+  /// Set when the server refused the order because ordering is blocked.
+  final AccountBlockModel? block;
+
+  const RideRequestException(this.message, {this.block});
 
   @override
   String toString() => message;
@@ -40,15 +46,16 @@ class RideRequestRepository {
   }
 
   /// Order flow step 2 — creates the ride with the chosen vehicle type
-  /// and returns it with `status_id = 1` (`requested`).
+  /// and returns it with `status_id = 1` (`requested`), or `7`
+  /// (`scheduled`) when [options] carries a time.
   Future<RideModel> chooseVehicle({
-    required int vehicleTypeId,
+    required RideBookingOptionsModel options,
     required PickedLocationModel pickup,
     required PickedLocationModel dropoff,
   }) async {
     try {
       return await _remoteDataSource.chooseVehicle(
-        vehicleTypeId: vehicleTypeId,
+        options: options,
         pickup: pickup,
         dropoff: dropoff,
       );
@@ -73,8 +80,14 @@ class RideRequestRepository {
 
   RideRequestException _mapDioException(DioException e) {
     final error = e.error;
-    return RideRequestException(
-      error is ApiException ? error.message : AppStrings.current.errServerUnreachable,
-    );
+    if (error is! ApiException) {
+      return RideRequestException(AppStrings.current.errServerUnreachable);
+    }
+    final errors = error.rawErrors;
+    if (error.statusCode == StatusCode.forbidden && errors?['reason_code'] != null) {
+      final block = AccountBlockModel.fromOrderRefusal(errors!);
+      return RideRequestException(block.message ?? error.message, block: block);
+    }
+    return RideRequestException(error.message);
   }
 }

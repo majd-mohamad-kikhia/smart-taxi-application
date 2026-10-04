@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../localization/l10n_context_extension.dart';
+import 'parse_utc_date.dart';
+
+export 'parse_utc_date.dart';
 
 /// A server time as a person would say it: "Today, 1:00 PM", "Yesterday,
 /// 1:00 PM", otherwise "27 Sep 2026, 1:00 PM", in the active language.
@@ -13,6 +16,15 @@ String formatDateTime(BuildContext context, String? raw) {
   final parsed = DateTime.tryParse(raw);
   if (parsed == null) return raw;
   return formatDateTimeValue(context, parsed);
+}
+
+/// Same as [formatDateTime] for a UTC server time (`YYYY-MM-DD HH:mm:ss`,
+/// e.g. a ride's `scheduled_at`), shown in the phone's local time.
+String formatUtcDateTime(BuildContext context, String? raw) {
+  if (raw == null || raw.isEmpty) return '—';
+  final parsed = parseUtcDateTime(raw);
+  if (parsed == null) return raw;
+  return formatDateTimeValue(context, parsed.toLocal());
 }
 
 /// Same as [formatDateTime] for a value that is already a [DateTime].

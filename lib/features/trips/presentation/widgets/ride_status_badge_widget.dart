@@ -25,6 +25,7 @@ class RideStatusBadgeWidget extends StatelessWidget {
       };
 
   IconData get _icon => switch (status) {
+        RideStatus.scheduled => Icons.event_rounded,
         RideStatus.requested => Icons.schedule_rounded,
         RideStatus.accepted => Icons.directions_car_rounded,
         RideStatus.arrived => Icons.place_rounded,

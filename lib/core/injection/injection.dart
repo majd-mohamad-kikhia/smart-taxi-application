@@ -1,3 +1,4 @@
+import 'package:app_links/app_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_it/get_it.dart';
 import '../../driver_features/driver_auth/data/datasources/driver_local_data_source.dart';
@@ -35,11 +36,17 @@ import '../../driver_features/driver_route/presentation/cubit/route_tracker_cubi
 import '../../driver_features/driver_trip/data/datasources/driver_trip_location_service.dart';
 import '../../driver_features/driver_trip/data/datasources/driver_trip_remote_data_source.dart';
 import '../../driver_features/driver_trip/data/datasources/driver_trip_route_local_data_source.dart';
+import '../../driver_features/driver_trip/data/datasources/open_trip_registry.dart';
 import '../../driver_features/driver_trip/data/models/driver_active_ride_model.dart';
 import '../../driver_features/driver_trip/data/repositories/driver_trip_route_repository.dart';
 import '../../driver_features/driver_trip/data/repositories/driver_trip_repository.dart';
 import '../../driver_features/driver_trip/presentation/cubit/driver_active_ride_cubit.dart';
 import '../../driver_features/driver_trip/presentation/cubit/driver_trip_cubit.dart';
+import '../../driver_features/driver_shared_order/data/datasources/shared_order_remote_data_source.dart';
+import '../../driver_features/driver_shared_order/data/repositories/shared_order_repository.dart';
+import '../../driver_features/driver_shared_order/presentation/cubit/shared_order_cubit.dart';
+import '../deep_links/deep_link_service.dart';
+import '../deep_links/shared_order_link_handler.dart';
 import '../../driver_features/driver_wallet/data/datasources/driver_wallet_remote_data_source.dart';
 import '../../driver_features/driver_wallet/data/models/wallet_transaction_model.dart';
 import '../../driver_features/driver_wallet/data/repositories/driver_wallet_repository.dart';
@@ -54,6 +61,8 @@ import '../localization/language_remote_data_source.dart';
 import '../localization/language_repository.dart';
 import '../localization/locale_cubit.dart';
 import '../account_block/account_block_cubit.dart';
+import '../account_block/account_block_remote_data_source.dart';
+import '../account_block/account_block_repository.dart';
 import '../account_block/account_block_socket_service.dart';
 import '../privacy_policy/privacy_policy_cubit.dart';
 import '../privacy_policy/privacy_policy_remote_data_source.dart';
@@ -78,6 +87,11 @@ import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/notifications/data/datasources/notifications_remote_data_source.dart';
 import '../../features/notifications/data/repositories/notifications_repository.dart';
 import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
+import '../../features/saved_addresses/presentation/cubit/saved_address_form_cubit.dart';
+import '../saved_addresses/data/datasources/saved_addresses_remote_data_source.dart';
+import '../saved_addresses/data/models/saved_address_model.dart';
+import '../saved_addresses/data/repositories/saved_addresses_repository.dart';
+import '../saved_addresses/presentation/cubit/saved_addresses_cubit.dart';
 import '../../features/settings/data/datasources/customer_complaints_remote_data_source.dart';
 import '../../features/settings/data/datasources/profile_remote_data_source.dart';
 import '../../features/settings/data/repositories/customer_complaints_repository.dart';
@@ -158,14 +172,24 @@ void setupInjection() {
   sl.registerLazySingleton<SessionCubit>(() => SessionCubit());
 
   // ─── Core Account Block ─────────────────────────────────────
-  // Always-on socket feed of the manager's ride block, for both roles. Runs
+  // Always-on socket feed of the ride block, for both roles (the customer's
+  // is also loaded over REST and updated by block pushes). Runs
   // for as long as someone is signed in; restarted only when the account
   // (not just its profile fields) changes.
   sl.registerLazySingleton<AccountBlockSocketService>(
     () => AccountBlockSocketService(),
   );
+  sl.registerLazySingleton<AccountBlockRepository>(
+    () => AccountBlockRepository(
+      AccountBlockRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+    ),
+  );
   sl.registerLazySingleton<AccountBlockCubit>(
-    () => AccountBlockCubit(sl<AccountBlockSocketService>()),
+    () => AccountBlockCubit(
+      sl<AccountBlockSocketService>(),
+      sl<AccountBlockRepository>(),
+      sl<PushNotificationService>().accountBlockPushes,
+    ),
   );
   sl<SessionCubit>().stream.listen((user) {
     final cubit = sl<AccountBlockCubit>();
@@ -197,6 +221,16 @@ void setupInjection() {
       sl<AppVersionRepository>(),
       sl<LocaleCubit>(),
       sl<SessionCubit>(),
+    ),
+  );
+
+  // ─── Deep Links ─────────────────────────────────────────────
+  sl.registerLazySingleton<DeepLinkService>(() => DeepLinkService(AppLinks()));
+  sl.registerLazySingleton<SharedOrderLinkHandler>(
+    () => SharedOrderLinkHandler(
+      sl<DeepLinkService>(),
+      sl<SessionCubit>(),
+      sl<AppVersionCubit>(),
     ),
   );
 
@@ -261,6 +295,18 @@ void setupInjection() {
       unread.set(0);
     }
   });
+  // Saved places follow the signed-in customer the same way.
+  sl<SessionCubit>().stream
+      .map((user) => user?.role == UserRole.customer ? user?.id : null)
+      .distinct()
+      .listen((customerId) {
+        final savedAddresses = sl<SavedAddressesCubit>();
+        if (customerId != null) {
+          savedAddresses.load();
+        } else {
+          savedAddresses.clear();
+        }
+      });
   sl<SessionCubit>().stream.listen((user) {
     if (user == null || user.role != UserRole.customer) return;
     sl<AuthRepository>().syncStoredProfile(
@@ -331,14 +377,17 @@ void setupInjection() {
       const DriverTripRouteLocalDataSource(),
     ),
   );
+  sl.registerLazySingleton<OpenTripRegistry>(() => OpenTripRegistry());
   sl.registerFactoryParam<DriverTripCubit, OrderOfferModel, DriverActiveRideModel?>(
     (order, resume) => DriverTripCubit(
       sl<DriverTripRepository>(),
       sl<DriverTripLocationService>(),
       sl<PlannedRouteLoader>(),
       sl<DriverTripRouteRepository>(),
+      sl<OpenTripRegistry>(),
       sl<DriverSocketService>().rideCancelled,
       sl<PushNotificationService>().rideCancelled,
+      sl<DriverSocketService>().activeRide,
       order,
       resume: resume,
     ),
@@ -347,6 +396,26 @@ void setupInjection() {
     () => DriverActiveRideCubit(
       sl<DriverTripRepository>(),
       sl<DriverTripRouteRepository>(),
+      sl<OpenTripRegistry>(),
+      sl<DriverSocketService>().activeRide,
+    ),
+  );
+
+  // ─── Driver Shared Order Feature ────────────────────────────
+  sl.registerLazySingleton<SharedOrderRepository>(
+    () => SharedOrderRepository(
+      SharedOrderRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+    ),
+  );
+  sl.registerFactoryParam<SharedOrderCubit, String, void>(
+    (token, _) => SharedOrderCubit(
+      sl<SharedOrderRepository>(),
+      sl<OpenTripRegistry>(),
+      token: token,
+      orderClosed: sl<DriverSocketService>().sharedOrderClosed,
+      orderUpdated: sl<DriverSocketService>().sharedOrderUpdated,
+      socketConnected: sl<DriverSocketService>().connected,
+      isSocketConnected: () => sl<DriverSocketService>().isConnected,
     ),
   );
 
@@ -447,7 +516,31 @@ void setupInjection() {
     () => PlacesRepository(sl<PlacesRemoteDataSource>()),
   );
   sl.registerFactory<HomeCubit>(
-    () => HomeCubit(sl<SessionCubit>(), sl<RideRequestRepository>()),
+    () => HomeCubit(
+      sl<SessionCubit>(),
+      sl<RideRequestRepository>(),
+      sl<AccountBlockCubit>(),
+    ),
+  );
+
+  // ─── Core Saved Addresses ───────────────────────────────────
+  // Singleton cubit: the order screen's chips and the "Saved places" screen
+  // share one list.
+  sl.registerLazySingleton<SavedAddressesRepository>(
+    () => SavedAddressesRepository(
+      SavedAddressesRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+    ),
+  );
+  sl.registerLazySingleton<SavedAddressesCubit>(
+    () => SavedAddressesCubit(sl<SavedAddressesRepository>()),
+  );
+  sl.registerFactoryParam<SavedAddressFormCubit, SavedAddressType, SavedAddressModel?>(
+    (type, existing) => SavedAddressFormCubit(
+      sl<SavedAddressesRepository>(),
+      sl<SavedAddressesCubit>(),
+      type: type,
+      existing: existing,
+    ),
   );
 
   // ─── Tracking Feature ───────────────────────────────────────
@@ -460,6 +553,7 @@ void setupInjection() {
     (args, _) => RideTrackingCubit(
       sl<CustomerRideSocketService>(),
       sl<PlannedRouteLoader>(),
+      sl<AccountBlockCubit>(),
       initialRide: args.initialRide,
       pickup: args.pickup,
       dropoff: args.dropoff,

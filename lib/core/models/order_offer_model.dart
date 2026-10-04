@@ -24,6 +24,17 @@ class OrderOfferModel extends Equatable {
   final DateTime requestedAt;
   final double distanceToPickupKm;
 
+  /// Building, floor, landmark… typed by the customer or the office.
+  final String? pickupAddressDetails;
+  final String? dropoffAddressDetails;
+
+  /// The customer's note for the driver ("I have two suitcases").
+  final String? note;
+
+  /// People in the car: written by the office, or by the driver when the
+  /// trip starts. Null until someone wrote it.
+  final int? passengersCount;
+
   const OrderOfferModel({
     required this.rideId,
     required this.vehicleTypeId,
@@ -39,6 +50,10 @@ class OrderOfferModel extends Equatable {
     required this.priceIsEstimate,
     required this.requestedAt,
     required this.distanceToPickupKm,
+    this.pickupAddressDetails,
+    this.dropoffAddressDetails,
+    this.note,
+    this.passengersCount,
   });
 
   factory OrderOfferModel.fromJson(Map<String, dynamic> json) {
@@ -57,7 +72,62 @@ class OrderOfferModel extends Equatable {
       priceIsEstimate: json['price_is_estimate'] as bool? ?? true,
       requestedAt: DateTime.parse(json['requested_at'] as String),
       distanceToPickupKm: (json['distance_to_pickup_km'] as num).toDouble(),
+      pickupAddressDetails: textOrNull(json['pickup_address_details']),
+      dropoffAddressDetails: textOrNull(json['dropoff_address_details']),
+      note: textOrNull(json['note']),
+      passengersCount: countOrNull(json['passengers_count']),
     );
+  }
+
+  /// The same ride with the points, price and texts from an updated ride
+  /// payload (an office edit while the driver is on the trip). Fields the
+  /// payload leaves out keep their current value.
+  OrderOfferModel withUpdatedDetails(Map<String, dynamic> json) {
+    double numOr(String key, double fallback) =>
+        (json[key] as num?)?.toDouble() ?? fallback;
+    String? textOr(String key, String? fallback) =>
+        json.containsKey(key) ? textOrNull(json[key]) : fallback;
+    return OrderOfferModel(
+      rideId: rideId,
+      vehicleTypeId: (json['vehicle_type_id'] as num?)?.toInt() ?? vehicleTypeId,
+      pickupLat: numOr('pickup_lat', pickupLat),
+      pickupLng: numOr('pickup_lng', pickupLng),
+      pickupAddress: textOr('pickup_address', pickupAddress) ?? '',
+      dropoffLat: numOr('dropoff_lat', dropoffLat),
+      dropoffLng: numOr('dropoff_lng', dropoffLng),
+      dropoffAddress: textOr('dropoff_address', dropoffAddress) ?? '',
+      distanceKm: numOr('distance_km', distanceKm),
+      estimatedDurationMin:
+          (json['estimated_duration_min'] as num?)?.toInt() ?? estimatedDurationMin,
+      estimatedPrice: numOr('estimated_price', estimatedPrice),
+      priceIsEstimate: priceIsEstimate,
+      requestedAt: requestedAt,
+      distanceToPickupKm: distanceToPickupKm,
+      pickupAddressDetails: textOr('pickup_address_details', pickupAddressDetails),
+      dropoffAddressDetails: textOr('dropoff_address_details', dropoffAddressDetails),
+      note: textOr('note', note),
+      passengersCount: json.containsKey('passengers_count')
+          ? countOrNull(json['passengers_count'])
+          : passengersCount,
+    );
+  }
+
+  /// The same ride once the number of passengers is known.
+  OrderOfferModel withPassengersCount(int? count) =>
+      withUpdatedDetails({'passengers_count': count});
+
+  /// A positive whole number, or null.
+  static int? countOrNull(Object? value) {
+    if (value is! num) return null;
+    final count = value.toInt();
+    return count > 0 ? count : null;
+  }
+
+  /// A trimmed, non-empty string, or null.
+  static String? textOrNull(Object? value) {
+    if (value is! String) return null;
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   @override
@@ -76,5 +146,9 @@ class OrderOfferModel extends Equatable {
         priceIsEstimate,
         requestedAt,
         distanceToPickupKm,
+        pickupAddressDetails,
+        dropoffAddressDetails,
+        note,
+        passengersCount,
       ];
 }

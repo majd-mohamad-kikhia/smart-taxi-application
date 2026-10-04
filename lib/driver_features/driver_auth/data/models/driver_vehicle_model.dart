@@ -1,5 +1,23 @@
 import 'package:equatable/equatable.dart';
 
+/// Who owns the driver's car — `vehicle.ownership` in swagger.
+enum VehicleOwnership {
+  owner('owner'),
+  company('company');
+
+  final String wireValue;
+
+  const VehicleOwnership(this.wireValue);
+
+  /// Null for a car registered before the field existed.
+  static VehicleOwnership? fromWire(Object? value) {
+    for (final ownership in values) {
+      if (ownership.wireValue == value) return ownership;
+    }
+    return null;
+  }
+}
+
 /// A driver's registered vehicle — mirrors `DriverVehicle` in
 /// swagger.json.
 class DriverVehicleModel extends Equatable {
@@ -11,6 +29,7 @@ class DriverVehicleModel extends Equatable {
   final String color;
   final String plateNumber;
   final String? photoUrl;
+  final VehicleOwnership? ownership;
 
   const DriverVehicleModel({
     required this.id,
@@ -21,6 +40,7 @@ class DriverVehicleModel extends Equatable {
     required this.color,
     required this.plateNumber,
     this.photoUrl,
+    this.ownership,
   });
 
   factory DriverVehicleModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +53,7 @@ class DriverVehicleModel extends Equatable {
       color: json['color'] as String,
       plateNumber: json['plate_number'] as String,
       photoUrl: json['photo_url'] as String?,
+      ownership: VehicleOwnership.fromWire(json['ownership']),
     );
   }
 
@@ -46,5 +67,6 @@ class DriverVehicleModel extends Equatable {
         color,
         plateNumber,
         photoUrl,
+        ownership,
       ];
 }

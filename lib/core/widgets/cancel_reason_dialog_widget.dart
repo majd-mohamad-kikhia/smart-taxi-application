@@ -7,13 +7,13 @@ import '../injection/injection.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/account_block_model.dart';
-import '../theme/app_colors.dart';
 import 'app_animated_dialog.dart';
 import 'app_choice_chip_widget.dart';
 import 'app_destructive_button_widget.dart';
 import 'app_dialog_layout_widget.dart';
 import 'app_neutral_button_widget.dart';
 import 'auth_error_banner_widget.dart';
+import 'warning_notice_widget.dart';
 
 /// The preset reasons offered when cancelling a trip, worded to fit both
 /// the customer and the driver.
@@ -39,13 +39,23 @@ enum _CancelReason {
 /// string on confirm, or `null` on dismiss/back out.
 ///
 /// When the account has a cancellation limit, the dialog also shows how
-/// many cancellations are used, since too many can block the account.
+/// many cancellations are used, since too many can block the account —
+/// unless [warning] replaces that notice, or [showCancelLimit] is false
+/// because this cancel can't count.
 class CancelReasonDialogWidget extends StatefulWidget {
   /// Defaults to the localized "Cancel trip" / reason prompt.
   final String? title;
   final String? message;
+  final String? warning;
+  final bool showCancelLimit;
 
-  const CancelReasonDialogWidget({super.key, this.title, this.message});
+  const CancelReasonDialogWidget({
+    super.key,
+    this.title,
+    this.message,
+    this.warning,
+    this.showCancelLimit = true,
+  });
 
   @override
   State<CancelReasonDialogWidget> createState() => _CancelReasonDialogWidgetState();
@@ -105,7 +115,13 @@ class _CancelReasonDialogWidgetState extends State<CancelReasonDialogWidget> {
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const _CancelLimitNoticeWidget(),
+            if (widget.warning != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppConstants.paddingL),
+                child: WarningNoticeWidget(message: widget.warning!),
+              )
+            else if (widget.showCancelLimit)
+              const _CancelLimitNoticeWidget(),
             Wrap(
               alignment: WrapAlignment.center,
               spacing: AppConstants.paddingS,
@@ -173,34 +189,9 @@ class _CancelLimitNoticeWidget extends StatelessWidget {
         final l10n = context.l10n;
         return Padding(
           padding: const EdgeInsets.only(bottom: AppConstants.paddingL),
-          child: Container(
-            padding: const EdgeInsets.all(AppConstants.paddingM),
-            decoration: BoxDecoration(
-              color: AppColors.accentSurface,
-              borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-              border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.warning_amber_rounded,
-                  color: AppColors.accent,
-                  size: 20,
-                ),
-                const SizedBox(width: AppConstants.paddingS),
-                Expanded(
-                  child: Text(
-                    '${l10n.cancelLimitWarning}\n'
-                    '${l10n.accountBlockedStrikes(block.cancelStrikes, block.strikeLimit)}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: AppColors.textPrimary),
-                  ),
-                ),
-              ],
-            ),
+          child: WarningNoticeWidget(
+            message: '${l10n.cancelLimitWarning}\n'
+                '${l10n.accountBlockedStrikes(block.cancelStrikes, block.strikeLimit)}',
           ),
         );
       },

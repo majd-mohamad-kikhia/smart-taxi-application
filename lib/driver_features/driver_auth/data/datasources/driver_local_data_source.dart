@@ -40,6 +40,7 @@ class DriverLocalDataSource {
                 'color': driver.vehicle!.color,
                 'plate_number': driver.vehicle!.plateNumber,
                 'photo_url': driver.vehicle!.photoUrl,
+                'ownership': driver.vehicle!.ownership?.wireValue,
               },
         'access_token': driver.accessToken,
         'refresh_token': driver.refreshToken,
@@ -75,6 +76,7 @@ class DriverLocalDataSource {
               color: vehicleJson['color'] as String,
               plateNumber: vehicleJson['plate_number'] as String,
               photoUrl: vehicleJson['photo_url'] as String?,
+              ownership: VehicleOwnership.fromWire(vehicleJson['ownership']),
             )
           : null,
       accessToken: json['access_token'] as String,

@@ -3,6 +3,7 @@ import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../models/driver_active_ride_model.dart';
+import '../models/driver_ride_start_model.dart';
 import '../models/driver_trip_fare_model.dart';
 import '../models/driver_trip_payment_model.dart';
 import '../models/recorded_route_point_model.dart';
@@ -34,11 +35,18 @@ class DriverTripRemoteDataSource {
     return _waitingOf(response.data);
   }
 
-  /// accepted / arrived → in_progress. Returns the stopped waiting timer
-  /// with the final fee, or null when the driver never tapped arrived.
-  Future<RideWaitingModel?> startRide(int rideId) async {
-    final response = await _dio.post(_endpoints.driverRideStart(rideId));
-    return _waitingOf(response.data);
+  /// accepted / arrived → in_progress, with the number of people who got in
+  /// when the order has none yet. Returns the stopped waiting timer and the
+  /// saved number.
+  Future<DriverRideStartModel> startRide(int rideId, {int? passengersCount}) async {
+    final response = await _dio.post(
+      _endpoints.driverRideStart(rideId),
+      data: {'passengers_count': ?passengersCount},
+    );
+    final data = response.data is Map ? (response.data as Map)['data'] : null;
+    return data is Map
+        ? DriverRideStartModel.fromRideJson(Map<String, dynamic>.from(data))
+        : const DriverRideStartModel();
   }
 
   /// in_progress → paused (the status stays in_progress). Returns the

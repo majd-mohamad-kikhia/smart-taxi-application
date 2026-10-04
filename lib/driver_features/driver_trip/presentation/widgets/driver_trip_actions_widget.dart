@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../cubit/driver_trip_cubit.dart';
 import '../cubit/driver_trip_state.dart';
+import 'passengers_count_dialog_widget.dart';
 
 /// Action buttons for the active ride, driven by [DriverTripStatus]. Each
 /// phase has exactly one yellow primary: "I've arrived" (accepted), Start
@@ -59,7 +60,7 @@ class DriverTripActionsWidget extends StatelessWidget {
               Expanded(
                 child: AppNeutralButtonWidget(
                   label: l10n.driverStartedTheTrip,
-                  onPressed: _isBusy ? null : cubit.startRide,
+                  onPressed: _isBusy ? null : () => _start(context, cubit),
                 ),
               ),
             ],
@@ -69,7 +70,7 @@ class DriverTripActionsWidget extends StatelessWidget {
           AuthPrimaryButtonWidget(
             label: l10n.driverStartedTheTrip,
             isLoading: false,
-            onPressed: _isBusy ? null : cubit.startRide,
+            onPressed: _isBusy ? null : () => _start(context, cubit),
           ),
           const SizedBox(height: AppConstants.paddingM),
           _cancelButton(context),
@@ -155,6 +156,17 @@ class DriverTripActionsWidget extends StatelessWidget {
           Expanded(flex: 3, child: finish),
         ],
       ),
+    );
+  }
+
+  /// A customer app order asks how many got in first; an office order
+  /// already shows the reception's number and starts straight away.
+  Future<void> _start(BuildContext context, DriverTripCubit cubit) async {
+    if (!cubit.state.needsPassengersCount) return cubit.startRide();
+    return showPassengersCountDialog(
+      context: context,
+      max: DriverTripState.maxPickablePassengers,
+      onConfirm: (count) => cubit.startRide(passengersCount: count),
     );
   }
 

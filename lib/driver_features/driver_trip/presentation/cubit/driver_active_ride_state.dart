@@ -1,13 +1,24 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/driver_active_ride_model.dart';
 
-/// Result of asking the server whether the driver still has a ride to
-/// resume. [ride] is set only once, when there is one to go back to.
+/// A ride the shell should open the trip screen for: one left over from
+/// before the app closed, or one the office just assigned to the driver.
+/// [version] grows with every ride to open, so the same ride can be opened
+/// again after its screen was closed.
 class DriverActiveRideState extends Equatable {
   final DriverActiveRideModel? ride;
 
-  const DriverActiveRideState({this.ride});
+  /// The ride was sent over `driver:active_ride` rather than found at
+  /// startup — usually an office assignment.
+  final bool isAssigned;
+  final int version;
+
+  const DriverActiveRideState({
+    this.ride,
+    this.isAssigned = false,
+    this.version = 0,
+  });
 
   @override
-  List<Object?> get props => [ride];
+  List<Object?> get props => [ride, isAssigned, version];
 }

@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../../../../core/widgets/live_trip_map_widget.dart';
+import '../../../../core/widgets/order_route_details_widget.dart';
 import '../../../../core/widgets/ride_waiting_timer_widget.dart';
 import '../../../../core/widgets/trip_fees_overlay_widget.dart';
 import '../../data/models/driver_active_ride_model.dart';
@@ -16,7 +17,6 @@ import '../cubit/driver_trip_state.dart';
 import '../widgets/driver_fare_dialog_widget.dart';
 import '../widgets/driver_pickup_map_widget.dart';
 import '../widgets/driver_trip_actions_widget.dart';
-
 /// The driver's active-ride screen right after accepting an order: a map
 /// centered on the pickup point, plus the trip actions: optional arrived,
 /// start ride, finish, and cancel (with a required reason). Back
@@ -95,6 +95,15 @@ class _DriverTripView extends StatelessWidget {
                 type: AppSnackBarType.error,
               ),
             ),
+            BlocListener<DriverTripCubit, DriverTripState>(
+              listenWhen: (previous, current) =>
+                  current.detailsUpdateCount > previous.detailsUpdateCount,
+              listener: (context, state) => showAppSnackBar(
+                context,
+                context.l10n.tripDetailsUpdated,
+                type: AppSnackBarType.warning,
+              ),
+            ),
           ],
           child: BlocBuilder<DriverTripCubit, DriverTripState>(
             builder: (context, state) {
@@ -170,11 +179,30 @@ class _InProgressView extends StatelessWidget {
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: DriverTripActionsWidget(
-                status: state.status,
-                isUpdating: state.isUpdating,
-                isCancelling: state.isCancelling,
-                isPaused: state.isPaused,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.backgroundWhite,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: OrderRouteDetailsWidget(
+                      order: state.order,
+                      showPickup: false,
+                    ),
+                  ),
+                  DriverTripActionsWidget(
+                    status: state.status,
+                    isUpdating: state.isUpdating,
+                    isCancelling: state.isCancelling,
+                    isPaused: state.isPaused,
+                  ),
+                ],
               ),
             ),
           ),
@@ -213,28 +241,7 @@ class _BottomPanel extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.radio_button_checked_rounded,
-                    color: AppColors.success,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      state.order.pickupAddress,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
+              OrderRouteDetailsWidget(order: state.order),
               if (state.status == DriverTripStatus.arrived && state.waiting != null) ...[
                 const SizedBox(height: 12),
                 RideWaitingTimerWidget(waiting: state.waiting!),

@@ -33,7 +33,7 @@ class RidePauseTimerWidget extends StatelessWidget {
         final l10n = context.l10n;
         final snapshot = pause.snapshotAt(DateTime.now());
         if (snapshot == null) return const SizedBox.shrink();
-        String price(double amount) => l10n.priceSyp(formatPrice(amount));
+        String price(double amount) => formatSyp(l10n, amount);
 
         final isCharged = running.baseFee > 0 || running.pricePerMinute > 0;
         final isIncluded = snapshot.isIncluded;

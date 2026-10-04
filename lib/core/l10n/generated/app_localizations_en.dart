@@ -144,6 +144,24 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String priceSypNewOld(String amount, String oldAmount) {
+    return '$amount new SYP ($oldAmount old)';
+  }
+
+  @override
+  String priceSypNew(String amount) {
+    return '$amount new SYP';
+  }
+
+  @override
+  String priceSypOld(String amount) {
+    return '$amount old SYP';
+  }
+
+  @override
+  String get priceSypNewCurrency => 'new SYP';
+
+  @override
   String get phoneNumber => 'Phone number';
 
   @override
@@ -1374,5 +1392,263 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String accountBlockedStrikes(int count, int limit) {
     return 'Cancellations: $count of $limit';
+  }
+
+  @override
+  String get savedAddressesTitle => 'Saved places';
+
+  @override
+  String get savedAddressHome => 'Home';
+
+  @override
+  String get savedAddressWork => 'Work';
+
+  @override
+  String get savedAddressOther => 'Other';
+
+  @override
+  String get savedAddressAddHome => 'Add home';
+
+  @override
+  String get savedAddressAddWork => 'Add work';
+
+  @override
+  String get savedAddressOtherPlaces => 'Other places';
+
+  @override
+  String get savedAddressAddPlace => 'Add a place';
+
+  @override
+  String savedAddressReplaced(String type) {
+    return '$type address updated';
+  }
+
+  @override
+  String get savedAddressSaved => 'Place saved';
+
+  @override
+  String savedAddressDeleteTitle(String name) {
+    return 'Delete \"$name\"?';
+  }
+
+  @override
+  String savedAddressAddTitle(String type) {
+    return 'Add $type';
+  }
+
+  @override
+  String savedAddressEditTitle(String name) {
+    return 'Edit $name';
+  }
+
+  @override
+  String get savedAddressLocation => 'Location';
+
+  @override
+  String get savedAddressPickOnMap => 'Choose on the map';
+
+  @override
+  String get savedAddressLabel => 'Name';
+
+  @override
+  String get savedAddressLabelHint => 'e.g. Gym, Mom\'s house';
+
+  @override
+  String get savedAddressLabelRequired => 'Give this place a name';
+
+  @override
+  String get addressDetailsLabel => 'Address details (optional)';
+
+  @override
+  String get addressDetailsHint => 'Building, floor, landmark…';
+
+  @override
+  String get rideWhenLabel => 'When';
+
+  @override
+  String get rideWhenNow => 'Now';
+
+  @override
+  String get rideWhenLater => 'Later';
+
+  @override
+  String get rideWhenChange => 'Change time';
+
+  @override
+  String get rideScheduleOutOfRange =>
+      'Pick a time between 30 minutes and 7 days from now';
+
+  @override
+  String scheduleVehicle(String name, String price) {
+    return 'Schedule $name · $price';
+  }
+
+  @override
+  String get rideNoteLabel => 'Note for the driver';
+
+  @override
+  String get rideNoteHint => 'e.g. I\'m at the main gate';
+
+  @override
+  String rideScheduledFor(String time) {
+    return 'Ride scheduled for $time';
+  }
+
+  @override
+  String get rideStatusScheduled => 'Scheduled';
+
+  @override
+  String rideScheduledAt(String time) {
+    return 'Scheduled for $time';
+  }
+
+  @override
+  String get cancelScheduledRide => 'Cancel scheduled ride';
+
+  @override
+  String get trackRide => 'Track ride';
+
+  @override
+  String get tripDetailsUpdated => 'Trip details updated';
+
+  @override
+  String get tripAssignedToYou => 'A trip has been assigned to you';
+
+  @override
+  String get vehicleOwnership => 'Ownership';
+
+  @override
+  String get vehicleOwnershipOwner => 'Owner';
+
+  @override
+  String get vehicleOwnershipCompany => 'Company';
+
+  @override
+  String get vehicleOwnershipUnknown => 'Not set';
+
+  @override
+  String get sharedOrderTitle => 'Order';
+
+  @override
+  String get sharedOrderAccept => 'Accept order';
+
+  @override
+  String get sharedOrderAvailable => 'You can accept this order';
+
+  @override
+  String sharedOrderOpensAt(String time) {
+    return 'Can be accepted from $time';
+  }
+
+  @override
+  String sharedOrderOpensIn(String time) {
+    return 'Opens in $time';
+  }
+
+  @override
+  String get sharedOrderNotOpenYet => 'This order can\'t be accepted yet';
+
+  @override
+  String get sharedOrderBusy => 'Finish your current trip first';
+
+  @override
+  String get sharedOrderGoToTrip => 'Go to my current trip';
+
+  @override
+  String sharedOrderWrongVehicle(String type) {
+    return 'This order needs a $type car';
+  }
+
+  @override
+  String get sharedOrderNoVehicle => 'Register your car first';
+
+  @override
+  String get sharedOrderNotActive => 'Your account is not active';
+
+  @override
+  String get sharedOrderBlocked => 'Your account is blocked for now';
+
+  @override
+  String get sharedOrderYours => 'This order is already yours';
+
+  @override
+  String get sharedOrderTaken =>
+      'This order was already taken by another driver';
+
+  @override
+  String get sharedOrderCancelled => 'This order was cancelled';
+
+  @override
+  String get sharedOrderUnavailable =>
+      'This order can\'t be accepted right now';
+
+  @override
+  String get sharedOrderInvalidLink => 'This link is not valid';
+
+  @override
+  String get sharedOrderAcceptFailed => 'Couldn\'t accept the order. Try again';
+
+  @override
+  String get sharedOrderDriversOnly => 'Open this link with a driver account';
+
+  @override
+  String passengersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count passengers',
+      one: '1 passenger',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passengersCountQuestion => 'How many passengers?';
+
+  @override
+  String get fieldPassengersCount => 'Number of passengers';
+
+  @override
+  String get guidePassengersCount =>
+      'This car can\'t take that many passengers. Check the number';
+
+  @override
+  String get orderingBlockedTitle => 'Ordering is paused';
+
+  @override
+  String get cancelCountedTitle => 'This cancel counted';
+
+  @override
+  String get gotIt => 'Got it';
+
+  @override
+  String accountBlockedEndsIn(String time) {
+    return 'Ends in $time';
+  }
+
+  @override
+  String countdownWithDays(int days, String time) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '$_temp0 $time';
+  }
+
+  @override
+  String cancelStrikeWarning(int count, int limit, int hours) {
+    return 'Cancelling after a driver accepted counts against you ($count of $limit). At $limit you can\'t order for $hours hours. Cancel anyway?';
+  }
+
+  @override
+  String cancelStrikeWarningLast(int count, int limit, int hours) {
+    return 'You\'ve cancelled $count of $limit after a driver accepted. This cancel will pause ordering for $hours hours. Cancel anyway?';
+  }
+
+  @override
+  String cancelStrikeWarningUnknown(int hours) {
+    return 'Cancelling after a driver accepted counts against you. Too many and you can\'t order for $hours hours. Cancel anyway?';
   }
 }

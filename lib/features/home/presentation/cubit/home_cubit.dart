@@ -1,17 +1,23 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/account_block/account_block_cubit.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/session/session_cubit.dart';
+import '../../data/models/ride_booking_options_model.dart';
 import '../../data/repositories/ride_request_repository.dart';
 import 'home_state.dart';
 
 /// Cubit driving the "create request" order flow:
 /// pick two points → resolve a price quote per vehicle type → choose a
-/// vehicle (which creates the ride) → cancel it.
+/// vehicle (which creates the ride) → cancel it. A refused order or a
+/// counted cancel is handed to [AccountBlockCubit], which blocks ordering
+/// and shows the server's text.
 class HomeCubit extends Cubit<HomeState> {
   final SessionCubit _sessionCubit;
   final RideRequestRepository _repository;
+  final AccountBlockCubit _accountBlock;
 
-  HomeCubit(this._sessionCubit, this._repository) : super(HomeState.initial());
+  HomeCubit(this._sessionCubit, this._repository, this._accountBlock)
+      : super(HomeState.initial());
 
   void initialize() {
     if (isClosed) return;
@@ -48,12 +54,14 @@ class HomeCubit extends Cubit<HomeState> {
       emit(state.copyWith(isSearching: false, quote: quote));
     } on RideRequestException catch (e) {
       if (isClosed) return;
-      emit(state.copyWith(isSearching: false, errorMessage: e.message));
+      emit(state.copyWith(isSearching: false, errorMessage: _errorFor(e)));
     }
   }
 
-  /// Order flow step 2 — creates the ride with the chosen vehicle type.
-  Future<void> chooseVehicle(int vehicleTypeId) async {
+  /// Order flow step 2 — creates the ride with the chosen vehicle type. A
+  /// scheduled ride doesn't become the live ride: the form resets and
+  /// [HomeState.scheduledRide] tells the screen to confirm it.
+  Future<void> chooseVehicle(RideBookingOptionsModel options) async {
     final from = state.fromLocation;
     final to = state.toLocation;
     if (from == null || to == null || isClosed) return;
@@ -61,16 +69,31 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(isBooking: true, clearError: true));
     try {
       final ride = await _repository.chooseVehicle(
-        vehicleTypeId: vehicleTypeId,
+        options: options,
         pickup: from,
         dropoff: to,
       );
       if (isClosed) return;
+      if (ride.isScheduled) {
+        emit(state.copyWith(
+          isBooking: false,
+          scheduledRide: ride,
+          clearQuote: true,
+          clearLocations: true,
+        ));
+        return;
+      }
       emit(state.copyWith(isBooking: false, activeRide: ride));
     } on RideRequestException catch (e) {
       if (isClosed) return;
-      emit(state.copyWith(isBooking: false, errorMessage: e.message));
+      emit(state.copyWith(isBooking: false, errorMessage: _errorFor(e)));
     }
+  }
+
+  /// The screen has confirmed the scheduled ride to the customer.
+  void acknowledgeScheduledRide() {
+    if (isClosed || state.scheduledRide == null) return;
+    emit(state.copyWith(clearScheduledRide: true));
   }
 
   /// Resets the order flow once `RideTrackingScreen` has ended the ride
@@ -87,10 +110,12 @@ class HomeCubit extends Cubit<HomeState> {
 
     emit(state.copyWith(isCancelling: true, clearError: true));
     try {
-      await _repository.cancelRide(
+      final cancelled = await _repository.cancelRide(
         rideId: ride.id,
         cancellationReason: reason,
       );
+      final penalty = cancelled.cancelPenalty;
+      if (penalty != null) _accountBlock.applyCancelPenalty(penalty);
       if (isClosed) return;
       emit(state.copyWith(
         isCancelling: false,
@@ -101,5 +126,14 @@ class HomeCubit extends Cubit<HomeState> {
       if (isClosed) return;
       emit(state.copyWith(isCancelling: false, errorMessage: e.message));
     }
+  }
+
+  /// A refused order blocks ordering instead: the blocked panel and dialog
+  /// show the server's text, so no error banner on top of it.
+  String? _errorFor(RideRequestException e) {
+    final block = e.block;
+    if (block == null) return e.message;
+    _accountBlock.applyOrderRefusal(block);
+    return null;
   }
 }

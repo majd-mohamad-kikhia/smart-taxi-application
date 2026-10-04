@@ -143,6 +143,24 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String priceSypNewOld(String amount, String oldAmount) {
+    return '$amount ل.س جديدة ($oldAmount قديمة)';
+  }
+
+  @override
+  String priceSypNew(String amount) {
+    return '$amount ل.س جديدة';
+  }
+
+  @override
+  String priceSypOld(String amount) {
+    return '$amount ل.س قديمة';
+  }
+
+  @override
+  String get priceSypNewCurrency => 'ل.س جديدة';
+
+  @override
   String get phoneNumber => 'رقم الجوال';
 
   @override
@@ -1356,5 +1374,265 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String accountBlockedStrikes(int count, int limit) {
     return 'الإلغاءات: $count من $limit';
+  }
+
+  @override
+  String get savedAddressesTitle => 'الأماكن المحفوظة';
+
+  @override
+  String get savedAddressHome => 'المنزل';
+
+  @override
+  String get savedAddressWork => 'العمل';
+
+  @override
+  String get savedAddressOther => 'مكان آخر';
+
+  @override
+  String get savedAddressAddHome => 'أضف المنزل';
+
+  @override
+  String get savedAddressAddWork => 'أضف العمل';
+
+  @override
+  String get savedAddressOtherPlaces => 'أماكن أخرى';
+
+  @override
+  String get savedAddressAddPlace => 'أضف مكاناً';
+
+  @override
+  String savedAddressReplaced(String type) {
+    return 'تم تحديث عنوان $type';
+  }
+
+  @override
+  String get savedAddressSaved => 'تم حفظ المكان';
+
+  @override
+  String savedAddressDeleteTitle(String name) {
+    return 'حذف \"$name\"؟';
+  }
+
+  @override
+  String savedAddressAddTitle(String type) {
+    return 'إضافة $type';
+  }
+
+  @override
+  String savedAddressEditTitle(String name) {
+    return 'تعديل $name';
+  }
+
+  @override
+  String get savedAddressLocation => 'الموقع';
+
+  @override
+  String get savedAddressPickOnMap => 'اختر على الخريطة';
+
+  @override
+  String get savedAddressLabel => 'الاسم';
+
+  @override
+  String get savedAddressLabelHint => 'مثال: النادي، بيت الأهل';
+
+  @override
+  String get savedAddressLabelRequired => 'أدخل اسماً لهذا المكان';
+
+  @override
+  String get addressDetailsLabel => 'تفاصيل العنوان (اختياري)';
+
+  @override
+  String get addressDetailsHint => 'المبنى، الطابق، علامة مميزة…';
+
+  @override
+  String get rideWhenLabel => 'متى';
+
+  @override
+  String get rideWhenNow => 'الآن';
+
+  @override
+  String get rideWhenLater => 'لاحقاً';
+
+  @override
+  String get rideWhenChange => 'تغيير الوقت';
+
+  @override
+  String get rideScheduleOutOfRange =>
+      'اختر وقتاً بين 30 دقيقة و7 أيام من الآن';
+
+  @override
+  String scheduleVehicle(String name, String price) {
+    return 'احجز $name · $price';
+  }
+
+  @override
+  String get rideNoteLabel => 'ملاحظة للسائق';
+
+  @override
+  String get rideNoteHint => 'مثال: أنا عند البوابة الرئيسية';
+
+  @override
+  String rideScheduledFor(String time) {
+    return 'تمت جدولة الرحلة في $time';
+  }
+
+  @override
+  String get rideStatusScheduled => 'مجدولة';
+
+  @override
+  String rideScheduledAt(String time) {
+    return 'مجدولة في $time';
+  }
+
+  @override
+  String get cancelScheduledRide => 'إلغاء الرحلة المجدولة';
+
+  @override
+  String get trackRide => 'تتبع الرحلة';
+
+  @override
+  String get tripDetailsUpdated => 'تم تحديث تفاصيل الرحلة';
+
+  @override
+  String get tripAssignedToYou => 'تم إسناد رحلة إليك';
+
+  @override
+  String get vehicleOwnership => 'الملكية';
+
+  @override
+  String get vehicleOwnershipOwner => 'ملك السائق';
+
+  @override
+  String get vehicleOwnershipCompany => 'ملك الشركة';
+
+  @override
+  String get vehicleOwnershipUnknown => 'غير محدد';
+
+  @override
+  String get sharedOrderTitle => 'الطلب';
+
+  @override
+  String get sharedOrderAccept => 'قبول الطلب';
+
+  @override
+  String get sharedOrderAvailable => 'يمكنك قبول هذا الطلب';
+
+  @override
+  String sharedOrderOpensAt(String time) {
+    return 'يمكن قبول الطلب ابتداءً من $time';
+  }
+
+  @override
+  String sharedOrderOpensIn(String time) {
+    return 'يُفتح بعد $time';
+  }
+
+  @override
+  String get sharedOrderNotOpenYet => 'لا يمكن قبول هذا الطلب بعد';
+
+  @override
+  String get sharedOrderBusy => 'أنهِ رحلتك الحالية أولاً';
+
+  @override
+  String get sharedOrderGoToTrip => 'الذهاب إلى رحلتي الحالية';
+
+  @override
+  String sharedOrderWrongVehicle(String type) {
+    return 'هذا الطلب يحتاج سيارة $type';
+  }
+
+  @override
+  String get sharedOrderNoVehicle => 'سجّل سيارتك أولاً';
+
+  @override
+  String get sharedOrderNotActive => 'حسابك غير مفعّل';
+
+  @override
+  String get sharedOrderBlocked => 'حسابك موقوف مؤقتاً';
+
+  @override
+  String get sharedOrderYours => 'هذا الطلب لك بالفعل';
+
+  @override
+  String get sharedOrderTaken => 'تم أخذ هذا الطلب من سائق آخر';
+
+  @override
+  String get sharedOrderCancelled => 'تم إلغاء هذا الطلب';
+
+  @override
+  String get sharedOrderUnavailable => 'لا يمكن قبول هذا الطلب الآن';
+
+  @override
+  String get sharedOrderInvalidLink => 'الرابط غير صالح';
+
+  @override
+  String get sharedOrderAcceptFailed => 'تعذّر قبول الطلب. حاول مرة أخرى';
+
+  @override
+  String get sharedOrderDriversOnly => 'افتح هذا الرابط بحساب سائق';
+
+  @override
+  String passengersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count راكبًا',
+      few: '$count ركاب',
+      two: 'راكبان',
+      one: 'راكب واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passengersCountQuestion => 'كم عدد الركاب؟';
+
+  @override
+  String get fieldPassengersCount => 'عدد الركاب';
+
+  @override
+  String get guidePassengersCount =>
+      'هذه السيارة لا تتسع لهذا العدد من الركاب. تأكد من العدد';
+
+  @override
+  String get orderingBlockedTitle => 'طلب الرحلات متوقف مؤقتاً';
+
+  @override
+  String get cancelCountedTitle => 'تم احتساب هذا الإلغاء';
+
+  @override
+  String get gotIt => 'حسناً';
+
+  @override
+  String accountBlockedEndsIn(String time) {
+    return 'ينتهي خلال $time';
+  }
+
+  @override
+  String countdownWithDays(int days, String time) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days يوماً',
+      few: '$days أيام',
+      two: 'يومان',
+      one: 'يوم',
+    );
+    return '$_temp0 $time';
+  }
+
+  @override
+  String cancelStrikeWarning(int count, int limit, int hours) {
+    return 'إلغاء الطلب بعد قبول السائق يُحسب عليك (ألغيت $count من $limit). عند الوصول إلى $limit لن تستطيع الطلب لمدة $hours ساعة. هل تريد الإلغاء؟';
+  }
+
+  @override
+  String cancelStrikeWarningLast(int count, int limit, int hours) {
+    return 'ألغيت $count من $limit بعد قبول السائق. هذا الإلغاء سيوقف الطلب من حسابك لمدة $hours ساعة. هل تريد الإلغاء؟';
+  }
+
+  @override
+  String cancelStrikeWarningUnknown(int hours) {
+    return 'إلغاء الطلب بعد قبول السائق يُحسب عليك. عند تكرار ذلك لن تستطيع الطلب لمدة $hours ساعة. هل تريد الإلغاء؟';
   }
 }

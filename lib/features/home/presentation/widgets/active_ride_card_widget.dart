@@ -4,7 +4,7 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/price_text_widget.dart';
 
 /// Summary of the ride the customer just requested — its status and
 /// estimated price — shown in place of nothing while the order is live.
@@ -65,8 +65,9 @@ class ActiveRideCardWidget extends StatelessWidget {
             const SizedBox(height: AppConstants.paddingM),
             Row(
               children: [
-                Text(
-                  context.l10n.priceSyp(formatPrice(ride.price!)),
+                PriceTextWidget(
+                  price: ride.price!,
+                  alignment: CrossAxisAlignment.start,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,

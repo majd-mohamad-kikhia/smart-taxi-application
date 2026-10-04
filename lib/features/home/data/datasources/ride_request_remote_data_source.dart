@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/network/api_endpoints.dart';
+import '../models/ride_booking_options_model.dart';
 import '../models/ride_quote_model.dart';
 
 /// Remote data source for the customer order flow (see swagger.json,
@@ -34,16 +35,21 @@ class RideRequestRemoteDataSource {
     );
   }
 
+  /// A [scheduledAt] (30 min – 7 days ahead) creates a `scheduled` ride
+  /// (status 7) that the server offers to drivers 15 minutes before it.
   Future<RideModel> chooseVehicle({
-    required int vehicleTypeId,
+    required RideBookingOptionsModel options,
     required PickedLocationModel pickup,
     required PickedLocationModel dropoff,
   }) async {
+    final note = options.note?.trim();
     final response = await _dio.post(
       _endpoints.customerRideChooseVehicle,
       data: {
-        'vehicle_type_id': vehicleTypeId,
+        'vehicle_type_id': options.vehicleTypeId,
         ..._locationsBody(pickup: pickup, dropoff: dropoff),
+        if (note != null && note.isNotEmpty) 'note': note,
+        'scheduled_at': ?options.scheduledAt?.toUtc().toIso8601String(),
       },
     );
     return RideModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -68,9 +74,11 @@ class RideRequestRemoteDataSource {
       'pickup_lat': pickup.latitude,
       'pickup_lng': pickup.longitude,
       'pickup_address': ?pickup.address,
+      'pickup_address_details': ?pickup.addressDetails,
       'dropoff_lat': dropoff.latitude,
       'dropoff_lng': dropoff.longitude,
       'dropoff_address': ?dropoff.address,
+      'dropoff_address_details': ?dropoff.addressDetails,
     };
   }
 }

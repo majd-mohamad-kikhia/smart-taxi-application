@@ -63,16 +63,17 @@ class CustomerRideSocketService {
   /// Cancels the order via the ack-based `customer:ride_cancel` event
   /// (faster than REST `POST /api/customer/rides/:id/cancel`, same rules —
   /// allowed while requested/accepted/arrived). Retries are safe: cancelling
-  /// an already-cancelled ride returns `ok: true`. [onResult] receives `ok`
-  /// and, on failure, the server's `error` message.
+  /// an already-cancelled ride returns `ok: true`. [onResult] receives `ok`,
+  /// on failure the server's `error` message, and on success the cancelled
+  /// `ride` (with its `cancel_penalty`).
   void cancelRide({
     required int rideId,
     String? cancellationReason,
-    required void Function(bool ok, String? error) onResult,
+    required void Function(bool ok, String? error, Map<String, dynamic>? ride) onResult,
   }) {
     final socket = _socket;
     if (_disposed || socket == null || !socket.connected) {
-      onResult(false, AppStrings.current.errNotConnected);
+      onResult(false, AppStrings.current.errNotConnected, null);
       return;
     }
     socket.emitWithAck(
@@ -83,7 +84,12 @@ class CustomerRideSocketService {
       },
       ack: (res) {
         final map = Map<String, dynamic>.from(res as Map);
-        onResult(map['ok'] == true, map['error'] as String?);
+        final ride = map['ride'];
+        onResult(
+          map['ok'] == true,
+          map['error'] as String?,
+          ride is Map ? Map<String, dynamic>.from(ride) : null,
+        );
       },
     );
   }

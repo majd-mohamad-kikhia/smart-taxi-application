@@ -4,6 +4,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/format_date.dart';
 import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/meta_item_widget.dart';
 import '../../data/models/ride_history_model.dart';
 import 'ride_route_widget.dart';
@@ -32,9 +33,11 @@ class TripCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
-    final date = formatDateTime(context, ride.requestedAt);
+    final date = ride.isScheduled && ride.scheduledAt != null
+        ? l10n.rideScheduledAt(formatUtcDateTime(context, ride.scheduledAt))
+        : formatDateTime(context, ride.requestedAt);
     final price = ride.shownPrice;
-    final priceText = price == null ? null : l10n.priceSyp(formatPrice(price));
+    final priceText = price == null ? null : formatSyp(l10n, price);
     final distance = ride.shownDistanceKm;
     final distanceText = distance == null
         ? null
@@ -94,8 +97,8 @@ class TripCardWidget extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            priceText,
+                          PriceTextWidget(
+                            price: price!,
                             style: textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w800,
                               color: AppColors.primary,

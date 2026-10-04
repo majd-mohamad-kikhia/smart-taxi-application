@@ -3,7 +3,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/fare_breakdown_widget.dart';
 
 /// Shown to the customer when the driver finishes the trip: how much to
@@ -65,9 +65,9 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
                 const SizedBox(height: AppConstants.paddingL),
                 FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Text(
-                    l10n.priceSyp(formatPrice(amount)),
-                    textAlign: TextAlign.center,
+                  child: PriceTextWidget(
+                    price: amount,
+                    alignment: CrossAxisAlignment.center,
                     style: textTheme.displayLarge?.copyWith(
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),

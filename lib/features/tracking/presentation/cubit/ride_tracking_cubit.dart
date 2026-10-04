@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/account_block/account_block_cubit.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/models/cancel_penalty_model.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/models/ride_model.dart';
@@ -34,12 +37,19 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
   /// `cancellation_reason` is capped at 255 characters by the server.
   static const int _maxCancellationReasonLength = 255;
 
+  /// How long the screen stays open for our own cancel's answer once the
+  /// ride already shows cancelled.
+  static const Duration _cancelAnswerWait = Duration(seconds: 6);
+
   final CustomerRideSocketService _socketService;
   final PlannedRouteLoader _routeLoader;
+  final AccountBlockCubit _accountBlock;
+  Timer? _cancelAnswerTimer;
 
   RideTrackingCubit(
     this._socketService,
-    this._routeLoader, {
+    this._routeLoader,
+    this._accountBlock, {
     required RideModel initialRide,
     required PickedLocationModel pickup,
     required PickedLocationModel dropoff,
@@ -183,6 +193,13 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
           fare: RideFareBreakdownModel.fromParent(data, fallbackFinalPrice: finalPrice),
         ));
       } else if (updatedRide.status == 'cancelled') {
+        if (state.isCancelling) {
+          // Our own cancel: closing now would drop the socket before its
+          // answer, which carries the cancel penalty.
+          emit(state.copyWith(ride: updatedRide));
+          _cancelAnswerTimer ??= Timer(_cancelAnswerWait, _exitWithoutCancelAnswer);
+          return;
+        }
         emit(state.copyWith(
           ride: updatedRide,
           exitReason: state.exitReason ?? RideTrackingExitReason.cancelledByServer,
@@ -234,8 +251,10 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
   }
 
   /// Cancels the ride over the socket (`customer:ride_cancel`). On success
-  /// the screen closes; on failure [RideTrackingState.cancelError] carries
-  /// the server's message and the customer can retry.
+  /// the screen closes and a counted cancel (a driver had accepted) goes to
+  /// [AccountBlockCubit], which shows the server's warning or block. On
+  /// failure [RideTrackingState.cancelError] carries the server's message
+  /// and the customer can retry.
   void submitCancellation(String reason) {
     if (isClosed || state.isCancelling) return;
     emit(state.copyWith(isCancelling: true, clearCancelError: true));
@@ -244,26 +263,43 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
       cancellationReason: reason.length > _maxCancellationReasonLength
           ? reason.substring(0, _maxCancellationReasonLength)
           : reason,
-      onResult: (ok, error) {
+      onResult: (ok, error, ride) {
         if (isClosed) return;
-        if (!ok) {
+        _cancelAnswerTimer?.cancel();
+        _cancelAnswerTimer = null;
+        if (!ok && state.ride.status != 'cancelled') {
           emit(state.copyWith(
             isCancelling: false,
             cancelError: error ?? AppStrings.current.errUnexpected,
           ));
           return;
         }
-        // The `cancelled` status event may already have closed the screen.
+        // The screen closes first, so the penalty dialog opens above home.
         emit(state.copyWith(
           isCancelling: false,
           exitReason: state.exitReason ?? RideTrackingExitReason.cancelledByUser,
         ));
+        final penalty = CancelPenaltyModel.fromRide(ride);
+        if (penalty != null) _accountBlock.applyCancelPenalty(penalty);
       },
     );
   }
 
+  /// The ride shows cancelled but our cancel's answer never came: close
+  /// anyway, and load the strikes / block from the server instead.
+  void _exitWithoutCancelAnswer() {
+    _cancelAnswerTimer = null;
+    if (isClosed || state.exitReason != null) return;
+    emit(state.copyWith(
+      isCancelling: false,
+      exitReason: RideTrackingExitReason.cancelledByUser,
+    ));
+    _accountBlock.refresh();
+  }
+
   @override
   Future<void> close() {
+    _cancelAnswerTimer?.cancel();
     _socketService.disconnect();
     return super.close();
   }

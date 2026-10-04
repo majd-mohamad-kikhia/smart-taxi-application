@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_constants.dart';
-import '../../../../core/models/picked_location_model.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../constants/app_constants.dart';
+import '../models/picked_location_model.dart';
+import '../theme/app_colors.dart';
 
 /// One of the "From" / "To" location-pick cards on the create-request
 /// screen. Styled as a distinct rounded card (icon chip + label + chosen
@@ -85,6 +85,18 @@ class LocationSelectButtonWidget extends StatelessWidget {
                             : AppColors.textTertiary,
                       ),
                     ),
+                    if (value?.addressDetails != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        value!.addressDetails!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

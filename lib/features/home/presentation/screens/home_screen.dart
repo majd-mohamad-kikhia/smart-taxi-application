@@ -6,17 +6,24 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/routing/app_router.dart';
+import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
+import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_cubit.dart';
+import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_state.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/format_date.dart';
 import '../../../../core/widgets/account_block_gate_widget.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
+import '../../data/models/ride_booking_options_model.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/active_ride_card_widget.dart';
-import '../widgets/location_select_button_widget.dart';
+import '../widgets/saved_address_chips_widget.dart';
+import '../../../../core/widgets/location_select_button_widget.dart';
 import '../widgets/vehicle_type_sheet_widget.dart';
 import 'location_picker_screen.dart';
 
@@ -27,8 +34,11 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<HomeCubit>(
-      create: (_) => sl<HomeCubit>()..initialize(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<HomeCubit>(create: (_) => sl<HomeCubit>()..initialize()),
+        BlocProvider<SavedAddressesCubit>.value(value: sl<SavedAddressesCubit>()),
+      ],
       child: const _HomeView(),
     );
   }
@@ -61,6 +71,21 @@ class _HomeView extends StatelessWidget {
                 previous.activeRide == null && current.activeRide != null,
             listener: (context, state) => _openTracking(context, state),
           ),
+          // Scheduled for later: nothing to track yet, just confirm it.
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.scheduledRide == null && current.scheduledRide != null,
+            listener: (context, state) {
+              showAppSnackBar(
+                context,
+                context.l10n.rideScheduledFor(
+                  formatUtcDateTime(context, state.scheduledRide!.scheduledAt),
+                ),
+                type: AppSnackBarType.success,
+              );
+              context.read<HomeCubit>().acknowledgeScheduledRide();
+            },
+          ),
         ],
         child: BlocBuilder<HomeCubit, HomeState>(
           builder: (context, state) => _HomeBody(state: state),
@@ -73,7 +98,7 @@ class _HomeView extends StatelessWidget {
     final quote = state.quote;
     if (quote == null) return;
     final cubit = context.read<HomeCubit>();
-    final vehicleTypeId = await showModalBottomSheet<int>(
+    final options = await showModalBottomSheet<RideBookingOptionsModel>(
       context: context,
       backgroundColor: AppColors.neutralSurface,
       isScrollControlled: true,
@@ -88,7 +113,7 @@ class _HomeView extends StatelessWidget {
         dropoffLabel: state.toLocation?.displayLabel ?? '',
       ),
     );
-    if (vehicleTypeId != null) await cubit.chooseVehicle(vehicleTypeId);
+    if (options != null) await cubit.chooseVehicle(options);
   }
 
   Future<void> _openTracking(BuildContext context, HomeState state) async {
@@ -180,6 +205,12 @@ class _HomeBody extends StatelessWidget {
                                   .setFromLocation,
                             ),
                     ),
+                    if (!isLocked)
+                      _SavedChips(
+                        onSelected: (address) => context
+                            .read<HomeCubit>()
+                            .setFromLocation(address.toPickedLocation()),
+                      ),
                     const SizedBox(height: 14),
                     LocationSelectButtonWidget(
                       label: l10n.toLabel,
@@ -197,6 +228,12 @@ class _HomeBody extends StatelessWidget {
                               onPicked: context.read<HomeCubit>().setToLocation,
                             ),
                     ),
+                    if (!isLocked)
+                      _SavedChips(
+                        onSelected: (address) => context
+                            .read<HomeCubit>()
+                            .setToLocation(address.toPickedLocation()),
+                      ),
                     if (state.activeRide != null) ...[
                       const SizedBox(height: AppConstants.paddingXL),
                       ActiveRideCardWidget(ride: state.activeRide!),
@@ -242,7 +279,10 @@ class _HomeBody extends StatelessWidget {
     final reason = await showDialog<String>(
       context: context,
       builder: (_) =>
-          CancelReasonDialogWidget(title: context.l10n.cancelRequest),
+          CancelReasonDialogWidget(
+            title: context.l10n.cancelRequest,
+            showCancelLimit: false,
+          ),
     );
     if (reason != null) cubit.cancelRide(reason: reason);
   }
@@ -264,5 +304,23 @@ class _HomeBody extends StatelessWidget {
       ),
     );
     if (result != null) onPicked(result);
+  }
+}
+
+/// Saved places as quick picks; rebuilds only when the list changes.
+class _SavedChips extends StatelessWidget {
+  final ValueChanged<SavedAddressModel> onSelected;
+
+  const _SavedChips({required this.onSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<SavedAddressesCubit, SavedAddressesState, List<SavedAddressModel>>(
+      selector: (state) => state.addresses,
+      builder: (context, addresses) => SavedAddressChipsWidget(
+        addresses: addresses,
+        onSelected: onSelected,
+      ),
+    );
   }
 }

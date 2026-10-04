@@ -6,10 +6,11 @@ enum NotificationType {
   system;
 
   /// swagger.json documents `notification_type` as an app-defined key
-  /// (`ride_accepted`, `manager_message`, `manager_broadcast`, ...):
-  /// `ride_*` keys are trip updates, anything else is a system message.
+  /// (`ride_accepted`, `scheduled_ride_dispatched`, `manager_message`, ...):
+  /// `ride_*` / `scheduled_ride_*` keys are trip updates, anything else is a
+  /// system message.
   static NotificationType fromKey(String key) =>
-      key.startsWith('ride_') ? ride : system;
+      key.startsWith('ride_') || key.startsWith('scheduled_ride_') ? ride : system;
 }
 
 /// A single entry of `GET /api/customer/notifications` (swagger

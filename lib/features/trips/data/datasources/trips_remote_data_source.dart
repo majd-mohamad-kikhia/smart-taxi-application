@@ -39,4 +39,13 @@ class TripsRemoteDataSource {
       response.data['data'] as Map<String, dynamic>,
     );
   }
+
+  /// `POST /api/customer/rides/{id}/cancel` — also for a scheduled ride
+  /// (no cancel strike for those).
+  Future<void> cancelRide(int id, {String? cancellationReason}) {
+    return _dio.post(
+      _endpoints.customerRideCancel(id),
+      data: {'cancellation_reason': ?cancellationReason},
+    );
+  }
 }

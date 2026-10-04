@@ -17,6 +17,7 @@ class PlannedRouteLoader {
   List<RoutePointModel> _route = const [];
   bool _isLoading = false;
   DateTime? _lastAttemptAt;
+  int _generation = 0;
 
   PlannedRouteLoader(this._routeService);
 
@@ -36,6 +37,7 @@ class PlannedRouteLoader {
 
     _isLoading = true;
     _lastAttemptAt = DateTime.now();
+    final generation = _generation;
     try {
       final route = await _routeService.getRoute(
         fromLat: fromLat,
@@ -43,12 +45,20 @@ class PlannedRouteLoader {
         toLat: toLat,
         toLng: toLng,
       );
-      if (route.length >= 2) _route = route;
+      if (route.length >= 2 && generation == _generation) _route = route;
     } on RouteException catch (e) {
       debugPrint('PlannedRouteLoader: route request failed: $e');
     } finally {
       _isLoading = false;
     }
     return _route;
+  }
+
+  /// Forgets the cached route — for when the trip's points change. A
+  /// request already in flight for the old points is dropped.
+  void reset() {
+    _route = const [];
+    _lastAttemptAt = null;
+    _generation++;
   }
 }

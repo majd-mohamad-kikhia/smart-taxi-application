@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/deep_links/deep_link_service.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
@@ -50,10 +51,13 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
 
   void _onStateChanged(BuildContext context, DriverAuthState state) {
     if (state.status == DriverAuthStatus.success) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        AppRouter.driverHome,
-        (route) => false,
-      );
+      final navigator = Navigator.of(context);
+      navigator.pushNamedAndRemoveUntil(AppRouter.driverHome, (route) => false);
+      // An office order link opened before signing in.
+      final token = sl<DeepLinkService>().takePendingToken();
+      if (token != null) {
+        navigator.pushNamed(AppRouter.driverSharedOrder, arguments: token);
+      }
     }
   }
 

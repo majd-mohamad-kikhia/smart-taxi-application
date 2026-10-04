@@ -36,6 +36,10 @@ class HomeState extends Equatable {
   /// instead of "Search".
   final RideModel? activeRide;
 
+  /// A ride that was just scheduled for later — set until the screen has
+  /// confirmed it to the customer.
+  final RideModel? scheduledRide;
+
   final bool isCancelling;
   final String? errorMessage;
 
@@ -48,6 +52,7 @@ class HomeState extends Equatable {
     this.quote,
     required this.isBooking,
     this.activeRide,
+    this.scheduledRide,
     required this.isCancelling,
     this.errorMessage,
   });
@@ -79,11 +84,13 @@ class HomeState extends Equatable {
     RideQuoteModel? quote,
     bool? isBooking,
     RideModel? activeRide,
+    RideModel? scheduledRide,
     bool? isCancelling,
     String? errorMessage,
     bool clearError = false,
     bool clearQuote = false,
     bool clearActiveRide = false,
+    bool clearScheduledRide = false,
     bool clearLocations = false,
   }) {
     return HomeState(
@@ -95,6 +102,8 @@ class HomeState extends Equatable {
       quote: clearQuote ? null : (quote ?? this.quote),
       isBooking: isBooking ?? this.isBooking,
       activeRide: clearActiveRide ? null : (activeRide ?? this.activeRide),
+      scheduledRide:
+          clearScheduledRide ? null : (scheduledRide ?? this.scheduledRide),
       isCancelling: isCancelling ?? this.isCancelling,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
@@ -110,6 +119,7 @@ class HomeState extends Equatable {
         quote,
         isBooking,
         activeRide,
+        scheduledRide,
         isCancelling,
         errorMessage,
       ];

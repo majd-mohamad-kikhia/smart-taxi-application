@@ -24,6 +24,10 @@ class TripsRepository {
   Future<RideHistoryModel> getRide(int id, {bool simplify = false}) =>
       _guard(() => _remote.fetchRide(id, simplify: simplify));
 
+  Future<void> cancelRide(int id, {String? cancellationReason}) => _guard(
+        () => _remote.cancelRide(id, cancellationReason: cancellationReason),
+      );
+
   Future<T> _guard<T>(Future<T> Function() call) async {
     try {
       return await call();

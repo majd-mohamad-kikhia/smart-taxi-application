@@ -22,7 +22,7 @@ class TripFeesOverlayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    String price(double amount) => l10n.priceSyp(formatPrice(amount));
+    String price(double amount) => formatSyp(l10n, amount);
     final pause = this.pause;
     final isPaused = pause?.isPaused ?? false;
     final pauseTotal = pause?.totalFee ?? 0;

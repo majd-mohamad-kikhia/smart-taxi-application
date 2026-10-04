@@ -332,6 +332,30 @@ abstract class AppLocalizations {
   /// **'{amount} SYP'**
   String priceSyp(String amount);
 
+  /// A price in new Syrian pounds with the same price in old pounds (×100) after it.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} new SYP ({oldAmount} old)'**
+  String priceSypNewOld(String amount, String oldAmount);
+
+  /// No description provided for @priceSypNew.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} new SYP'**
+  String priceSypNew(String amount);
+
+  /// No description provided for @priceSypOld.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} old SYP'**
+  String priceSypOld(String amount);
+
+  /// No description provided for @priceSypNewCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'new SYP'**
+  String get priceSypNewCurrency;
+
   /// No description provided for @phoneNumber.
   ///
   /// In en, this message translates to:
@@ -2575,6 +2599,426 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancellations: {count} of {limit}'**
   String accountBlockedStrikes(int count, int limit);
+
+  /// No description provided for @savedAddressesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved places'**
+  String get savedAddressesTitle;
+
+  /// No description provided for @savedAddressHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get savedAddressHome;
+
+  /// No description provided for @savedAddressWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get savedAddressWork;
+
+  /// No description provided for @savedAddressOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get savedAddressOther;
+
+  /// No description provided for @savedAddressAddHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Add home'**
+  String get savedAddressAddHome;
+
+  /// No description provided for @savedAddressAddWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Add work'**
+  String get savedAddressAddWork;
+
+  /// No description provided for @savedAddressOtherPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Other places'**
+  String get savedAddressOtherPlaces;
+
+  /// No description provided for @savedAddressAddPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a place'**
+  String get savedAddressAddPlace;
+
+  /// No description provided for @savedAddressReplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} address updated'**
+  String savedAddressReplaced(String type);
+
+  /// No description provided for @savedAddressSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Place saved'**
+  String get savedAddressSaved;
+
+  /// No description provided for @savedAddressDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"?'**
+  String savedAddressDeleteTitle(String name);
+
+  /// No description provided for @savedAddressAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {type}'**
+  String savedAddressAddTitle(String type);
+
+  /// No description provided for @savedAddressEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {name}'**
+  String savedAddressEditTitle(String name);
+
+  /// No description provided for @savedAddressLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get savedAddressLocation;
+
+  /// No description provided for @savedAddressPickOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose on the map'**
+  String get savedAddressPickOnMap;
+
+  /// No description provided for @savedAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get savedAddressLabel;
+
+  /// No description provided for @savedAddressLabelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Gym, Mom\'s house'**
+  String get savedAddressLabelHint;
+
+  /// No description provided for @savedAddressLabelRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this place a name'**
+  String get savedAddressLabelRequired;
+
+  /// No description provided for @addressDetailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address details (optional)'**
+  String get addressDetailsLabel;
+
+  /// No description provided for @addressDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Building, floor, landmark…'**
+  String get addressDetailsHint;
+
+  /// No description provided for @rideWhenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get rideWhenLabel;
+
+  /// No description provided for @rideWhenNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get rideWhenNow;
+
+  /// No description provided for @rideWhenLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get rideWhenLater;
+
+  /// No description provided for @rideWhenChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change time'**
+  String get rideWhenChange;
+
+  /// No description provided for @rideScheduleOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a time between 30 minutes and 7 days from now'**
+  String get rideScheduleOutOfRange;
+
+  /// No description provided for @scheduleVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule {name} · {price}'**
+  String scheduleVehicle(String name, String price);
+
+  /// No description provided for @rideNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the driver'**
+  String get rideNoteLabel;
+
+  /// No description provided for @rideNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. I\'m at the main gate'**
+  String get rideNoteHint;
+
+  /// No description provided for @rideScheduledFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride scheduled for {time}'**
+  String rideScheduledFor(String time);
+
+  /// No description provided for @rideStatusScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get rideStatusScheduled;
+
+  /// No description provided for @rideScheduledAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled for {time}'**
+  String rideScheduledAt(String time);
+
+  /// No description provided for @cancelScheduledRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel scheduled ride'**
+  String get cancelScheduledRide;
+
+  /// No description provided for @trackRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Track ride'**
+  String get trackRide;
+
+  /// No description provided for @tripDetailsUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip details updated'**
+  String get tripDetailsUpdated;
+
+  /// No description provided for @tripAssignedToYou.
+  ///
+  /// In en, this message translates to:
+  /// **'A trip has been assigned to you'**
+  String get tripAssignedToYou;
+
+  /// No description provided for @vehicleOwnership.
+  ///
+  /// In en, this message translates to:
+  /// **'Ownership'**
+  String get vehicleOwnership;
+
+  /// No description provided for @vehicleOwnershipOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get vehicleOwnershipOwner;
+
+  /// No description provided for @vehicleOwnershipCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Company'**
+  String get vehicleOwnershipCompany;
+
+  /// No description provided for @vehicleOwnershipUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get vehicleOwnershipUnknown;
+
+  /// No description provided for @sharedOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get sharedOrderTitle;
+
+  /// No description provided for @sharedOrderAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept order'**
+  String get sharedOrderAccept;
+
+  /// No description provided for @sharedOrderAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'You can accept this order'**
+  String get sharedOrderAvailable;
+
+  /// No description provided for @sharedOrderOpensAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be accepted from {time}'**
+  String sharedOrderOpensAt(String time);
+
+  /// No description provided for @sharedOrderOpensIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens in {time}'**
+  String sharedOrderOpensIn(String time);
+
+  /// No description provided for @sharedOrderNotOpenYet.
+  ///
+  /// In en, this message translates to:
+  /// **'This order can\'t be accepted yet'**
+  String get sharedOrderNotOpenYet;
+
+  /// No description provided for @sharedOrderBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish your current trip first'**
+  String get sharedOrderBusy;
+
+  /// No description provided for @sharedOrderGoToTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to my current trip'**
+  String get sharedOrderGoToTrip;
+
+  /// No description provided for @sharedOrderWrongVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'This order needs a {type} car'**
+  String sharedOrderWrongVehicle(String type);
+
+  /// No description provided for @sharedOrderNoVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Register your car first'**
+  String get sharedOrderNoVehicle;
+
+  /// No description provided for @sharedOrderNotActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is not active'**
+  String get sharedOrderNotActive;
+
+  /// No description provided for @sharedOrderBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is blocked for now'**
+  String get sharedOrderBlocked;
+
+  /// No description provided for @sharedOrderYours.
+  ///
+  /// In en, this message translates to:
+  /// **'This order is already yours'**
+  String get sharedOrderYours;
+
+  /// No description provided for @sharedOrderTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was already taken by another driver'**
+  String get sharedOrderTaken;
+
+  /// No description provided for @sharedOrderCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was cancelled'**
+  String get sharedOrderCancelled;
+
+  /// No description provided for @sharedOrderUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This order can\'t be accepted right now'**
+  String get sharedOrderUnavailable;
+
+  /// No description provided for @sharedOrderInvalidLink.
+  ///
+  /// In en, this message translates to:
+  /// **'This link is not valid'**
+  String get sharedOrderInvalidLink;
+
+  /// No description provided for @sharedOrderAcceptFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t accept the order. Try again'**
+  String get sharedOrderAcceptFailed;
+
+  /// No description provided for @sharedOrderDriversOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Open this link with a driver account'**
+  String get sharedOrderDriversOnly;
+
+  /// How many people ride in the car.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 passenger} other{{count} passengers}}'**
+  String passengersCount(int count);
+
+  /// No description provided for @passengersCountQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How many passengers?'**
+  String get passengersCountQuestion;
+
+  /// No description provided for @fieldPassengersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of passengers'**
+  String get fieldPassengersCount;
+
+  /// No description provided for @guidePassengersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'This car can\'t take that many passengers. Check the number'**
+  String get guidePassengersCount;
+
+  /// No description provided for @orderingBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordering is paused'**
+  String get orderingBlockedTitle;
+
+  /// No description provided for @cancelCountedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This cancel counted'**
+  String get cancelCountedTitle;
+
+  /// No description provided for @gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get gotIt;
+
+  /// Countdown to the end of the block, e.g. 23:59:12.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends in {time}'**
+  String accountBlockedEndsIn(String time);
+
+  /// A countdown longer than a day: days, then H:MM:SS.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day} other{{days} days}} {time}'**
+  String countdownWithDays(int days, String time);
+
+  /// Before cancelling a ride a driver accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling after a driver accepted counts against you ({count} of {limit}). At {limit} you can\'t order for {hours} hours. Cancel anyway?'**
+  String cancelStrikeWarning(int count, int limit, int hours);
+
+  /// Before the cancel that will block ordering.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve cancelled {count} of {limit} after a driver accepted. This cancel will pause ordering for {hours} hours. Cancel anyway?'**
+  String cancelStrikeWarningLast(int count, int limit, int hours);
+
+  /// Before cancelling an accepted ride when the count isn't known.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling after a driver accepted counts against you. Too many and you can\'t order for {hours} hours. Cancel anyway?'**
+  String cancelStrikeWarningUnknown(int hours);
 }
 
 class _AppLocalizationsDelegate

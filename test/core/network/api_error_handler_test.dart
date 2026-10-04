@@ -65,6 +65,22 @@ void main() {
       });
     });
 
+    test('422 too many passengers for the car type', () {
+      final result = handle(
+        path: '/api/driver/rides/30/start',
+        statusCode: 422,
+        data: {
+          'success': false,
+          'message': 'comfort takes up to 4 passengers',
+          'errors': {
+            'passengers_count': 'comfort takes up to 4 passengers; choose van',
+            'allowed_vehicle_type_ids': [3],
+          },
+        },
+      );
+      expect(result.message, 'هذه السيارة لا تتسع لهذا العدد من الركاب. تأكد من العدد');
+    });
+
     test('404 "Route not found"', () {
       final result = handle(
         path: '/api/unknown',

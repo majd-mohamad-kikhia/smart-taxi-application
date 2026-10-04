@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/app_version/presentation/cubit/app_version_cubit.dart';
 import 'core/app_version/presentation/cubit/app_version_state.dart';
 import 'core/app_version/presentation/widgets/app_version_gate_widget.dart';
+import 'core/deep_links/shared_order_link_handler.dart';
 import 'core/injection/injection.dart';
 import 'core/l10n/generated/app_localizations.dart';
 import 'core/localization/l10n_context_extension.dart';
@@ -124,10 +125,15 @@ Future<void> _launch(String initialRoute) async {
     case AppVersionAllowed() || AppVersionChecking():
       runApp(MshoarApp(initialRoute: initialRoute));
   }
+
+  // After the app's navigator exists: the link that opened the app (if
+  // any) is read here, then every link tapped while it runs.
+  unawaited(sl<SharedOrderLinkHandler>().start());
 }
 
 /// The app shown while it starts up: just the splash, in the dark theme. It
-/// has no navigator routes or localization because it has no text.
+/// has no navigator routes or localization; its only text is the brand
+/// slogan, which is the same in every language.
 class _SplashApp extends StatelessWidget {
   const _SplashApp();
 

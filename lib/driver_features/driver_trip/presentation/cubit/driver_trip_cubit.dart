@@ -8,6 +8,8 @@ import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/services/planned_route_loader.dart';
 import '../../data/datasources/driver_trip_location_service.dart';
+import '../../data/datasources/open_trip_registry.dart';
+import '../../data/models/driver_active_ride_event_model.dart';
 import '../../data/models/driver_active_ride_model.dart';
 import '../../data/route_distance_calculator.dart';
 import '../../data/models/recorded_route_point_model.dart';
@@ -59,13 +61,19 @@ class DriverTripCubit extends Cubit<DriverTripState> {
   /// socket is down. Both can report the same cancel; the first one wins.
   late final List<StreamSubscription<Map<String, dynamic>>> _cancellationSubscriptions;
 
+  /// `driver:active_ride` — carries the office's edits to this trip.
+  late final StreamSubscription<Map<String, dynamic>> _rideUpdateSubscription;
+  final OpenTripRegistry _openTrips;
+
   DriverTripCubit(
     this._repository,
     this._locationService,
     this._routeLoader,
     this._routeRepository,
+    this._openTrips,
     Stream<Map<String, dynamic>> socketCancellations,
     Stream<Map<String, dynamic>> pushCancellations,
+    Stream<Map<String, dynamic>> socketRideUpdates,
     OrderOfferModel order, {
     DriverActiveRideModel? resume,
   }) : _resume = resume,
@@ -77,10 +85,43 @@ class DriverTripCubit extends Cubit<DriverTripState> {
            pause: resume?.pause,
          ),
        ) {
+    _openTrips.open(order.rideId);
     _cancellationSubscriptions = [
       socketCancellations.listen(_handleCancellation),
       pushCancellations.listen(_handleCancellation),
     ];
+    _rideUpdateSubscription = socketRideUpdates.listen(_handleRideUpdate);
+  }
+
+  /// Merges the server's copy of this ride into the open trip. The office
+  /// can move the points, change their details or the note until the trip
+  /// starts; a moved point means the planned route is fetched again.
+  void _handleRideUpdate(Map<String, dynamic> json) {
+    final event = DriverActiveRideEventModel.tryParse(json);
+    if (event == null ||
+        isClosed ||
+        event.rideId != state.order.rideId ||
+        state.isCancelled ||
+        state.status == DriverTripStatus.completed) {
+      return;
+    }
+    final current = state.order;
+    final updated = current.withUpdatedDetails(event.rideJson);
+    if (updated == current) return;
+    final pointsMoved = updated.pickupLat != current.pickupLat ||
+        updated.pickupLng != current.pickupLng ||
+        updated.dropoffLat != current.dropoffLat ||
+        updated.dropoffLng != current.dropoffLng;
+    if (pointsMoved) _routeLoader.reset();
+    emit(state.copyWith(
+      order: updated,
+      routePoints: pointsMoved ? const [] : null,
+      detailsUpdateCount:
+          event.detailsUpdated ? state.detailsUpdateCount + 1 : null,
+    ));
+    if (pointsMoved && state.status == DriverTripStatus.inProgress) {
+      _loadPlannedRoute();
+    }
   }
 
   void _handleCancellation(Map<String, dynamic> json) {
@@ -134,13 +175,32 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     call: _repository.markArrived,
   );
 
-  /// accepted / arrived → in_progress. Stops the waiting timer — the
-  /// server's reply carries the final waiting fee.
-  Future<void> startRide() => _advance(
-    from: const {DriverTripStatus.accepted, DriverTripStatus.arrived},
-    to: DriverTripStatus.inProgress,
-    call: _repository.startRide,
-  );
+  /// accepted / arrived → in_progress. [passengersCount] is sent only while
+  /// the order has no number yet — an office order keeps the reception's.
+  /// Stops the waiting timer — the server's reply carries the final fee.
+  /// A 422 (more people than the car type takes) keeps the trip at pickup.
+  Future<void> startRide({int? passengersCount}) async {
+    const startableFrom = {DriverTripStatus.accepted, DriverTripStatus.arrived};
+    if (isClosed || state.isBusy || !startableFrom.contains(state.status)) return;
+    emit(state.copyWith(isUpdating: true, clearError: true));
+    try {
+      final order = state.order;
+      final sent = order.passengersCount == null ? passengersCount : null;
+      final started = await _repository.startRide(order.rideId, passengersCount: sent);
+      if (isClosed) return;
+      final saved = started.passengersCount ?? order.passengersCount ?? sent;
+      emit(state.copyWith(
+        isUpdating: false,
+        status: DriverTripStatus.inProgress,
+        waiting: started.waiting,
+        order: state.order.withPassengersCount(saved),
+      ));
+      _loadPlannedRoute();
+      _trackPosition();
+    } on DriverTripException catch (e) {
+      if (!isClosed) emit(state.copyWith(isUpdating: false, errorMessage: e.message));
+    }
+  }
 
   /// Stops the trip for a while (the customer is buying a coffee, …). The
   /// status stays in progress; the server starts the pause timer and its
@@ -259,10 +319,6 @@ class DriverTripCubit extends Cubit<DriverTripState> {
       final waiting = await call(state.order.rideId);
       if (isClosed) return;
       emit(state.copyWith(isUpdating: false, status: to, waiting: waiting));
-      if (to == DriverTripStatus.inProgress) {
-        _loadPlannedRoute();
-        _trackPosition();
-      }
     } on DriverTripException catch (e) {
       if (!isClosed) emit(state.copyWith(isUpdating: false, errorMessage: e.message));
     }
@@ -372,6 +428,8 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     for (final subscription in _cancellationSubscriptions) {
       subscription.cancel();
     }
+    _rideUpdateSubscription.cancel();
+    _openTrips.close(state.order.rideId);
     _recordTimer?.cancel();
     _positionSubscription?.cancel();
     return super.close();

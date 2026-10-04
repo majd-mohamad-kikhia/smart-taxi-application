@@ -24,6 +24,28 @@ class DriverSocketService {
   final _rideCancelled = StreamController<Map<String, dynamic>>.broadcast();
   Stream<Map<String, dynamic>> get rideCancelled => _rideCancelled.stream;
 
+  /// `driver:active_ride` payloads: the driver's current ride, pushed on
+  /// every connect, when the office assigns a trip to this driver, and when
+  /// the office edits it (`details_updated: true`).
+  final _activeRide = StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get activeRide => _activeRide.stream;
+
+  /// Office orders opened from their WhatsApp link: the socket is
+  /// subscribed to one by its preview call, and loses that on reconnect.
+  /// `driver:shared_order_closed` = taken / cancelled,
+  /// `driver:shared_order_updated` = edited or just opened (re-fetch it).
+  final _sharedOrderClosed = StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get sharedOrderClosed => _sharedOrderClosed.stream;
+  final _sharedOrderUpdated = StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get sharedOrderUpdated => _sharedOrderUpdated.stream;
+
+  /// Fires on every (re)connect — subscriptions made over REST must be
+  /// renewed then.
+  final _connected = StreamController<void>.broadcast();
+  Stream<void> get connected => _connected.stream;
+
+  bool get isConnected => !_disposed && (_socket?.connected ?? false);
+
   void Function(Map<String, dynamic> data)? _onOrdersSnapshot;
   void Function(Map<String, dynamic> data)? _onOrderOffer;
   void Function(Map<String, dynamic> data)? _onOrderRemove;
@@ -51,7 +73,9 @@ class DriverSocketService {
 
     final socket = createSocket(accessToken);
     socket.onConnect((_) {
-      if (!_disposed) onConnect();
+      if (_disposed) return;
+      onConnect();
+      _connected.add(null);
     });
     socket.onDisconnect((_) {
       if (!_disposed) onDisconnect();
@@ -77,6 +101,21 @@ class DriverSocketService {
     socket.on('driver:ride_cancelled', (data) {
       if (!_disposed) {
         _rideCancelled.add(Map<String, dynamic>.from(data as Map));
+      }
+    });
+    socket.on('driver:active_ride', (data) {
+      if (!_disposed && data is Map) {
+        _activeRide.add(Map<String, dynamic>.from(data));
+      }
+    });
+    socket.on('driver:shared_order_closed', (data) {
+      if (!_disposed && data is Map) {
+        _sharedOrderClosed.add(Map<String, dynamic>.from(data));
+      }
+    });
+    socket.on('driver:shared_order_updated', (data) {
+      if (!_disposed && data is Map) {
+        _sharedOrderUpdated.add(Map<String, dynamic>.from(data));
       }
     });
     socket.connect();

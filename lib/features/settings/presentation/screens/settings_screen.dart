@@ -69,6 +69,19 @@ class _SettingsView extends StatelessWidget {
                     onEdit: () => _openEditProfile(context),
                   ),
                   const SizedBox(height: AppConstants.paddingXXL),
+                  SettingsSectionWidget(
+                    title: l10n.settingsSectionTrips,
+                    children: [
+                      SettingsRowWidget(
+                        icon: Icons.bookmark_border_rounded,
+                        label: l10n.savedAddressesTitle,
+                        onTap: () => Navigator.of(context).pushNamed(
+                          AppRouter.savedAddresses,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppConstants.paddingXXL),
                   SettingsHeadingWidget(title: l10n.settingsSectionPreferences),
                   const LanguageDropdownWidget(),
                   const SizedBox(height: AppConstants.paddingXXL),

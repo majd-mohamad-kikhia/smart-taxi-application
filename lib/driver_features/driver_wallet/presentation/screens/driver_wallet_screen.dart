@@ -224,7 +224,7 @@ class _Statement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    String money(double amount) => l10n.priceSyp(formatPrice(amount));
+    String money(double amount) => formatSyp(l10n, amount);
 
     return Column(
       children: [

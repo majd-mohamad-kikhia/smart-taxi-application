@@ -2,16 +2,28 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../localization/app_strings.dart';
 
 class LocalNotificationService {
+  /// Every notification plays the car honk: `res/raw/car_honk.mp3` on
+  /// Android, `Runner/car_honk.caf` (bundled in the Xcode project) on iOS.
+  static const _androidSound = 'car_honk';
+  static const _iosSound = 'car_honk.caf';
+
+  /// Channel used before the honk, deleted so it doesn't linger in the
+  /// system settings.
+  static const _oldChannelId = 'mshoar_notifications';
+
   /// Its id must match the `default_notification_channel_id` meta-data in
-  /// `AndroidManifest.xml`.
+  /// `AndroidManifest.xml`. Android fixes a channel's sound when it is first
+  /// created, so a new sound needs a new id.
   ///
   /// Named in the language active when it is created (Android lets the
   /// name be updated on the next launch).
   AndroidNotificationChannel get _channel => AndroidNotificationChannel(
-    'mshoar_notifications',
+    'mshoar_notifications_honk',
     AppStrings.current.notificationsChannelName,
     description: AppStrings.current.notificationsChannelDescription,
     importance: Importance.high,
+    playSound: true,
+    sound: const RawResourceAndroidNotificationSound(_androidSound),
   );
 
   final FlutterLocalNotificationsPlugin _plugin =
@@ -34,11 +46,12 @@ class LocalNotificationService {
         ),
       ),
     );
-    await _plugin
+    final android = _plugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(_channel);
+        >();
+    await android?.deleteNotificationChannel(channelId: _oldChannelId);
+    await android?.createNotificationChannel(_channel);
   }
 
   Future<void> show({
@@ -60,8 +73,13 @@ class LocalNotificationService {
           channelDescription: _channel.description,
           importance: Importance.high,
           priority: Priority.high,
+          playSound: true,
+          sound: const RawResourceAndroidNotificationSound(_androidSound),
         ),
-        iOS: const DarwinNotificationDetails(),
+        iOS: const DarwinNotificationDetails(
+          presentSound: true,
+          sound: _iosSound,
+        ),
       ),
     );
   }

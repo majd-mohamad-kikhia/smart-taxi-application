@@ -1,9 +1,9 @@
-/// Structured failure model for every network error.
+/// Structured error model returned by the data layer.
 ///
-/// Repositories only ever deal with [ApiException] (never a raw
-/// `DioException`) — built by `ApiErrorHandler`, which is what "network
-/// errors must be handled centrally" + "failures must return structured
-/// error models" means in this project.
+/// Every failure that reaches a Bloc/Cubit is an [ApiException] — never a
+/// raw `DioException` — so the UI always has a user-presentable message
+/// and, for 409/422 responses, the per-field reasons from swagger's
+/// `ErrorResponse.errors` object.
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
@@ -13,7 +13,18 @@ class ApiException implements Exception {
   /// for validation (422) and conflict (409) responses.
   final Map<String, String>? fieldErrors;
 
-  const ApiException(this.message, {this.statusCode, this.fieldErrors});
+  /// The same `errors` object as the API sent it, untranslated. Some values
+  /// are codes the app branches on (`availability: taken`) — never shown.
+  /// The exception is an ordering block's `message`, which the server
+  /// already wrote in the customer's language.
+  final Map<String, String>? rawErrors;
+
+  const ApiException(
+    this.message, {
+    this.statusCode,
+    this.fieldErrors,
+    this.rawErrors,
+  });
 
   @override
   String toString() => message;

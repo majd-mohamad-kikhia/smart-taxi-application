@@ -61,6 +61,7 @@ class ApiErrorHandler {
       _messageFor(error, statusCode, body, rawFieldErrors, l10n),
       statusCode: statusCode,
       fieldErrors: _translate(rawFieldErrors, l10n),
+      rawErrors: rawFieldErrors,
     );
   }
 
