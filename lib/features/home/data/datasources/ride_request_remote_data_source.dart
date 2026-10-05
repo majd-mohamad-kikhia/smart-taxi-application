@@ -39,8 +39,6 @@ class RideRequestRemoteDataSource {
     );
   }
 
-  /// A [scheduledAt] (30 min – 7 days ahead) creates a `scheduled` ride
-  /// (status 7) that the server offers to drivers 15 minutes before it.
   Future<RideModel> chooseVehicle({
     required RideBookingOptionsModel options,
     required PickedLocationModel pickup,
@@ -53,7 +51,6 @@ class RideRequestRemoteDataSource {
         'vehicle_type_id': options.vehicleTypeId,
         ..._locationsBody(pickup: pickup, dropoff: dropoff),
         if (note != null && note.isNotEmpty) 'note': note,
-        'scheduled_at': ?options.scheduledAt?.toUtc().toIso8601String(),
       },
     );
     return RideModel.fromJson(response.data['data'] as Map<String, dynamic>);

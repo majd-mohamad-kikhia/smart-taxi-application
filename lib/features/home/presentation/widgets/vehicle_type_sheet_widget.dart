@@ -4,12 +4,10 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
-import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../data/models/ride_booking_options_model.dart';
 import '../../data/models/ride_quote_model.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
-import 'ride_schedule_selector_widget.dart';
 import 'vehicle_type_tile_widget.dart';
 
 /// Bottom sheet where the customer compares the quoted price of every vehicle
@@ -17,8 +15,7 @@ import 'vehicle_type_tile_widget.dart';
 /// "Request {vehicle} · {price}" button. Choosing a tile only selects it —
 /// the ride is not requested until that button is pressed.
 ///
-/// The customer can also leave a note for the driver and pick "Later" to
-/// schedule the ride.
+/// The customer can also leave a note for the driver.
 ///
 /// Purely presentational — it pops itself with a [RideBookingOptionsModel],
 /// and the caller fires the booking request.
@@ -42,7 +39,6 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
   static const _maxNoteLength = 500;
 
   int? _selectedId;
-  DateTime? _scheduledAt;
   final TextEditingController _noteController = TextEditingController();
 
   /// Guards against a second tap popping the sheet twice.
@@ -78,25 +74,12 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
 
   void _request(int vehicleTypeId) {
     if (_isLeaving) return;
-    final scheduledAt = _scheduledAt;
-    if (scheduledAt != null &&
-        scheduledAt.isBefore(DateTime.now().add(RideScheduleSelectorWidget.minLead))) {
-      // The sheet stayed open long enough for the picked time to get too close.
-      setState(() => _scheduledAt = null);
-      showAppSnackBar(
-        context,
-        context.l10n.rideScheduleOutOfRange,
-        type: AppSnackBarType.warning,
-      );
-      return;
-    }
     _isLeaving = true;
     final note = _noteController.text.trim();
     Navigator.of(context).pop(
       RideBookingOptionsModel(
         vehicleTypeId: vehicleTypeId,
         note: note.isEmpty ? null : note,
-        scheduledAt: scheduledAt,
       ),
     );
   }
@@ -168,11 +151,7 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
                           const SizedBox(height: AppConstants.paddingM),
                         ],
                         const SizedBox(height: AppConstants.paddingS),
-                        RideScheduleSelectorWidget(
-                          value: _scheduledAt,
-                          onChanged: (value) => setState(() => _scheduledAt = value),
-                        ),
-                        const SizedBox(height: AppConstants.paddingL),
+                        const SizedBox(height: AppConstants.paddingS),
                         _NoteField(
                           controller: _noteController,
                           maxLength: _maxNoteLength,
@@ -190,7 +169,7 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
               AuthPrimaryButtonWidget(
                 label: selected == null || selectedPrice == null
                     ? l10n.pickVehicleType
-                    : (_scheduledAt == null ? l10n.requestVehicle : l10n.scheduleVehicle)(
+                    : l10n.requestVehicle(
                         selected.name,
                         formatSyp(l10n, selectedPrice),
                       ),

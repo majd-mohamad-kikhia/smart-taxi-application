@@ -47,8 +47,7 @@ class RideRequestRepository {
   }
 
   /// Order flow step 2 — creates the ride with the chosen vehicle type
-  /// and returns it with `status_id = 1` (`requested`), or `7`
-  /// (`scheduled`) when [options] carries a time.
+  /// and returns it with `status_id = 1` (`requested`).
   Future<RideModel> chooseVehicle({
     required RideBookingOptionsModel options,
     required PickedLocationModel pickup,

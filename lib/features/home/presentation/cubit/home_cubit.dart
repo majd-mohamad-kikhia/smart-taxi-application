@@ -79,9 +79,7 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  /// Order flow step 2 — creates the ride with the chosen vehicle type. A
-  /// scheduled ride doesn't become the live ride: the form resets and
-  /// [HomeState.scheduledRide] tells the screen to confirm it.
+  /// Order flow step 2 — creates the ride with the chosen vehicle type.
   Future<void> chooseVehicle(RideBookingOptionsModel options) async {
     final from = state.fromLocation;
     final to = state.toLocation;
@@ -95,26 +93,11 @@ class HomeCubit extends Cubit<HomeState> {
         dropoff: to,
       );
       if (isClosed) return;
-      if (ride.isScheduled) {
-        emit(state.copyWith(
-          isBooking: false,
-          scheduledRide: ride,
-          clearQuote: true,
-          clearLocations: true,
-        ));
-        return;
-      }
       emit(state.copyWith(isBooking: false, activeRide: ride));
     } on RideRequestException catch (e) {
       if (isClosed) return;
       emit(state.copyWith(isBooking: false, errorMessage: _errorFor(e)));
     }
-  }
-
-  /// The screen has confirmed the scheduled ride to the customer.
-  void acknowledgeScheduledRide() {
-    if (isClosed || state.scheduledRide == null) return;
-    emit(state.copyWith(clearScheduledRide: true));
   }
 
   /// Resets the order flow once `RideTrackingScreen` has ended the ride

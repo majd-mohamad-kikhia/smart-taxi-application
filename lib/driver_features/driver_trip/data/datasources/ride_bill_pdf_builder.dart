@@ -166,6 +166,7 @@ class RideBillPdfBuilder {
       if (fare.passengersFee > 0) (withPassengers(en), withPassengers(ar), fare.passengersFee),
       if (fare.waitingFee > 0) (en.fareWaiting, ar.fareWaiting, fare.waitingFee),
       if (fare.pauseFeeTotal > 0) (en.farePauses, ar.farePauses, fare.pauseFeeTotal),
+      if (fare.rounding != 0) (en.fareRounding, ar.fareRounding, fare.rounding),
     ];
     final headStyle = pw.TextStyle(fontSize: 8, color: _muted, fontWeight: pw.FontWeight.bold);
     final cellStyle = pw.TextStyle(fontSize: 10, color: _ink);

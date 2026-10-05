@@ -10,9 +10,7 @@ import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_cubit.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_state.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/format_date.dart';
 import '../../../../core/widgets/account_block_gate_widget.dart';
-import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
@@ -73,21 +71,6 @@ class _HomeView extends StatelessWidget {
             listenWhen: (previous, current) =>
                 previous.activeRide == null && current.activeRide != null,
             listener: (context, state) => _openTracking(context, state),
-          ),
-          // Scheduled for later: nothing to track yet, just confirm it.
-          BlocListener<HomeCubit, HomeState>(
-            listenWhen: (previous, current) =>
-                previous.scheduledRide == null && current.scheduledRide != null,
-            listener: (context, state) {
-              showAppSnackBar(
-                context,
-                context.l10n.rideScheduledFor(
-                  formatUtcDateTime(context, state.scheduledRide!.scheduledAt),
-                ),
-                type: AppSnackBarType.success,
-              );
-              context.read<HomeCubit>().acknowledgeScheduledRide();
-            },
           ),
         ],
         child: BlocBuilder<HomeCubit, HomeState>(

@@ -1228,6 +1228,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get farePassengersFee => 'Extra passengers fee';
 
   @override
+  String get fareRounding => 'Rounding';
+
+  @override
   String farePassengersFeeIncluded(String amount) {
     return 'Includes extra passengers fee: $amount';
   }
@@ -1512,36 +1515,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addressDetailsHint => 'Building, floor, landmark…';
 
   @override
-  String get rideWhenLabel => 'When';
-
-  @override
-  String get rideWhenNow => 'Now';
-
-  @override
-  String get rideWhenLater => 'Later';
-
-  @override
-  String get rideWhenChange => 'Change time';
-
-  @override
-  String get rideScheduleOutOfRange =>
-      'Pick a time between 30 minutes and 7 days from now';
-
-  @override
-  String scheduleVehicle(String name, String price) {
-    return 'Schedule $name · $price';
-  }
-
-  @override
   String get rideNoteLabel => 'Note for the driver';
 
   @override
   String get rideNoteHint => 'e.g. I\'m at the main gate';
-
-  @override
-  String rideScheduledFor(String time) {
-    return 'Ride scheduled for $time';
-  }
 
   @override
   String get rideStatusScheduled => 'Scheduled';

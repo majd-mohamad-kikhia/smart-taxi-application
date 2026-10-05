@@ -1211,6 +1211,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get farePassengersFee => 'سعر إضافي لعدد الركاب';
 
   @override
+  String get fareRounding => 'تقريب السعر';
+
+  @override
   String farePassengersFeeIncluded(String amount) {
     return 'يشمل سعراً إضافياً لعدد الركاب: $amount';
   }
@@ -1494,36 +1497,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addressDetailsHint => 'المبنى، الطابق، علامة مميزة…';
 
   @override
-  String get rideWhenLabel => 'متى';
-
-  @override
-  String get rideWhenNow => 'الآن';
-
-  @override
-  String get rideWhenLater => 'لاحقاً';
-
-  @override
-  String get rideWhenChange => 'تغيير الوقت';
-
-  @override
-  String get rideScheduleOutOfRange =>
-      'اختر وقتاً بين 30 دقيقة و7 أيام من الآن';
-
-  @override
-  String scheduleVehicle(String name, String price) {
-    return 'احجز $name · $price';
-  }
-
-  @override
   String get rideNoteLabel => 'ملاحظة للسائق';
 
   @override
   String get rideNoteHint => 'مثال: أنا عند البوابة الرئيسية';
-
-  @override
-  String rideScheduledFor(String time) {
-    return 'تمت جدولة الرحلة في $time';
-  }
 
   @override
   String get rideStatusScheduled => 'مجدولة';

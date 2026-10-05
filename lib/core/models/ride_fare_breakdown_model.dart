@@ -5,7 +5,7 @@ import 'ride_waiting_model.dart';
 /// The bill lines of a finished ride — the `fare` object on the
 /// `completed` status event and the driver's `finish` reply:
 /// `final_price = base_fare + distance_fare + stops_fee_total + waiting_fee
-/// + pause_fee_total + passengers_fee`.
+/// + pause_fee_total + passengers_fee + rounding`.
 class RideFareBreakdownModel extends Equatable {
   final double baseFare;
   final double distanceFare;
@@ -23,6 +23,10 @@ class RideFareBreakdownModel extends Equatable {
   final int pauseTotalSeconds;
   final double finalPrice;
 
+  /// What the server's price rounding added to the total (negative = took
+  /// off); 0 when none.
+  final double rounding;
+
   const RideFareBreakdownModel({
     required this.baseFare,
     required this.distanceFare,
@@ -35,6 +39,7 @@ class RideFareBreakdownModel extends Equatable {
     this.pauseCount = 0,
     this.pauseTotalSeconds = 0,
     required this.finalPrice,
+    this.rounding = 0,
   });
 
   /// [fare] is the `fare` object; [fallbackFinalPrice] and
@@ -61,6 +66,7 @@ class RideFareBreakdownModel extends Equatable {
       pauseTotalSeconds: (pauses['total_seconds'] as num?)?.toInt() ?? 0,
       finalPrice:
           (fare['final_price'] as num?)?.toDouble() ?? fallbackFinalPrice,
+      rounding: number('rounding'),
     );
   }
 
@@ -92,5 +98,6 @@ class RideFareBreakdownModel extends Equatable {
     pauseCount,
     pauseTotalSeconds,
     finalPrice,
+    rounding,
   ];
 }

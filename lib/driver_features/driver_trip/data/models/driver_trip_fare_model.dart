@@ -6,7 +6,7 @@ import '../../../../core/models/ride_fare_breakdown_model.dart';
 /// returned by `POST /api/driver/rides/{id}/finish` (or the
 /// `driver:ride_finish` ack):
 /// `final_price = base_fare + distance_fare + stops_fee_total + waiting_fee
-/// + pause_fee_total + passengers_fee`.
+/// + pause_fee_total + passengers_fee + rounding`.
 class DriverTripFareModel extends Equatable {
   final double finalPrice;
   final double estimatedPrice;

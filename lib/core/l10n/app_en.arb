@@ -569,6 +569,7 @@
   "fareBaseFare": "Base fare",
   "fareStopsFee": "Stops",
   "farePassengersFee": "Extra passengers fee",
+  "fareRounding": "Rounding",
   "farePassengersFeeIncluded": "Includes extra passengers fee: {amount}",
   "@farePassengersFeeIncluded": {
     "description": "Under an office order's price: the extra charge for 5 or 6 people is already part of it.",
@@ -758,32 +759,8 @@
   "savedAddressLabelRequired": "Give this place a name",
   "addressDetailsLabel": "Address details (optional)",
   "addressDetailsHint": "Building, floor, landmark…",
-  "rideWhenLabel": "When",
-  "rideWhenNow": "Now",
-  "rideWhenLater": "Later",
-  "rideWhenChange": "Change time",
-  "rideScheduleOutOfRange": "Pick a time between 30 minutes and 7 days from now",
-  "scheduleVehicle": "Schedule {name} · {price}",
-  "@scheduleVehicle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "price": {
-        "type": "String"
-      }
-    }
-  },
   "rideNoteLabel": "Note for the driver",
   "rideNoteHint": "e.g. I'm at the main gate",
-  "rideScheduledFor": "Ride scheduled for {time}",
-  "@rideScheduledFor": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "rideStatusScheduled": "Scheduled",
   "rideScheduledAt": "Scheduled for {time}",
   "@rideScheduledAt": {

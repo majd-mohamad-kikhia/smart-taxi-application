@@ -60,6 +60,11 @@ class FareBreakdownWidget extends StatelessWidget {
             ),
             value: price(fare.pauseFeeTotal),
           ),
+        if (fare.rounding != 0)
+          BillRowWidget(
+            label: l10n.fareRounding,
+            value: formatSignedPrice(l10n, fare.rounding, showPlus: true),
+          ),
         if (showTotal)
           BillRowWidget(
             label: l10n.fareTotal,

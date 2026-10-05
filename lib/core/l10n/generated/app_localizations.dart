@@ -2318,6 +2318,12 @@ abstract class AppLocalizations {
   /// **'Extra passengers fee'**
   String get farePassengersFee;
 
+  /// No description provided for @fareRounding.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounding'**
+  String get fareRounding;
+
   /// Under an office order's price: the extra charge for 5 or 6 people is already part of it.
   ///
   /// In en, this message translates to:
@@ -2810,42 +2816,6 @@ abstract class AppLocalizations {
   /// **'Building, floor, landmark…'**
   String get addressDetailsHint;
 
-  /// No description provided for @rideWhenLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'When'**
-  String get rideWhenLabel;
-
-  /// No description provided for @rideWhenNow.
-  ///
-  /// In en, this message translates to:
-  /// **'Now'**
-  String get rideWhenNow;
-
-  /// No description provided for @rideWhenLater.
-  ///
-  /// In en, this message translates to:
-  /// **'Later'**
-  String get rideWhenLater;
-
-  /// No description provided for @rideWhenChange.
-  ///
-  /// In en, this message translates to:
-  /// **'Change time'**
-  String get rideWhenChange;
-
-  /// No description provided for @rideScheduleOutOfRange.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick a time between 30 minutes and 7 days from now'**
-  String get rideScheduleOutOfRange;
-
-  /// No description provided for @scheduleVehicle.
-  ///
-  /// In en, this message translates to:
-  /// **'Schedule {name} · {price}'**
-  String scheduleVehicle(String name, String price);
-
   /// No description provided for @rideNoteLabel.
   ///
   /// In en, this message translates to:
@@ -2857,12 +2827,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'e.g. I\'m at the main gate'**
   String get rideNoteHint;
-
-  /// No description provided for @rideScheduledFor.
-  ///
-  /// In en, this message translates to:
-  /// **'Ride scheduled for {time}'**
-  String rideScheduledFor(String time);
 
   /// No description provided for @rideStatusScheduled.
   ///
