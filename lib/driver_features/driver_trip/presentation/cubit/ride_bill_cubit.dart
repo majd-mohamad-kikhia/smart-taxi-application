@@ -6,8 +6,8 @@ import '../../data/repositories/ride_bill_repository.dart';
 import 'driver_trip_state.dart';
 import 'ride_bill_state.dart';
 
-/// "Send bill on WhatsApp" at the end of an office order: turns the paid
-/// trip into a PDF bill and opens the customer's chat with it.
+/// "Send bill on WhatsApp" at the end of a trip (app or office order): turns
+/// the paid trip into a PDF bill and opens the customer's chat with it.
 class RideBillCubit extends Cubit<RideBillState> {
   final RideBillRepository _repository;
   final SessionCubit _session;
@@ -27,7 +27,7 @@ class RideBillCubit extends Cubit<RideBillState> {
     }
   }
 
-  /// Null until the trip is a finished, paid office order.
+  /// Null until the trip is a finished, paid trip.
   RideBillModel? billOf(DriverTripState trip) {
     final fare = trip.fare;
     if (!trip.canSendBill || fare == null) return null;

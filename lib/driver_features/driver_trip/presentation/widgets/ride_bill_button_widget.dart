@@ -8,7 +8,7 @@ import '../cubit/driver_trip_cubit.dart';
 import '../cubit/ride_bill_cubit.dart';
 import '../cubit/ride_bill_state.dart';
 
-/// "Send bill on WhatsApp" for a paid office order: opens the customer's
+/// "Send bill on WhatsApp" for a paid trip (app or office order): opens the customer's
 /// chat with the trip's PDF bill attached. Needs a [DriverTripCubit] above.
 class RideBillButtonWidget extends StatelessWidget {
   const RideBillButtonWidget({super.key});

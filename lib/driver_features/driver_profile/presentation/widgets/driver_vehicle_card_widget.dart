@@ -87,7 +87,7 @@ class DriverVehicleCardWidget extends StatelessWidget {
               },
             ),
           ] else if (state.isLoading)
-            const AppLoaderWidget(size: 100)
+            const AppLoaderWidget()
           else if (state.errorMessage != null) ...[
             Semantics(
               liveRegion: true,

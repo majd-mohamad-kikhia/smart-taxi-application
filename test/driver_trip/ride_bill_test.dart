@@ -105,12 +105,13 @@ void main() {
     );
     tearDownAll(cubit.close);
 
-    test('is offered for paid office orders only', () {
+    test('is offered for paid trips, app or office orders', () {
       expect(_paidTrip().canSendBill, isTrue);
       expect(_paidTrip(source: 'call').canSendBill, isTrue);
-      expect(_paidTrip(source: 'app').canSendBill, isFalse);
+      expect(_paidTrip(source: 'app').canSendBill, isTrue);
       expect(_paidTrip(paid: false).canSendBill, isFalse);
-      expect(cubit.billOf(_paidTrip(source: 'app')), isNull);
+      expect(cubit.billOf(_paidTrip(source: 'app')), isNotNull);
+      expect(cubit.billOf(_paidTrip(paid: false)), isNull);
     });
 
     test('carries the trip, the customer and the fare lines', () {

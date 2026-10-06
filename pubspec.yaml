@@ -34,7 +34,6 @@ dependencies:
 
   # Local storage
   shared_preferences: ^2.3.3
-  lottie: ^3.6.1
   google_maps_flutter: ^2.18.1
   flutter_dotenv: ^5.2.1
   firebase_core: 4.14.0
@@ -61,7 +60,6 @@ flutter:
   generate: true
 
   assets:
-    - assets/loader/taxi_loader_yellow.json
     - .env
     - assets/icons/app_logo_icons/icon-master-1024.png
     - assets/icons/app_logo_icons/icon-splash-android12.png

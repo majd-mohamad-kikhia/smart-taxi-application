@@ -44,7 +44,7 @@ class _PrivacyPolicyContentWidget extends StatelessWidget {
           builder: (context, state) {
             switch (state.status) {
               case PrivacyPolicyLoadStatus.loading:
-                return const SizedBox(height: 120, child: AppLoaderWidget(size: 80));
+                return const SizedBox(height: 120, child: AppLoaderWidget());
               case PrivacyPolicyLoadStatus.failure:
                 return Column(
                   mainAxisSize: MainAxisSize.min,

@@ -122,9 +122,9 @@ class DriverTripState extends Equatable {
   /// The trip is in progress but stopped (e.g. for a coffee).
   bool get isPaused => status == DriverTripStatus.inProgress && (pause?.isPaused ?? false);
 
-  /// An office order that is finished and paid: its customer often has no
-  /// app, so the driver sends them the bill on WhatsApp.
-  bool get canSendBill => isPaid && fare != null && orderSource.isOffice;
+  /// A finished, paid trip — an app order or an office one: the driver can
+  /// send the customer the bill on WhatsApp.
+  bool get canSendBill => isPaid && fare != null;
 
   DriverTripState copyWith({
     OrderOfferModel? order,
