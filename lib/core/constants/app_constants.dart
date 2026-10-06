@@ -28,6 +28,12 @@ class AppConstants {
   /// self-hosted OSRM (or a compatible provider) for production traffic.
   static const String routingBaseUrl = 'https://router.project-osrm.org';
 
+  /// Google Routes API (`computeRoutes`) — the customer's live map road
+  /// line, distance and arrival time. Authorized by the `GOOGLE_MAPS_API_KEY`
+  /// from `.env`, which must have the Routes API enabled.
+  static const String googleRoutesBaseUrl = 'https://routes.googleapis.com';
+  static const String googleRoutesComputePath = '/directions/v2:computeRoutes';
+
   static const double radiusMedium = 12.0;
   static const double radiusLarge = 16.0;
   static const double radiusXL = 24.0;

@@ -68,7 +68,7 @@ Keep copies of these somewhere safe outside the repo (password manager, private 
 
 | File | Contains | Used by | What breaks without it |
 | --- | --- | --- | --- |
-| `.env` | `GOOGLE_MAPS_API_KEY=...` | Listed under `assets:` in `pubspec.yaml`; loaded by `dotenv.load()` in [lib/main.dart](lib/main.dart) | **The build fails** (missing asset). No code reads `dotenv.env` today, but the file must exist. |
+| `.env` | `GOOGLE_MAPS_API_KEY=...` | Listed under `assets:` in `pubspec.yaml`; loaded by `dotenv.load()` in [lib/main.dart](lib/main.dart) | **The build fails** (missing asset). Also read at runtime by `GoogleRoutesService` (customer road line + arrival time): the key needs the **Routes API** enabled, and must not be restricted to Android/iOS apps (the REST call doesn't send the app's package/SHA-1). |
 | `android/local.properties` | `sdk.dir`, `flutter.sdk` (auto-generated) **plus** `GOOGLE_MAPS_API_KEY=...` (added by hand) | `android/app/build.gradle.kts` → manifest placeholder `${GOOGLE_MAPS_API_KEY}` | Google Maps shows a blank/grey map on Android |
 | `android/key.properties` | `storePassword`, `keyPassword`, `keyAlias`, `storeFile` | Release signing config in `android/app/build.gradle.kts` | Release builds can't be signed |
 | the upload keystore (`*.keystore` / `*.jks`) | The signing key that `storeFile` points to | Release signing | **Lose this and you can't update the Play Store app.** Back it up. |
@@ -107,7 +107,7 @@ dart run flutter_native_splash:create    # regenerate the native splash screen
 | `flutter_bloc` | State management. **Cubits only** (no Blocs with events). | Every `presentation/cubit/` folder |
 | `equatable` | Value equality for states and models, so identical states aren't re-emitted. | All states and models |
 | `get_it` | Service locator / DI (`sl`). | [lib/core/injection/injection.dart](lib/core/injection/injection.dart) |
-| `dio` | The only HTTP client. Central instance with interceptors. | [lib/core/network/api_client.dart](lib/core/network/api_client.dart); also a separate plain `Dio` in the OSRM and Photon clients |
+| `dio` | The only HTTP client. Central instance with interceptors. | [lib/core/network/api_client.dart](lib/core/network/api_client.dart); also a separate plain `Dio` in the OSRM, Google Routes and Photon clients |
 | `socket_io_client` | Realtime: ride offers, live driver location, ride status, account blocks. | [lib/core/network/socket_client.dart](lib/core/network/socket_client.dart) plus 3 socket services |
 | `google_maps_flutter` | All maps (pickup, live trip, route tab, ride history map, location picker). | `*_map_widget.dart`, `location_picker_screen.dart` |
 | `geolocator` | GPS position, permission, "is GPS on" checks, distances. | Location services, the driver GPS guard, and the driver location ticker |
@@ -117,7 +117,7 @@ dart run flutter_native_splash:create    # regenerate the native splash screen
 | `flutter_localizations` + `intl` | ar/en localization (gen-l10n), date and number formatting. | `lib/core/l10n/`, `lib/core/utils/format_*.dart` |
 | `google_fonts` | **Tajawal** font for all text (good Arabic + Latin). | [lib/core/theme/app_theme.dart](lib/core/theme/app_theme.dart) |
 | `lottie` | The yellow taxi loading animation (`assets/loader/taxi_loader_yellow.json`). | [lib/core/widgets/app_loader_widget.dart](lib/core/widgets/app_loader_widget.dart) |
-| `flutter_dotenv` | Loads `.env` at startup (currently loaded but unused, see Gotchas). | [lib/main.dart](lib/main.dart) |
+| `flutter_dotenv` | Loads `.env` at startup; `GOOGLE_MAPS_API_KEY` is read for the Google Routes API. | [lib/main.dart](lib/main.dart) |
 | `flutter_markdown_plus` | Renders the privacy policy, which the server returns as Markdown. | [lib/core/widgets/privacy_policy_markdown_widget.dart](lib/core/widgets/privacy_policy_markdown_widget.dart) |
 | `package_info_plus` | Reads the installed app version for the server version check. | [lib/core/app_version/data/repositories/app_version_repository.dart](lib/core/app_version/data/repositories/app_version_repository.dart) |
 | `url_launcher` | Opens the store page, `tel:` links and WhatsApp (`wa.me`). | [lib/core/utils/open_store.dart](lib/core/utils/open_store.dart), [lib/core/utils/open_external_url.dart](lib/core/utils/open_external_url.dart) |
@@ -134,6 +134,7 @@ dart run flutter_native_splash:create    # regenerate the native splash screen
 | Smart Taxi backend `https://smart-taxi.ma-core.net` | REST API + Socket.IO | URL hard-coded in `api_client.dart` **and** `socket_client.dart` |
 | Firebase Cloud Messaging | Push notifications (both roles) | The device token is sent with login/signup (`PushNotificationService.deviceTokenFields`) |
 | Google Maps SDK | Map tiles | API key setup: see [Setup](#2-setup-from-a-fresh-clone). A dark style is loaded from `assets/map_styles/dark_map_style.json`. |
+| Google Routes API `https://routes.googleapis.com` (`computeRoutes`) | The customer's live map: road line, road distance and arrival time (driver → pickup, then pickup → dropoff). Field-masked to polyline + distance + duration, traffic-aware. | Billed per request; kept low by matching GPS fixes onto the fetched route locally (`TripRouteTracker`). Needs the Routes API enabled on `GOOGLE_MAPS_API_KEY`. Separate `Dio`, so the auth token is never sent to it. |
 | OSRM `https://router.project-osrm.org` | Road route between two points (planned route line on live maps) | **Public demo server with no SLA**; point `AppConstants.routingBaseUrl` at your own instance for production. Uses a separate `Dio` so the auth token is never sent to it. |
 | Photon `https://photon.komoot.io` | Place search-as-you-type and reverse geocoding in the location picker | Free, keyless, best-effort. Separate `Dio`, not `ApiClient`. |
 
@@ -387,7 +388,7 @@ Check `api_endpoints.dart` for the exact methods; the table above is a map, not 
 - *Push:* `PushNotificationService` gets the FCM token (sent with login), shows foreground pushes through `LocalNotificationService`, and handles background pushes in `firebaseMessagingBackgroundHandler`, which runs in **a separate isolate, so no `sl` is available there**. It also exposes a `rideCancelled` stream that the driver trip cubit listens to.
 - *In-app list (customer only):* `features/notifications`, plus `UnreadNotificationsCubit` (core) for the bell badge.
 
-**Location & routes** ([lib/core/services/](lib/core/services/)): `CurrentLocationService` (one-off position + permission handling), `RouteService` (OSRM call), `PlannedRouteLoader` (loads the planned route once per trip and caches it; the line never re-routes while driving).
+**Location & routes** ([lib/core/services/](lib/core/services/)): `CurrentLocationService` (one-off position + permission handling), `RouteService` (OSRM call), `PlannedRouteLoader` (loads the planned route once per trip and caches it; the line never re-routes while driving; used by the driver), `GoogleRoutesService` (Google Routes call: line + distance + duration) and `TripRouteTracker` (used by the customer's tracking: fetches a route once, snaps every GPS fix onto it with `RouteMatcher` for the remaining distance/time, and re-fetches only when the car leaves the route or the route is 3+ min old; never more than once per 15 s).
 
 **Theme** ([lib/core/theme/](lib/core/theme/)): `AppColors` holds **every** color as a named token (don't use raw `Color(0x...)` in widgets). `AppTheme.darkTheme` is the only theme. Brand is yellow on near-black. Font: Tajawal. Spacing, radius and animation constants are in `AppConstants`. See [DESIGN.md](DESIGN.md).
 
@@ -566,6 +567,8 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [planned_route_loader.dart](lib/core/services/planned_route_loader.dart): loads + caches a trip's planned route once.
 - [push_notification_service.dart](lib/core/services/push_notification_service.dart): FCM init, token, foreground display, background handler, `rideCancelled` stream.
 - [route_service.dart](lib/core/services/route_service.dart): OSRM driving route between two points.
+- [google_routes_service.dart](lib/core/services/google_routes_service.dart): Google Routes `computeRoutes` (road line, distance, duration).
+- [trip_route_tracker.dart](lib/core/services/trip_route_tracker.dart): per-trip route + arrival time with minimal API calls.
 
 **session/**
 - [app_user.dart](lib/core/session/app_user.dart): signed-in user's basic profile + role.
@@ -612,6 +615,7 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [delete_account_button_widget.dart](lib/core/widgets/delete_account_button_widget.dart): quiet destructive "delete account" button.
 - [fare_breakdown_widget.dart](lib/core/widgets/fare_breakdown_widget.dart): full bill of a finished ride.
 - [fee_chip_widget.dart](lib/core/widgets/fee_chip_widget.dart): small dark pill floating on the map.
+- [trip_eta_chip_widget.dart](lib/core/widgets/trip_eta_chip_widget.dart): pill with the time and road distance left.
 - [language_dropdown_widget.dart](lib/core/widgets/language_dropdown_widget.dart): settings language picker card.
 - [live_fee_card_widget.dart](lib/core/widgets/live_fee_card_widget.dart): card for live fee timers (clock, fee, status).
 - [live_trip_map_widget.dart](lib/core/widgets/live_trip_map_widget.dart): live trip map with car pin, planned route and driven path.
@@ -670,13 +674,13 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [data/models/ride_location_model.dart](lib/features/tracking/data/models/ride_location_model.dart): a GPS pin.
 - [data/models/ride_vehicle_model.dart](lib/features/tracking/data/models/ride_vehicle_model.dart): assigned vehicle info.
 - [data/models/tracked_ride_model.dart](lib/features/tracking/data/models/tracked_ride_model.dart): ride as pushed over the socket.
-- [presentation/cubit/ride_tracking_cubit.dart](lib/features/tracking/presentation/cubit/ride_tracking_cubit.dart): consumes socket streams, planned route, cancel.
+- [presentation/cubit/ride_tracking_cubit.dart](lib/features/tracking/presentation/cubit/ride_tracking_cubit.dart): consumes socket streams, road line + arrival time of the current leg (`RideRouteLeg`), cancel.
 - [presentation/cubit/ride_tracking_state.dart](lib/features/tracking/presentation/cubit/ride_tracking_state.dart): connection status, ride, driver, location, exit reason.
 - [presentation/screens/ride_tracking_screen.dart](lib/features/tracking/presentation/screens/ride_tracking_screen.dart): full-screen tracking; blocks back until the ride ends.
 - [presentation/widgets/ride_driver_card_widget.dart](lib/features/tracking/presentation/widgets/ride_driver_card_widget.dart): driver photo, name, rating, vehicle.
 - [presentation/widgets/ride_payment_due_dialog_widget.dart](lib/features/tracking/presentation/widgets/ride_payment_due_dialog_widget.dart): "pay the driver X" dialog.
 - [presentation/widgets/ride_status_banner_widget.dart](lib/features/tracking/presentation/widgets/ride_status_banner_widget.dart): status line + reconnecting note.
-- [presentation/widgets/ride_tracking_map_widget.dart](lib/features/tracking/presentation/widgets/ride_tracking_map_widget.dart): live map with pickup/dropoff/driver pins.
+- [presentation/widgets/ride_tracking_map_widget.dart](lib/features/tracking/presentation/widgets/ride_tracking_map_widget.dart): live map with pickup/dropoff/driver pins and the driver's road to the pickup.
 - [presentation/widgets/ride_trip_summary_widget.dart](lib/features/tracking/presentation/widgets/ride_trip_summary_widget.dart): trip summary (route, price) on the tracking screen.
 
 **trips/**: ride history
@@ -902,7 +906,7 @@ iOS: `AppConstants.iosStoreUrl` is still empty (TODO), so there's no App Store l
 - **`docs/socket.md`** is referenced in code comments but doesn't exist in the repo.
 - **HTTP logging is always on** (`ApiClient._enableLogging = true`), including in release builds, so request/response bodies (tokens, phone numbers) go to the device log. Consider tying it to `kDebugMode`.
 - **Backend URL is duplicated** in `api_client.dart` and `socket_client.dart`. Change both when the host changes.
-- **`.env` is loaded but nothing reads it**, and it's bundled into the app as an asset. The real Maps key wiring is native (local.properties / Secrets.xcconfig).
+- **`.env` is bundled into the app as an asset**, so its Maps key is readable from the APK (as the native Maps key already is). The map tiles' key wiring is native (local.properties / Secrets.xcconfig); only `GoogleRoutesService` reads `.env` at runtime.
 - **OSRM and Photon are free public servers** with no SLA or rate guarantees. Plan self-hosting or a paid provider if traffic grows.
 - **Drivers can't sign up in-app.** Accounts are created by the operator; pending, suspended and rejected accounts get 403 on login.
 - **"customer", not "rider".** Old saved sessions may contain role `'rider'`; `auth_local_data_source.dart` maps it. Don't remove that mapping.

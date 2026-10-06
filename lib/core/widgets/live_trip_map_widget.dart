@@ -44,6 +44,11 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
   final _heading = CarHeadingTracker();
   bool _hasFitted = false;
 
+  /// The planned route never changes once loaded, so it is converted to map
+  /// points once, not on every GPS tick.
+  List<RoutePointModel>? _plannedSource;
+  Polyline? _plannedLine;
+
   LatLng get _destination => LatLng(widget.destinationLat, widget.destinationLng);
 
   LatLng? get _car {
@@ -101,6 +106,16 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
     );
   }
 
+  Polyline? _plannedPolyline() {
+    final points = widget.routePoints;
+    if (points.length < 2) return null;
+    if (!identical(points, _plannedSource)) {
+      _plannedSource = points;
+      _plannedLine = _line('planned_route', points, AppColors.mapRoutePlanned, 1);
+    }
+    return _plannedLine;
+  }
+
   Polyline _line(String id, List<RoutePointModel> points, Color color, int zIndex) {
     return Polyline(
       polylineId: PolylineId(id),
@@ -118,6 +133,7 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
   Widget build(BuildContext context) {
     final car = _car;
     final taxiIcon = _taxiIcon;
+    final plannedLine = _plannedPolyline();
     return GoogleMap(
       style: _mapStyle,
       initialCameraPosition: CameraPosition(target: car ?? _destination, zoom: 15),
@@ -130,8 +146,7 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
         _moveCamera();
       },
       polylines: {
-        if (widget.routePoints.length >= 2)
-          _line('planned_route', widget.routePoints, AppColors.mapRoutePlanned, 1),
+        ?plannedLine,
         if (widget.drivenPath.length >= 2)
           _line('driven_path', widget.drivenPath, AppColors.mapRouteDriven, 2),
       },

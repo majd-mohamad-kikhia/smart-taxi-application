@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_colors.dart';
-import 'app_loader_widget.dart';
 import 'app_logo_widget.dart';
 
 /// The app's splash while it starts up: the logo on the same black as the
 /// native splash it replaces (so there is no visible jump), the brand
-/// slogan under it, and the taxi loading animation below. It shows for as
+/// slogan under it. It shows for as
 /// long as the startup work (restoring the session, the version check)
 /// takes. The slogan is the same in every language, so it needs no
 /// localization.
@@ -46,17 +45,6 @@ class AppSplashWidget extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-          // A fixed box: the loader centers itself in whatever space it is
-          // given, so without one it would fill the screen and sit on the
-          // logo instead of under it.
-          const Align(
-            alignment: Alignment(0, 0.72),
-            child: SizedBox(
-              width: 140,
-              height: 140,
-              child: AppLoaderWidget(size: 140),
             ),
           ),
         ],

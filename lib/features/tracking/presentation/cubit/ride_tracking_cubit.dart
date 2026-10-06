@@ -11,7 +11,8 @@ import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/models/route_point_model.dart';
-import '../../../../core/services/planned_route_loader.dart';
+import '../../../../core/models/trip_eta_model.dart';
+import '../../../../core/services/trip_route_tracker.dart';
 import '../../data/datasources/customer_ride_socket_service.dart';
 import '../../data/models/ride_driver_model.dart';
 import '../../data/models/ride_location_model.dart';
@@ -31,8 +32,9 @@ typedef RideTrackingCubitArgs = ({
 /// Drives the ride-tracking screen: connects a dedicated
 /// [CustomerRideSocketService] for this one ride, applies
 /// `customer:ride_accepted` / `customer:active_ride` / `driver_location` /
-/// `ride_status` events (see docs/socket.md), and exposes the
-/// cancel-with-reason flow.
+/// `ride_status` events (see docs/socket.md), keeps the road line and the
+/// arrival time of the current leg up to date (see [RideTrackingState.routeLeg]),
+/// and exposes the cancel-with-reason flow.
 class RideTrackingCubit extends Cubit<RideTrackingState> {
   /// `cancellation_reason` is capped at 255 characters by the server.
   static const int _maxCancellationReasonLength = 255;
@@ -42,13 +44,14 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
   static const Duration _cancelAnswerWait = Duration(seconds: 6);
 
   final CustomerRideSocketService _socketService;
-  final PlannedRouteLoader _routeLoader;
+  final TripRouteTracker _routeTracker;
   final AccountBlockCubit _accountBlock;
   Timer? _cancelAnswerTimer;
+  RideRouteLeg _trackedLeg = RideRouteLeg.none;
 
   RideTrackingCubit(
     this._socketService,
-    this._routeLoader,
+    this._routeTracker,
     this._accountBlock, {
     required RideModel initialRide,
     required PickedLocationModel pickup,
@@ -144,6 +147,7 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
 
       if (!isClosed) {
         emit(state.copyWith(ride: ride, driver: driver, vehicle: vehicle, driverLocation: location));
+        unawaited(_updateRoute());
       }
     } catch (e) {
       debugPrint('RideTrackingCubit: failed to apply ride snapshot: $e');
@@ -160,10 +164,10 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
           driverLocation: location,
           drivenPath: [...state.drivenPath, RoutePointModel(location.lat, location.lng)],
         ));
-        _loadPlannedRoute();
       } else {
         emit(state.copyWith(driverLocation: location));
       }
+      unawaited(_updateRoute());
     } catch (e) {
       debugPrint('RideTrackingCubit: failed to apply driver location: $e');
     }
@@ -192,6 +196,7 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
           finalPrice: finalPrice,
           fare: RideFareBreakdownModel.fromParent(data, fallbackFinalPrice: finalPrice),
         ));
+        unawaited(_updateRoute());
       } else if (updatedRide.status == 'cancelled') {
         if (state.isCancelling) {
           // Our own cancel: closing now would drop the socket before its
@@ -206,7 +211,7 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
         ));
       } else {
         emit(state.copyWith(ride: updatedRide));
-        if (updatedRide.status == 'in_progress') _loadPlannedRoute();
+        unawaited(_updateRoute());
       }
     } catch (e) {
       debugPrint('RideTrackingCubit: failed to apply ride status: $e');
@@ -238,16 +243,54 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
     }
   }
 
-  /// Loads the planned pickup → dropoff route. Fixed once loaded; while it
-  /// isn't available yet the loader retries on later calls.
-  Future<void> _loadPlannedRoute() async {
-    final route = await _routeLoader.load(
-      fromLat: state.pickup.latitude,
-      fromLng: state.pickup.longitude,
-      toLat: state.dropoff.latitude,
-      toLng: state.dropoff.longitude,
-    );
-    if (!isClosed) emit(state.copyWith(routePoints: route));
+  /// Keeps the map's road line and the arrival time in step with the
+  /// current leg: the driver's way to the pickup, then the trip to the
+  /// dropoff. Cheap to call on every GPS fix — the tracker only asks the
+  /// routing service when it has to, and the state only changes when the
+  /// line or the displayed time does.
+  Future<void> _updateRoute() async {
+    try {
+      final leg = state.routeLeg;
+      if (leg != _trackedLeg) {
+        final previous = _trackedLeg;
+        _trackedLeg = leg;
+        _routeTracker.reset();
+        // The time of the old leg is wrong for the new one. The way to the
+        // pickup means nothing once the driver is there; the trip's own
+        // route stays on the map until the screen closes.
+        emit(state.copyWith(clearEta: true, clearRoute: previous == RideRouteLeg.toPickup));
+      }
+      if (leg == RideRouteLeg.none) return;
+
+      final isTrip = leg == RideRouteLeg.toDropoff;
+      final target = isTrip ? state.dropoff : state.pickup;
+      // A trip that just started has no fix yet: it starts at the pickup.
+      final carLat = state.driverLocation?.lat ?? (isTrip ? state.pickup.latitude : null);
+      final carLng = state.driverLocation?.lng ?? (isTrip ? state.pickup.longitude : null);
+      if (carLat == null || carLng == null) return;
+
+      final snapshot = await _routeTracker.update(
+        carLat: carLat,
+        carLng: carLng,
+        targetLat: target.latitude,
+        targetLng: target.longitude,
+        keepLine: isTrip,
+      );
+      if (isClosed || leg != state.routeLeg) return;
+
+      final progress = snapshot.progress;
+      emit(state.copyWith(
+        routePoints: snapshot.line.isEmpty ? null : snapshot.line,
+        eta: progress == null
+            ? null
+            : TripEtaModel.fromRemaining(
+                meters: progress.remainingMeters,
+                seconds: progress.remainingSeconds,
+              ),
+      ));
+    } catch (e) {
+      debugPrint('RideTrackingCubit: failed to update the route: $e');
+    }
   }
 
   /// Cancels the ride over the socket (`customer:ride_cancel`). On success

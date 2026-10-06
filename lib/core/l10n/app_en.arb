@@ -429,6 +429,36 @@
   "rideRequestCancelled": "Request cancelled",
   "trackDriverOnTheWay": "The driver is on the way to you",
   "trackDriverAtPickup": "The driver reached the pickup point",
+  "distanceMetersShort": "{value} m",
+  "@distanceMetersShort": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "tripEtaToPickup": "Driver arrives in {duration} · {distance}",
+  "@tripEtaToPickup": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "tripEtaToDestination": "Arriving in {duration} · {distance}",
+  "@tripEtaToDestination": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
   "tripCompletedSuccess": "Trip completed successfully",
   "privacyPolicy": "Privacy policy",
   "privacyPolicyAgreePrefix": "I agree to the ",

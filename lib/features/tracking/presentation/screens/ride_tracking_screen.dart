@@ -8,6 +8,7 @@ import '../../../../core/models/account_block_model.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/models/ride_model.dart';
+import '../../../../core/models/trip_eta_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
@@ -15,6 +16,7 @@ import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../../../../core/widgets/fee_chip_widget.dart';
 import '../../../../core/widgets/live_trip_map_widget.dart';
 import '../../../../core/widgets/ride_waiting_timer_widget.dart';
+import '../../../../core/widgets/trip_eta_chip_widget.dart';
 import '../../../../core/widgets/trip_fees_overlay_widget.dart';
 import '../cubit/ride_tracking_cubit.dart';
 import '../cubit/ride_tracking_state.dart';
@@ -129,6 +131,17 @@ class _RideTrackingView extends StatelessWidget {
                       pause: state.ride.pause,
                     ),
                   ),
+                  const IgnorePointer(
+                    child: Align(
+                      alignment: AlignmentDirectional.bottomCenter,
+                      child: SafeArea(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: _TripEtaChip(towardsPickup: false),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               );
             }
@@ -142,6 +155,7 @@ class _RideTrackingView extends StatelessWidget {
                         pickup: state.pickup,
                         dropoff: state.dropoff,
                         driverLocation: state.driverLocation,
+                        routePoints: state.routePoints,
                       ),
                       const _ScreenHeader(),
                     ],
@@ -168,12 +182,38 @@ class _ScreenHeader extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Align(
           alignment: AlignmentDirectional.centerStart,
-          child: FeeChipWidget(
-            icon: Icons.directions_car_rounded,
-            label: context.l10n.trackTrip,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FeeChipWidget(
+                icon: Icons.directions_car_rounded,
+                label: context.l10n.trackTrip,
+              ),
+              const _TripEtaChip(towardsPickup: true),
+            ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The arrival-time pill. Selects only the ETA, so it rebuilds when the
+/// displayed time or distance changes — not on every GPS tick.
+class _TripEtaChip extends StatelessWidget {
+  final bool towardsPickup;
+
+  const _TripEtaChip({required this.towardsPickup});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<RideTrackingCubit, RideTrackingState, TripEtaModel?>(
+      selector: (state) => state.eta,
+      builder: (context, eta) {
+        if (eta == null) return const SizedBox.shrink();
+        return TripEtaChipWidget(eta: eta, towardsPickup: towardsPickup);
+      },
     );
   }
 }

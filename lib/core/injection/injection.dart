@@ -1,5 +1,6 @@
 import 'package:app_links/app_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import '../../driver_features/driver_auth/data/datasources/driver_local_data_source.dart';
 import '../../driver_features/driver_auth/data/datasources/driver_remote_data_source.dart';
@@ -75,10 +76,12 @@ import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
 import '../network/api_error_handler.dart';
 import '../services/current_location_service.dart';
+import '../services/google_routes_service.dart';
 import '../services/planned_route_loader.dart';
 import '../services/route_service.dart';
 import '../services/local_notification_service.dart';
 import '../services/push_notification_service.dart';
+import '../services/trip_route_tracker.dart';
 import '../models/order_offer_model.dart';
 import '../notifications/unread_notifications_cubit.dart';
 import '../services/whatsapp_file_sender.dart';
@@ -242,6 +245,14 @@ void setupInjection() {
   sl.registerLazySingleton<RouteService>(() => RouteService());
   sl.registerFactory<PlannedRouteLoader>(
     () => PlannedRouteLoader(sl<RouteService>()),
+  );
+  // The customer's map: Google Routes (road line + distance + arrival
+  // time). `.env` is loaded before injection is set up (see main.dart).
+  sl.registerLazySingleton<GoogleRoutesService>(
+    () => GoogleRoutesService(apiKey: dotenv.maybeGet('GOOGLE_MAPS_API_KEY') ?? ''),
+  );
+  sl.registerFactory<TripRouteTracker>(
+    () => TripRouteTracker(sl<GoogleRoutesService>()),
   );
   sl.registerLazySingleton<CurrentLocationService>(
     () => CurrentLocationService(),
@@ -562,7 +573,7 @@ void setupInjection() {
   sl.registerFactoryParam<RideTrackingCubit, RideTrackingCubitArgs, void>(
     (args, _) => RideTrackingCubit(
       sl<CustomerRideSocketService>(),
-      sl<PlannedRouteLoader>(),
+      sl<TripRouteTracker>(),
       sl<AccountBlockCubit>(),
       initialRide: args.initialRide,
       pickup: args.pickup,

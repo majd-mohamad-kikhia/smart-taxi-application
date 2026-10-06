@@ -981,6 +981,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackDriverAtPickup => 'The driver reached the pickup point';
 
   @override
+  String distanceMetersShort(String value) {
+    return '$value m';
+  }
+
+  @override
+  String tripEtaToPickup(String duration, String distance) {
+    return 'Driver arrives in $duration · $distance';
+  }
+
+  @override
+  String tripEtaToDestination(String duration, String distance) {
+    return 'Arriving in $duration · $distance';
+  }
+
+  @override
   String get tripCompletedSuccess => 'Trip completed successfully';
 
   @override

@@ -4,7 +4,7 @@ import 'package:mshoar/core/models/cancel_penalty_model.dart';
 import 'package:mshoar/core/models/picked_location_model.dart';
 import 'package:mshoar/core/models/ride_model.dart';
 import 'package:mshoar/core/network/api_client.dart';
-import 'package:mshoar/core/services/planned_route_loader.dart';
+import 'package:mshoar/core/services/trip_route_tracker.dart';
 import 'package:mshoar/features/tracking/data/datasources/customer_ride_socket_service.dart';
 import 'package:mshoar/features/tracking/presentation/cubit/ride_tracking_cubit.dart';
 import 'package:mshoar/features/tracking/presentation/cubit/ride_tracking_state.dart';
@@ -53,7 +53,10 @@ class _FakeAccountBlock extends Fake implements AccountBlockCubit {
   Future<void> refresh({bool notifyIfBlocked = false}) async => refreshes++;
 }
 
-class _FakeRouteLoader extends Fake implements PlannedRouteLoader {}
+class _FakeRouteTracker extends Fake implements TripRouteTracker {
+  @override
+  void reset() {}
+}
 
 const _ride = RideModel(
   id: 122,
@@ -88,7 +91,7 @@ void main() {
     accountBlock = _FakeAccountBlock();
     cubit = RideTrackingCubit(
       socket,
-      _FakeRouteLoader(),
+      _FakeRouteTracker(),
       accountBlock,
       initialRide: _ride,
       pickup: const PickedLocationModel(latitude: 1, longitude: 1),

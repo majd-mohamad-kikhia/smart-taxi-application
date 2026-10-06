@@ -1898,6 +1898,24 @@ abstract class AppLocalizations {
   /// **'The driver reached the pickup point'**
   String get trackDriverAtPickup;
 
+  /// No description provided for @distanceMetersShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} m'**
+  String distanceMetersShort(String value);
+
+  /// No description provided for @tripEtaToPickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver arrives in {duration} · {distance}'**
+  String tripEtaToPickup(String duration, String distance);
+
+  /// No description provided for @tripEtaToDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving in {duration} · {distance}'**
+  String tripEtaToDestination(String duration, String distance);
+
   /// No description provided for @tripCompletedSuccess.
   ///
   /// In en, this message translates to:
