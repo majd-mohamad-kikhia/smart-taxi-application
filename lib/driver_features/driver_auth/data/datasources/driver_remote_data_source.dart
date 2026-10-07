@@ -41,6 +41,18 @@ class DriverRemoteDataSource {
   /// answers 401 once the account is deleted or the token has expired.
   Future<void> checkSession() => _dio.get(_endpoints.driverAccountDeletionRequest);
 
+  /// The driver's current wallet balance: the first line of
+  /// `GET /api/driver/wallet`'s history, which carries it. The login data
+  /// has it too, but only as of the login.
+  Future<double> getWalletBalance() async {
+    final response = await _dio.get(
+      _endpoints.driverWallet,
+      queryParameters: {'page': 1, 'limit': 1},
+    );
+    final data = response.data['data'] as Map<String, dynamic>;
+    return (data['wallet_balance'] as num).toDouble();
+  }
+
   Future<void> logout({required String refreshToken}) {
     return _dio.post(
       _endpoints.driverLogout,

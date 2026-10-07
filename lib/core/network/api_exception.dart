@@ -5,6 +5,10 @@
 /// and, for 409/422 responses, the per-field reasons from swagger's
 /// `ErrorResponse.errors` object.
 class ApiException implements Exception {
+  /// The `errors` key of the refusal a driver with too little in the wallet
+  /// gets wherever an order is accepted (403).
+  static const String walletBalanceField = 'wallet_balance';
+
   final String message;
   final int? statusCode;
 
@@ -25,6 +29,11 @@ class ApiException implements Exception {
     this.fieldErrors,
     this.rawErrors,
   });
+
+  /// The server refused because the driver's wallet is too low. Recognised
+  /// by the `errors.wallet_balance` key, never by the message (which is in
+  /// the driver's language, and the limit behind it can change).
+  bool get isWalletTooLow => rawErrors?.containsKey(walletBalanceField) ?? false;
 
   @override
   String toString() => message;

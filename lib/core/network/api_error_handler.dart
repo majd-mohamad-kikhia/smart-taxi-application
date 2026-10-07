@@ -97,6 +97,12 @@ class ApiErrorHandler {
     Map<String, String>? rawFieldErrors,
     AppLocalizations l10n,
   ) {
+    // "Please charge your wallet first": the server already wrote it in the
+    // driver's language, so it is shown as it is — like an ordering block's
+    // message — instead of being matched against a translation table.
+    final walletMessage = _walletTooLowMessage(body, rawFieldErrors);
+    if (walletMessage != null) return walletMessage;
+
     if (rawFieldErrors != null) {
       for (final reason in rawFieldErrors.values) {
         final mapped = ApiErrorMessages.byFieldReason[_normalize(reason)];
@@ -118,6 +124,15 @@ class ApiErrorHandler {
       if (mapped != null) return mapped(l10n);
     }
     return _fallbackMessage(statusCode, error.requestOptions.path, l10n);
+  }
+
+  /// The server's own text of a low-wallet refusal (`errors.wallet_balance`),
+  /// or null when this isn't one or the text is blank.
+  String? _walletTooLowMessage(dynamic body, Map<String, String>? rawFieldErrors) {
+    final reason = rawFieldErrors?[ApiException.walletBalanceField];
+    if (reason == null) return null;
+    final message = _bodyMessage(body) ?? reason;
+    return message.trim().isEmpty ? null : message;
   }
 
   /// "Check: `field labels`" — used when the API flagged specific

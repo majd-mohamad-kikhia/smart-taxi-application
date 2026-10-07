@@ -15,11 +15,15 @@ final class SharedOrderLoading extends SharedOrderState {
 
 /// The order is on screen. Accept shows only while
 /// `preview.canAccept`; [acceptError] is set when the last accept failed
-/// without an answer (offline) — it is safe to tap again.
+/// without an answer (offline) — it is safe to tap again; [walletMessage]
+/// is the server's text when it refused because the wallet is too low
+/// (nothing was accepted; the order is still there to accept after a
+/// top-up).
 final class SharedOrderLoaded extends SharedOrderState {
   final SharedOrderPreviewModel preview;
   final bool accepting;
   final String? acceptError;
+  final String? walletMessage;
 
   /// The driver has a trip screen open (for "finish your current trip").
   final bool hasOpenTrip;
@@ -28,20 +32,24 @@ final class SharedOrderLoaded extends SharedOrderState {
     this.preview, {
     this.accepting = false,
     this.acceptError,
+    this.walletMessage,
     this.hasOpenTrip = false,
   });
 
-  SharedOrderLoaded copyWith({bool? accepting, String? acceptError}) {
+  /// A new attempt or a refusal replaces the last one: [acceptError] and
+  /// [walletMessage] are cleared unless given.
+  SharedOrderLoaded copyWith({bool? accepting, String? acceptError, String? walletMessage}) {
     return SharedOrderLoaded(
       preview,
       accepting: accepting ?? this.accepting,
       acceptError: acceptError,
+      walletMessage: walletMessage,
       hasOpenTrip: hasOpenTrip,
     );
   }
 
   @override
-  List<Object?> get props => [preview, accepting, acceptError, hasOpenTrip];
+  List<Object?> get props => [preview, accepting, acceptError, walletMessage, hasOpenTrip];
 }
 
 /// Nobody can take the order any more: [availability] is `taken` or

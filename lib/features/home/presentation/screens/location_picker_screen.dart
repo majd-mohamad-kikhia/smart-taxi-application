@@ -9,6 +9,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/services/current_location_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/format_distance.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../data/models/place_suggestion_model.dart';
 import '../../data/repositories/places_repository.dart';
@@ -51,6 +52,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   GoogleMapController? _controller;
   late LatLng _center;
+
+  /// Where the customer actually is (not where the map is looking) — what
+  /// "nearest first" is measured from. Null until a fix is had, e.g. when
+  /// location permission is off; the search then uses the map's center.
+  LatLng? _userLocation;
 
   /// A GPS fix that arrived before the map was created.
   LatLng? _pendingTarget;
@@ -99,6 +105,17 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       _reverseGeocodeCenter();
     }
     _loadMapStyle();
+    unawaited(_loadUserLocation());
+  }
+
+  /// Reads the customer's position for the search ranking. Quiet: it never
+  /// asks for permission (the pickup flow does that itself), and it never
+  /// overwrites a fix `_useCurrentLocation` already got, which is fresher.
+  Future<void> _loadUserLocation() async {
+    final position = await sl<CurrentLocationService>().getPositionIfAllowed();
+    if (position != null) {
+      _userLocation ??= LatLng(position.latitude, position.longitude);
+    }
   }
 
   /// Moves the pin to the customer's GPS position, quietly: no message if it
@@ -337,7 +354,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _debounce?.cancel();
     setState(() => _searchError = null);
     if (value.trim().isEmpty) {
-      setState(() => _suggestions = []);
+      setState(() {
+        _suggestions = [];
+        _isSearching = false;
+      });
       return;
     }
     _debounce = Timer(_searchDebounce, () => _search(value));
@@ -345,19 +365,25 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   Future<void> _search(String query) async {
     setState(() => _isSearching = true);
+    // Nearest to the customer; the map's center only when their position
+    // isn't known.
+    final near = _userLocation ?? _center;
     try {
       final results = await sl<PlacesRepository>().search(
         query,
-        nearLatitude: _center.latitude,
-        nearLongitude: _center.longitude,
+        nearLatitude: near.latitude,
+        nearLongitude: near.longitude,
       );
-      if (!mounted) return;
+      // The customer typed on (or cleared the box) while this ran: a
+      // newer search owns the list now, and an older answer must not
+      // replace it.
+      if (!mounted || query != _searchController.text) return;
       setState(() {
         _suggestions = results;
         _isSearching = false;
       });
     } on PlacesException catch (e) {
-      if (!mounted) return;
+      if (!mounted || query != _searchController.text) return;
       setState(() {
         _searchError = e.message;
         _suggestions = [];
@@ -372,6 +398,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     setState(() {
       _suggestions = [];
       _searchError = null;
+      _isSearching = false;
     });
   }
 
@@ -428,11 +455,12 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       // The GPS fix can arrive after the user has left this screen, at
       // which point the map (and its controller) is already disposed.
       if (!mounted) return;
+      final target = LatLng(position.latitude, position.longitude);
+      _userLocation = target;
       if (silent &&
           (_center != _defaultCenter || _searchController.text.isNotEmpty)) {
         return;
       }
-      final target = LatLng(position.latitude, position.longitude);
       final controller = _controller;
       if (controller == null) {
         // The map isn't built yet; `onMapCreated` moves it there.
@@ -606,6 +634,16 @@ class _SuggestionsCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  trailing: suggestion.distanceMeters == null
+                      ? null
+                      : Text(
+                          formatDistance(context.l10n, suggestion.distanceMeters!),
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
                   onTap: () => onSuggestionTap(suggestion),
                 );
               },

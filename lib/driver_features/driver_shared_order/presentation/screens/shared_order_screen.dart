@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_loader_widget.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
+import '../../../../core/widgets/wallet_too_low_dialog.dart';
 import '../../data/models/shared_order_preview_model.dart';
 import '../cubit/shared_order_cubit.dart';
 import '../cubit/shared_order_state.dart';
@@ -81,6 +82,18 @@ class _SharedOrderViewState extends State<_SharedOrderView> {
               context,
               context.l10n.sharedOrderAcceptFailed,
               type: AppSnackBarType.error,
+            ),
+          ),
+          // The wallet is too low: the server's own message, as a dialog.
+          BlocListener<SharedOrderCubit, SharedOrderState>(
+            listenWhen: (previous, current) =>
+                current is SharedOrderLoaded &&
+                current.walletMessage != null &&
+                (previous is! SharedOrderLoaded ||
+                    previous.walletMessage != current.walletMessage),
+            listener: (context, state) => showWalletTooLowDialog(
+              context,
+              (state as SharedOrderLoaded).walletMessage!,
             ),
           ),
         ],

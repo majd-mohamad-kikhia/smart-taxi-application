@@ -441,6 +441,76 @@ void main() {
     });
   });
 
+  group('driver wallet too low (403 on accept)', () {
+    const arabic = 'يرجى شحن محفظتك أولاً';
+
+    Map<String, Object?> refusal(String message) => {
+      'success': false,
+      'message': message,
+      'errors': {'wallet_balance': message},
+    };
+
+    test('shows the server\'s text as it is, whatever the language', () {
+      for (final message in [arabic, 'Please charge your wallet first']) {
+        final result = handle(
+          path: endpoints.driverRideAccept(7),
+          statusCode: 403,
+          data: refusal(message),
+        );
+        expect(result.message, message);
+        expect(result.statusCode, 403);
+        expect(result.isWalletTooLow, isTrue);
+      }
+    });
+
+    test('the same on the office-order link', () {
+      final result = handle(
+        path: endpoints.driverSharedRideAccept('tok'),
+        statusCode: 403,
+        data: refusal(arabic),
+      );
+      expect(result.message, arabic);
+      expect(result.isWalletTooLow, isTrue);
+    });
+
+    test('falls back to the errors text when the body has no message', () {
+      final result = handle(
+        path: endpoints.driverRideAccept(7),
+        statusCode: 403,
+        data: {
+          'success': false,
+          'errors': {'wallet_balance': arabic},
+        },
+      );
+      expect(result.message, arabic);
+      expect(result.isWalletTooLow, isTrue);
+    });
+
+    test('is recognised by errors.wallet_balance, never by the text', () {
+      final result = handle(
+        path: endpoints.driverRideAccept(7),
+        statusCode: 403,
+        data: {'success': false, 'message': 'Please charge your wallet first'},
+      );
+      expect(result.isWalletTooLow, isFalse);
+      expect(result.message, 'غير مصرح لك بهذا الإجراء');
+    });
+
+    test('other 403s on accept are unchanged', () {
+      final result = handle(
+        path: endpoints.driverRideAccept(7),
+        statusCode: 403,
+        data: {
+          'success': false,
+          'message': 'Account is blocked',
+          'errors': {'status': 'blocked'},
+        },
+      );
+      expect(result.isWalletTooLow, isFalse);
+      expect(result.message, isNot('Account is blocked'));
+    });
+  });
+
   group('malformed / unexpected bodies', () {
     test('errors present but is a List, not a Map -> ignored', () {
       final result = handle(

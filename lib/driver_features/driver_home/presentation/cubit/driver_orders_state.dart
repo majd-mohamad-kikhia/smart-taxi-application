@@ -11,10 +11,15 @@ class DriverOrdersState extends Equatable {
 
   final String? errorMessage;
 
+  /// [errorMessage] is the "charge your wallet first" refusal: shown as a
+  /// dialog the driver has to see, not a passing toast.
+  final bool errorIsWalletTooLow;
+
   const DriverOrdersState({
     this.orders = const [],
     this.acceptingRideId,
     this.errorMessage,
+    this.errorIsWalletTooLow = false,
   });
 
   factory DriverOrdersState.initial() => const DriverOrdersState();
@@ -24,15 +29,18 @@ class DriverOrdersState extends Equatable {
     int? acceptingRideId,
     bool clearAccepting = false,
     String? errorMessage,
+    bool errorIsWalletTooLow = false,
     bool clearError = false,
   }) {
     return DriverOrdersState(
       orders: orders ?? this.orders,
       acceptingRideId: clearAccepting ? null : (acceptingRideId ?? this.acceptingRideId),
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      errorIsWalletTooLow:
+          clearError ? false : (errorMessage != null ? errorIsWalletTooLow : this.errorIsWalletTooLow),
     );
   }
 
   @override
-  List<Object?> get props => [orders, acceptingRideId, errorMessage];
+  List<Object?> get props => [orders, acceptingRideId, errorMessage, errorIsWalletTooLow];
 }

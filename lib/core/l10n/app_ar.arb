@@ -221,6 +221,7 @@
   "driverFinishTrip": "إنهاء الرحلة",
   "walletFines": "الغرامات الإدارية",
   "walletBalanceHint": "تُخصم العمولات من هذا الرصيد",
+  "driverWalletLowNotice": "رصيد محفظتك منخفض ({balance}). يرجى شحن محفظتك لتتمكن من قبول الطلبات.",
   "walletPreviousMonth": "الشهر السابق",
   "walletNextMonth": "الشهر التالي",
   "walletEarnings": "أرباح الرحلات",

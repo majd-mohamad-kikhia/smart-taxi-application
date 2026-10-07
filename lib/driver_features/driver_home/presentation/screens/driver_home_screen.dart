@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/account_block_gate_widget.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
+import '../../../../core/widgets/wallet_too_low_dialog.dart';
 import '../../../driver_auth/data/models/driver_status.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_state.dart';
@@ -16,6 +17,7 @@ import '../cubit/driver_orders_cubit.dart';
 import '../cubit/driver_orders_state.dart';
 import '../cubit/driver_presence_cubit.dart';
 import '../cubit/driver_presence_state.dart';
+import '../widgets/driver_low_wallet_notice_widget.dart';
 import '../widgets/driver_online_toggle_widget.dart';
 import '../widgets/driver_order_card_widget.dart';
 import '../widgets/driver_status_card_widget.dart';
@@ -41,6 +43,10 @@ class DriverHomeScreen extends StatelessWidget {
         listenWhen: (previous, current) =>
             current.errorMessage != null && current.errorMessage != previous.errorMessage,
         listener: (context, state) {
+          if (state.errorIsWalletTooLow) {
+            showWalletTooLowDialog(context, state.errorMessage!);
+            return;
+          }
           showAppSnackBar(
             context,
             state.errorMessage!,
@@ -57,6 +63,9 @@ class DriverHomeScreen extends StatelessWidget {
               children: [
                 DriverStatusCardWidget(driver: driver),
                 const SizedBox(height: 12),
+                // Only for an approved driver: one still pending has an empty
+                // wallet and can't accept anything yet anyway.
+                if (driver.status == DriverStatus.active) const DriverLowWalletNoticeWidget(),
                 DriverOnlineToggleWidget(enabled: driver.status == DriverStatus.active),
                 const SizedBox(height: 20),
                 // Blocked drivers get no offers; the toggle stays so they can
@@ -150,6 +159,8 @@ class _OrdersList extends StatelessWidget {
         AppRouter.driverTrip,
         arguments: DriverTripRouteArgs(order: order),
       );
+      // The trip's commission has come out of the wallet by now.
+      sl<DriverAuthCubit>().refreshWalletBalance();
     }
   }
 }

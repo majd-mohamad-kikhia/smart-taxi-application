@@ -1502,6 +1502,12 @@ abstract class AppLocalizations {
   /// **'Commissions are taken from this balance'**
   String get walletBalanceHint;
 
+  /// No description provided for @driverWalletLowNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet balance is low ({balance}). Please charge your wallet to be able to accept orders.'**
+  String driverWalletLowNotice(String balance);
+
   /// No description provided for @walletPreviousMonth.
   ///
   /// In en, this message translates to:

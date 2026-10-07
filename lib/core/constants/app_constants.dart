@@ -29,10 +29,16 @@ class AppConstants {
   static const String routingBaseUrl = 'https://router.project-osrm.org';
 
   /// Google Routes API (`computeRoutes`) — the customer's live map road
-  /// line, distance and arrival time. Authorized by the `GOOGLE_MAPS_API_KEY`
-  /// from `.env`, which must have the Routes API enabled.
+  /// line, distance and arrival time. The key and app identity come from
+  /// `GoogleApiCredentialsLoader`; the key needs the Routes API enabled.
   static const String googleRoutesBaseUrl = 'https://routes.googleapis.com';
   static const String googleRoutesComputePath = '/directions/v2:computeRoutes';
+
+  /// A driver whose wallet is at or below this can't accept orders — the
+  /// server refuses them (see `ApiException.isWalletTooLow`). Only used to
+  /// warn the driver early on the home screen; the server's own limit is the
+  /// authority, so change both together.
+  static const double lowDriverWalletBalance = 200;
 
   static const double radiusMedium = 12.0;
   static const double radiusLarge = 16.0;

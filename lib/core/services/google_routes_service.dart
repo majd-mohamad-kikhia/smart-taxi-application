@@ -4,6 +4,7 @@ import '../constants/app_constants.dart';
 import '../localization/app_strings.dart';
 import '../models/driving_route_model.dart';
 import '../utils/polyline_decoder.dart';
+import 'google_api_credentials_loader.dart';
 import 'route_service.dart' show RouteException;
 
 /// Fetches a driving route — road line, distance and travel time with live
@@ -11,6 +12,10 @@ import 'route_service.dart' show RouteException;
 ///
 /// Uses its own plain [Dio] on purpose: the app's API client injects the
 /// user's auth token, which must never be sent to a third-party host.
+///
+/// The key and the app identity headers come from
+/// [GoogleApiCredentialsLoader]: a key restricted to Android or iOS apps
+/// only works when the request says which app it comes from.
 ///
 /// The API bills and answers by field mask, so the request asks for the
 /// three fields the map needs and nothing else (no legs, steps or
@@ -20,10 +25,12 @@ class GoogleRoutesService {
       'routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline';
 
   final Dio _dio;
-  final String _apiKey;
+  final Future<GoogleApiCredentials> Function() _credentials;
 
-  GoogleRoutesService({required String apiKey, Dio? dio})
-      : _apiKey = apiKey,
+  GoogleRoutesService({
+    required Future<GoogleApiCredentials> Function() credentials,
+    Dio? dio,
+  })  : _credentials = credentials,
         _dio = dio ??
             Dio(
               BaseOptions(
@@ -38,15 +45,16 @@ class GoogleRoutesService {
   ///
   /// Throws [RouteException] when there is no key, no route, or the request
   /// fails — [debugPrint] carries the reason Google gave (a missing Routes
-  /// API permission or an app-restricted key shows up there).
+  /// API permission or an unregistered app signature shows up there).
   Future<DrivingRouteModel> computeRoute({
     required double fromLat,
     required double fromLng,
     required double toLat,
     required double toLng,
   }) async {
-    if (_apiKey.isEmpty) {
-      debugPrint('GoogleRoutesService: GOOGLE_MAPS_API_KEY is missing from .env');
+    final credentials = await _credentials();
+    if (credentials.apiKey.isEmpty) {
+      debugPrint('GoogleRoutesService: no Google API key available');
       throw RouteException(AppStrings.current.errServerUnreachable);
     }
 
@@ -65,8 +73,9 @@ class GoogleRoutesService {
           'units': 'METRIC',
         },
         options: Options(headers: {
-          'X-Goog-Api-Key': _apiKey,
+          'X-Goog-Api-Key': credentials.apiKey,
           'X-Goog-FieldMask': _fieldMask,
+          ...credentials.appHeaders,
         }),
       );
     } on DioException catch (e) {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/network/socket_client.dart';
+import '../models/order_accept_result_model.dart';
 
 /// Wraps the driver's live-location + ride-offers Socket.IO connection.
 ///
@@ -130,22 +131,20 @@ class DriverSocketService {
   /// Accepts a ride offer via the ack-based `driver:order_accept` event
   /// (preferred over the REST `POST /api/driver/rides/:id/accept` — same
   /// atomic compare-and-set on the server either way). [onResult] receives
-  /// `ok` and, on failure, the server's `error` message.
+  /// the server's answer; on a refusal it carries the server's message and
+  /// whether the reason is a low wallet.
   void acceptOrder({
     required int rideId,
-    required void Function(bool ok, String? error) onResult,
+    required void Function(OrderAcceptResult result) onResult,
   }) {
     if (_disposed || _socket == null) {
-      onResult(false, AppStrings.current.errNotConnected);
+      onResult(OrderAcceptResult(ok: false, message: AppStrings.current.errNotConnected));
       return;
     }
     _socket!.emitWithAck(
       'driver:order_accept',
       {'ride_id': rideId},
-      ack: (res) {
-        final map = Map<String, dynamic>.from(res as Map);
-        onResult(map['ok'] == true, map['error'] as String?);
-      },
+      ack: (res) => onResult(OrderAcceptResult.fromAck(res)),
     );
   }
 

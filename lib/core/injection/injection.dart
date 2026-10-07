@@ -76,6 +76,7 @@ import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
 import '../network/api_error_handler.dart';
 import '../services/current_location_service.dart';
+import '../services/google_api_credentials_loader.dart';
 import '../services/google_routes_service.dart';
 import '../services/planned_route_loader.dart';
 import '../services/route_service.dart';
@@ -247,9 +248,15 @@ void setupInjection() {
     () => PlannedRouteLoader(sl<RouteService>()),
   );
   // The customer's map: Google Routes (road line + distance + arrival
-  // time). `.env` is loaded before injection is set up (see main.dart).
+  // time). `.env` is loaded before injection is set up (see main.dart); its
+  // key is the iOS/other-platform key — Android reads its own from the build.
+  sl.registerLazySingleton<GoogleApiCredentialsLoader>(
+    () => GoogleApiCredentialsLoader(
+      envKey: dotenv.maybeGet('GOOGLE_MAPS_API_KEY') ?? '',
+    ),
+  );
   sl.registerLazySingleton<GoogleRoutesService>(
-    () => GoogleRoutesService(apiKey: dotenv.maybeGet('GOOGLE_MAPS_API_KEY') ?? ''),
+    () => GoogleRoutesService(credentials: sl<GoogleApiCredentialsLoader>().load),
   );
   sl.registerFactory<TripRouteTracker>(
     () => TripRouteTracker(sl<GoogleRoutesService>()),

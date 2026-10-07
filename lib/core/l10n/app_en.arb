@@ -322,6 +322,14 @@
   "driverFinishTrip": "Finish trip",
   "walletFines": "Administrative fines",
   "walletBalanceHint": "Commissions are taken from this balance",
+  "driverWalletLowNotice": "Your wallet balance is low ({balance}). Please charge your wallet to be able to accept orders.",
+  "@driverWalletLowNotice": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
   "walletPreviousMonth": "Previous month",
   "walletNextMonth": "Next month",
   "walletEarnings": "Trip earnings",

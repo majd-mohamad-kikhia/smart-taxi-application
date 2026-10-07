@@ -70,6 +70,15 @@ class DriverRepository {
     }
   }
 
+  /// The driver's current wallet balance, from the server.
+  Future<double> walletBalance() async {
+    try {
+      return await _remoteDataSource.getWalletBalance();
+    } on DioException catch (e) {
+      throw _mapDioException(e);
+    }
+  }
+
   /// Updates the driver's ride-search radius on the server, then keeps the
   /// locally-cached session in sync so a restart doesn't show a stale value.
   Future<double> updateSearchRadius(double searchRadiusKm) async {

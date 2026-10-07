@@ -70,18 +70,20 @@ class DriverOrdersCubit extends Cubit<DriverOrdersState> {
     final completer = Completer<bool>();
     _socketService.acceptOrder(
       rideId: rideId,
-      onResult: (ok, error) {
+      onResult: (result) {
         if (!isClosed) {
           // On success the card is removed via `driver:order_remove` — no
-          // need to touch `orders` here.
+          // need to touch `orders` here. A refusal (a low wallet included)
+          // leaves the card where it is: nothing was accepted.
           emit(state.copyWith(
             clearAccepting: true,
-            errorMessage: ok
+            errorMessage: result.ok
                 ? null
-                : (error ?? AppStrings.current.driverAcceptTripFailed),
+                : (result.message ?? AppStrings.current.driverAcceptTripFailed),
+            errorIsWalletTooLow: result.walletTooLow,
           ));
         }
-        if (!completer.isCompleted) completer.complete(ok);
+        if (!completer.isCompleted) completer.complete(result.ok);
       },
     );
     return completer.future;

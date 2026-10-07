@@ -68,7 +68,7 @@ Keep copies of these somewhere safe outside the repo (password manager, private 
 
 | File | Contains | Used by | What breaks without it |
 | --- | --- | --- | --- |
-| `.env` | `GOOGLE_MAPS_API_KEY=...` | Listed under `assets:` in `pubspec.yaml`; loaded by `dotenv.load()` in [lib/main.dart](lib/main.dart) | **The build fails** (missing asset). Also read at runtime by `GoogleRoutesService` (customer road line + arrival time): the key needs the **Routes API** enabled, and must not be restricted to Android/iOS apps (the REST call doesn't send the app's package/SHA-1). |
+| `.env` | `GOOGLE_MAPS_API_KEY=...` | Listed under `assets:` in `pubspec.yaml`; loaded by `dotenv.load()` in [lib/main.dart](lib/main.dart) | **The build fails** (missing asset). Read at runtime on **iOS/other platforms** by `GoogleApiCredentialsLoader` for the Google Routes call (customer road line + arrival time), sent with the bundle id. On Android the key comes from the build instead (see below). |
 | `android/local.properties` | `sdk.dir`, `flutter.sdk` (auto-generated) **plus** `GOOGLE_MAPS_API_KEY=...` (added by hand) | `android/app/build.gradle.kts` → manifest placeholder `${GOOGLE_MAPS_API_KEY}` | Google Maps shows a blank/grey map on Android |
 | `android/key.properties` | `storePassword`, `keyPassword`, `keyAlias`, `storeFile` | Release signing config in `android/app/build.gradle.kts` | Release builds can't be signed |
 | the upload keystore (`*.keystore` / `*.jks`) | The signing key that `storeFile` points to | Release signing | **Lose this and you can't update the Play Store app.** Back it up. |
@@ -134,9 +134,9 @@ dart run flutter_native_splash:create    # regenerate the native splash screen
 | Smart Taxi backend `https://smart-taxi.ma-core.net` | REST API + Socket.IO | URL hard-coded in `api_client.dart` **and** `socket_client.dart` |
 | Firebase Cloud Messaging | Push notifications (both roles) | The device token is sent with login/signup (`PushNotificationService.deviceTokenFields`) |
 | Google Maps SDK | Map tiles | API key setup: see [Setup](#2-setup-from-a-fresh-clone). A dark style is loaded from `assets/map_styles/dark_map_style.json`. |
-| Google Routes API `https://routes.googleapis.com` (`computeRoutes`) | The customer's live map: road line, road distance and arrival time (driver → pickup, then pickup → dropoff). Field-masked to polyline + distance + duration, traffic-aware. | Billed per request; kept low by matching GPS fixes onto the fetched route locally (`TripRouteTracker`). Needs the Routes API enabled on `GOOGLE_MAPS_API_KEY`. Separate `Dio`, so the auth token is never sent to it. |
+| Google Routes API `https://routes.googleapis.com` (`computeRoutes`) | The customer's live map: road line, road distance and arrival time (driver → pickup, then pickup → dropoff). Field-masked to polyline + distance + duration, traffic-aware. | Billed per request; kept low by matching GPS fixes onto the fetched route locally (`TripRouteTracker`). Needs the Routes API enabled on the key. **Android** sends the manifest maps key (`android/local.properties`) with `X-Android-Package` + `X-Android-Cert` (the SHA-1 of the cert the running build is signed with, read by `MainActivity`), **iOS** the `.env` key with `X-Ios-Bundle-Identifier` — so each platform's key can stay restricted to its own app. The signing SHA-1 of every way the app is built (debug, upload keystore, Play App Signing) must be registered on the Android key, or the map **and** the routes are rejected. Separate `Dio`, so the auth token is never sent to it. |
 | OSRM `https://router.project-osrm.org` | Road route between two points (planned route line on live maps) | **Public demo server with no SLA**; point `AppConstants.routingBaseUrl` at your own instance for production. Uses a separate `Dio` so the auth token is never sent to it. |
-| Photon `https://photon.komoot.io` | Place search-as-you-type and reverse geocoding in the location picker | Free, keyless, best-effort. Separate `Dio`, not `ApiClient`. |
+| Photon `https://photon.komoot.io` | Place search-as-you-type and reverse geocoding in the location picker | Free, keyless, best-effort. Separate `Dio`, not `ApiClient`. Search is ranked on the phone, nearest to the customer's own position first (see `PlacesRepository` / `PlaceSearchRanker`): a first request limited to ~55 km around the customer, a second unrestricted one only when fewer than 5 nearby places match what was typed. Photon's own `lat`/`lon` bias is soft and `location_bias_scale` made results worse, so neither is relied on. |
 
 ---
 
@@ -325,6 +325,7 @@ sl<DriverTripCubit>(param1: order, param2: resume)
   3. known user-facing fields → "Check: phone, password…"
   4. a top-level `message` that exactly matches a documented literal
   5. a fallback by status code **and endpoint** (e.g. 401 on login = wrong credentials, elsewhere = session expired; 409 on signup = account exists, elsewhere = action unavailable)
+- **One exception to "never the raw text": a low wallet.** Any accept of an order (REST `POST /api/driver/rides/{id}/accept`, the office-order link, the socket) is refused with `errors.wallet_balance` when the driver's wallet is at or below the server's limit. The server already writes that `message` in the driver's language, so the handler passes it through as it is, and `ApiException.isWalletTooLow` recognises it by the **key** (never by the text; the limit is a server setting and is not hardcoded in the app). It is shown with `showWalletTooLowDialog`; the order stays on screen, since nothing was accepted.
 - The lookup tables live in [api_error_messages.dart](lib/core/network/api_error_messages.dart). **When the backend adds a new error string, add it there** (and to both .arb files).
 - Status code constants are in [status_code.dart](lib/core/network/status_code.dart). Use `StatusCode.unauthorized`, not `401`.
 
@@ -353,7 +354,7 @@ Check `api_endpoints.dart` for the exact methods; the table above is a map, not 
 
 | Service | Lifetime | Listens to | Sends |
 | --- | --- | --- | --- |
-| [DriverSocketService](lib/driver_features/driver_home/data/datasources/driver_socket_service.dart) | Singleton while the driver is online, shared by presence + orders cubits | `driver:orders_snapshot`, `driver:order_offer`, `driver:order_remove`, `driver:ride_cancelled` | `driver:location {lat,lng}` (periodic, from `LocationTicker`), `driver:order_accept {ride_id}` **with ack** `{ok, error}` |
+| [DriverSocketService](lib/driver_features/driver_home/data/datasources/driver_socket_service.dart) | Singleton while the driver is online, shared by presence + orders cubits | `driver:orders_snapshot`, `driver:order_offer`, `driver:order_remove`, `driver:ride_cancelled` | `driver:location {lat,lng}` (periodic, from `LocationTicker`), `driver:order_accept {ride_id}` **with ack** `{ok, error}` — read by `OrderAcceptResult.fromAck`, which also understands the API error shape (`errors.wallet_balance` = wallet too low) |
 | [CustomerRideSocketService](lib/features/tracking/data/datasources/customer_ride_socket_service.dart) | Fresh per tracking screen | `customer:ride_accepted`, `customer:driver_location`, `customer:ride_status`, `customer:ride_pause_update`, `customer:ride_paid`, `customer:active_ride` | `customer:ride_cancel {ride_id, cancellation_reason?}` **with ack** |
 | [AccountBlockSocketService](lib/core/account_block/account_block_socket_service.dart) | Always on while anyone is signed in | `customer:block_status` / `driver:block_status` (manager's ride block), `app:version_changed` (triggers a version re-check) | |
 
@@ -569,6 +570,7 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [route_service.dart](lib/core/services/route_service.dart): OSRM driving route between two points.
 - [google_routes_service.dart](lib/core/services/google_routes_service.dart): Google Routes `computeRoutes` (road line, distance, duration).
 - [trip_route_tracker.dart](lib/core/services/trip_route_tracker.dart): per-trip route + arrival time with minimal API calls.
+- [google_api_credentials_loader.dart](lib/core/services/google_api_credentials_loader.dart): the key + app-identity headers (package/SHA-1 on Android via the `smart_taxi/google_api` channel, bundle id on iOS) for Google's web APIs.
 
 **session/**
 - [app_user.dart](lib/core/session/app_user.dart): signed-in user's basic profile + role.
@@ -652,7 +654,8 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [presentation/widgets/role_option_card_widget.dart](lib/features/auth/presentation/widgets/role_option_card_widget.dart): one selectable role card.
 
 **home/**: create a ride request
-- [data/datasources/places_remote_data_source.dart](lib/features/home/data/datasources/places_remote_data_source.dart): Photon search + reverse geocoding.
+- [data/datasources/places_remote_data_source.dart](lib/features/home/data/datasources/places_remote_data_source.dart): Photon search (optional nearby box) + reverse geocoding.
+- [data/place_search_ranker.dart](lib/features/home/data/place_search_ranker.dart): orders results matches-first, then nearest-first; Arabic-aware matching (spelling variants, "ال", diacritics, half-typed word).
 - [data/datasources/ride_request_remote_data_source.dart](lib/features/home/data/datasources/ride_request_remote_data_source.dart): `rides/locations`, `choose-vehicle`, cancel.
 - [data/models/place_suggestion_model.dart](lib/features/home/data/models/place_suggestion_model.dart): one search suggestion.
 - [data/models/ride_quote_model.dart](lib/features/home/data/models/ride_quote_model.dart): step-1 result (distance, ETA, vehicle quotes).
@@ -759,6 +762,7 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [presentation/cubit/driver_presence_state.dart](lib/driver_features/driver_home/presentation/cubit/driver_presence_state.dart): connection status.
 - [presentation/screens/driver_home_screen.dart](lib/driver_features/driver_home/presentation/screens/driver_home_screen.dart): driver home tab.
 - [presentation/widgets/driver_online_toggle_widget.dart](lib/driver_features/driver_home/presentation/widgets/driver_online_toggle_widget.dart): online/offline control.
+- [presentation/widgets/driver_low_wallet_notice_widget.dart](lib/driver_features/driver_home/presentation/widgets/driver_low_wallet_notice_widget.dart): amber notice when the wallet is at or below `AppConstants.lowDriverWalletBalance` (200). The balance comes from `DriverAuthState.walletBalance`, refreshed from `GET /api/driver/wallet` when the home screen opens, when the app is resumed and after a trip; the copy saved at sign in is never trusted. The server's refusal stays the authority.
 - [presentation/widgets/driver_order_card_widget.dart](lib/driver_features/driver_home/presentation/widgets/driver_order_card_widget.dart): one ride offer card.
 - [presentation/widgets/driver_status_card_widget.dart](lib/driver_features/driver_home/presentation/widgets/driver_status_card_widget.dart): driver identity + status + vehicle summary.
 
@@ -906,7 +910,7 @@ iOS: `AppConstants.iosStoreUrl` is still empty (TODO), so there's no App Store l
 - **`docs/socket.md`** is referenced in code comments but doesn't exist in the repo.
 - **HTTP logging is always on** (`ApiClient._enableLogging = true`), including in release builds, so request/response bodies (tokens, phone numbers) go to the device log. Consider tying it to `kDebugMode`.
 - **Backend URL is duplicated** in `api_client.dart` and `socket_client.dart`. Change both when the host changes.
-- **`.env` is bundled into the app as an asset**, so its Maps key is readable from the APK (as the native Maps key already is). The map tiles' key wiring is native (local.properties / Secrets.xcconfig); only `GoogleRoutesService` reads `.env` at runtime.
+- **`.env` is bundled into the app as an asset**, so its Maps key is readable from the APK (as the native Maps key already is). The map tiles' key wiring is native (local.properties / Secrets.xcconfig); only the iOS/other-platform Routes call reads `.env` at runtime — Android reads the key from its own manifest.
 - **OSRM and Photon are free public servers** with no SLA or rate guarantees. Plan self-hosting or a paid provider if traffic grows.
 - **Drivers can't sign up in-app.** Accounts are created by the operator; pending, suspended and rejected accounts get 403 on login.
 - **"customer", not "rider".** Old saved sessions may contain role `'rider'`; `auth_local_data_source.dart` maps it. Don't remove that mapping.

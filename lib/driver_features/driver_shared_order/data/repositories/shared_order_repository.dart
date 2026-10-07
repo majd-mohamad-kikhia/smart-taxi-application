@@ -18,11 +18,17 @@ class SharedOrderException implements Exception {
   /// `errors.opens_at` of a `scheduled` refusal (UTC).
   final DateTime? opensAt;
 
+  /// `errors.wallet_balance` of a 403: the driver's wallet is too low to
+  /// accept. [message] is then the server's own text, in the driver's
+  /// language.
+  final bool walletTooLow;
+
   const SharedOrderException(
     this.message, {
     this.statusCode,
     this.availability,
     this.opensAt,
+    this.walletTooLow = false,
   });
 
   bool get isInvalidLink => statusCode == StatusCode.notFound;
@@ -62,6 +68,7 @@ class SharedOrderRepository {
             ? null
             : SharedOrderAvailability.fromWire(availability),
         opensAt: opensAt == null ? null : parseUtcDateTime(opensAt),
+        walletTooLow: error.isWalletTooLow,
       );
     }
   }

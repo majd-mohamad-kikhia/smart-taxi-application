@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/core/constants/app_constants.dart';
+import 'package:mshoar/core/services/google_api_credentials_loader.dart';
 import 'package:mshoar/core/services/google_routes_service.dart';
 import 'package:mshoar/core/services/route_service.dart';
 
@@ -33,13 +34,20 @@ class _FakeAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-GoogleRoutesService _service(_FakeAdapter adapter, {String apiKey = 'test-key'}) {
+GoogleRoutesService _service(
+  _FakeAdapter adapter, {
+  String apiKey = 'test-key',
+  Map<String, String> appHeaders = const {},
+}) {
   final dio = Dio(BaseOptions(
     baseUrl: AppConstants.googleRoutesBaseUrl,
     contentType: Headers.jsonContentType,
   ))
     ..httpClientAdapter = adapter;
-  return GoogleRoutesService(apiKey: apiKey, dio: dio);
+  return GoogleRoutesService(
+    credentials: () async => GoogleApiCredentials(apiKey: apiKey, appHeaders: appHeaders),
+    dio: dio,
+  );
 }
 
 Future<void> _compute(GoogleRoutesService service) => service.computeRoute(
@@ -88,6 +96,26 @@ void main() {
         'latLng': {'latitude': 35.5, 'longitude': 35.8},
       },
     });
+  });
+
+  test('says which app is calling, so a key restricted to that app is accepted', () async {
+    final adapter = _FakeAdapter({
+      'routes': [
+        {
+          'polyline': {'encodedPolyline': polyline},
+        },
+      ],
+    });
+
+    await _compute(_service(adapter, appHeaders: {
+      'X-Android-Package': 'com.ma.smarttaxi',
+      'X-Android-Cert': '4108A6765831A2FC66A66D3CAD92A444F3219CC1',
+    }));
+
+    final headers = adapter.request!.headers;
+    expect(headers['X-Android-Package'], 'com.ma.smarttaxi');
+    expect(headers['X-Android-Cert'], '4108A6765831A2FC66A66D3CAD92A444F3219CC1');
+    expect(headers['X-Goog-Api-Key'], 'test-key');
   });
 
   test('a zero distance is omitted by the API and reads as 0', () async {

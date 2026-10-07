@@ -770,6 +770,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get walletBalanceHint => 'Commissions are taken from this balance';
 
   @override
+  String driverWalletLowNotice(String balance) {
+    return 'Your wallet balance is low ($balance). Please charge your wallet to be able to accept orders.';
+  }
+
+  @override
   String get walletPreviousMonth => 'Previous month';
 
   @override

@@ -58,8 +58,9 @@ class SharedOrderCubit extends Cubit<SharedOrderState> {
 
   /// Opening the link takes the order at once: first driver wins, so the
   /// accept goes out before any preview. When it is refused, the order is
-  /// fetched and shown with the reason; when it got no answer, it is tried
-  /// once more after that fetch.
+  /// fetched and shown with the reason (a low wallet: with the server's
+  /// message); when it got no answer, it is tried once more after that
+  /// fetch.
   Future<void> open() async {
     final current = state;
     if (isClosed || _openingAccept) return;
@@ -82,7 +83,14 @@ class SharedOrderCubit extends Cubit<SharedOrderState> {
       emit(const SharedOrderInvalidLink());
     } else {
       await load();
-      if (refusal.isNetwork) await accept();
+      final loaded = state;
+      if (refusal.walletTooLow) {
+        if (loaded is SharedOrderLoaded) {
+          emit(loaded.copyWith(walletMessage: refusal.message));
+        }
+      } else if (refusal.isNetwork) {
+        await accept();
+      }
     }
   }
 
@@ -160,6 +168,13 @@ class SharedOrderCubit extends Cubit<SharedOrderState> {
         emit(const SharedOrderInvalidLink());
       } else if (availability == SharedOrderAvailability.yours) {
         emit(const SharedOrderBackToTrip());
+      } else if (e.walletTooLow && preview != null) {
+        // Not taken by anyone: the order stays open to accept after a top-up.
+        emit(SharedOrderLoaded(
+          preview,
+          walletMessage: e.message,
+          hasOpenTrip: _openTrips.openRideId != null,
+        ));
       } else if (availability != null && preview != null) {
         await _show(preview.withAvailability(availability, opensAt: e.opensAt));
       } else if (availability != null && availability.isClosed) {

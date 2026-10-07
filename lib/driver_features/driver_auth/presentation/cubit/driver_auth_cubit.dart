@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/session/app_user.dart';
@@ -36,13 +37,30 @@ class DriverAuthCubit extends Cubit<DriverAuthState> {
       final driver = await _repository.login(phone: phone, password: password);
       if (isClosed) return;
       _sessionCubit.setUser(_toAppUser(driver));
-      emit(state.copyWith(status: DriverAuthStatus.success, driver: driver));
+      emit(state.copyWith(
+        status: DriverAuthStatus.success,
+        driver: driver,
+        walletBalance: driver.walletBalance,
+      ));
     } on DriverAuthException catch (e) {
       if (isClosed) return;
       emit(state.copyWith(
         status: DriverAuthStatus.failure,
         errorMessage: e.message,
       ));
+    }
+  }
+
+  /// Asks the server for the wallet balance as it is now, so the home
+  /// screen can warn about a low one. Quiet when it fails: the notice is an
+  /// early hint, and accepting an order is refused by the server anyway.
+  Future<void> refreshWalletBalance() async {
+    if (state.driver == null) return;
+    try {
+      final balance = await _repository.walletBalance();
+      if (!isClosed) emit(state.copyWith(walletBalance: balance));
+    } on DriverAuthException catch (e) {
+      debugPrint('DriverAuthCubit: could not refresh the wallet balance: $e');
     }
   }
 

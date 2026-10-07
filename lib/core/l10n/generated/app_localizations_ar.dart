@@ -753,6 +753,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get walletBalanceHint => 'تُخصم العمولات من هذا الرصيد';
 
   @override
+  String driverWalletLowNotice(String balance) {
+    return 'رصيد محفظتك منخفض ($balance). يرجى شحن محفظتك لتتمكن من قبول الطلبات.';
+  }
+
+  @override
   String get walletPreviousMonth => 'الشهر السابق';
 
   @override

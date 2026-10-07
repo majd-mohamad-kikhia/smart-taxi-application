@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/trip_eta_model.dart';
+import '../utils/format_distance.dart';
 import 'fee_chip_widget.dart';
 
 /// Floating pill with the time and road distance left, e.g. "Driver arrives
@@ -20,10 +21,7 @@ class TripEtaChipWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final duration = l10n.durationMinutesShort('${eta.minutes}');
-    final meters = eta.distanceMeters;
-    final distance = meters < TripEtaModel.metersThreshold
-        ? l10n.distanceMetersShort('$meters')
-        : l10n.distanceKm((meters / 1000).toStringAsFixed(1));
+    final distance = formatDistance(l10n, eta.distanceMeters);
 
     return FeeChipWidget(
       icon: towardsPickup ? Icons.local_taxi_rounded : Icons.flag_rounded,

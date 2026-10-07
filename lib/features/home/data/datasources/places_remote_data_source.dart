@@ -14,25 +14,42 @@ import '../models/place_suggestion_model.dart';
 class PlacesRemoteDataSource {
   static const _baseUrl = 'https://photon.komoot.io';
 
-  final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: _baseUrl,
-      headers: {'User-Agent': AppConstants.userAgentPackage},
-    ),
-  );
+  final Dio _dio;
 
+  PlacesRemoteDataSource({Dio? dio})
+    : _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              baseUrl: _baseUrl,
+              headers: {'User-Agent': AppConstants.userAgentPackage},
+            ),
+          );
+
+  /// [nearLatitude]/[nearLongitude] bias the results toward that spot.
+  /// With [withinDegrees] too, only places inside the box that far (in
+  /// degrees, ~111 km each) around it are returned at all — Photon's own
+  /// bias is soft and lets a same-named place in another city win.
   Future<List<PlaceSuggestionModel>> autocomplete(
     String query, {
     double? nearLatitude,
     double? nearLongitude,
+    double? withinDegrees,
+    int limit = 8,
   }) async {
+    final hasBox =
+        withinDegrees != null && nearLatitude != null && nearLongitude != null;
     final response = await _dio.get<Map<String, dynamic>>(
       '/api/',
       queryParameters: {
         'q': query,
-        'limit': 8,
+        'limit': limit,
         'lat': ?nearLatitude,
         'lon': ?nearLongitude,
+        // Photon's order: west,south,east,north.
+        if (hasBox)
+          'bbox': '${nearLongitude - withinDegrees},${nearLatitude - withinDegrees},'
+              '${nearLongitude + withinDegrees},${nearLatitude + withinDegrees}',
       },
     );
     final features = response.data?['features'] as List? ?? [];
