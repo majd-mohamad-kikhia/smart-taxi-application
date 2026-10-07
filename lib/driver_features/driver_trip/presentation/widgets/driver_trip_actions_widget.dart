@@ -9,6 +9,7 @@ import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../cubit/driver_trip_cubit.dart';
 import '../cubit/driver_trip_state.dart';
 import 'passengers_count_dialog_widget.dart';
+import 'share_ride_info_button_widget.dart';
 
 /// Action buttons for the active ride, driven by [DriverTripStatus]. Each
 /// phase has exactly one yellow primary: "I've arrived" (accepted), Start
@@ -47,6 +48,8 @@ class DriverTripActionsWidget extends StatelessWidget {
 
     final children = switch (status) {
       DriverTripStatus.accepted => [
+          const ShareRideInfoButtonWidget(),
+          const SizedBox(height: AppConstants.paddingM),
           AuthPrimaryButtonWidget(
             label: l10n.driverReportArrival,
             isLoading: false,

@@ -1460,6 +1460,43 @@ abstract class AppLocalizations {
   /// **'Your Smart Taxi trip bill no. {number}'**
   String billMessage(String number);
 
+  /// No description provided for @shareRideInfoWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send my details on WhatsApp'**
+  String get shareRideInfoWhatsApp;
+
+  /// No description provided for @shareRideInfoMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello 👋 I\'m your Smart Taxi driver and I\'m on my way to you 🚖\n\n👤 Name: {driverName}\n📞 Phone number: {phone}\n🚗 Car model: {brand} {model}\n🎨 Color: {color}\n🔢 Plate number: {plate}'**
+  String shareRideInfoMessage(
+    String driverName,
+    String phone,
+    String color,
+    String brand,
+    String model,
+    String plate,
+  );
+
+  /// No description provided for @shareRideInfoEta.
+  ///
+  /// In en, this message translates to:
+  /// **'⏱️ Expected arrival: {minutes} min'**
+  String shareRideInfoEta(int minutes);
+
+  /// No description provided for @shareRideInfoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open WhatsApp. Try again'**
+  String get shareRideInfoFailed;
+
+  /// No description provided for @shareRideInfoNoPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s phone number isn\'t available'**
+  String get shareRideInfoNoPhone;
+
   /// No description provided for @fareCommission.
   ///
   /// In en, this message translates to:
@@ -1843,6 +1880,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search for a place...'**
   String get searchPlaceHint;
+
+  /// No description provided for @useMyLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get useMyLocation;
+
+  /// No description provided for @swapPickupAndDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap pickup and destination'**
+  String get swapPickupAndDestination;
 
   /// No description provided for @mapLocationFallback.
   ///

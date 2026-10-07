@@ -82,4 +82,28 @@ class CurrentLocationService {
       return lastKnown;
     }
   }
+
+  /// Where the phone is right now, for a request that must not wait on it
+  /// (a driver accepting a ride): a fresh fix for at most [limit], else the
+  /// last known one. Null when location is off or not granted (permission
+  /// is never asked for here) or nothing is known.
+  Future<Position?> quickPosition({Duration limit = const Duration(seconds: 2)}) async {
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) return null;
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return null;
+      }
+      try {
+        return await Geolocator.getCurrentPosition(
+          locationSettings: LocationSettings(accuracy: LocationAccuracy.medium, timeLimit: limit),
+        );
+      } on TimeoutException {
+        return await Geolocator.getLastKnownPosition();
+      }
+    } on Exception {
+      return null;
+    }
+  }
 }

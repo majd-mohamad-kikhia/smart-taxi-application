@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'pickup_eta_model.dart';
 
 /// A ride available for the driver to accept — pushed over the
 /// `driver:orders_snapshot` / `driver:order_offer` socket events (see
@@ -39,6 +40,10 @@ class OrderOfferModel extends Equatable {
   /// [estimatedPrice]; 0 for app orders.
   final double passengersFee;
 
+  /// The driver's time to the pickup, as the server worked it out when the
+  /// ride was accepted. Null for an offer, or when it wasn't worked out.
+  final PickupEtaModel? pickupEta;
+
   const OrderOfferModel({
     required this.rideId,
     required this.vehicleTypeId,
@@ -59,6 +64,7 @@ class OrderOfferModel extends Equatable {
     this.note,
     this.passengersCount,
     this.passengersFee = 0,
+    this.pickupEta,
   });
 
   factory OrderOfferModel.fromJson(Map<String, dynamic> json) {
@@ -116,8 +122,33 @@ class OrderOfferModel extends Equatable {
           ? countOrNull(json['passengers_count'])
           : passengersCount,
       passengersFee: json.containsKey('passengers_fee') ? feeOf(json) : passengersFee,
+      pickupEta: pickupEta,
     );
   }
+
+  /// The same ride once the server's time to the pickup is known.
+  OrderOfferModel withPickupEta(PickupEtaModel? eta) => OrderOfferModel(
+    rideId: rideId,
+    vehicleTypeId: vehicleTypeId,
+    pickupLat: pickupLat,
+    pickupLng: pickupLng,
+    pickupAddress: pickupAddress,
+    dropoffLat: dropoffLat,
+    dropoffLng: dropoffLng,
+    dropoffAddress: dropoffAddress,
+    distanceKm: distanceKm,
+    estimatedDurationMin: estimatedDurationMin,
+    estimatedPrice: estimatedPrice,
+    priceIsEstimate: priceIsEstimate,
+    requestedAt: requestedAt,
+    distanceToPickupKm: distanceToPickupKm,
+    pickupAddressDetails: pickupAddressDetails,
+    dropoffAddressDetails: dropoffAddressDetails,
+    note: note,
+    passengersCount: passengersCount,
+    passengersFee: passengersFee,
+    pickupEta: eta,
+  );
 
   /// The same ride once the number of passengers is known.
   OrderOfferModel withPassengersCount(int? count) =>
@@ -164,5 +195,6 @@ class OrderOfferModel extends Equatable {
         note,
         passengersCount,
         passengersFee,
+        pickupEta,
       ];
 }

@@ -39,6 +39,15 @@ class HomeState extends Equatable {
   final bool isCancelling;
   final String? errorMessage;
 
+  /// The GPS button is waiting for a fix and its address.
+  final bool isLocating;
+
+  /// Where the customer is, for the map behind the screen to move to. Only
+  /// meaningful together with [locateCount]: asking for the same spot twice
+  /// must still move a map the customer has dragged away.
+  final PickedLocationModel? userLocation;
+  final int locateCount;
+
   const HomeState({
     required this.greeting,
     required this.userName,
@@ -50,6 +59,9 @@ class HomeState extends Equatable {
     this.activeRide,
     required this.isCancelling,
     this.errorMessage,
+    required this.isLocating,
+    this.userLocation,
+    required this.locateCount,
   });
 
   factory HomeState.initial() {
@@ -59,6 +71,8 @@ class HomeState extends Equatable {
       isSearching: false,
       isBooking: false,
       isCancelling: false,
+      isLocating: false,
+      locateCount: 0,
     );
   }
 
@@ -69,6 +83,10 @@ class HomeState extends Equatable {
   bool get hasActiveRide => activeRide != null;
 
   bool get isBusy => isSearching || isBooking || isCancelling;
+
+  /// While a quote or booking is in flight, a changed pin would leave the
+  /// prices (or the ride) for a different trip than the one on screen.
+  bool get arePointsLocked => hasActiveRide || isBusy;
 
   HomeState copyWith({
     GreetingPeriod? greeting,
@@ -81,22 +99,37 @@ class HomeState extends Equatable {
     RideModel? activeRide,
     bool? isCancelling,
     String? errorMessage,
+    bool? isLocating,
+    PickedLocationModel? userLocation,
+    int? locateCount,
     bool clearError = false,
     bool clearQuote = false,
     bool clearActiveRide = false,
     bool clearLocations = false,
+    bool swapLocations = false,
   }) {
     return HomeState(
       greeting: greeting ?? this.greeting,
       userName: userName ?? this.userName,
-      fromLocation: clearLocations ? null : (fromLocation ?? this.fromLocation),
-      toLocation: clearLocations ? null : (toLocation ?? this.toLocation),
+      fromLocation: clearLocations
+          ? null
+          : swapLocations
+              ? this.toLocation
+              : (fromLocation ?? this.fromLocation),
+      toLocation: clearLocations
+          ? null
+          : swapLocations
+              ? this.fromLocation
+              : (toLocation ?? this.toLocation),
       isSearching: isSearching ?? this.isSearching,
       quote: clearQuote ? null : (quote ?? this.quote),
       isBooking: isBooking ?? this.isBooking,
       activeRide: clearActiveRide ? null : (activeRide ?? this.activeRide),
       isCancelling: isCancelling ?? this.isCancelling,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      isLocating: isLocating ?? this.isLocating,
+      userLocation: userLocation ?? this.userLocation,
+      locateCount: locateCount ?? this.locateCount,
     );
   }
 
@@ -112,5 +145,8 @@ class HomeState extends Equatable {
         activeRide,
         isCancelling,
         errorMessage,
+        isLocating,
+        userLocation,
+        locateCount,
       ];
 }

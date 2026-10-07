@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/core/deep_links/deep_link_service.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mshoar/core/network/api_exception.dart';
+import 'package:mshoar/core/services/current_location_service.dart';
 import 'package:mshoar/driver_features/driver_shared_order/data/datasources/shared_order_remote_data_source.dart';
 import 'package:mshoar/driver_features/driver_shared_order/data/models/shared_order_preview_model.dart';
 import 'package:mshoar/driver_features/driver_shared_order/data/repositories/shared_order_repository.dart';
@@ -81,7 +83,7 @@ class _FakeRepository implements SharedOrderRepository {
   }
 
   @override
-  Future<DriverActiveRideModel?> accept(String token) {
+  Future<DriverActiveRideModel?> accept(String token, {double? lat, double? lng}) {
     acceptCalls++;
     return onAccept();
   }
@@ -429,13 +431,31 @@ void main() {
   });
 }
 
-class _FakeRemoteDataSource extends Fake implements SharedOrderRemoteDataSource {
-  final Object error;
+class _FakeLocation extends Fake implements CurrentLocationService {
+  final Position? position;
 
-  _FakeRemoteDataSource(this.error);
+  _FakeLocation([this.position]);
 
   @override
-  Future<DriverActiveRideModel?> accept(String token) async => throw error;
+  Future<Position?> quickPosition({Duration limit = const Duration(seconds: 2)}) async => position;
+}
+
+class _FakeRemoteDataSource extends Fake implements SharedOrderRemoteDataSource {
+  final Object? error;
+  final DriverActiveRideModel? ride;
+  double? sentLat;
+  double? sentLng;
+
+  _FakeRemoteDataSource(this.error, {this.ride});
+
+  @override
+  Future<DriverActiveRideModel?> accept(String token, {double? lat, double? lng}) async {
+    sentLat = lat;
+    sentLng = lng;
+    final failure = error;
+    if (failure != null) throw failure;
+    return ride;
+  }
 }
 
 void _repositoryTests() {
@@ -452,7 +472,7 @@ void _repositoryTests() {
           statusCode: 403,
           rawErrors: {'wallet_balance': 'يرجى شحن محفظتك أولاً'},
         ),
-      )));
+      )), _FakeLocation());
 
       await expectLater(
         repository.accept(_token),
@@ -468,12 +488,56 @@ void _repositoryTests() {
     test('any other 403 is not a wallet refusal', () async {
       final repository = SharedOrderRepository(_FakeRemoteDataSource(refusal(
         const ApiException('no', statusCode: 403, rawErrors: {'availability': 'busy'}),
-      )));
+      )), _FakeLocation());
 
       await expectLater(
         repository.accept(_token),
         throwsA(isA<SharedOrderException>().having((e) => e.walletTooLow, 'walletTooLow', isFalse)),
       );
+    });
+
+    test('the driver\'s position goes with the accept', () async {
+      final remote = _FakeRemoteDataSource(null, ride: _acceptedRide());
+      final position = Position(
+        latitude: 33.51,
+        longitude: 36.27,
+        timestamp: DateTime(2026, 10, 7),
+        accuracy: 5,
+        altitude: 0,
+        altitudeAccuracy: 0,
+        heading: 0,
+        headingAccuracy: 0,
+        speed: 0,
+        speedAccuracy: 0,
+      );
+
+      await SharedOrderRepository(remote, _FakeLocation(position)).accept(_token);
+
+      expect(remote.sentLat, 33.51);
+      expect(remote.sentLng, 36.27);
+    });
+
+    test('without a position it accepts with no location', () async {
+      final remote = _FakeRemoteDataSource(null, ride: _acceptedRide());
+
+      await SharedOrderRepository(remote, _FakeLocation()).accept(_token);
+
+      expect(remote.sentLat, isNull);
+      expect(remote.sentLng, isNull);
+    });
+
+    test('the accepted ride carries the time to the pickup', () {
+      final ride = DriverActiveRideModel.tryParse({
+        'id': 7,
+        'status': 'accepted',
+        'pickup_lat': 33.5,
+        'pickup_lng': 36.3,
+        'dropoff_lat': 33.4,
+        'dropoff_lng': 36.5,
+        'eta': {'duration_seconds': 1163, 'duration_minutes': 20, 'distance_meters': 4016},
+      });
+
+      expect(ride?.order.pickupEta?.durationMinutes, 20);
     });
   });
 }

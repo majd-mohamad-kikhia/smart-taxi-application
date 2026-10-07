@@ -2,31 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
-import '../../../../core/l10n/generated/app_localizations.dart';
-import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/routing/app_router.dart';
-import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_cubit.dart';
-import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_state.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/account_block_gate_widget.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
-import '../../../../core/widgets/app_destructive_button_widget.dart';
-import '../../../../core/widgets/auth_error_banner_widget.dart';
-import '../../../../core/widgets/auth_primary_button_widget.dart';
-import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../../data/models/ride_booking_options_model.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
-import '../widgets/active_ride_card_widget.dart';
-import '../widgets/saved_address_chips_widget.dart';
-import '../../../../core/widgets/location_select_button_widget.dart';
+import '../cubit/map_pick_cubit.dart';
+import '../cubit/map_pick_state.dart';
+import '../widgets/home_bottom_panel_widget.dart';
+import '../widgets/home_gps_button_widget.dart';
+import '../widgets/home_map_widget.dart';
+import '../widgets/home_search_bar_widget.dart';
+import '../widgets/map_pick_panel_widget.dart';
+import '../widgets/map_pick_top_widget.dart';
 import '../widgets/vehicle_type_sheet_widget.dart';
-import 'location_picker_screen.dart';
+
+/// Widest the floating controls grow on tablets and desktop windows.
+const double _maxContentWidth = 560;
 
 /// Entry point for the "create request" feature.
-/// Provides the [HomeCubit] and renders [_HomeView].
+/// Provides the [HomeCubit] and [MapPickCubit] and renders [_HomeView].
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -36,8 +33,10 @@ class HomeScreen extends StatelessWidget {
       providers: [
         BlocProvider<HomeCubit>(create: (_) => sl<HomeCubit>()
             ..initialize()
-            ..restoreActiveRide(),
+            ..restoreActiveRide()
+            ..centerOnUser(),
         ),
+        BlocProvider<MapPickCubit>(create: (_) => sl<MapPickCubit>()),
         BlocProvider<SavedAddressesCubit>.value(value: sl<SavedAddressesCubit>()),
       ],
       child: const _HomeView(),
@@ -45,6 +44,9 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+/// The map fills the body. Over it, either the search row and the From / To
+/// panel, or — while a point is being placed — the pin controls. Nothing here
+/// opens another screen.
 class _HomeView extends StatelessWidget {
   const _HomeView();
 
@@ -72,9 +74,51 @@ class _HomeView extends StatelessWidget {
                 previous.activeRide == null && current.activeRide != null,
             listener: (context, state) => _openTracking(context, state),
           ),
+          // A ride restored while a point is being placed locks the points.
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                !previous.arePointsLocked && current.arePointsLocked,
+            listener: (context, state) => context.read<MapPickCubit>().cancel(),
+          ),
         ],
-        child: BlocBuilder<HomeCubit, HomeState>(
-          builder: (context, state) => _HomeBody(state: state),
+        child: BlocSelector<MapPickCubit, MapPickState, bool>(
+          selector: (state) => state.isPicking,
+          builder: (context, isPicking) => PopScope(
+            // Back leaves the pin mode first instead of leaving the tab.
+            canPop: !isPicking,
+            onPopInvokedWithResult: (didPop, _) {
+              if (!didPop) context.read<MapPickCubit>().cancel();
+            },
+            child: Stack(
+              children: [
+                const Positioned.fill(child: HomeMapWidget()),
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+                    child: isPicking
+                        ? const _PickTop()
+                        : const _SearchRow(),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(AppConstants.paddingL),
+                      child: isPicking
+                          ? const _PickPanel()
+                          : HomeBottomPanelWidget(
+                              onPickFrom: () => _enterPick(context, PickTarget.from),
+                              onPickTo: () => _enterPick(context, PickTarget.to),
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -117,196 +161,107 @@ class _HomeView extends StatelessWidget {
   }
 }
 
-class _HomeBody extends StatelessWidget {
-  final HomeState state;
+/// Starts placing [target] on the home map, from where it already is if it
+/// was picked before. [autofocusSearch] opens the search with the keyboard.
+void _enterPick(
+  BuildContext context,
+  PickTarget target, {
+  bool autofocusSearch = false,
+}) {
+  final home = context.read<HomeCubit>().state;
+  context.read<MapPickCubit>().enter(
+    target,
+    initial: target == PickTarget.from ? home.fromLocation : home.toLocation,
+    autofocusSearch: autofocusSearch,
+  );
+}
 
-  const _HomeBody({required this.state});
-
-  String _greetingText(AppLocalizations l10n) {
-    final greeting = switch (state.greeting) {
-      GreetingPeriod.morning => l10n.greetingMorning,
-      GreetingPeriod.afternoon => l10n.greetingAfternoon,
-      GreetingPeriod.evening => l10n.greetingEvening,
-    };
-    return state.userName.isNotEmpty
-        ? l10n.greetingWithName(greeting, state.userName)
-        : l10n.greetingOnly(greeting);
-  }
+/// The search pill and GPS button on top of the map in its normal state.
+class _SearchRow extends StatelessWidget {
+  const _SearchRow();
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final hasActiveRide = state.hasActiveRide;
-    // While a quote or booking is in flight, a changed pin would leave the
-    // prices (or the ride) for a different trip than the one on screen.
-    final isLocked = hasActiveRide || state.isBusy;
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(AppConstants.paddingXL),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _greetingText(l10n),
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                        height: 1.2,
+    return Padding(
+      padding: const EdgeInsets.all(AppConstants.paddingL),
+      child: Row(
+        children: [
+          Expanded(
+            child: BlocSelector<HomeCubit, HomeState, bool>(
+              selector: (state) => state.arePointsLocked,
+              builder: (context, isLocked) => HomeSearchBarWidget(
+                onTap: isLocked
+                    ? null
+                    : () => _enterPick(
+                        context,
+                        PickTarget.to,
+                        autofocusSearch: true,
                       ),
-                    ),
-                    const SizedBox(height: AppConstants.paddingS),
-                    Text(
-                      hasActiveRide
-                          ? l10n.homeRequestInProgress
-                          : l10n.homeWhereTo,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    LocationSelectButtonWidget(
-                      label: l10n.fromLabel,
-                      icon: Icons.trip_origin_rounded,
-                      accentColor: AppColors.primary,
-                      value: state.fromLocation,
-                      placeholder: l10n.pickPickupPoint,
-                      onTap: isLocked
-                          ? null
-                          : () => _pickLocation(
-                              context,
-                              title: l10n.pickPickupPoint,
-                              isPickup: true,
-                              initial: state.fromLocation,
-                              onPicked: context
-                                  .read<HomeCubit>()
-                                  .setFromLocation,
-                            ),
-                    ),
-                    if (!isLocked)
-                      _SavedChips(
-                        onSelected: (address) => context
-                            .read<HomeCubit>()
-                            .setFromLocation(address.toPickedLocation()),
-                      ),
-                    const SizedBox(height: 14),
-                    LocationSelectButtonWidget(
-                      label: l10n.toLabel,
-                      icon: Icons.location_on_rounded,
-                      accentColor: AppColors.accent,
-                      value: state.toLocation,
-                      placeholder: l10n.pickDestination,
-                      onTap: isLocked
-                          ? null
-                          : () => _pickLocation(
-                              context,
-                              title: l10n.pickDestination,
-                              isPickup: false,
-                              initial: state.toLocation,
-                              onPicked: context.read<HomeCubit>().setToLocation,
-                            ),
-                    ),
-                    if (!isLocked)
-                      _SavedChips(
-                        onSelected: (address) => context
-                            .read<HomeCubit>()
-                            .setToLocation(address.toPickedLocation()),
-                      ),
-                    if (state.activeRide != null) ...[
-                      const SizedBox(height: AppConstants.paddingXL),
-                      ActiveRideCardWidget(ride: state.activeRide!),
-                    ],
-                  ],
-                ),
               ),
             ),
-            const SizedBox(height: AppConstants.paddingL),
-            if (state.errorMessage != null) ...[
-              AuthErrorBannerWidget(message: state.errorMessage!),
-              const SizedBox(height: AppConstants.paddingM),
-            ],
-            if (hasActiveRide)
-              AppDestructiveButtonWidget(
-                label: l10n.cancelRequest,
-                isLoading: state.isCancelling,
-                onPressed: () => _confirmCancel(context),
-              )
-            else
-              // A block only stops new orders — a ride in progress (the
-              // cancel button above) is unaffected.
-              AccountBlockGateWidget(
-                blockedMessage: l10n.accountBlockedCustomerMessage,
-                child: AuthPrimaryButtonWidget(
-                  label: l10n.search,
-                  isLoading: state.isSearching || state.isBooking,
-                  onPressed: state.canSearch
-                      ? () => context.read<HomeCubit>().searchRide()
-                      : null,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Asks for a reason first, like the tracking screen, so a request can't
-  /// be cancelled by one stray tap.
-  Future<void> _confirmCancel(BuildContext context) async {
-    final cubit = context.read<HomeCubit>();
-    final reason = await showDialog<String>(
-      context: context,
-      builder: (_) =>
-          CancelReasonDialogWidget(
-            title: context.l10n.cancelRequest,
-            showCancelLimit: false,
           ),
-    );
-    if (reason != null) cubit.cancelRide(reason: reason);
-  }
-
-  Future<void> _pickLocation(
-    BuildContext context, {
-    required String title,
-    required bool isPickup,
-    required PickedLocationModel? initial,
-    required void Function(PickedLocationModel) onPicked,
-  }) async {
-    final result = await Navigator.of(context).push<PickedLocationModel>(
-      MaterialPageRoute(
-        builder: (_) => LocationPickerScreen(
-          title: title,
-          isPickup: isPickup,
-          initialLocation: initial,
-        ),
+          const SizedBox(width: AppConstants.paddingM),
+          BlocSelector<HomeCubit, HomeState, bool>(
+            selector: (state) => state.isLocating,
+            builder: (context, isLocating) => HomeGpsButtonWidget(
+              isLoading: isLocating,
+              onTap: context.read<HomeCubit>().locateMe,
+            ),
+          ),
+        ],
       ),
     );
-    if (result != null) onPicked(result);
   }
 }
 
-/// Saved places as quick picks; rebuilds only when the list changes.
-class _SavedChips extends StatelessWidget {
-  final ValueChanged<SavedAddressModel> onSelected;
-
-  const _SavedChips({required this.onSelected});
+/// Back / title / search / GPS while a point is being placed.
+class _PickTop extends StatelessWidget {
+  const _PickTop();
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<SavedAddressesCubit, SavedAddressesState, List<SavedAddressModel>>(
-      selector: (state) => state.addresses,
-      builder: (context, addresses) => SavedAddressChipsWidget(
-        addresses: addresses,
-        onSelected: onSelected,
+    return BlocSelector<HomeCubit, HomeState, bool>(
+      selector: (state) => state.isLocating,
+      builder: (context, isLocating) => MapPickTopWidget(
+        isLocating: isLocating,
+        onBack: context.read<MapPickCubit>().cancel,
+        // Only moves the map: the pin decides the point, not the GPS.
+        onLocate: () => context.read<HomeCubit>().locateMe(setPickup: false),
       ),
     );
+  }
+}
+
+/// Address under the pin and the confirm button.
+class _PickPanel extends StatelessWidget {
+  const _PickPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    final home = context.read<HomeCubit>().state;
+    final target = context.read<MapPickCubit>().state.target;
+    final current = target == PickTarget.from ? home.fromLocation : home.toLocation;
+    return BlocSelector<HomeCubit, HomeState, String?>(
+      selector: (state) => state.errorMessage,
+      builder: (context, error) => MapPickPanelWidget(
+        initialDetails: current?.addressDetails,
+        errorMessage: error,
+        onConfirm: (details) => _confirm(context, details),
+      ),
+    );
+  }
+
+  void _confirm(BuildContext context, String details) {
+    FocusScope.of(context).unfocus();
+    final pick = context.read<MapPickCubit>();
+    final home = context.read<HomeCubit>();
+    final target = pick.state.target;
+    final picked = pick.confirm(details: details);
+    if (picked == null || target == null) return;
+    if (target == PickTarget.from) {
+      home.setFromLocation(picked);
+    } else {
+      home.setToLocation(picked);
+    }
   }
 }

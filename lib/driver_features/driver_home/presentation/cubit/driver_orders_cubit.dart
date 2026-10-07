@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/models/order_offer_model.dart';
+import '../../../../core/services/current_location_service.dart';
 import '../../data/datasources/driver_socket_service.dart';
+import '../../data/models/order_accept_result_model.dart';
 import 'driver_orders_state.dart';
 import 'driver_presence_cubit.dart';
 import 'driver_presence_state.dart';
@@ -17,9 +19,10 @@ import 'driver_presence_state.dart';
 /// resets itself whenever [DriverPresenceCubit] goes offline.
 class DriverOrdersCubit extends Cubit<DriverOrdersState> {
   final DriverSocketService _socketService;
+  final CurrentLocationService _location;
   late final StreamSubscription<DriverPresenceState> _presenceSubscription;
 
-  DriverOrdersCubit(this._socketService, DriverPresenceCubit presenceCubit)
+  DriverOrdersCubit(this._socketService, this._location, DriverPresenceCubit presenceCubit)
       : super(DriverOrdersState.initial()) {
     _socketService.setOrderListeners(
       onOrdersSnapshot: _handleSnapshot,
@@ -60,16 +63,22 @@ class DriverOrdersCubit extends Cubit<DriverOrdersState> {
     }
   }
 
-  /// Resolves once the server has answered the accept — `true` on success,
-  /// so the caller (the home screen) can navigate to the active-ride
-  /// screen only when the driver actually won the ride.
-  Future<bool> acceptOrder(int rideId) {
-    if (state.acceptingRideId != null) return Future.value(false);
+  /// Resolves once the server has answered the accept — [OrderAcceptResult.ok]
+  /// on success, so the caller (the home screen) can navigate to the
+  /// active-ride screen only when the driver actually won the ride. The
+  /// result also carries the time to the pickup when the driver's position
+  /// was known and sent with the accept.
+  Future<OrderAcceptResult> acceptOrder(int rideId) async {
+    if (state.acceptingRideId != null) return const OrderAcceptResult(ok: false);
     emit(state.copyWith(acceptingRideId: rideId, clearError: true));
 
-    final completer = Completer<bool>();
+    // Never holds the accept up for long: no fix in a moment means none.
+    final position = await _location.quickPosition();
+    final completer = Completer<OrderAcceptResult>();
     _socketService.acceptOrder(
       rideId: rideId,
+      lat: position?.latitude,
+      lng: position?.longitude,
       onResult: (result) {
         if (!isClosed) {
           // On success the card is removed via `driver:order_remove` — no
@@ -83,7 +92,7 @@ class DriverOrdersCubit extends Cubit<DriverOrdersState> {
             errorIsWalletTooLow: result.walletTooLow,
           ));
         }
-        if (!completer.isCompleted) completer.complete(result.ok);
+        if (!completer.isCompleted) completer.complete(result);
       },
     );
     return completer.future;

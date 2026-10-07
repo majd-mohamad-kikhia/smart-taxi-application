@@ -278,6 +278,8 @@
   "requestVehicle": "اطلب {name} · {price}",
   "confirmLocation": "تأكيد الموقع",
   "searchPlaceHint": "ابحث عن مكان...",
+  "useMyLocation": "استخدم موقعي الحالي",
+  "swapPickupAndDestination": "تبديل نقطة الانطلاق والوجهة",
   "mapLocationFallback": "موقع على الخريطة",
   "priceEstimateTag": "(سعر تقديري)",
   "rideAwaitingDriver": "بانتظار وصول السائق",
@@ -499,5 +501,10 @@
   "billPaidCash": "مدفوعة نقداً",
   "billThanks": "شكراً لاختيارك Smart Taxi",
   "billMessage": "فاتورة رحلتك مع Smart Taxi رقم {number}",
+  "shareRideInfoWhatsApp": "أرسل معلوماتي عبر واتساب",
+  "shareRideInfoMessage": "مرحباً 👋 أنا سائق Smart Taxi الخاص بك وأنا في طريقي إليك 🚖\n\n👤 الاسم: {driverName}\n📞 رقم الهاتف: {phone}\n🚗 نوع السيارة: {brand} {model}\n🎨 اللون: {color}\n🔢 رقم اللوحة: {plate}",
+  "shareRideInfoEta": "⏱️ الوقت المتوقع للوصول: {minutes} دقيقة",
+  "shareRideInfoFailed": "تعذّر فتح واتساب. حاول مرة أخرى",
+  "shareRideInfoNoPhone": "رقم هاتف الزبون غير متوفر",
   "cancelStrikeWarningUnknown": "إلغاء الطلب بعد قبول السائق يُحسب عليك. عند تكرار ذلك لن تستطيع الطلب لمدة {hours} ساعة. هل تريد الإلغاء؟"
 }

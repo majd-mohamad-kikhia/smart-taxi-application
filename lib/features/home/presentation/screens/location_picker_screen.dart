@@ -9,10 +9,12 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/services/current_location_service.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/format_distance.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../data/models/place_suggestion_model.dart';
 import '../../data/repositories/places_repository.dart';
+import '../widgets/address_details_field_widget.dart';
+import '../widgets/place_search_field_widget.dart';
+import '../widgets/place_suggestions_card_widget.dart';
 
 /// Full-screen map picker, pushed directly by the order screen and through
 /// `AppRouter.locationPicker` by other features. Returns a
@@ -239,7 +241,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: _SearchField(
+                        child: PlaceSearchFieldWidget(
                           controller: _searchController,
                           isSearching: _isSearching,
                           onChanged: _onSearchChanged,
@@ -258,7 +260,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   ),
                   if (_suggestions.isNotEmpty || _searchError != null) ...[
                     const SizedBox(height: AppConstants.paddingS),
-                    _SuggestionsCard(
+                    PlaceSuggestionsCardWidget(
                       suggestions: _suggestions,
                       errorMessage: _searchError,
                       onSuggestionTap: _selectSuggestion,
@@ -316,7 +318,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       ],
                     ),
                     const SizedBox(height: AppConstants.paddingM),
-                    _AddressDetailsField(
+                    AddressDetailsFieldWidget(
                       controller: _detailsController,
                       maxLength: _maxDetailsLength,
                     ),
@@ -479,176 +481,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     } finally {
       if (mounted) setState(() => _isLocating = false);
     }
-  }
-}
-
-class _SearchField extends StatelessWidget {
-  final TextEditingController controller;
-  final bool isSearching;
-  final ValueChanged<String> onChanged;
-  final VoidCallback onClear;
-
-  const _SearchField({
-    required this.controller,
-    required this.isSearching,
-    required this.onChanged,
-    required this.onClear,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.neutralSurface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusFull),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: TextField(
-        controller: controller,
-        onChanged: onChanged,
-        style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-        decoration: InputDecoration(
-          hintText: context.l10n.searchPlaceHint,
-          hintStyle: const TextStyle(
-            color: AppColors.textTertiary,
-            fontSize: 14,
-          ),
-          prefixIcon: const Icon(
-            Icons.search_rounded,
-            color: AppColors.textSecondary,
-          ),
-          suffixIcon: isSearching
-              ? const Padding(
-                  padding: EdgeInsets.all(14),
-                  child: SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                )
-              : (controller.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(
-                          Icons.close_rounded,
-                          color: AppColors.textTertiary,
-                          size: 18,
-                        ),
-                        onPressed: onClear,
-                      )
-                    : null),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: AppConstants.paddingM,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Optional directions the map can't show: building, floor, landmark.
-class _AddressDetailsField extends StatelessWidget {
-  final TextEditingController controller;
-  final int maxLength;
-
-  const _AddressDetailsField({
-    required this.controller,
-    required this.maxLength,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      maxLength: maxLength,
-      maxLines: 2,
-      minLines: 1,
-      textInputAction: TextInputAction.done,
-      textCapitalization: TextCapitalization.sentences,
-      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-      decoration: InputDecoration(
-        isDense: true,
-        counterText: '',
-        labelText: context.l10n.addressDetailsLabel,
-        hintText: context.l10n.addressDetailsHint,
-        prefixIcon: const Icon(Icons.apartment_rounded, size: 20),
-      ),
-    );
-  }
-}
-
-class _SuggestionsCard extends StatelessWidget {
-  final List<PlaceSuggestionModel> suggestions;
-  final String? errorMessage;
-  final ValueChanged<PlaceSuggestionModel> onSuggestionTap;
-
-  const _SuggestionsCard({
-    required this.suggestions,
-    required this.errorMessage,
-    required this.onSuggestionTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(maxHeight: 260),
-      decoration: BoxDecoration(
-        color: AppColors.neutralSurface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: errorMessage != null
-          ? Padding(
-              padding: const EdgeInsets.all(AppConstants.paddingL),
-              child: Text(
-                errorMessage!,
-                style: const TextStyle(color: AppColors.errorText, fontSize: 13),
-              ),
-            )
-          : ListView.separated(
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(
-                vertical: AppConstants.paddingS,
-              ),
-              itemCount: suggestions.length,
-              separatorBuilder: (_, _) =>
-                  const Divider(height: 1, color: AppColors.borderLight),
-              itemBuilder: (context, index) {
-                final suggestion = suggestions[index];
-                return ListTile(
-                  dense: true,
-                  leading: const Icon(
-                    Icons.place_outlined,
-                    color: AppColors.textSecondary,
-                    size: 20,
-                  ),
-                  title: Text(
-                    suggestion.description,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 13.5,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: suggestion.distanceMeters == null
-                      ? null
-                      : Text(
-                          formatDistance(context.l10n, suggestion.distanceMeters!),
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                            fontFeatures: [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                  onTap: () => onSuggestionTap(suggestion),
-                );
-              },
-            ),
-    );
   }
 }
 

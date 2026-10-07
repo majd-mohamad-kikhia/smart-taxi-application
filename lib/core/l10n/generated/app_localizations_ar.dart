@@ -732,6 +732,32 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get shareRideInfoWhatsApp => 'أرسل معلوماتي عبر واتساب';
+
+  @override
+  String shareRideInfoMessage(
+    String driverName,
+    String phone,
+    String color,
+    String brand,
+    String model,
+    String plate,
+  ) {
+    return 'مرحباً 👋 أنا سائق Smart Taxi الخاص بك وأنا في طريقي إليك 🚖\n\n👤 الاسم: $driverName\n📞 رقم الهاتف: $phone\n🚗 نوع السيارة: $brand $model\n🎨 اللون: $color\n🔢 رقم اللوحة: $plate';
+  }
+
+  @override
+  String shareRideInfoEta(int minutes) {
+    return '⏱️ الوقت المتوقع للوصول: $minutes دقيقة';
+  }
+
+  @override
+  String get shareRideInfoFailed => 'تعذّر فتح واتساب. حاول مرة أخرى';
+
+  @override
+  String get shareRideInfoNoPhone => 'رقم هاتف الزبون غير متوفر';
+
+  @override
   String get fareCommission => 'العمولة';
 
   @override
@@ -937,6 +963,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get searchPlaceHint => 'ابحث عن مكان...';
+
+  @override
+  String get useMyLocation => 'استخدم موقعي الحالي';
+
+  @override
+  String get swapPickupAndDestination => 'تبديل نقطة الانطلاق والوجهة';
 
   @override
   String get mapLocationFallback => 'موقع على الخريطة';

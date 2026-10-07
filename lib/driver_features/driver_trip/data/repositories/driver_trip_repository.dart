@@ -9,6 +9,7 @@ import '../models/driver_active_ride_model.dart';
 import '../models/driver_ride_start_model.dart';
 import '../models/driver_ride_finish_model.dart';
 import '../models/driver_trip_payment_model.dart';
+import '../models/driver_trip_vehicle_model.dart';
 
 class DriverTripException implements Exception {
   final String message;
@@ -31,6 +32,9 @@ class DriverTripRepository {
 
   Future<DriverActiveRideModel?> fetchActiveRide() =>
       _guard(_remoteDataSource.fetchActiveRide);
+
+  Future<DriverTripVehicleModel> fetchVehicle() =>
+      _guard(_remoteDataSource.fetchVehicle);
 
   Future<RideWaitingModel?> markArrived(int rideId) =>
       _guard(() => _remoteDataSource.markArrived(rideId));

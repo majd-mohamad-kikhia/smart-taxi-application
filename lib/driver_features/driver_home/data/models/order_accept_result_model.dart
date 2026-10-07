@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../../core/models/pickup_eta_model.dart';
 import '../../../../core/network/api_exception.dart';
 
 /// The server's answer to `driver:order_accept`.
@@ -18,7 +19,16 @@ class OrderAcceptResult extends Equatable {
   /// accepted, the offer is still open, and the driver has to top up first.
   final bool walletTooLow;
 
-  const OrderAcceptResult({required this.ok, this.message, this.walletTooLow = false});
+  /// The server's time to the pickup for the position sent with the accept;
+  /// null when none was sent or the server couldn't work it out.
+  final PickupEtaModel? eta;
+
+  const OrderAcceptResult({
+    required this.ok,
+    this.message,
+    this.walletTooLow = false,
+    this.eta,
+  });
 
   /// [ack] is the decoded ack: `{ok: true}`, or a refusal as
   /// `{ok: false, error: "text"}` or in the API's error shape
@@ -27,7 +37,7 @@ class OrderAcceptResult extends Equatable {
   factory OrderAcceptResult.fromAck(Object? ack) {
     if (ack is! Map) return const OrderAcceptResult(ok: false);
     if (ack['ok'] == true || ack['success'] == true) {
-      return const OrderAcceptResult(ok: true);
+      return OrderAcceptResult(ok: true, eta: _etaOf(ack));
     }
 
     final error = ack['error'];
@@ -47,9 +57,20 @@ class OrderAcceptResult extends Equatable {
     );
   }
 
+  /// `eta` sits in the accepted ride (`ride.eta`, or `data.eta`); read
+  /// loosely, like the rest of the ack.
+  static PickupEtaModel? _etaOf(Map ack) {
+    for (final holder in [ack['ride'], ack['data'], ack]) {
+      if (holder is Map && holder['eta'] != null) {
+        return PickupEtaModel.tryParse(holder['eta']);
+      }
+    }
+    return null;
+  }
+
   static String? _text(Object? value) =>
       value is String && value.trim().isNotEmpty ? value : null;
 
   @override
-  List<Object?> get props => [ok, message, walletTooLow];
+  List<Object?> get props => [ok, message, walletTooLow, eta];
 }

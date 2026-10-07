@@ -1,8 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/account_block/account_block_cubit.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/services/current_location_service.dart';
 import '../../../../core/session/session_cubit.dart';
 import '../../data/models/ride_booking_options_model.dart';
+import '../../data/repositories/places_repository.dart';
 import '../../data/repositories/ride_request_repository.dart';
 import 'home_state.dart';
 
@@ -15,9 +18,16 @@ class HomeCubit extends Cubit<HomeState> {
   final SessionCubit _sessionCubit;
   final RideRequestRepository _repository;
   final AccountBlockCubit _accountBlock;
+  final CurrentLocationService _location;
+  final PlacesRepository _places;
 
-  HomeCubit(this._sessionCubit, this._repository, this._accountBlock)
-      : super(HomeState.initial());
+  HomeCubit(
+    this._sessionCubit,
+    this._repository,
+    this._accountBlock,
+    this._location,
+    this._places,
+  ) : super(HomeState.initial());
 
   void initialize() {
     if (isClosed) return;
@@ -55,6 +65,87 @@ class HomeCubit extends Cubit<HomeState> {
   void setToLocation(PickedLocationModel location) {
     if (isClosed) return;
     emit(state.copyWith(toLocation: location, clearQuote: true));
+  }
+
+  /// Exchanges pickup and dropoff — a no-op while the points are locked or
+  /// neither is picked yet.
+  void swapLocations() {
+    if (isClosed || state.arePointsLocked) return;
+    if (state.fromLocation == null && state.toLocation == null) return;
+    emit(state.copyWith(swapLocations: true, clearQuote: true));
+  }
+
+  /// Quietly moves the map behind the screen to the customer when their
+  /// position is already known. Never asks for permission and never touches
+  /// the pickup — that is the GPS button's job ([locateMe]).
+  Future<void> centerOnUser() async {
+    final position = await _location.getPositionIfAllowed();
+    if (isClosed || position == null) return;
+    emit(state.copyWith(
+      userLocation: PickedLocationModel(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      ),
+      locateCount: state.locateCount + 1,
+    ));
+  }
+
+  /// The GPS button: moves the map to the customer and, while the points can
+  /// still change, sets the pickup to where they are. The pickup needs a
+  /// real address, so it is only set once one is found. [setPickup] false
+  /// only moves the map — used while the customer is placing a point on it.
+  Future<void> locateMe({bool setPickup = true}) async {
+    if (isClosed || state.isLocating) return;
+    emit(state.copyWith(isLocating: true, clearError: true));
+    try {
+      final position = await _location.getCurrentLocation();
+      if (isClosed) return;
+      // The map moves at once; the address follows.
+      emit(state.copyWith(
+        userLocation: PickedLocationModel(
+          latitude: position.latitude,
+          longitude: position.longitude,
+        ),
+        locateCount: state.locateCount + 1,
+      ));
+      if (!setPickup || state.arePointsLocked) {
+        emit(state.copyWith(isLocating: false));
+        return;
+      }
+
+      final address = await _places.addressFor(
+        position.latitude,
+        position.longitude,
+      );
+      if (isClosed) return;
+      if (address == null || state.arePointsLocked) {
+        emit(state.copyWith(
+          isLocating: false,
+          errorMessage: address == null
+              ? AppStrings.current.locationUnresolved
+              : null,
+        ));
+        return;
+      }
+      emit(state.copyWith(
+        isLocating: false,
+        fromLocation: PickedLocationModel(
+          latitude: position.latitude,
+          longitude: position.longitude,
+          address: address,
+        ),
+        clearQuote: true,
+      ));
+    } on LocationPermissionDeniedException catch (e) {
+      if (isClosed) return;
+      final strings = AppStrings.current;
+      emit(state.copyWith(
+        isLocating: false,
+        errorMessage: e.reason == LocationFailureReason.serviceDisabled
+            ? strings.errLocationServiceOff
+            : strings.errLocationDenied,
+      ));
+    }
   }
 
   /// Order flow step 1 — resolves the two pins into distance, ETA and a

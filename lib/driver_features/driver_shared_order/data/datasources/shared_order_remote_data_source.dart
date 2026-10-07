@@ -22,9 +22,13 @@ class SharedOrderRemoteDataSource {
   /// First driver wins. Returns the accepted ride, same as
   /// `POST /api/driver/rides/{id}/accept`; asking again for an order this
   /// driver already has returns the same ride. Null for a ride status the
-  /// trip screen can't open.
-  Future<DriverActiveRideModel?> accept(String token) async {
-    final response = await _dio.post(_endpoints.driverSharedRideAccept(token));
+  /// trip screen can't open. With [lat] and [lng] (the driver's position)
+  /// the ride also carries `eta`, the time to the pickup.
+  Future<DriverActiveRideModel?> accept(String token, {double? lat, double? lng}) async {
+    final response = await _dio.post(
+      _endpoints.driverSharedRideAccept(token),
+      data: lat == null || lng == null ? null : {'lat': lat, 'lng': lng},
+    );
     final data = (response.data as Map)['data'];
     return data is Map
         ? DriverActiveRideModel.tryParse(Map<String, dynamic>.from(data))

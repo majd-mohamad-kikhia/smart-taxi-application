@@ -1,7 +1,9 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/models/order_offer_model.dart';
+import '../../../../core/models/pickup_eta_model.dart';
 import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
+import 'driver_trip_customer_model.dart';
 import 'recorded_route_point_model.dart';
 
 /// The driver's current ride as returned by `GET /api/driver/rides/active`
@@ -25,6 +27,9 @@ class DriverActiveRideModel extends Equatable {
   /// measurement at response time.
   final RidePauseModel? pause;
 
+  /// The rider's contact, when the server sent it (single-ride replies only).
+  final DriverTripCustomerModel? customer;
+
   /// Points recorded before the app was killed — set only for an
   /// in-progress ride.
   final List<RecordedRoutePointModel> resumedRoute;
@@ -35,6 +40,7 @@ class DriverActiveRideModel extends Equatable {
     this.isInProgress = false,
     this.waiting,
     this.pause,
+    this.customer,
     this.resumedRoute = const [],
   });
 
@@ -74,11 +80,13 @@ class DriverActiveRideModel extends Equatable {
         note: OrderOfferModel.textOrNull(json['note']),
         passengersCount: OrderOfferModel.countOrNull(json['passengers_count']),
         passengersFee: OrderOfferModel.feeOf(json),
+        pickupEta: PickupEtaModel.tryParse(json['eta']),
       ),
       isArrived: status == 'arrived',
       isInProgress: status == 'in_progress',
       waiting: RideWaitingModel.fromParent(json),
       pause: RidePauseModel.fromParent(json),
+      customer: DriverTripCustomerModel.fromParent(json),
     );
   }
 
@@ -89,6 +97,7 @@ class DriverActiveRideModel extends Equatable {
       isInProgress: isInProgress,
       waiting: waiting,
       pause: pause,
+      customer: customer,
       resumedRoute: route,
     );
   }
@@ -100,6 +109,7 @@ class DriverActiveRideModel extends Equatable {
     isInProgress,
     waiting,
     pause,
+    customer,
     resumedRoute.length,
   ];
 }

@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:mshoar/core/services/current_location_service.dart';
 import 'package:mshoar/driver_features/driver_home/data/datasources/driver_socket_service.dart';
 import 'package:mshoar/driver_features/driver_home/data/models/order_accept_result_model.dart';
 import 'package:mshoar/driver_features/driver_home/presentation/cubit/driver_orders_cubit.dart';
@@ -11,6 +13,8 @@ const _walletText = 'يرجى شحن محفظتك أولاً';
 
 class _FakeSocket extends Fake implements DriverSocketService {
   Object? answer;
+  double? sentLat;
+  double? sentLng;
   void Function(Map<String, dynamic>)? onOffer;
 
   @override
@@ -25,10 +29,21 @@ class _FakeSocket extends Fake implements DriverSocketService {
   @override
   void acceptOrder({
     required int rideId,
+    double? lat,
+    double? lng,
     required void Function(OrderAcceptResult result) onResult,
   }) {
+    sentLat = lat;
+    sentLng = lng;
     onResult(OrderAcceptResult.fromAck(answer));
   }
+}
+
+class _FakeLocation extends Fake implements CurrentLocationService {
+  Position? position;
+
+  @override
+  Future<Position?> quickPosition({Duration limit = const Duration(seconds: 2)}) async => position;
 }
 
 class _FakePresence extends Fake implements DriverPresenceCubit {
@@ -120,11 +135,13 @@ void main() {
 
   group('DriverOrdersCubit.acceptOrder', () {
     late _FakeSocket socket;
+    late _FakeLocation location;
     late DriverOrdersCubit cubit;
 
     setUp(() {
       socket = _FakeSocket();
-      cubit = DriverOrdersCubit(socket, _FakePresence());
+      location = _FakeLocation();
+      cubit = DriverOrdersCubit(socket, location, _FakePresence());
       socket.onOffer!(_offer(24));
     });
 
@@ -133,7 +150,7 @@ void main() {
     test('a low wallet is refused: the server text, the card stays, nothing is accepted', () async {
       socket.answer = _walletRefusal;
 
-      final accepted = await cubit.acceptOrder(24);
+      final accepted = (await cubit.acceptOrder(24)).ok;
 
       expect(accepted, isFalse);
       expect(cubit.state.errorMessage, _walletText);
@@ -181,11 +198,50 @@ void main() {
       await cubit.acceptOrder(24);
 
       socket.answer = {'ok': true};
-      final accepted = await cubit.acceptOrder(24);
+      final accepted = (await cubit.acceptOrder(24)).ok;
 
       expect(accepted, isTrue);
       expect(cubit.state.errorMessage, isNull);
       expect(cubit.state.errorIsWalletTooLow, isFalse);
+    });
+
+    test('the driver\'s position goes with the accept, and the time to pickup comes back', () async {
+      location.position = Position(
+        latitude: 33.51,
+        longitude: 36.27,
+        timestamp: DateTime(2026, 10, 7),
+        accuracy: 5,
+        altitude: 0,
+        altitudeAccuracy: 0,
+        heading: 0,
+        headingAccuracy: 0,
+        speed: 0,
+        speedAccuracy: 0,
+      );
+      socket.answer = {
+        'ok': true,
+        'ride': {
+          'eta': {'duration_seconds': 1163, 'duration_minutes': 20, 'distance_meters': 4016},
+        },
+      };
+
+      final result = await cubit.acceptOrder(24);
+
+      expect(socket.sentLat, 33.51);
+      expect(socket.sentLng, 36.27);
+      expect(result.eta?.durationMinutes, 20);
+      expect(result.eta?.distanceMeters, 4016);
+    });
+
+    test('without a position it still accepts, with no time to pickup', () async {
+      socket.answer = {'ok': true, 'ride': {'eta': null}};
+
+      final result = await cubit.acceptOrder(24);
+
+      expect(result.ok, isTrue);
+      expect(socket.sentLat, isNull);
+      expect(socket.sentLng, isNull);
+      expect(result.eta, isNull);
     });
   });
 }

@@ -749,6 +749,33 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get shareRideInfoWhatsApp => 'Send my details on WhatsApp';
+
+  @override
+  String shareRideInfoMessage(
+    String driverName,
+    String phone,
+    String color,
+    String brand,
+    String model,
+    String plate,
+  ) {
+    return 'Hello 👋 I\'m your Smart Taxi driver and I\'m on my way to you 🚖\n\n👤 Name: $driverName\n📞 Phone number: $phone\n🚗 Car model: $brand $model\n🎨 Color: $color\n🔢 Plate number: $plate';
+  }
+
+  @override
+  String shareRideInfoEta(int minutes) {
+    return '⏱️ Expected arrival: $minutes min';
+  }
+
+  @override
+  String get shareRideInfoFailed => 'Couldn\'t open WhatsApp. Try again';
+
+  @override
+  String get shareRideInfoNoPhone =>
+      'The customer\'s phone number isn\'t available';
+
+  @override
   String get fareCommission => 'Commission';
 
   @override
@@ -954,6 +981,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchPlaceHint => 'Search for a place...';
+
+  @override
+  String get useMyLocation => 'Use my location';
+
+  @override
+  String get swapPickupAndDestination => 'Swap pickup and destination';
 
   @override
   String get mapLocationFallback => 'Location on the map';

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/status_code.dart';
+import '../../../../core/services/current_location_service.dart';
 import '../../../../core/utils/parse_utc_date.dart';
 import '../../../driver_trip/data/models/driver_active_ride_model.dart';
 import '../datasources/shared_order_remote_data_source.dart';
@@ -42,14 +43,25 @@ class SharedOrderException implements Exception {
 
 class SharedOrderRepository {
   final SharedOrderRemoteDataSource _remoteDataSource;
+  final CurrentLocationService _location;
 
-  const SharedOrderRepository(this._remoteDataSource);
+  const SharedOrderRepository(this._remoteDataSource, this._location);
 
   Future<SharedOrderPreviewModel> preview(String token) =>
       _guard(() => _remoteDataSource.preview(token));
 
-  Future<DriverActiveRideModel?> accept(String token) =>
-      _guard(() => _remoteDataSource.accept(token));
+  /// Sends the driver's position along when it is known within a moment, so
+  /// the server can work out the time to the pickup; never waits for more.
+  Future<DriverActiveRideModel?> accept(String token) async {
+    final position = await _location.quickPosition();
+    return _guard(
+      () => _remoteDataSource.accept(
+        token,
+        lat: position?.latitude,
+        lng: position?.longitude,
+      ),
+    );
+  }
 
   Future<T> _guard<T>(Future<T> Function() call) async {
     try {

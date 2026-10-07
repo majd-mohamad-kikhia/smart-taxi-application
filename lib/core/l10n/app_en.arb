@@ -315,6 +315,40 @@
       }
     }
   },
+  "shareRideInfoWhatsApp": "Send my details on WhatsApp",
+  "shareRideInfoMessage": "Hello 👋 I'm your Smart Taxi driver and I'm on my way to you 🚖\n\n👤 Name: {driverName}\n📞 Phone number: {phone}\n🚗 Car model: {brand} {model}\n🎨 Color: {color}\n🔢 Plate number: {plate}",
+  "@shareRideInfoMessage": {
+    "placeholders": {
+      "driverName": {
+        "type": "String"
+      },
+      "phone": {
+        "type": "String"
+      },
+      "color": {
+        "type": "String"
+      },
+      "brand": {
+        "type": "String"
+      },
+      "model": {
+        "type": "String"
+      },
+      "plate": {
+        "type": "String"
+      }
+    }
+  },
+  "shareRideInfoEta": "⏱️ Expected arrival: {minutes} min",
+  "@shareRideInfoEta": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "shareRideInfoFailed": "Couldn't open WhatsApp. Try again",
+  "shareRideInfoNoPhone": "The customer's phone number isn't available",
   "fareCommission": "Commission",
   "fareYourEarning": "Your earnings",
   "done": "Done",
@@ -427,6 +461,8 @@
   },
   "confirmLocation": "Confirm location",
   "searchPlaceHint": "Search for a place...",
+  "useMyLocation": "Use my location",
+  "swapPickupAndDestination": "Swap pickup and destination",
   "mapLocationFallback": "Location on the map",
   "priceEstimateTag": "(estimated price)",
   "rideAwaitingDriver": "Waiting for a driver to accept",

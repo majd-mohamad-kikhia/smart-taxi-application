@@ -153,11 +153,11 @@ class _OrdersList extends StatelessWidget {
   }
 
   Future<void> _acceptOrder(BuildContext context, OrderOfferModel order) async {
-    final ok = await sl<DriverOrdersCubit>().acceptOrder(order.rideId);
-    if (ok && context.mounted) {
+    final result = await sl<DriverOrdersCubit>().acceptOrder(order.rideId);
+    if (result.ok && context.mounted) {
       await Navigator.of(context).pushNamed(
         AppRouter.driverTrip,
-        arguments: DriverTripRouteArgs(order: order),
+        arguments: DriverTripRouteArgs(order: order.withPickupEta(result.eta)),
       );
       // The trip's commission has come out of the wallet by now.
       sl<DriverAuthCubit>().refreshWalletBalance();

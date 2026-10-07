@@ -43,9 +43,11 @@ import '../../driver_features/driver_trip/data/models/driver_active_ride_model.d
 import '../../driver_features/driver_trip/data/repositories/driver_trip_route_repository.dart';
 import '../../driver_features/driver_trip/data/repositories/driver_trip_repository.dart';
 import '../../driver_features/driver_trip/data/repositories/ride_bill_repository.dart';
+import '../../driver_features/driver_trip/data/repositories/share_ride_info_repository.dart';
 import '../../driver_features/driver_trip/presentation/cubit/driver_active_ride_cubit.dart';
 import '../../driver_features/driver_trip/presentation/cubit/driver_trip_cubit.dart';
 import '../../driver_features/driver_trip/presentation/cubit/ride_bill_cubit.dart';
+import '../../driver_features/driver_trip/presentation/cubit/share_ride_info_cubit.dart';
 import '../../driver_features/driver_shared_order/data/datasources/shared_order_remote_data_source.dart';
 import '../../driver_features/driver_shared_order/data/repositories/shared_order_repository.dart';
 import '../../driver_features/driver_shared_order/presentation/cubit/shared_order_cubit.dart';
@@ -92,6 +94,7 @@ import '../../features/home/data/datasources/ride_request_remote_data_source.dar
 import '../../features/home/data/repositories/places_repository.dart';
 import '../../features/home/data/repositories/ride_request_repository.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
+import '../../features/home/presentation/cubit/map_pick_cubit.dart';
 import '../../features/notifications/data/datasources/notifications_remote_data_source.dart';
 import '../../features/notifications/data/repositories/notifications_repository.dart';
 import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
@@ -379,8 +382,11 @@ void setupInjection() {
   // Singleton for the same reason — order cards must survive tab switches
   // and keep listening on the shared socket.
   sl.registerLazySingleton<DriverOrdersCubit>(
-    () =>
-        DriverOrdersCubit(sl<DriverSocketService>(), sl<DriverPresenceCubit>()),
+    () => DriverOrdersCubit(
+      sl<DriverSocketService>(),
+      sl<CurrentLocationService>(),
+      sl<DriverPresenceCubit>(),
+    ),
   );
 
   // ─── Driver Trip Feature ────────────────────────────────────
@@ -405,6 +411,12 @@ void setupInjection() {
   );
   sl.registerFactory<RideBillCubit>(
     () => RideBillCubit(sl<RideBillRepository>(), sl<SessionCubit>()),
+  );
+  sl.registerLazySingleton<ShareRideInfoRepository>(
+    () => ShareRideInfoRepository(sl<DriverTripRepository>()),
+  );
+  sl.registerFactory<ShareRideInfoCubit>(
+    () => ShareRideInfoCubit(sl<ShareRideInfoRepository>(), sl<SessionCubit>()),
   );
   sl.registerFactoryParam<DriverTripCubit, OrderOfferModel, DriverActiveRideModel?>(
     (order, resume) => DriverTripCubit(
@@ -433,6 +445,7 @@ void setupInjection() {
   sl.registerLazySingleton<SharedOrderRepository>(
     () => SharedOrderRepository(
       SharedOrderRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+      sl<CurrentLocationService>(),
     ),
   );
   sl.registerFactoryParam<SharedOrderCubit, String, void>(
@@ -548,7 +561,13 @@ void setupInjection() {
       sl<SessionCubit>(),
       sl<RideRequestRepository>(),
       sl<AccountBlockCubit>(),
+      sl<CurrentLocationService>(),
+      sl<PlacesRepository>(),
     ),
+  );
+
+  sl.registerFactory<MapPickCubit>(
+    () => MapPickCubit(sl<PlacesRepository>(), sl<CurrentLocationService>()),
   );
 
   // ─── Core Saved Addresses ───────────────────────────────────

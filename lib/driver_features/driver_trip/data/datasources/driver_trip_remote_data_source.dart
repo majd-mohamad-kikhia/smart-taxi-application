@@ -6,6 +6,7 @@ import '../models/driver_active_ride_model.dart';
 import '../models/driver_ride_start_model.dart';
 import '../models/driver_ride_finish_model.dart';
 import '../models/driver_trip_payment_model.dart';
+import '../models/driver_trip_vehicle_model.dart';
 import '../models/recorded_route_point_model.dart';
 
 /// Remote data source for the driver's active-ride actions (see
@@ -26,6 +27,14 @@ class DriverTripRemoteDataSource {
     return data is Map
         ? DriverActiveRideModel.tryParse(Map<String, dynamic>.from(data))
         : null;
+  }
+
+  /// The driver's registered car (`GET /api/driver/vehicle`).
+  Future<DriverTripVehicleModel> fetchVehicle() async {
+    final response = await _dio.get(_endpoints.driverVehicle);
+    return DriverTripVehicleModel.fromJson(
+      Map<String, dynamic>.from((response.data as Map)['data'] as Map),
+    );
   }
 
   /// accepted → arrived (optional step). Returns the running waiting timer

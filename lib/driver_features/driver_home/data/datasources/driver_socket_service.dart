@@ -132,9 +132,12 @@ class DriverSocketService {
   /// (preferred over the REST `POST /api/driver/rides/:id/accept` — same
   /// atomic compare-and-set on the server either way). [onResult] receives
   /// the server's answer; on a refusal it carries the server's message and
-  /// whether the reason is a low wallet.
+  /// whether the reason is a low wallet. With [lat] and [lng] (the driver's
+  /// position) the answer also carries the time to the pickup.
   void acceptOrder({
     required int rideId,
+    double? lat,
+    double? lng,
     required void Function(OrderAcceptResult result) onResult,
   }) {
     if (_disposed || _socket == null) {
@@ -143,7 +146,7 @@ class DriverSocketService {
     }
     _socket!.emitWithAck(
       'driver:order_accept',
-      {'ride_id': rideId},
+      {'ride_id': rideId, 'lat': ?lat, 'lng': ?lng},
       ack: (res) => onResult(OrderAcceptResult.fromAck(res)),
     );
   }
