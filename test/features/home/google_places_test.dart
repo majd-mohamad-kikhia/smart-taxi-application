@@ -3,9 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/core/services/google_api_credentials_loader.dart';
 import 'package:mshoar/features/home/data/datasources/google_places_data_source.dart';
-import 'package:mshoar/features/home/data/datasources/places_remote_data_source.dart';
 import 'package:mshoar/features/home/data/models/place_suggestion_model.dart';
-import 'package:mshoar/features/home/data/repositories/places_repository.dart';
+import 'package:mshoar/features/home/data/places_exception.dart';
 
 class _Adapter implements HttpClientAdapter {
   final requests = <RequestOptions>[];
@@ -50,39 +49,18 @@ class _Adapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-class _FakePhoton extends PlacesRemoteDataSource {
-  int calls = 0;
-
-  @override
-  Future<List<PlaceSuggestionModel>> autocomplete(
-    String query, {
-    double? nearLatitude,
-    double? nearLongitude,
-    double? withinDegrees,
-    int limit = 8,
-  }) async {
-    calls++;
-    return const [
-      PlaceSuggestionModel(description: 'photon', latitude: 1, longitude: 1),
-    ];
-  }
-}
-
 void main() {
   late _Adapter adapter;
   late GooglePlacesDataSource google;
-  var now = DateTime(2026, 10, 9, 12);
 
   setUp(() {
     adapter = _Adapter();
-    now = DateTime(2026, 10, 9, 12);
     google = GooglePlacesDataSource(
       credentials: () async => const GoogleApiCredentials(
         apiKey: 'KEY',
         appHeaders: {'X-Android-Package': 'p'},
       ),
       dio: Dio()..httpClientAdapter = adapter,
-      now: () => now,
     );
   });
 
@@ -149,41 +127,103 @@ void main() {
     },
   );
 
-  test(
-    'a refusal (403) pauses Google for 5 minutes, then it is tried again',
-    () async {
-      adapter.status = 403;
-      expect(await google.search('x'), isEmpty);
-      expect(await google.search('x'), isEmpty);
-      expect(adapter.requests, hasLength(1));
+  test('a refusal (403) is a PlacesException', () async {
+    adapter.status = 403;
+    await expectLater(google.search('x'), throwsA(isA<PlacesException>()));
+  });
 
-      now = now.add(const Duration(minutes: 6));
-      await google.search('x');
-      expect(adapter.requests, hasLength(2));
-    },
-  );
-
-  test('no key means no request', () async {
+  test('no key means no request, and a PlacesException', () async {
     final noKey = GooglePlacesDataSource(
       credentials: () async => GoogleApiCredentials.none,
       dio: Dio()..httpClientAdapter = adapter,
     );
-    expect(await noKey.search('x'), isEmpty);
+    await expectLater(noKey.search('x'), throwsA(isA<PlacesException>()));
+    await expectLater(noKey.reverseGeocode(1, 2), throwsA(isA<PlacesException>()));
     expect(adapter.requests, isEmpty);
   });
 
-  test('Google answers: Photon is not asked', () async {
-    final photon = _FakePhoton();
-    final places = await PlacesRepository(photon, google).search('جامع الروضة');
-    expect(places.single.description, 'جامع الروضة، دمشق');
-    expect(photon.calls, 0);
+  test('naming a pin asks the Geocoding API in Arabic with the key and app headers', () async {
+    adapter.body = {
+      'status': 'OK',
+      'results': [
+        {
+          'types': ['plus_code'],
+          'formatted_address': 'X258+GH3، اللاذقية، سوريا',
+        },
+        {
+          'types': ['route'],
+          'formatted_address': 'شارع بغداد، اللاذقية، سوريا',
+        },
+      ],
+    };
+
+    final address = await google.reverseGeocode(35.52, 35.79);
+
+    final request = adapter.requests.single;
+    expect(request.uri.host, 'maps.googleapis.com');
+    expect(request.queryParameters['latlng'], '35.52,35.79');
+    expect(request.queryParameters['language'], 'ar');
+    expect(request.queryParameters['key'], 'KEY');
+    expect(request.headers['X-Android-Package'], 'p');
+    expect(request.headers.containsKey('Authorization'), isFalse);
+    // The plus code result is skipped.
+    expect(address, 'شارع بغداد، اللاذقية');
   });
 
-  test('Google gives nothing: Photon answers', () async {
-    adapter.body = {'places': <dynamic>[]};
-    final photon = _FakePhoton();
-    final places = await PlacesRepository(photon, google).search('x');
-    expect(places.single.description, 'photon');
-    expect(photon.calls, 1);
+  test('naming a pin on an unnamed station: the street and neighborhood, not just the city', () {
+    // What Google answered for محطة بغداد: results led by plus codes first.
+    final answer = {
+      'status': 'OK',
+      'results': [
+        {
+          'types': ['establishment', 'gas_station', 'point_of_interest'],
+          'formatted_address': 'GQGR+P5M، اللاذقية، سوريا',
+        },
+        {
+          'types': ['premise', 'street_address'],
+          'formatted_address': 'GQGR+P5G، اللاذقية، سوريا',
+        },
+        {
+          'types': ['plus_code'],
+          'formatted_address': 'GQGR+P5 اللاذقية، سوريا',
+        },
+        {
+          'types': ['route'],
+          'formatted_address': 'الجمهورية، اللاذقية، سوريا',
+        },
+        {
+          'types': ['neighborhood', 'political'],
+          'formatted_address': 'السابع من نيسان، اللاذقية، سوريا',
+        },
+        {
+          'types': ['locality', 'political'],
+          'formatted_address': 'اللاذقية، سوريا',
+        },
+      ],
+    };
+
+    expect(GooglePlacesDataSource.parseGeocode(answer), 'الجمهورية، السابع من نيسان، اللاذقية');
+  });
+
+  test('naming a pin: only a city is still better than nothing', () {
+    final answer = {
+      'status': 'OK',
+      'results': [
+        {
+          'types': ['locality', 'political'],
+          'formatted_address': 'اللاذقية، سوريا',
+        },
+      ],
+    };
+
+    expect(GooglePlacesDataSource.parseGeocode(answer), 'اللاذقية');
+  });
+
+  test('naming a pin: nothing there is null, a refused key is a PlacesException', () async {
+    adapter.body = {'status': 'ZERO_RESULTS', 'results': <dynamic>[]};
+    expect(await google.reverseGeocode(0, 0), isNull);
+
+    adapter.body = {'status': 'REQUEST_DENIED', 'error_message': 'API not enabled'};
+    await expectLater(google.reverseGeocode(0, 0), throwsA(isA<PlacesException>()));
   });
 }

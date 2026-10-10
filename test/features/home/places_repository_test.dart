@@ -1,33 +1,38 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mshoar/features/home/data/datasources/places_remote_data_source.dart';
+import 'package:mshoar/features/home/data/datasources/google_places_data_source.dart';
+import 'package:mshoar/features/home/data/datasources/nominatim_reverse_data_source.dart';
 import 'package:mshoar/features/home/data/models/place_suggestion_model.dart';
 import 'package:mshoar/features/home/data/repositories/places_repository.dart';
 
-typedef _Call = ({double? withinDegrees, int limit, double? near});
+class _FakeGoogle extends Fake implements GooglePlacesDataSource {
+  final List<PlaceSuggestionModel> answer;
+  final List<String> queries = [];
+  bool fail = false;
 
-class _FakeSource extends Fake implements PlacesRemoteDataSource {
-  final List<List<PlaceSuggestionModel>> answers;
-  final List<_Call> calls = [];
-
-  /// Answer number (0-based) that fails instead.
-  int? failOn;
-
-  _FakeSource(this.answers);
+  _FakeGoogle(this.answer);
 
   @override
-  Future<List<PlaceSuggestionModel>> autocomplete(
-    String query, {
-    double? nearLatitude,
-    double? nearLongitude,
-    double? withinDegrees,
-    int limit = 8,
-  }) async {
-    final index = calls.length;
-    calls.add((withinDegrees: withinDegrees, limit: limit, near: nearLatitude));
-    if (failOn == index) throw DioException(requestOptions: RequestOptions());
-    return answers[index];
+  Future<List<PlaceSuggestionModel>> search(String query, {int limit = 8}) async {
+    queries.add(query);
+    if (fail) throw const PlacesException('down');
+    return answer;
   }
+
+  int reverseCalls = 0;
+
+  @override
+  Future<String?> reverseGeocode(double latitude, double longitude) async {
+    reverseCalls++;
+    if (fail) throw const PlacesException('down');
+    return 'شارع الثورة';
+  }
+}
+
+class _FakeNominatim extends Fake implements NominatimReverseDataSource {
+  String? name;
+
+  @override
+  Future<String?> reverseGeocode(double latitude, double longitude) async => name;
 }
 
 PlaceSuggestionModel _mosque(String city, double lat, double lng) =>
@@ -37,83 +42,84 @@ PlaceSuggestionModel _mosque(String city, double lat, double lng) =>
 const _lat = 33.5138;
 const _lng = 36.2765;
 
-Future<List<String>> _search(_FakeSource source) async {
-  final results = await PlacesRepository(source).search(
-    'جامع الروضة',
-    nearLatitude: _lat,
-    nearLongitude: _lng,
-  );
-  return [for (final r in results) r.description];
-}
-
 void main() {
-  final near = [for (var i = 0; i < 5; i++) _mosque('حي $i', 33.52 + i * 0.01, 36.28)];
-
-  test('enough matches nearby: one request, only around the customer', () async {
-    final source = _FakeSource([near]);
-
-    final result = await _search(source);
-
-    expect(source.calls, [(withinDegrees: 0.5, limit: 20, near: _lat)]);
-    expect(result.first, 'جامع الروضة، حي 0');
-  });
-
-  test('too few matches nearby: a second, unrestricted request adds the far ones', () async {
-    final far = _mosque('حلب', 36.2, 37.1);
-    final source = _FakeSource([
-      [_mosque('دمشق', 33.52, 36.28)],
-      [far, _mosque('دمشق', 33.52, 36.28)],
+  test('results nearest to the customer first, inside the same region', () async {
+    final google = _FakeGoogle([
+      _mosque('حمص', 34.73, 36.71),
+      _mosque('دمشق', 33.52, 36.28),
     ]);
 
-    final result = await _search(source);
+    final results = await PlacesRepository(google, _FakeNominatim()).search(
+      'جامع الروضة',
+      nearLatitude: _lat,
+      nearLongitude: _lng,
+    );
 
-    expect(source.calls.last, (withinDegrees: null, limit: 10, near: _lat));
-    expect(result, ['جامع الروضة، دمشق', 'جامع الروضة، حلب']);
+    expect(results.first.description, 'جامع الروضة، دمشق');
+    expect(results.first.distanceMeters, isNotNull);
   });
 
-  test('nearby results that do not match what was typed do not count as an answer', () async {
-    final source = _FakeSource([
-      [for (var i = 0; i < 6; i++) PlaceSuggestionModel(description: 'جامع النور $i', latitude: 33.52, longitude: 36.28 + i * 0.001)],
-      [_mosque('حلب', 36.2, 37.1)],
+  test('Latakia comes before the rest of Syria', () async {
+    final google = _FakeGoogle([
+      _mosque('دمشق', 33.52, 36.28),
+      _mosque('اللاذقية', 35.52, 35.79),
     ]);
 
-    final result = await _search(source);
+    final results = await PlacesRepository(google, _FakeNominatim()).search(
+      'جامع الروضة',
+      nearLatitude: _lat,
+      nearLongitude: _lng,
+    );
 
-    expect(source.calls, hasLength(2));
-    expect(result.first, 'جامع الروضة، حلب');
+    expect(results.first.description, 'جامع الروضة، اللاذقية');
   });
 
-  test('the wider request failing keeps the nearby answer', () async {
-    final source = _FakeSource([
-      [_mosque('دمشق', 33.52, 36.28)],
-      [],
-    ])..failOn = 1;
-
-    expect(await _search(source), ['جامع الروضة، دمشق']);
-  });
-
-  test('nothing nearby and the wider request failing is an error', () async {
-    final source = _FakeSource([[], []])..failOn = 1;
-
-    await expectLater(_search(source), throwsA(isA<PlacesException>()));
-  });
-
-  test('without a position it is a single plain request, in the service order', () async {
-    final source = _FakeSource([
-      [_mosque('حلب', 36.2, 37.1), _mosque('دمشق', 33.52, 36.28)],
+  test('without a position Google\'s own order is kept', () async {
+    final google = _FakeGoogle([
+      _mosque('دمشق', 33.52, 36.28),
+      _mosque('حمص', 34.73, 36.71),
     ]);
 
-    final results = await PlacesRepository(source).search('جامع الروضة');
+    final results = await PlacesRepository(google, _FakeNominatim()).search('جامع الروضة');
 
-    expect(source.calls, [(withinDegrees: null, limit: 8, near: null)]);
-    expect(results.first.description, 'جامع الروضة، حلب');
+    expect([for (final r in results) r.description], ['جامع الروضة، دمشق', 'جامع الروضة، حمص']);
     expect(results.first.distanceMeters, isNull);
   });
 
   test('a blank query asks nothing', () async {
-    final source = _FakeSource([]);
+    final google = _FakeGoogle([]);
 
-    expect(await PlacesRepository(source).search('  ', nearLatitude: _lat, nearLongitude: _lng), isEmpty);
-    expect(source.calls, isEmpty);
+    expect(await PlacesRepository(google, _FakeNominatim()).search('  ', nearLatitude: _lat, nearLongitude: _lng), isEmpty);
+    expect(google.queries, isEmpty);
+  });
+
+  test('Google failing is a PlacesException for the search', () async {
+    final google = _FakeGoogle([])..fail = true;
+
+    await expectLater(PlacesRepository(google, _FakeNominatim()).search('x'), throwsA(isA<PlacesException>()));
+  });
+
+  test('naming a pin: Nominatim\'s full name first, Google is not asked', () async {
+    final google = _FakeGoogle([]);
+    final nominatim = _FakeNominatim()..name = 'محطة بغداد، شارع الجمهورية، الدباغة';
+    final repository = PlacesRepository(google, nominatim);
+
+    expect(await repository.addressFor(_lat, _lng), 'محطة بغداد، شارع الجمهورية، الدباغة');
+    expect(google.reverseCalls, 0);
+  });
+
+  test('naming a pin: Nominatim has nothing, so Google answers', () async {
+    final google = _FakeGoogle([]);
+    final repository = PlacesRepository(google, _FakeNominatim());
+
+    expect(await repository.addressFor(_lat, _lng), 'شارع الثورة');
+    expect(google.reverseCalls, 1);
+  });
+
+  test('naming a pin: both failing is null, not an error', () async {
+    final google = _FakeGoogle([])..fail = true;
+    final repository = PlacesRepository(google, _FakeNominatim());
+
+    expect(await repository.addressFor(_lat, _lng), isNull);
   });
 }

@@ -154,8 +154,6 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
                           controller: _noteController,
                           maxLength: _maxNoteLength,
                         ),
-                        const SizedBox(height: AppConstants.paddingS),
-                        _FeeRules(quote: quote),
                       ],
                     )
                   : const _NoVehicles(),
@@ -265,50 +263,6 @@ class _AddressRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// The waiting and stop fee rules, folded away until the customer wants them.
-class _FeeRules extends StatelessWidget {
-  final RideQuoteModel quote;
-
-  const _FeeRules({required this.quote});
-
-  @override
-  Widget build(BuildContext context) {
-    final waiting = quote.waitingFee;
-    // Pauses during the trip are not shown to the customer.
-    final hasWaiting = waiting?.isCharged ?? false;
-    if (!hasWaiting) return const SizedBox.shrink();
-
-    final l10n = context.l10n;
-    final textTheme = Theme.of(context).textTheme;
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: AppColors.transparent),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        childrenPadding: EdgeInsets.zero,
-        expandedCrossAxisAlignment: CrossAxisAlignment.start,
-        shape: const Border(),
-        collapsedShape: const Border(),
-        iconColor: AppColors.textSecondary,
-        collapsedIconColor: AppColors.textSecondary,
-        title: Text(l10n.fareDetails, style: textTheme.titleSmall),
-        children: [
-          if (hasWaiting)
-            Padding(
-              padding: const EdgeInsets.only(bottom: AppConstants.paddingS),
-              child: Text(
-                '${l10n.waitingAtPickup}: ${l10n.waitingRules(
-                  '${waiting!.freeMinutes}',
-                  formatSyp(l10n, waiting.pricePerMinute),
-                )}',
-                style: textTheme.bodyMedium,
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

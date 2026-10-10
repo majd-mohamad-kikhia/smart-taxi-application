@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/account_block/account_block_cubit.dart';
 import '../../../../core/localization/app_strings.dart';
@@ -15,6 +16,11 @@ import 'home_state.dart';
 /// counted cancel is handed to [AccountBlockCubit], which blocks ordering
 /// and shows the server's text.
 class HomeCubit extends Cubit<HomeState> {
+  /// How long a GPS-button message (location off, permission denied, no
+  /// address) stays on screen before it clears itself.
+  static const Duration _locateErrorDuration = Duration(seconds: 4);
+
+  Timer? _locateErrorTimer;
   final SessionCubit _sessionCubit;
   final RideRequestRepository _repository;
   final AccountBlockCubit _accountBlock;
@@ -119,12 +125,11 @@ class HomeCubit extends Cubit<HomeState> {
       );
       if (isClosed) return;
       if (address == null || state.arePointsLocked) {
-        emit(state.copyWith(
-          isLocating: false,
-          errorMessage: address == null
-              ? AppStrings.current.locationUnresolved
-              : null,
-        ));
+        if (address == null) {
+          _showLocateError(AppStrings.current.locationUnresolved);
+        } else {
+          emit(state.copyWith(isLocating: false));
+        }
         return;
       }
       emit(state.copyWith(
@@ -139,13 +144,31 @@ class HomeCubit extends Cubit<HomeState> {
     } on LocationPermissionDeniedException catch (e) {
       if (isClosed) return;
       final strings = AppStrings.current;
-      emit(state.copyWith(
-        isLocating: false,
-        errorMessage: e.reason == LocationFailureReason.serviceDisabled
+      _showLocateError(
+        e.reason == LocationFailureReason.serviceDisabled
             ? strings.errLocationServiceOff
             : strings.errLocationDenied,
-      ));
+      );
     }
+  }
+
+  /// Shows a GPS-button message and clears it after [_locateErrorDuration],
+  /// unless something else has replaced it by then. Unlike a failed order,
+  /// it needs no action from the customer, so it must not stay on screen.
+  void _showLocateError(String message) {
+    emit(state.copyWith(isLocating: false, errorMessage: message));
+    _locateErrorTimer?.cancel();
+    _locateErrorTimer = Timer(_locateErrorDuration, () {
+      if (!isClosed && state.errorMessage == message) {
+        emit(state.copyWith(clearError: true));
+      }
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _locateErrorTimer?.cancel();
+    return super.close();
   }
 
   /// Order flow step 1 — resolves the two pins into distance, ETA and a

@@ -1,23 +1,26 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../../../core/services/google_api_credentials_loader.dart';
 import '../models/place_suggestion_model.dart';
+import '../places_exception.dart';
 
-/// Place search by name with Google Places API (New) — Text Search. One POST;
-/// Latakia comes first, then the rest of Syria: `regionCode: SY`, a box
-/// around Latakia as `locationBias`, Arabic names, and the answer ordered
-/// Latakia, Syria, elsewhere. A bias, not a limit, so a place elsewhere can still answer
-/// when nothing matches in Syria.
+/// Place search by name with Google Places API (New) — Text Search — and
+/// naming a dropped pin with the Google Geocoding API. Both use the key from
+/// `.env` (see `GoogleApiCredentialsLoader`).
 ///
-/// It never throws and never blocks the screen: 5 s timeouts, and any
-/// failure is an empty list so the caller falls back to Photon. After a
-/// refusal (400 / 401 / 403: API off, bad key) Google is skipped for
-/// [_pauseAfterRefusal] instead of failing on every key press.
+/// Search is one POST; Latakia comes first, then the rest of Syria:
+/// `regionCode: SY`, a box around Latakia as `locationBias`, Arabic names,
+/// and the answer ordered Latakia, Syria, elsewhere. A bias, not a limit, so
+/// a place elsewhere can still answer when nothing matches in Syria.
+///
+/// 5 s timeouts; a missing key or a failed request throws a
+/// [PlacesException] (the reason Google gave goes to [debugPrint]).
 class GooglePlacesDataSource {
   static const _url = 'https://places.googleapis.com/v1/places:searchText';
+  static const _geocodeUrl = 'https://maps.googleapis.com/maps/api/geocode/json';
   static const _fieldMask =
       'places.displayName,places.formattedAddress,places.location';
-  static const _pauseAfterRefusal = Duration(minutes: 5);
 
   /// The box around Syria.
   static const _syriaLow = {'latitude': 32.3, 'longitude': 35.6};
@@ -59,15 +62,11 @@ class GooglePlacesDataSource {
 
   final Future<GoogleApiCredentials> Function() _credentials;
   final Dio _dio;
-  final DateTime Function() _now;
-  DateTime? _pausedUntil;
 
   GooglePlacesDataSource({
     required Future<GoogleApiCredentials> Function() credentials,
     Dio? dio,
-    DateTime Function()? now,
   }) : _credentials = credentials,
-       _now = now ?? DateTime.now,
        // A client of its own: the app's login token must never reach Google.
        _dio =
            dio ??
@@ -83,11 +82,8 @@ class GooglePlacesDataSource {
     String query, {
     int limit = 8,
   }) async {
-    final paused = _pausedUntil;
-    if (paused != null && _now().isBefore(paused)) return const [];
+    final credentials = await _requireCredentials();
     try {
-      final credentials = await _credentials();
-      if (credentials.apiKey.isEmpty) return const [];
       final response = await _dio.post<dynamic>(
         _url,
         data: {
@@ -109,19 +105,103 @@ class GooglePlacesDataSource {
       );
       return latakiaFirst(parse(response.data));
     } on DioException catch (e) {
-      final status = e.response?.statusCode;
-      if (status == 400 || status == 401 || status == 403) {
-        _pausedUntil = _now().add(_pauseAfterRefusal);
-      }
-      debugPrint(
-        'GooglePlacesDataSource: search failed ($status): ${e.response?.data ?? e.message}',
-      );
-      return const [];
-    } catch (e) {
-      debugPrint('GooglePlacesDataSource: search failed: $e');
-      return const [];
+      _logFailure('search', e);
+      throw PlacesException(AppStrings.current.errPlacesSearch);
     }
   }
+
+  /// The address of the spot ([latitude], [longitude]) in Arabic, or null
+  /// when Google knows nothing there.
+  Future<String?> reverseGeocode(double latitude, double longitude) async {
+    final credentials = await _requireCredentials();
+    try {
+      final response = await _dio.get<dynamic>(
+        _geocodeUrl,
+        queryParameters: {
+          'latlng': '$latitude,$longitude',
+          'language': 'ar',
+          'key': credentials.apiKey,
+        },
+        options: Options(headers: credentials.appHeaders),
+      );
+      return parseGeocode(response.data);
+    } on DioException catch (e) {
+      _logFailure('reverse geocode', e);
+      throw PlacesException(AppStrings.current.errPlacesSearch);
+    }
+  }
+
+  Future<GoogleApiCredentials> _requireCredentials() async {
+    final credentials = await _credentials();
+    if (credentials.apiKey.isEmpty) {
+      debugPrint('GooglePlacesDataSource: no Google API key available');
+      throw PlacesException(AppStrings.current.errPlacesSearch);
+    }
+    return credentials;
+  }
+
+  void _logFailure(String what, DioException e) {
+    debugPrint(
+      'GooglePlacesDataSource: $what failed (${e.response?.statusCode}): '
+      '${e.response?.data ?? e.message}',
+    );
+  }
+
+  /// The address of an answer from the Geocoding API: the first result that
+  /// is a real address (not led by a plus code), cleaned. Geocoding reports a
+  /// refused key as `status: REQUEST_DENIED` with a 200, so the status is
+  /// checked too.
+  @visibleForTesting
+  static String? parseGeocode(dynamic data) {
+    if (data is! Map) return null;
+    final status = data['status'];
+    if (status != 'OK') {
+      if (status != 'ZERO_RESULTS') {
+        debugPrint(
+          'GooglePlacesDataSource: reverse geocode answered $status: ${data['error_message']}',
+        );
+        throw PlacesException(AppStrings.current.errPlacesSearch);
+      }
+      return null;
+    }
+    final results = data['results'];
+    if (results is! List) return null;
+    for (final result in results) {
+      if (result is! Map) continue;
+      final raw = (result['formatted_address'] as String? ?? '').trim();
+      final types = result['types'];
+      // A plus code, alone or leading an unnamed building or station
+      // ("GQGR+P5M، اللاذقية"), says nothing a customer can use: the street
+      // and area further down the list do.
+      if ((types is List && types.contains('plus_code')) || _leadingPlusCode.hasMatch(raw)) {
+        continue;
+      }
+      final address = cleanAddress(raw);
+      if (address.isEmpty) continue;
+      return types is List && types.contains('route')
+          ? _withNeighborhood(address, results)
+          : address;
+    }
+    return null;
+  }
+
+  /// A street alone ("الجمهورية، اللاذقية") is vague in a big city: the
+  /// neighborhood Google also found goes between the street and the city.
+  static String _withNeighborhood(String street, List<dynamic> results) {
+    for (final result in results) {
+      if (result is! Map) continue;
+      final types = result['types'];
+      if (types is! List || !types.contains('neighborhood')) continue;
+      final name = (result['formatted_address'] as String? ?? '').split(RegExp('[،,]')).first.trim();
+      final parts = street.split('،').map((p) => p.trim()).toList();
+      if (name.isEmpty || parts.contains(name)) return street;
+      parts.insert(1, name);
+      return parts.join('، ');
+    }
+    return street;
+  }
+
+  static final RegExp _leadingPlusCode = RegExp(r'^[A-Z0-9]{4,8}\+[A-Z0-9]{2,3}');
 
   /// The places of an answer: a place without a location is skipped, the
   /// title is the name plus a cleaned address, duplicates are dropped.

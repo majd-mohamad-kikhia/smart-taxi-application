@@ -18,7 +18,6 @@ import '../../data/models/ride_driver_model.dart';
 import '../../data/models/ride_location_model.dart';
 import '../../data/models/ride_vehicle_model.dart';
 import '../../../../core/services/google_routes_service.dart';
-import '../../../../core/services/route_service.dart';
 import '../../data/models/tracked_ride_model.dart';
 import 'ride_tracking_state.dart';
 
@@ -49,7 +48,6 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
   final TripRouteTracker _routeTracker;
   final AccountBlockCubit _accountBlock;
   final GoogleRoutesService? _plannedRoutes;
-  final RouteService? _fallbackRoutes;
   Timer? _cancelAnswerTimer;
   RideRouteLeg _trackedLeg = RideRouteLeg.none;
 
@@ -61,9 +59,7 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
     required PickedLocationModel pickup,
     required PickedLocationModel dropoff,
     GoogleRoutesService? plannedRoutes,
-    RouteService? fallbackRoutes,
   }) : _plannedRoutes = plannedRoutes,
-       _fallbackRoutes = fallbackRoutes,
        super(RideTrackingState.initial(
           ride: TrackedRideModel.fromRideModel(initialRide),
           pickup: pickup,
@@ -89,20 +85,6 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
       }
     } catch (e) {
       debugPrint('RideTrackingCubit: Google route failed: $e');
-    }
-    // Google gave no road: OSRM, so the map never shows only a straight line.
-    final fallback = _fallbackRoutes;
-    if (fallback == null) return;
-    try {
-      final route = await fallback.getRoute(
-        fromLat: from.latitude,
-        fromLng: from.longitude,
-        toLat: to.latitude,
-        toLng: to.longitude,
-      );
-      if (!isClosed && route.length >= 2) emit(state.copyWith(plannedRoute: route));
-    } catch (e) {
-      debugPrint('RideTrackingCubit: fallback route failed: $e');
     }
   }
 

@@ -7,7 +7,6 @@ import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/services/planned_route_loader.dart';
-import '../../../../core/services/route_service.dart';
 import '../../../../core/services/trip_route_tracker.dart';
 import '../../data/datasources/driver_trip_location_service.dart';
 import '../../data/datasources/open_trip_registry.dart';
@@ -52,10 +51,6 @@ class DriverTripCubit extends Cubit<DriverTripState> {
   /// Draws the driver's road to the pickup while the trip hasn't started.
   final TripRouteTracker? _pickupRouteTracker;
 
-  /// OSRM, used for the road to the pickup when Google gives none, so the
-  /// driver always has a line to follow.
-  final RouteService? _fallbackRoutes;
-  DateTime? _fallbackAt;
   StreamSubscription<Position>? _pickupSubscription;
   Timer? _finishRetry;
   bool _finishInFlight = false;
@@ -101,9 +96,7 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     OrderOfferModel order, {
     DriverActiveRideModel? resume,
     TripRouteTracker? pickupRouteTracker,
-    RouteService? fallbackRoutes,
   }) : _resume = resume,
-       _fallbackRoutes = fallbackRoutes,
        _pickupRouteTracker = pickupRouteTracker,
        super(
          DriverTripState.initial(
@@ -221,8 +214,6 @@ class DriverTripCubit extends Cubit<DriverTripState> {
         if (isClosed || _pickupSubscription == null) return;
         if (snapshot.line.isNotEmpty) {
           emit(state.copyWith(pickupRoute: snapshot.line));
-        } else {
-          await _fallbackPickupRoute(position);
         }
       } catch (e) {
         debugPrint('DriverTripCubit: could not draw the road to the pickup: $e');
@@ -233,30 +224,6 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     final start = await _locationService.currentPosition() ??
         await _locationService.lastKnownPosition();
     if (start != null) unawaited(follow(start));
-  }
-
-  /// Google gave no road: ask OSRM, at most every 20 s.
-  Future<void> _fallbackPickupRoute(Position position) async {
-    final service = _fallbackRoutes;
-    final last = _fallbackAt;
-    if (service == null ||
-        (last != null && DateTime.now().difference(last) < const Duration(seconds: 20))) {
-      return;
-    }
-    _fallbackAt = DateTime.now();
-    try {
-      final route = await service.getRoute(
-        fromLat: position.latitude,
-        fromLng: position.longitude,
-        toLat: state.order.pickupLat,
-        toLng: state.order.pickupLng,
-      );
-      if (!isClosed && _pickupSubscription != null && route.length >= 2) {
-        emit(state.copyWith(pickupRoute: route));
-      }
-    } on RouteException catch (e) {
-      debugPrint('DriverTripCubit: fallback route failed: $e');
-    }
   }
 
   void _stopPickupTracking() {

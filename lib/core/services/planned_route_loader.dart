@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../models/route_point_model.dart';
 import '../models/driving_route_model.dart';
 import 'google_routes_service.dart';
-import 'route_service.dart';
+import 'route_exception.dart';
 
 /// Loads the planned road route for a trip once and keeps it fixed — it is
 /// never trimmed or re-routed while the car moves (the driven path is
@@ -14,19 +14,15 @@ import 'route_service.dart';
 class PlannedRouteLoader {
   static const _retryInterval = Duration(seconds: 10);
 
-  final RouteService _routeService;
-
-  /// The road from Google Routes, tried first; [_routeService] (OSRM) stands
-  /// in when Google can't answer.
-  final GoogleRoutesService? _google;
+  /// The road comes from Google Routes.
+  final GoogleRoutesService _google;
 
   List<RoutePointModel> _route = const [];
   bool _isLoading = false;
   DateTime? _lastAttemptAt;
   int _generation = 0;
 
-  PlannedRouteLoader(this._routeService, {GoogleRoutesService? google})
-    : _google = google;
+  PlannedRouteLoader(this._google);
 
   /// The planned route from ([fromLat], [fromLng]) to ([toLat], [toLng]),
   /// or an empty list while it isn't available yet.
@@ -62,26 +58,13 @@ class PlannedRouteLoader {
     double toLat,
     double toLng,
   ) async {
-    final google = _google;
-    if (google != null) {
-      try {
-        final DrivingRouteModel route = await google.computeRoute(
-          fromLat: fromLat,
-          fromLng: fromLng,
-          toLat: toLat,
-          toLng: toLng,
-        );
-        if (route.points.length >= 2) return route.points;
-      } on RouteException catch (e) {
-        debugPrint('PlannedRouteLoader: Google route failed, using OSRM: $e');
-      }
-    }
-    return _routeService.getRoute(
+    final DrivingRouteModel route = await _google.computeRoute(
       fromLat: fromLat,
       fromLng: fromLng,
       toLat: toLat,
       toLng: toLng,
     );
+    return route.points;
   }
 
   /// Forgets the cached route — for when the trip's points change. A

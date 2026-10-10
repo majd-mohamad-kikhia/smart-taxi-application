@@ -5,7 +5,7 @@ import '../localization/app_strings.dart';
 import '../models/driving_route_model.dart';
 import '../utils/polyline_decoder.dart';
 import 'google_api_credentials_loader.dart';
-import 'route_service.dart' show RouteException;
+import 'route_exception.dart';
 
 /// Fetches a driving route — road line, distance and travel time with live
 /// traffic — from the Google Routes API.

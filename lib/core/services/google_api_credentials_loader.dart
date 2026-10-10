@@ -22,16 +22,15 @@ class GoogleApiCredentials extends Equatable {
 }
 
 /// Works out, once per app run, the key and identity headers for this
-/// platform:
+/// platform. The key is always `GOOGLE_MAPS_API_KEY` from `.env`; the
+/// identity is what a key restricted to apps checks:
 ///
-/// - **Android**: the maps key from the manifest (`GOOGLE_MAPS_API_KEY` in
-///   `android/local.properties`, the key the map itself uses) with the
-///   package name and the SHA-1 of the certificate the running build is
-///   signed with, read natively (`MainActivity`). Those are what an
-///   Android-restricted key checks, and they follow the build — debug,
-///   upload and Play signing each carry their own SHA-1.
-/// - **iOS**: the `.env` key with the bundle identifier.
-/// - Anywhere else: the `.env` key, no identity.
+/// - **Android**: the package name and the SHA-1 of the certificate the
+///   running build is signed with, read natively (`MainActivity`). They
+///   follow the build — debug, upload and Play signing each carry their own
+///   SHA-1.
+/// - **iOS**: the bundle identifier.
+/// - Anywhere else: no identity.
 class GoogleApiCredentialsLoader {
   static const MethodChannel _defaultChannel = MethodChannel('smart_taxi/google_api');
 
@@ -64,17 +63,16 @@ class GoogleApiCredentialsLoader {
   }
 
   Future<GoogleApiCredentials> _resolve() async {
+    if (_envKey.isEmpty) return _missing('GOOGLE_MAPS_API_KEY is missing from .env');
     switch (_platform) {
       case TargetPlatform.android:
         return _android();
       case TargetPlatform.iOS:
-        if (_envKey.isEmpty) return _missing('GOOGLE_MAPS_API_KEY is missing from .env');
         return GoogleApiCredentials(
           apiKey: _envKey,
           appHeaders: {'X-Ios-Bundle-Identifier': await _bundleId()},
         );
       default:
-        if (_envKey.isEmpty) return _missing('GOOGLE_MAPS_API_KEY is missing from .env');
         return GoogleApiCredentials(apiKey: _envKey);
     }
   }
@@ -89,14 +87,10 @@ class GoogleApiCredentialsLoader {
       return _missing('the app identity channel is not available');
     }
 
-    final key = identity?['apiKey'] as String? ?? '';
     final package = identity?['packageName'] as String? ?? '';
     final sha1 = identity?['certSha1'] as String? ?? '';
-    if (key.isEmpty) {
-      return _missing('no maps key in the build — set GOOGLE_MAPS_API_KEY in android/local.properties');
-    }
     return GoogleApiCredentials(
-      apiKey: key,
+      apiKey: _envKey,
       appHeaders: {
         if (package.isNotEmpty) 'X-Android-Package': package,
         if (sha1.isNotEmpty) 'X-Android-Cert': sha1,

@@ -23,11 +23,6 @@ class AppConstants {
   /// once the app has an App Store listing. Empty means "no fallback".
   static const String iosStoreUrl = '';
 
-  /// Road-routing service for the live trip map (OSRM's `route` API). The
-  /// public demo server is fine for development; point this at a
-  /// self-hosted OSRM (or a compatible provider) for production traffic.
-  static const String routingBaseUrl = 'https://router.project-osrm.org';
-
   /// Google Routes API (`computeRoutes`) — the customer's live map road
   /// line, distance and arrival time. The key and app identity come from
   /// `GoogleApiCredentialsLoader`; the key needs the Routes API enabled.

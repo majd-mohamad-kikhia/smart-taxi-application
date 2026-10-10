@@ -419,6 +419,16 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   Future<void> _reverseGeocodeCenter() async {
     final target = _center;
+    // The pin is still on the place the customer chose: its own name is the
+    // right one — a lookup would name the street under it instead.
+    final chosen = _selectedSuggestionAddressAt(target);
+    if (chosen != null) {
+      setState(() {
+        _pickedAddress = chosen;
+        _isResolvingAddress = false;
+      });
+      return;
+    }
     setState(() {
       _pickedAddress = null;
       _isResolvingAddress = true;
@@ -431,7 +441,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     // state now.
     if (!mounted || _center != target) return;
     setState(() {
-      _pickedAddress = address ?? _selectedSuggestionAddressAt(target);
+      _pickedAddress = address;
       _isResolvingAddress = false;
     });
   }

@@ -138,6 +138,36 @@ void main() {
       expect(cubit.state.locateCount, 0);
       expect(cubit.state.errorMessage, AppStrings.current.errLocationDenied);
     });
+
+    testWidgets('a GPS message clears itself after a few seconds', (tester) async {
+      location.failure = const LocationPermissionDeniedException(
+        LocationFailureReason.serviceDisabled,
+      );
+
+      await cubit.locateMe();
+      expect(cubit.state.errorMessage, AppStrings.current.errLocationServiceOff);
+
+      await tester.pump(const Duration(seconds: 3));
+      expect(cubit.state.errorMessage, AppStrings.current.errLocationServiceOff);
+
+      await tester.pump(const Duration(seconds: 2));
+      expect(cubit.state.errorMessage, isNull);
+    });
+
+    testWidgets('asking again shows the message afresh, for a full 4 seconds', (tester) async {
+      location.failure = const LocationPermissionDeniedException(
+        LocationFailureReason.serviceDisabled,
+      );
+      await cubit.locateMe();
+      await tester.pump(const Duration(seconds: 2));
+
+      await cubit.locateMe();
+      await tester.pump(const Duration(seconds: 3));
+      expect(cubit.state.errorMessage, AppStrings.current.errLocationServiceOff);
+
+      await tester.pump(const Duration(seconds: 2));
+      expect(cubit.state.errorMessage, isNull);
+    });
   });
 
   group('centerOnUser', () {

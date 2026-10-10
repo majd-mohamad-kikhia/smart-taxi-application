@@ -86,13 +86,13 @@ import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
 import '../network/api_error_handler.dart';
 import '../../features/home/data/datasources/google_places_data_source.dart';
+import '../../features/home/data/datasources/nominatim_reverse_data_source.dart';
 import '../services/current_location_service.dart';
 import '../services/photo_picker_service.dart';
 import '../../driver_features/driver_auth/presentation/cubit/driver_signup_cubit.dart';
 import '../services/google_api_credentials_loader.dart';
 import '../services/google_routes_service.dart';
 import '../services/planned_route_loader.dart';
-import '../services/route_service.dart';
 import '../services/local_notification_service.dart';
 import '../services/push_notification_service.dart';
 import '../services/trip_route_tracker.dart';
@@ -100,7 +100,6 @@ import '../models/order_offer_model.dart';
 import '../notifications/unread_notifications_cubit.dart';
 import '../services/whatsapp_file_sender.dart';
 import '../session/session_cubit.dart';
-import '../../features/home/data/datasources/places_remote_data_source.dart';
 import '../../features/home/data/datasources/ride_request_remote_data_source.dart';
 import '../../features/home/data/repositories/places_repository.dart';
 import '../../features/home/data/repositories/ride_request_repository.dart';
@@ -269,13 +268,12 @@ void setupInjection() {
   );
 
   // ─── Core Services ──────────────────────────────────────────
-  sl.registerLazySingleton<RouteService>(() => RouteService());
   sl.registerFactory<PlannedRouteLoader>(
-    () => PlannedRouteLoader(sl<RouteService>(), google: sl<GoogleRoutesService>()),
+    () => PlannedRouteLoader(sl<GoogleRoutesService>()),
   );
-  // The customer's map: Google Routes (road line + distance + arrival
-  // time). `.env` is loaded before injection is set up (see main.dart); its
-  // key is the iOS/other-platform key — Android reads its own from the build.
+  // Every Google web API (Routes, Places, Geocoding) uses the
+  // `GOOGLE_MAPS_API_KEY` from `.env`, which is loaded before injection is
+  // set up (see main.dart).
   sl.registerLazySingleton<GoogleApiCredentialsLoader>(
     () => GoogleApiCredentialsLoader(
       envKey: dotenv.maybeGet('GOOGLE_MAPS_API_KEY') ?? '',
@@ -464,7 +462,6 @@ void setupInjection() {
       order,
       resume: resume,
       pickupRouteTracker: sl<TripRouteTracker>(),
-      fallbackRoutes: sl<RouteService>(),
     ),
   );
   sl.registerFactory<DriverActiveRideCubit>(
@@ -596,13 +593,10 @@ void setupInjection() {
   sl.registerLazySingleton<RideRequestRepository>(
     () => RideRequestRepository(sl<RideRequestRemoteDataSource>()),
   );
-  sl.registerLazySingleton<PlacesRemoteDataSource>(
-    () => PlacesRemoteDataSource(),
-  );
   sl.registerLazySingleton<PlacesRepository>(
     () => PlacesRepository(
-      sl<PlacesRemoteDataSource>(),
       GooglePlacesDataSource(credentials: sl<GoogleApiCredentialsLoader>().load),
+      NominatimReverseDataSource(),
     ),
   );
   sl.registerFactory<HomeCubit>(
@@ -651,7 +645,6 @@ void setupInjection() {
       sl<TripRouteTracker>(),
       sl<AccountBlockCubit>(),
       plannedRoutes: sl<GoogleRoutesService>(),
-      fallbackRoutes: sl<RouteService>(),
       initialRide: args.initialRide,
       pickup: args.pickup,
       dropoff: args.dropoff,

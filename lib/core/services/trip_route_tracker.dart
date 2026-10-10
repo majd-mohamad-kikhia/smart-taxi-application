@@ -3,7 +3,7 @@ import '../models/driving_route_model.dart';
 import '../models/route_point_model.dart';
 import '../utils/route_matcher.dart';
 import 'google_routes_service.dart';
-import 'route_service.dart' show RouteException;
+import 'route_exception.dart';
 
 /// What the map shows for the leg being tracked.
 class TripRouteSnapshot {

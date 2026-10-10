@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/core/constants/app_constants.dart';
 import 'package:mshoar/core/services/google_api_credentials_loader.dart';
 import 'package:mshoar/core/services/google_routes_service.dart';
-import 'package:mshoar/core/services/route_service.dart';
+import 'package:mshoar/core/services/route_exception.dart';
 
 class _FakeAdapter implements HttpClientAdapter {
   final int status;

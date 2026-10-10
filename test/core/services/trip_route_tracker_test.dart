@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/core/models/driving_route_model.dart';
 import 'package:mshoar/core/models/route_point_model.dart';
 import 'package:mshoar/core/services/google_routes_service.dart';
-import 'package:mshoar/core/services/route_service.dart';
+import 'package:mshoar/core/services/route_exception.dart';
 import 'package:mshoar/core/services/trip_route_tracker.dart';
 
 /// North from ([fromLat], [fromLng]) for 0.03° (~3.3 km); the service

@@ -26,7 +26,7 @@ void main() {
         .setMockMethodCallHandler(_channel, null);
   });
 
-  test('Android: the build\'s own maps key, with its package and signing SHA-1', () async {
+  test('Android: the .env key, with the build\'s package and signing SHA-1', () async {
     _answerWith((call) async {
       expect(call.method, 'identity');
       return {
@@ -38,8 +38,8 @@ void main() {
 
     final credentials = await _loader(TargetPlatform.android).load();
 
-    // Not the .env key: that one is the iOS key.
-    expect(credentials.apiKey, 'manifest-key');
+    // The manifest key is only the map's own; web APIs use the .env key.
+    expect(credentials.apiKey, 'env-key');
     expect(credentials.appHeaders, {
       'X-Android-Package': 'com.ma.smarttaxi',
       'X-Android-Cert': '4108A6765831A2FC66A66D3CAD92A444F3219CC1',
@@ -50,7 +50,7 @@ void main() {
     var asked = 0;
     _answerWith((call) async {
       asked++;
-      return {'apiKey': 'manifest-key', 'packageName': 'p', 'certSha1': 'AB'};
+      return {'packageName': 'p', 'certSha1': 'AB'};
     });
     final loader = _loader(TargetPlatform.android);
 
@@ -60,15 +60,15 @@ void main() {
     expect(asked, 1);
   });
 
-  test('Android: an empty manifest key means no credentials, and is retried next time', () async {
-    var key = '';
-    _answerWith((call) async => {'apiKey': key, 'packageName': 'p', 'certSha1': 'AB'});
-    final loader = _loader(TargetPlatform.android);
+  test('Android: an empty .env key means no credentials, without asking natively', () async {
+    var asked = 0;
+    _answerWith((call) async {
+      asked++;
+      return {'apiKey': 'manifest-key', 'packageName': 'p', 'certSha1': 'AB'};
+    });
 
-    expect(await loader.load(), GoogleApiCredentials.none);
-
-    key = 'manifest-key';
-    expect((await loader.load()).apiKey, 'manifest-key');
+    expect(await _loader(TargetPlatform.android, envKey: '').load(), GoogleApiCredentials.none);
+    expect(asked, 0);
   });
 
   test('Android: a native failure or a missing channel means no credentials', () async {

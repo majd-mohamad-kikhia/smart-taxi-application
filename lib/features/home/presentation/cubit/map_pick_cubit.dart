@@ -227,6 +227,14 @@ class MapPickCubit extends Cubit<MapPickState> {
   Future<void> _resolveCenter() async {
     final lat = _centerLat;
     final lng = _centerLng;
+    // The pin is still on the place the customer chose (a search result or a
+    // saved place): its own name is the right one, and no lookup could
+    // improve on it — it would name the street under it instead.
+    final anchored = _anchorAddressAt(lat, lng);
+    if (anchored != null) {
+      emit(state.copyWith(address: anchored, isResolving: false));
+      return;
+    }
     emit(state.copyWith(clearAddress: true, isResolving: true));
     final address = await _places.addressFor(lat, lng);
     // The pin moved on (or the mode ended) while this ran; the newer lookup
@@ -234,10 +242,7 @@ class MapPickCubit extends Cubit<MapPickState> {
     if (isClosed || !state.isPicking || _centerLat != lat || _centerLng != lng) {
       return;
     }
-    emit(state.copyWith(
-      address: address ?? _anchorAddressAt(lat, lng),
-      isResolving: false,
-    ));
+    emit(state.copyWith(address: address, isResolving: false));
   }
 
   String? _anchorAddressAt(double lat, double lng) {
