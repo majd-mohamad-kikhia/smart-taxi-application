@@ -80,7 +80,7 @@
              high-importance channel as the ones shown in the foreground. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="mshoar_notifications_honk" />
+            android:value="mshoar_notifications_loud" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

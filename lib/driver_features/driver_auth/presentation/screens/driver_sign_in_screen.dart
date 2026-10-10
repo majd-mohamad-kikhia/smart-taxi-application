@@ -9,12 +9,12 @@ import '../../../../core/validators/auth_validators.dart';
 import '../../../../core/validators/phone_input_formatter.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
+import '../../../../core/widgets/auth_footer_link_widget.dart';
 import '../cubit/driver_auth_cubit.dart';
 import '../cubit/driver_auth_state.dart';
 
-/// Driver sign in — drivers don't self-register in this app (onboarding
-/// happens another way), so there is no matching sign-up screen or
-/// footer link here.
+/// Driver sign in. A new driver can create his own account from the footer
+/// link (it waits for a manager's approval).
 class DriverSignInScreen extends StatefulWidget {
   const DriverSignInScreen({super.key});
 
@@ -105,6 +105,14 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
           submitLabel: l10n.signIn,
           isSubmitting: state.status == DriverAuthStatus.submitting,
           onSubmit: _submit,
+          footer: AuthFooterLinkWidget(
+            text: l10n.noAccount,
+            actionLabel: l10n.signUp,
+            onTap: () {
+              _cubit.resetStatus();
+              Navigator.of(context).pushReplacementNamed(AppRouter.driverSignUp);
+            },
+          ),
         );
       },
     );

@@ -9,13 +9,14 @@ import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/models/trip_eta_model.dart';
+import '../../../../core/ride_rating/presentation/cubit/ride_rating_cubit.dart';
+import '../../../../core/ride_rating/presentation/widgets/ride_rating_dialog_widget.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../../../../core/widgets/fee_chip_widget.dart';
 import '../../../../core/widgets/live_trip_map_widget.dart';
-import '../../../../core/widgets/ride_waiting_timer_widget.dart';
 import '../../../../core/widgets/trip_eta_chip_widget.dart';
 import '../../../../core/widgets/trip_fees_overlay_widget.dart';
 import '../cubit/ride_tracking_cubit.dart';
@@ -75,6 +76,24 @@ void _showPaymentDue(BuildContext context, double? amount, RideFareBreakdownMode
   );
 }
 
+/// The trip is paid and the customer can rate the driver: ask for the
+/// rating (they may skip), then leave the screen with the usual message.
+Future<void> _rateThenLeave(BuildContext context, int rideId) async {
+  final navigator = Navigator.of(context);
+  final messenger = ScaffoldMessenger.of(context);
+  final l10n = context.l10n;
+  final outcome = await showRideRatingDialog(
+    context,
+    createCubit: () => sl<RideRatingCubit>(param1: rideId),
+  );
+  navigator.pop();
+  showAppSnackBarOn(
+    messenger,
+    outcome?.rating != null ? l10n.rateThanks : l10n.tripCompletedSuccess,
+    type: AppSnackBarType.success,
+  );
+}
+
 class _RideTrackingView extends StatelessWidget {
   const _RideTrackingView();
 
@@ -103,6 +122,10 @@ class _RideTrackingView extends StatelessWidget {
             // The payment dialog sits above this screen; close it first so
             // the pop below leaves the screen itself.
             if (ModalRoute.of(context)?.isCurrent == false) navigator.pop();
+            if (isSuccess && state.canRate) {
+              _rateThenLeave(context, state.ride.id);
+              return;
+            }
             navigator.pop();
             showAppSnackBar(
               context,
@@ -129,6 +152,7 @@ class _RideTrackingView extends StatelessWidget {
                     child: TripFeesOverlayWidget(
                       waitingFee: state.ride.waitingFee,
                       pause: state.ride.pause,
+                      showPause: false,
                     ),
                   ),
                   const IgnorePointer(
@@ -156,6 +180,7 @@ class _RideTrackingView extends StatelessWidget {
                         dropoff: state.dropoff,
                         driverLocation: state.driverLocation,
                         routePoints: state.routePoints,
+                        plannedRoute: state.plannedRoute,
                       ),
                       const _ScreenHeader(),
                     ],
@@ -249,10 +274,6 @@ class _TrackingSheet extends StatelessWidget {
                 children: [
                   RideStatusBannerWidget(ride: state.ride, connectionStatus: state.connectionStatus),
                   const SizedBox(height: 14),
-                  if (state.ride.isWaitingRunning) ...[
-                    RideWaitingTimerWidget(waiting: state.ride.waiting!),
-                    const SizedBox(height: 14),
-                  ],
                   if (state.isAccepted) ...[
                     RideDriverCardWidget(driver: state.driver!, vehicle: state.vehicle!),
                     const SizedBox(height: 14),

@@ -7,12 +7,16 @@ import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/services/planned_route_loader.dart';
+import '../../../../core/services/route_service.dart';
+import '../../../../core/services/trip_route_tracker.dart';
 import '../../data/datasources/driver_trip_location_service.dart';
 import '../../data/datasources/open_trip_registry.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../data/models/driver_active_ride_event_model.dart';
 import '../../data/models/driver_active_ride_model.dart';
 import '../../data/route_distance_calculator.dart';
 import '../../data/models/recorded_route_point_model.dart';
+import '../../data/models/driver_ride_finish_model.dart';
 import '../../data/models/ride_cancellation_model.dart';
 import '../../data/repositories/driver_trip_repository.dart';
 import '../../data/repositories/driver_trip_route_repository.dart';
@@ -30,11 +34,31 @@ class DriverTripCubit extends Cubit<DriverTripState> {
   static const _maxAccuracyMeters = 100;
   static const _recordInterval = Duration(seconds: 5);
 
+  /// The most `distance_km` the server accepts.
+  static const _maxDistanceKm = 2000.0;
+
+  /// Longest the finish waits for a GPS fix before sending without one.
+  static const _endFixTimeout = Duration(seconds: 5);
+
+  /// How often a finish that found no connection is sent again.
+  static const _finishRetryEvery = Duration(seconds: 8);
+
   final DriverTripRepository _repository;
   final DriverTripLocationService _locationService;
   final PlannedRouteLoader _routeLoader;
   final DriverTripRouteRepository _routeRepository;
   StreamSubscription<Position>? _positionSubscription;
+
+  /// Draws the driver's road to the pickup while the trip hasn't started.
+  final TripRouteTracker? _pickupRouteTracker;
+
+  /// OSRM, used for the road to the pickup when Google gives none, so the
+  /// driver always has a line to follow.
+  final RouteService? _fallbackRoutes;
+  DateTime? _fallbackAt;
+  StreamSubscription<Position>? _pickupSubscription;
+  Timer? _finishRetry;
+  bool _finishInFlight = false;
 
   /// GPS distance accumulated since the ride started, and the last GPS
   /// fix it was measured from.
@@ -76,7 +100,11 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     Stream<Map<String, dynamic>> socketRideUpdates,
     OrderOfferModel order, {
     DriverActiveRideModel? resume,
+    TripRouteTracker? pickupRouteTracker,
+    RouteService? fallbackRoutes,
   }) : _resume = resume,
+       _fallbackRoutes = fallbackRoutes,
+       _pickupRouteTracker = pickupRouteTracker,
        super(
          DriverTripState.initial(
            order,
@@ -133,9 +161,11 @@ class DriverTripCubit extends Cubit<DriverTripState> {
         state.status == DriverTripStatus.completed) {
       return;
     }
+    _finishRetry?.cancel();
     emit(state.copyWith(
       isCancelling: false,
       isCancelled: true,
+      isFinishQueued: false,
       cancelledBy: event.cancelledBy,
     ));
   }
@@ -167,6 +197,74 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     _trackPosition();
   }
 
+  /// Before the trip starts: follows the driver's position and keeps the
+  /// Google road to the pickup on the map. Stops when the trip starts.
+  Future<void> trackToPickup() async {
+    final tracker = _pickupRouteTracker;
+    if (tracker == null ||
+        isClosed ||
+        _pickupSubscription != null ||
+        state.status == DriverTripStatus.inProgress ||
+        state.status == DriverTripStatus.completed) {
+      return;
+    }
+    Future<void> follow(Position position) async {
+      if (isClosed || _pickupSubscription == null) return;
+      emit(state.copyWith(carLat: position.latitude, carLng: position.longitude));
+      try {
+        final snapshot = await tracker.update(
+          carLat: position.latitude,
+          carLng: position.longitude,
+          targetLat: state.order.pickupLat,
+          targetLng: state.order.pickupLng,
+        );
+        if (isClosed || _pickupSubscription == null) return;
+        if (snapshot.line.isNotEmpty) {
+          emit(state.copyWith(pickupRoute: snapshot.line));
+        } else {
+          await _fallbackPickupRoute(position);
+        }
+      } catch (e) {
+        debugPrint('DriverTripCubit: could not draw the road to the pickup: $e');
+      }
+    }
+
+    _pickupSubscription = _locationService.positionStream().listen(follow);
+    final start = await _locationService.currentPosition() ??
+        await _locationService.lastKnownPosition();
+    if (start != null) unawaited(follow(start));
+  }
+
+  /// Google gave no road: ask OSRM, at most every 20 s.
+  Future<void> _fallbackPickupRoute(Position position) async {
+    final service = _fallbackRoutes;
+    final last = _fallbackAt;
+    if (service == null ||
+        (last != null && DateTime.now().difference(last) < const Duration(seconds: 20))) {
+      return;
+    }
+    _fallbackAt = DateTime.now();
+    try {
+      final route = await service.getRoute(
+        fromLat: position.latitude,
+        fromLng: position.longitude,
+        toLat: state.order.pickupLat,
+        toLng: state.order.pickupLng,
+      );
+      if (!isClosed && _pickupSubscription != null && route.length >= 2) {
+        emit(state.copyWith(pickupRoute: route));
+      }
+    } on RouteException catch (e) {
+      debugPrint('DriverTripCubit: fallback route failed: $e');
+    }
+  }
+
+  void _stopPickupTracking() {
+    _pickupSubscription?.cancel();
+    _pickupSubscription = null;
+    if (state.pickupRoute.isNotEmpty) emit(state.copyWith(pickupRoute: const []));
+  }
+
   /// accepted → arrived. Optional: [startRide] works straight from accepted.
   /// The server starts the waiting timer; its reply seeds the on-screen one.
   Future<void> markArrived() => _advance(
@@ -188,6 +286,7 @@ class DriverTripCubit extends Cubit<DriverTripState> {
       final sent = order.passengersCount == null ? passengersCount : null;
       final started = await _repository.startRide(order.rideId, passengersCount: sent);
       if (isClosed) return;
+      _stopPickupTracking();
       final saved = started.passengersCount ?? order.passengersCount ?? sent;
       emit(state.copyWith(
         isUpdating: false,
@@ -236,41 +335,121 @@ class DriverTripCubit extends Cubit<DriverTripState> {
   /// in_progress → completed (also while paused: the server closes the
   /// pause first and counts its fee). Sends the distance actually driven so the
   /// server can compute the final price, and keeps the fare it returns.
+  ///
+  /// It never spins for ever: the call has a hard timeout, and any failure
+  /// ends the spinner. With no connection the finish is kept
+  /// ([DriverTripState.isFinishQueued]) and sent again every
+  /// [_finishRetryEvery] until it goes through.
   Future<void> finishRide() async {
     if (isClosed || state.isBusy || state.status != DriverTripStatus.inProgress) return;
+    _finishRetry?.cancel();
     emit(state.copyWith(isUpdating: true, clearError: true));
+    await _sendFinish(automatic: false);
+  }
+
+  Future<void> _sendFinish({required bool automatic}) async {
+    if (_finishInFlight ||
+        isClosed ||
+        state.isCancelled ||
+        state.status != DriverTripStatus.inProgress) {
+      return;
+    }
+    _finishInFlight = true;
     try {
-      // Pin the end of the trip so the last stretch is counted too.
-      final end = await _locationService.currentPosition();
-      if (end != null) {
-        _accumulateDistance(end);
-        _latestFix = end;
-        _recordSample();
-      }
+      // The end is pinned once, by the driver's own tap; automatic retries
+      // reuse it.
+      if (!automatic) await _pinTripEnd();
       final finish = await _repository.finishRide(
         rideId: state.order.rideId,
         distanceKm: _distanceDrivenKm(),
       );
+      if (!isClosed) _completeTrip(finish);
+    } on DriverTripException catch (e) {
       if (isClosed) return;
-      _positionSubscription?.cancel();
-      _recordTimer?.cancel();
-      // Fire and forget: the repository retries on its own and never throws,
-      // so the route can't hold up the fare / payment dialog.
-      unawaited(_routeRepository.finishAndUpload(
-        state.order.rideId,
-        List.of(_recordedRoute),
-      ));
+      // The first call may have worked and only its answer been lost: the
+      // retry then gets a 409. Ask the server; if it has the trip completed
+      // this is just success, not an error.
+      if (e.isConflict) {
+        final done = await _finishedOnServer();
+        if (isClosed) return;
+        if (done != null) return _completeTrip(done);
+      }
+      _finishFailed(e, automatic: automatic);
+    } catch (e) {
+      debugPrint('DriverTripCubit: finish failed unexpectedly: $e');
+      if (!isClosed) {
+        _finishFailed(
+          DriverTripException(AppStrings.current.errUnexpected),
+          automatic: automatic,
+        );
+      }
+    } finally {
+      _finishInFlight = false;
+    }
+  }
+
+  /// Pins the end of the trip so the last stretch is counted too. A GPS that
+  /// is slow, off or refused must not hold the finish up.
+  Future<void> _pinTripEnd() async {
+    try {
+      final end = await _locationService.currentPosition().timeout(_endFixTimeout);
+      if (end == null) return;
+      _accumulateDistance(end);
+      _latestFix = end;
+      _recordSample();
+    } catch (e) {
+      debugPrint('DriverTripCubit: could not pin the trip end: $e');
+    }
+  }
+
+  Future<DriverRideFinishModel?> _finishedOnServer() async {
+    try {
+      return await _repository.fetchFinishedActiveRide();
+    } on DriverTripException catch (e) {
+      debugPrint('DriverTripCubit: could not check the ride: ${e.message}');
+      return null;
+    }
+  }
+
+  void _completeTrip(DriverRideFinishModel finish) {
+    _finishRetry?.cancel();
+    _positionSubscription?.cancel();
+    _recordTimer?.cancel();
+    // Fire and forget: the repository retries on its own and never throws,
+    // so the route can't hold up the fare / payment dialog.
+    unawaited(_routeRepository.finishAndUpload(
+      state.order.rideId,
+      List.of(_recordedRoute),
+    ));
+    emit(state.copyWith(
+      isUpdating: false,
+      isFinishQueued: false,
+      status: DriverTripStatus.completed,
+      fare: finish.fare,
+      orderSource: finish.orderSource,
+      customer: finish.customer,
+      completedAt: finish.completedAt,
+    ));
+  }
+
+  void _finishFailed(DriverTripException e, {required bool automatic}) {
+    if (e.isNetwork) {
+      // Nothing was refused: keep the finish and try again soon. A retry
+      // that fails the same way again says nothing new.
       emit(state.copyWith(
         isUpdating: false,
-        status: DriverTripStatus.completed,
-        fare: finish.fare,
-        orderSource: finish.orderSource,
-        customer: finish.customer,
-        completedAt: finish.completedAt,
+        isFinishQueued: true,
+        errorMessage: automatic ? null : e.message,
       ));
-    } on DriverTripException catch (e) {
-      if (!isClosed) emit(state.copyWith(isUpdating: false, errorMessage: e.message));
+      _finishRetry = Timer(_finishRetryEvery, () => _sendFinish(automatic: true));
+      return;
     }
+    _finishRetry?.cancel();
+    emit(state.copyWith(
+      isUpdating: false,
+      isFinishQueued: false,
+      errorMessage: e.message,
+    ));
   }
 
   /// completed + unpaid → paid. The driver taps this once the customer has
@@ -305,7 +484,10 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     emit(state.copyWith(isCancelling: true, clearError: true));
     try {
       await _repository.cancelRide(rideId: state.order.rideId, cancellationReason: reason);
-      if (!isClosed) emit(state.copyWith(isCancelling: false, isCancelled: true));
+      _finishRetry?.cancel();
+      if (!isClosed) {
+        emit(state.copyWith(isCancelling: false, isCancelled: true, isFinishQueued: false));
+      }
     } on DriverTripException catch (e) {
       if (!isClosed) emit(state.copyWith(isCancelling: false, errorMessage: e.message));
     }
@@ -399,13 +581,15 @@ class DriverTripCubit extends Cubit<DriverTripState> {
   }
 
   /// Distance for the finish call, rounded to 2 decimals. Falls back to the
-  /// quoted distance when GPS never produced a usable fix, since the server
-  /// rejects a missing or zero `distance_km`.
+  /// quoted distance when GPS never produced a usable fix. Always a real
+  /// number from 0 to [_maxDistanceKm]: the server answers 422 to anything
+  /// else (missing, NaN, negative, above the limit).
   double _distanceDrivenKm() {
     final km = _drivenMeters / 1000;
     debugPrint('DriverTripCubit: measured ${km.toStringAsFixed(3)} km driven');
-    final value = km > 0 ? km : state.order.distanceKm;
-    return double.parse(value.toStringAsFixed(2));
+    var value = km.isFinite && km > 0 ? km : state.order.distanceKm;
+    if (!value.isFinite || value < 0) value = 0;
+    return double.parse(value.clamp(0, _maxDistanceKm).toStringAsFixed(2));
   }
 
   void _updatePosition(Position position) {
@@ -434,7 +618,9 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     _rideUpdateSubscription.cancel();
     _openTrips.close(state.order.rideId);
     _recordTimer?.cancel();
+    _finishRetry?.cancel();
     _positionSubscription?.cancel();
+    _pickupSubscription?.cancel();
     return super.close();
   }
 }

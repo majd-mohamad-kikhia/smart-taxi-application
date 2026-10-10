@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/place_suggestion_model.dart';
 import '../cubit/map_pick_cubit.dart';
@@ -10,8 +9,8 @@ import 'home_gps_button_widget.dart';
 import 'place_search_field_widget.dart';
 import 'place_suggestions_card_widget.dart';
 
-/// Top of the home map while a point is being placed: back, what is being
-/// picked, a place search, the GPS button and the search results.
+/// Top of the home map while a point is being placed: back, a place search,
+/// the GPS button and the search results.
 class MapPickTopWidget extends StatefulWidget {
   final bool isLocating;
   final VoidCallback onBack;
@@ -50,35 +49,19 @@ class _MapPickTopWidgetState extends State<MapPickTopWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     final cubit = context.read<MapPickCubit>();
     return Padding(
       padding: const EdgeInsets.all(AppConstants.paddingL),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              _BackButtonWidget(onTap: widget.onBack),
-              const SizedBox(width: AppConstants.paddingM),
-              Expanded(
-                child: BlocSelector<MapPickCubit, MapPickState, PickTarget?>(
-                  selector: (state) => state.target,
-                  builder: (context, target) => _TitlePillWidget(
-                    title: target == PickTarget.from
-                        ? l10n.pickPickupPoint
-                        : l10n.pickDestination,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppConstants.paddingM),
           BlocBuilder<MapPickCubit, MapPickState>(
             buildWhen: (previous, current) =>
                 previous.isSearching != current.isSearching,
             builder: (context, state) => Row(
               children: [
+                _BackButtonWidget(onTap: widget.onBack),
+                const SizedBox(width: AppConstants.paddingM),
                 Expanded(
                   child: PlaceSearchFieldWidget(
                     controller: _searchController,
@@ -144,38 +127,6 @@ class _BackButtonWidget extends StatelessWidget {
               size: 20,
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TitlePillWidget extends StatelessWidget {
-  final String title;
-
-  const _TitlePillWidget({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppConstants.paddingL,
-        vertical: AppConstants.paddingM,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.neutralSurface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusFull),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Text(
-        title,
-        textAlign: TextAlign.center,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
         ),
       ),
     );

@@ -77,7 +77,7 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
               ],
               if (fare != null) ...[
                 const SizedBox(height: AppConstants.paddingL),
-                FareBreakdownWidget(fare: fare!, showTotal: false),
+                FareBreakdownWidget(fare: fare!, showTotal: false, showStops: false, showPauses: false),
               ],
               const SizedBox(height: AppConstants.paddingXL),
               Row(

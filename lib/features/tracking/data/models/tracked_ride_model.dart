@@ -64,7 +64,7 @@ class TrackedRideModel extends Equatable {
       vehicleTypeId: (json['vehicle_type_id'] as num).toInt(),
       distanceKm: (json['distance_km'] as num?)?.toDouble(),
       estimatedDurationMin: (json['estimated_duration_min'] as num?)?.toInt(),
-      price: (json['price'] as num?)?.toDouble(),
+      price: ((json['price'] ?? json['estimated_price']) as num?)?.toDouble(),
       priceIsEstimate: json['price_is_estimate'] as bool? ?? true,
       statusId: (json['status_id'] as num).toInt(),
       status: json['status'] as String,
@@ -124,7 +124,7 @@ class TrackedRideModel extends Equatable {
 
   String statusLabel(AppLocalizations l10n) => switch (status) {
         'requested' => l10n.rideAwaitingDriver,
-        'accepted' => l10n.trackDriverOnTheWay,
+        'accepted' => l10n.rideAwaitingArrival,
         'arrived' => l10n.trackDriverAtPickup,
         'in_progress' => l10n.rideInProgress,
         'completed' => l10n.rideCompleted,

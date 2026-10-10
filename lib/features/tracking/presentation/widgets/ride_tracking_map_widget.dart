@@ -21,12 +21,17 @@ class RideTrackingMapWidget extends StatefulWidget {
   final RideLocationModel? driverLocation;
   final List<RoutePointModel> routePoints;
 
+  /// The planned road pickup → dropoff; while it is empty a dashed straight
+  /// line stands in.
+  final List<RoutePointModel> plannedRoute;
+
   const RideTrackingMapWidget({
     super.key,
     required this.pickup,
     required this.dropoff,
     this.driverLocation,
     this.routePoints = const [],
+    this.plannedRoute = const [],
   });
 
   @override
@@ -75,6 +80,29 @@ class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
     final moved = location != null && location != oldWidget.driverLocation;
     if (moved) _heading.update(LatLng(location.lat, location.lng));
     if (moved || routeChanged) _moveCamera();
+    // The planned road just loaded and no driver is on the map yet: show the
+    // whole trip.
+    if (widget.driverLocation == null &&
+        widget.plannedRoute.length >= 2 &&
+        !identical(widget.plannedRoute, oldWidget.plannedRoute)) {
+      _frameTrip();
+    }
+  }
+
+  void _frameTrip() {
+    final controller = _mapController;
+    if (controller == null) return;
+    var south = 90.0, north = -90.0, west = 180.0, east = -180.0;
+    for (final p in widget.plannedRoute) {
+      south = math.min(south, p.lat);
+      north = math.max(north, p.lat);
+      west = math.min(west, p.lng);
+      east = math.max(east, p.lng);
+    }
+    controller.animateCamera(CameraUpdate.newLatLngBounds(
+      _frameOf(LatLng(south, west), LatLng(north, east)),
+      72,
+    ));
   }
 
   Polyline? _buildRoadLine(List<RoutePointModel> points) {
@@ -143,13 +171,24 @@ class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
       mapToolbarEnabled: false,
       onMapCreated: (controller) => _mapController = controller,
       polylines: {
-        Polyline(
-          polylineId: const PolylineId('pickup_dropoff'),
-          points: [pickupPoint, dropoffPoint],
-          color: AppColors.textTertiary,
-          width: 3,
-          patterns: [PatternItem.dash(20), PatternItem.gap(10)],
-        ),
+        if (widget.plannedRoute.length >= 2)
+          Polyline(
+            polylineId: const PolylineId('planned_route'),
+            points: [for (final p in widget.plannedRoute) LatLng(p.lat, p.lng)],
+            color: AppColors.textTertiary,
+            width: 4,
+            jointType: JointType.round,
+            startCap: Cap.roundCap,
+            endCap: Cap.roundCap,
+          )
+        else
+          Polyline(
+            polylineId: const PolylineId('pickup_dropoff'),
+            points: [pickupPoint, dropoffPoint],
+            color: AppColors.textTertiary,
+            width: 3,
+            patterns: [PatternItem.dash(20), PatternItem.gap(10)],
+          ),
         ?roadLine,
       },
       markers: {

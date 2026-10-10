@@ -4,6 +4,8 @@ import '../constants/app_constants.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/account_block_model.dart';
 import '../theme/app_colors.dart';
+import '../contact_us/data/models/contact_number_model.dart';
+import '../contact_us/presentation/widgets/contact_numbers_list_widget.dart';
 import 'countdown_text_widget.dart';
 
 /// "Your account is blocked" panel shown in place of the order button
@@ -15,10 +17,14 @@ class AccountBlockedWidget extends StatelessWidget {
   final AccountBlockModel block;
   final String message;
 
+  /// Whose call-center numbers to list under the explanation.
+  final ContactUsApp contactApp;
+
   const AccountBlockedWidget({
     super.key,
     required this.block,
     required this.message,
+    required this.contactApp,
   });
 
   @override
@@ -107,6 +113,7 @@ class AccountBlockedWidget extends StatelessWidget {
                   ),
                 ),
               ],
+              ContactNumbersListWidget(app: contactApp),
             ],
           ),
         ),

@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
+import '../../../../core/widgets/warning_notice_widget.dart';
 import '../cubit/driver_trip_cubit.dart';
 import '../cubit/driver_trip_state.dart';
 import 'passengers_count_dialog_widget.dart';
@@ -26,6 +27,9 @@ class DriverTripActionsWidget extends StatelessWidget {
   final bool isUpdating;
   final bool isCancelling;
 
+  /// The finish found no connection and is being sent again by itself.
+  final bool isFinishQueued;
+
   /// The in-progress trip is currently paused — the button becomes Resume.
   final bool isPaused;
   final VoidCallback? onCancel;
@@ -35,6 +39,7 @@ class DriverTripActionsWidget extends StatelessWidget {
     required this.status,
     required this.isUpdating,
     required this.isCancelling,
+    this.isFinishQueued = false,
     this.isPaused = false,
     this.onCancel,
   });
@@ -78,7 +83,19 @@ class DriverTripActionsWidget extends StatelessWidget {
           const SizedBox(height: AppConstants.paddingM),
           _cancelButton(context),
         ],
-      DriverTripStatus.inProgress => [_inProgressRow(context, cubit)],
+      DriverTripStatus.inProgress => [
+          if (isFinishQueued) ...[
+            WarningNoticeWidget(message: l10n.tripFinishQueued),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: TextButton(
+                onPressed: _isBusy ? null : cubit.finishRide,
+                child: Text(l10n.retry),
+              ),
+            ),
+          ],
+          _inProgressRow(context, cubit),
+        ],
       // The fare dialog is on screen; nothing left to do here.
       DriverTripStatus.completed => const <Widget>[],
     };

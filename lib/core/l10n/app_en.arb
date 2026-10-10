@@ -243,6 +243,37 @@
   "signIn": "Sign in",
   "signInSubtitle": "Enter your details to continue to Smart Taxi",
   "driverSignInTitle": "Captain sign in",
+  "driverSignupTitle": "Create a captain account",
+  "driverSignupSubtitle": "Enter your details and your car's. A manager reviews your account before you can sign in.",
+  "driverSignupCarSection": "Your car",
+  "driverSignupBrandLabel": "Car brand",
+  "driverSignupBrandHint": "e.g. Kia",
+  "driverSignupModelLabel": "Car model",
+  "driverSignupModelHint": "e.g. Cerato",
+  "driverSignupColorLabel": "Car color",
+  "driverSignupColorHint": "e.g. White",
+  "driverSignupPlateLabel": "Plate number",
+  "driverSignupPlateHint": "e.g. 123456",
+  "driverSignupAddressLabel": "Address (optional)",
+  "driverSignupVehicleType": "Car type",
+  "driverSignupOwnership": "Who owns the car?",
+  "driverSignupOwnershipOwner": "I own it",
+  "driverSignupOwnershipCompany": "A company owns it",
+  "driverSignupPhotoPerson": "Your photo",
+  "driverSignupPhotoCar": "Car photo",
+  "driverSignupPhotoAdd": "Tap to add a photo",
+  "driverSignupPhotoCamera": "Take a photo",
+  "driverSignupPhotoGallery": "Choose from gallery",
+  "driverSignupPhotoRequired": "Please add this photo",
+  "driverSignupChooseOne": "Please choose one",
+  "driverSignupPhotoTooLarge": "This photo is larger than 5 MB, please choose another",
+  "driverSignupPhotoUnreadable": "Couldn't read the photo, please choose it again",
+  "driverSignupPlateRegistered": "This plate number is already registered",
+  "driverSignupFieldRequired": "This field is required",
+  "driverPendingTitle": "Your account is waiting for approval",
+  "driverPendingMessage": "Thank you! We received your details. A manager will review them, and you can sign in as soon as your account is approved.",
+  "driverPendingAction": "Back to sign in",
+  "errAccountRejected": "Your account has been rejected, please contact support",
   "signUp": "Create account",
   "signUpSubtitle": "Enter your details to create a new Smart Taxi account",
   "noAccount": "Don't have an account?",
@@ -260,6 +291,67 @@
   "searchRadiusSaved": "Search radius saved",
   "searchRadiusSaveFailed": "Couldn't save the search radius",
   "driverAcceptTrip": "Accept trip",
+  "rateDriverTitle": "Rate your driver",
+  "myRatingsTitle": "My ratings",
+  "ratingsCount": "{count} ratings",
+  "@ratingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noRatingsYet": "No ratings yet. Your first one will show here.",
+  "profileRating": "Rating",
+  "newRatingToast": "New rating ⭐ {stars}",
+  "@newRatingToast": {
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingFromCustomer": "From {name}",
+  "@ratingFromCustomer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ratingTripNumber": "Trip #{id}",
+  "@ratingTripNumber": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "rateDriverMessage": "How was your trip?",
+  "rateCommentLabel": "Comment (optional)",
+  "rateCommentHint": "Tell us more about your trip",
+  "rateSend": "Send rating",
+  "rateSkip": "Skip",
+  "rateThanks": "Thank you for your rating",
+  "rateYourDriver": "Rate your driver",
+  "yourRating": "Your rating",
+  "starsOutOfFive": "{count} out of 5 stars",
+  "@starsOutOfFive": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tripFinishQueued": "No connection. The trip will finish automatically as soon as you are back online.",
+  "orderOfferSecondsLeft": "{seconds} s left",
+  "@orderOfferSecondsLeft": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "driverAcceptTripFailed": "Couldn't accept the trip",
   "driverGoOnlineHint": "Go online to see trip requests",
   "driverWaitingForOrders": "Waiting for new trip requests...",
@@ -466,6 +558,7 @@
   "mapLocationFallback": "Location on the map",
   "priceEstimateTag": "(estimated price)",
   "rideAwaitingDriver": "Waiting for a driver to accept",
+  "rideAwaitingArrival": "Waiting for the driver to arrive",
   "rideAccepted": "Your request was accepted",
   "rideDriverArrived": "The driver has arrived",
   "rideInProgress": "Trip in progress",
@@ -708,17 +801,19 @@
   "deleteAccountPasswordLabel": "Password",
   "deleteAccountConfirm": "Delete permanently",
   "deleteAccountDone": "Your account has been deleted",
+  "accountDeletionNoticeTitle": "Account deletion in progress",
+  "accountDeletionNoticeMessage": "Your account will be completely deleted within about 7 days. You will now be taken back to the start screen.",
   "errIncorrectPassword": "Incorrect password",
   "driverDeleteMessage": "Your request will be reviewed by a manager. You can keep working until it's approved; then your personal data will be erased and you'll be signed out on every device. Enter your password to confirm.",
   "driverDeleteReasonLabel": "Reason (optional)",
   "driverDeleteReasonHint": "Why are you leaving?",
-  "driverDeleteSubmit": "Send request",
+  "driverDeleteSubmit": "Delete account",
   "driverDeletionPendingTitle": "Deletion request under review",
   "driverDeletionPendingBody": "A manager will review your request. You can keep working until it's approved.",
   "driverDeletionCancel": "Cancel request",
   "driverDeletionRejectedTitle": "Deletion request declined",
   "errAccountDeleted": "This account has been deleted",
-  "errDeleteActiveRide":"You can't delete your account while a ride is in progress. Finish or cancel it first.",
+  "errDeleteActiveRide": "You can't delete your account while a ride is in progress. Finish or cancel it first.",
   "gpsRequiredTitle": "Turn on location (GPS)",
   "gpsRequiredMessage": "The app can't be used while location is off. Turn on GPS to continue.",
   "gpsOpenSettings": "Open location settings",
@@ -772,6 +867,26 @@
   },
   "contactUs": "Contact us",
   "noContactNumbers": "No contact numbers yet.",
+  "contactCallCenter": "Call our call center",
+  "locationFeeIncluded": "Includes a location fee of {fee}",
+  "@locationFeeIncluded": {
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "locationFeeIncludedFor": "Includes a location fee of {fee} ({area})",
+  "@locationFeeIncludedFor": {
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  },
   "whatsappNotAvailable": "WhatsApp isn't available on this device",
   "callNotAvailable": "Calls aren't supported on this device",
   "accountBlockedStrikes": "Cancellations: {count} of {limit}",

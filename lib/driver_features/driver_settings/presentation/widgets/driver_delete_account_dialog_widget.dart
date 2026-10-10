@@ -14,10 +14,12 @@ import '../cubit/driver_account_deletion_state.dart';
 /// Opens the shared dialog shell with the driver's "delete my account"
 /// request form: an explanation, the password, an optional reason, and a
 /// destructive send button. The dialog closes itself once the request is
-/// sent; the status card behind it then shows "under review".
+/// sent and then calls [onRequested]; the status card behind it shows "under
+/// review".
 Future<void> showDriverDeleteAccountDialog(
   BuildContext context, {
   required DriverAccountDeletionCubit cubit,
+  required VoidCallback onRequested,
 }) {
   final l10n = context.l10n;
   // An error from an earlier try must not greet the next one.
@@ -33,13 +35,15 @@ Future<void> showDriverDeleteAccountDialog(
     barrierDismissible: false,
     content: BlocProvider<DriverAccountDeletionCubit>.value(
       value: cubit,
-      child: const _DriverDeleteAccountFormWidget(),
+      child: _DriverDeleteAccountFormWidget(onRequested: onRequested),
     ),
   );
 }
 
 class _DriverDeleteAccountFormWidget extends StatefulWidget {
-  const _DriverDeleteAccountFormWidget();
+  final VoidCallback onRequested;
+
+  const _DriverDeleteAccountFormWidget({required this.onRequested});
 
   @override
   State<_DriverDeleteAccountFormWidget> createState() =>
@@ -76,7 +80,10 @@ class _DriverDeleteAccountFormWidgetState
           previous.isSubmitting &&
           !current.isSubmitting &&
           current.submitError == null,
-      listener: (context, state) => Navigator.of(context).pop(),
+      listener: (context, state) {
+        Navigator.of(context).pop();
+        widget.onRequested();
+      },
       buildWhen: (previous, current) =>
           previous.isSubmitting != current.isSubmitting ||
           previous.submitError != current.submitError,

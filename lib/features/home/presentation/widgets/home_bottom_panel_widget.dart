@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/contact_us/data/models/contact_number_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
@@ -65,6 +66,7 @@ class HomeBottomPanelWidget extends StatelessWidget {
               // cancel button above) is unaffected.
               AccountBlockGateWidget(
                 blockedMessage: l10n.accountBlockedCustomerMessage,
+                contactApp: ContactUsApp.customer,
                 child: AuthPrimaryButtonWidget(
                   label: l10n.search,
                   isLoading: state.isSearching || state.isBooking,

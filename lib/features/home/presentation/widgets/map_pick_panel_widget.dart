@@ -10,11 +10,10 @@ import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../cubit/map_pick_cubit.dart';
 import '../cubit/map_pick_state.dart';
-import 'address_details_field_widget.dart';
 import 'saved_address_chips_widget.dart';
 
 /// Bottom of the home map while a point is being placed: the address under
-/// the pin, an optional address-details field and the confirm button.
+/// the pin, the saved places and the confirm button.
 class MapPickPanelWidget extends StatefulWidget {
   /// The details already typed for the point being edited, if any.
   final String? initialDetails;
@@ -37,22 +36,12 @@ class MapPickPanelWidget extends StatefulWidget {
 }
 
 class _MapPickPanelWidgetState extends State<MapPickPanelWidget> {
-  static const _maxDetailsLength = 255;
+  /// Details of a place picked from the saved ones replace the earlier ones,
+  /// since they describe that place. No field asks for them here.
+  late String _details = widget.initialDetails ?? '';
 
-  late final TextEditingController _detailsController = TextEditingController(
-    text: widget.initialDetails ?? '',
-  );
-
-  @override
-  void dispose() {
-    _detailsController.dispose();
-    super.dispose();
-  }
-
-  /// The saved place's own details replace what was typed, since they
-  /// describe that place.
   void _selectSaved(SavedAddressModel address) {
-    _detailsController.text = address.addressDetails ?? '';
+    _details = address.addressDetails ?? '';
     context.read<MapPickCubit>().selectSaved(address.toPickedLocation());
   }
 
@@ -81,18 +70,13 @@ class _MapPickPanelWidgetState extends State<MapPickPanelWidget> {
               const _AddressRowWidget(),
               _SavedPlaces(onSelected: _selectSaved),
               const SizedBox(height: AppConstants.paddingM),
-              AddressDetailsFieldWidget(
-                controller: _detailsController,
-                maxLength: _maxDetailsLength,
-              ),
-              const SizedBox(height: AppConstants.paddingM),
               BlocSelector<MapPickCubit, MapPickState, bool>(
                 selector: (state) => state.canConfirm,
                 builder: (context, canConfirm) => AuthPrimaryButtonWidget(
                   label: l10n.confirmLocation,
                   isLoading: false,
                   onPressed: canConfirm
-                      ? () => widget.onConfirm(_detailsController.text)
+                      ? () => widget.onConfirm(_details)
                       : null,
                 ),
               ),

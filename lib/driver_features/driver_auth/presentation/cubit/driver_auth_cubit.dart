@@ -76,6 +76,14 @@ class DriverAuthCubit extends Cubit<DriverAuthState> {
     }
   }
 
+  /// A customer just rated the driver: the profile shows the server's new
+  /// average from now on.
+  void applyRating(double average) {
+    final driver = state.driver;
+    if (isClosed || driver == null || driver.rating == average) return;
+    emit(state.copyWith(driver: driver.copyWith(rating: average)));
+  }
+
   /// Clears a submit error/result so the form can be retried.
   void resetStatus() {
     emit(state.copyWith(status: DriverAuthStatus.idle, clearError: true));

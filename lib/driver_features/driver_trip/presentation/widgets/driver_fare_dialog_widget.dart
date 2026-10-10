@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_dialog_layout_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
-import '../../../../core/widgets/bill_row_widget.dart';
-import '../../../../core/widgets/fare_breakdown_widget.dart';
 import '../../data/models/driver_trip_fare_model.dart';
 import '../../data/models/driver_trip_payment_model.dart';
 import '../cubit/driver_trip_cubit.dart';
@@ -96,11 +92,7 @@ class _DriverFareDialogWidgetState extends State<DriverFareDialogWidget> {
   }
 }
 
-String _price(BuildContext context, double amount) =>
-    formatSyp(context.l10n, amount);
-
-/// What to collect, the driver's earnings, and the rest of the bill folded
-/// away under "Fare details".
+/// What to collect from the customer: the final price only, with no lines.
 class _FareDetails extends StatelessWidget {
   final DriverTripFareModel fare;
 
@@ -108,59 +100,14 @@ class _FareDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Column(
-      children: [
-        _HeadlineAmount(
-          label: l10n.fareCollectFromCustomer,
-          amount: fare.finalPrice,
-        ),
-        const SizedBox(height: AppConstants.paddingM),
-        _EarningsChip(
-          label: l10n.fareYourEarning,
-          value: _price(context, fare.driverEarningAmount),
-        ),
-        Theme(
-          data: Theme.of(context).copyWith(dividerColor: AppColors.transparent),
-          child: ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            childrenPadding: EdgeInsets.zero,
-            shape: const Border(),
-            collapsedShape: const Border(),
-            iconColor: AppColors.textSecondary,
-            collapsedIconColor: AppColors.textSecondary,
-            title: Text(l10n.fareDetails, style: textTheme.titleSmall),
-            children: [
-              FareBreakdownWidget(fare: fare.breakdown, showTotal: false),
-              const Divider(height: AppConstants.paddingXL),
-              BillRowWidget(
-                label: l10n.fareEstimatedPrice,
-                value: _price(context, fare.estimatedPrice),
-              ),
-              BillRowWidget(
-                label: l10n.fareDifference,
-                value: _price(context, fare.difference),
-              ),
-              BillRowWidget(
-                label: l10n.fareDistanceDriven,
-                value: l10n.distanceKm(fare.actualDistanceKm.toStringAsFixed(1)),
-              ),
-              BillRowWidget(
-                label: l10n.fareCommission,
-                value: _price(context, fare.adminCommissionAmount),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return _HeadlineAmount(
+      label: context.l10n.fareCollectFromCustomer,
+      amount: fare.finalPrice,
     );
   }
 }
 
-/// The money split after "Payment received". Falls back to the fare's own
-/// numbers when the server's reply had no `payment` block.
+/// After "Payment received": the total paid, nothing else.
 class _PaymentDetails extends StatelessWidget {
   final DriverTripPaymentModel? payment;
   final DriverTripFareModel fare;
@@ -169,37 +116,13 @@ class _PaymentDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final payment = this.payment;
-
-    return Column(
-      children: [
-        _HeadlineAmount(
-          label: l10n.paymentTotalPaid,
-          amount: payment?.totalPaid ?? fare.finalPrice,
-        ),
-        const SizedBox(height: AppConstants.paddingM),
-        _EarningsChip(
-          label: l10n.paymentYourShare,
-          value: _price(context, payment?.driverShare ?? fare.driverEarningAmount),
-        ),
-        const SizedBox(height: AppConstants.paddingS),
-        BillRowWidget(
-          label: l10n.paymentCommissionDeducted,
-          value: _price(context, payment?.managerShare ?? fare.adminCommissionAmount),
-        ),
-        if (payment != null)
-          BillRowWidget(
-            label: l10n.paymentWalletBalance,
-            value: _price(context, payment.walletBalanceAfter),
-          ),
-      ],
+    return _HeadlineAmount(
+      label: context.l10n.paymentTotalPaid,
+      amount: payment?.totalPaid ?? fare.finalPrice,
     );
   }
 }
 
-/// The big number: heavy, tabular, and scaled down to fit rather than
-/// squeezed or cut off.
 class _HeadlineAmount extends StatelessWidget {
   final String label;
   final double amount;
@@ -224,59 +147,6 @@ class _HeadlineAmount extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// The driver's own number, on its green wash so it reads as "yours" at a
-/// glance without competing with the amount to collect.
-class _EarningsChip extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _EarningsChip({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Container(
-      padding: const EdgeInsets.all(AppConstants.paddingM),
-      decoration: BoxDecoration(
-        color: AppColors.successSurface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-        border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.account_balance_wallet_outlined,
-            color: AppColors.success,
-            size: 20,
-          ),
-          const SizedBox(width: AppConstants.paddingS),
-          Expanded(
-            child: Text(
-              label,
-              style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          const SizedBox(width: AppConstants.paddingS),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: textTheme.titleMedium?.copyWith(
-                color: AppColors.success,
-                fontWeight: FontWeight.w800,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

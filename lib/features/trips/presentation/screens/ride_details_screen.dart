@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/ride_rating/presentation/cubit/ride_rating_cubit.dart';
+import '../../../../core/ride_rating/presentation/widgets/ride_rating_dialog_widget.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/format_date.dart';
@@ -13,7 +15,6 @@ import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/bill_row_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
-import '../../../../core/widgets/live_fee_card_widget.dart';
 import '../../../../core/widgets/meta_item_widget.dart';
 import '../../../../core/widgets/ride_note_widget.dart';
 import '../../data/models/ride_history_model.dart';
@@ -88,12 +89,24 @@ class RideDetailsScreen extends StatelessWidget {
                       const SizedBox(height: AppConstants.paddingM),
                       _Section(child: _DrivenRoute(ride: ride)),
                     ],
+                    if (ride.rating != null) ...[
+                      const SizedBox(height: AppConstants.paddingM),
+                      _Section(child: RideRatingSummaryWidget(rating: ride.rating!)),
+                    ],
                     if (ride.status == RideStatus.cancelled) ...[
                       const SizedBox(height: AppConstants.paddingM),
                       _Section(child: _Cancellation(ride: ride)),
                     ],
                     const SizedBox(height: AppConstants.paddingM),
                     _Section(child: _Times(ride: ride)),
+                    if (ride.canRate) ...[
+                      const SizedBox(height: AppConstants.paddingL),
+                      AuthPrimaryButtonWidget(
+                        label: context.l10n.rateYourDriver,
+                        isLoading: false,
+                        onPressed: () => _rateDriver(context, ride.id),
+                      ),
+                    ],
                     if (ride.isScheduled) ...[
                       const SizedBox(height: AppConstants.paddingL),
                       AppDestructiveButtonWidget(
@@ -118,6 +131,27 @@ class RideDetailsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Opens the rating dialog for a completed, unrated ride and updates the
+/// details with the result. A trip that turns out to be rated already is
+/// reloaded, to show the stars that were really given.
+Future<void> _rateDriver(BuildContext context, int rideId) async {
+  final cubit = context.read<RideDetailsCubit>();
+  final messenger = ScaffoldMessenger.of(context);
+  final thanks = context.l10n.rateThanks;
+  final outcome = await showRideRatingDialog(
+    context,
+    createCubit: () => sl<RideRatingCubit>(param1: rideId),
+  );
+  if (outcome == null) return;
+  final rating = outcome.rating;
+  if (rating == null) {
+    cubit.load();
+    return;
+  }
+  cubit.applyRating(rating);
+  showAppSnackBarOn(messenger, thanks, type: AppSnackBarType.success);
 }
 
 Future<void> _confirmCancel(BuildContext context) async {
@@ -280,27 +314,11 @@ class _Fare extends StatelessWidget {
           const Divider(height: AppConstants.paddingXXL),
           if (ride.tripFare > 0)
             BillRowWidget(label: l10n.fareTripFare, value: money(ride.tripFare)),
-          if (ride.stopsFeeTotal > 0)
-            BillRowWidget(
-              label: l10n.fareStopsFee,
-              value: money(ride.stopsFeeTotal),
-            ),
           if (ride.passengersFee > 0) passengersFee,
           if (ride.waitingFee > 0)
             BillRowWidget(
               label: l10n.fareWaiting,
               value: money(ride.waitingFee),
-            ),
-          if (ride.pauseFeeTotal > 0)
-            BillRowWidget(
-              label: l10n.farePauses,
-              detail: ride.pauseCount > 0
-                  ? l10n.farePausesDetail(
-                      '${ride.pauseCount}',
-                      LiveFeeCardWidget.clock(ride.pauseTotalSeconds),
-                    )
-                  : null,
-              value: money(ride.pauseFeeTotal),
             ),
           const Divider(height: AppConstants.paddingXXL),
           _PaymentStatus(ride: ride),

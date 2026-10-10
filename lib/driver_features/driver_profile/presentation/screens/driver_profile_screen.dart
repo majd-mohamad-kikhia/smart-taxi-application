@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
@@ -88,7 +89,8 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
   }
 }
 
-/// The wallet balance, the one figure a driver checks here.
+/// The two figures a driver checks here: the rating (opens "My ratings") and
+/// the wallet balance.
 class _Figures extends StatelessWidget {
   final DriverUserModel driver;
 
@@ -97,13 +99,30 @@ class _Figures extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return SizedBox(
-      width: double.infinity,
-      child: ProfileFigureTileWidget(
-        icon: Icons.account_balance_wallet_outlined,
-        iconColor: AppColors.primary,
-        label: l10n.profileWalletBalance,
-        value: formatSignedPrice(l10n, driver.walletBalance),
+    final rating = driver.rating;
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ProfileFigureTileWidget(
+              icon: Icons.star_rounded,
+              iconColor: AppColors.accent,
+              label: l10n.profileRating,
+              value: rating == null ? '—' : rating.toStringAsFixed(2),
+              onTap: () => Navigator.of(context).pushNamed(AppRouter.driverRatings),
+            ),
+          ),
+          const SizedBox(width: AppConstants.paddingM),
+          Expanded(
+            child: ProfileFigureTileWidget(
+              icon: Icons.account_balance_wallet_outlined,
+              iconColor: AppColors.primary,
+              label: l10n.profileWalletBalance,
+              value: formatSignedPrice(l10n, driver.walletBalance),
+            ),
+          ),
+        ],
       ),
     );
   }

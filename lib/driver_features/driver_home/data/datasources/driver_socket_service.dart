@@ -40,6 +40,11 @@ class DriverSocketService {
   final _sharedOrderUpdated = StreamController<Map<String, dynamic>>.broadcast();
   Stream<Map<String, dynamic>> get sharedOrderUpdated => _sharedOrderUpdated.stream;
 
+  /// `driver:rating_received`: a customer rated this driver
+  /// (`{ride_id, rating, comment, average, count}`).
+  final _ratingReceived = StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get ratingReceived => _ratingReceived.stream;
+
   /// Fires on every (re)connect — subscriptions made over REST must be
   /// renewed then.
   final _connected = StreamController<void>.broadcast();
@@ -107,6 +112,11 @@ class DriverSocketService {
     socket.on('driver:active_ride', (data) {
       if (!_disposed && data is Map) {
         _activeRide.add(Map<String, dynamic>.from(data));
+      }
+    });
+    socket.on('driver:rating_received', (data) {
+      if (!_disposed && data is Map) {
+        _ratingReceived.add(Map<String, dynamic>.from(data));
       }
     });
     socket.on('driver:shared_order_closed', (data) {

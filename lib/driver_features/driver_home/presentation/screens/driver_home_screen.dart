@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/contact_us/data/models/contact_number_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -72,6 +73,7 @@ class DriverHomeScreen extends StatelessWidget {
                 // still go offline.
                 AccountBlockGateWidget(
                   blockedMessage: context.l10n.accountBlockedDriverMessage,
+                  contactApp: ContactUsApp.driver,
                   child: const _OrdersSection(),
                 ),
               ],

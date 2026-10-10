@@ -11,12 +11,16 @@ class ProfileFigureTileWidget extends StatelessWidget {
   final String label;
   final String value;
 
+  /// Makes the whole tile a button (e.g. the rating opens "My ratings").
+  final VoidCallback? onTap;
+
   const ProfileFigureTileWidget({
     super.key,
     required this.icon,
     required this.iconColor,
     required this.label,
     required this.value,
+    this.onTap,
   });
 
   @override
@@ -26,40 +30,48 @@ class ProfileFigureTileWidget extends StatelessWidget {
       container: true,
       excludeSemantics: true,
       label: '$label: $value',
-      child: Container(
-        padding: const EdgeInsets.all(AppConstants.paddingL),
-        decoration: BoxDecoration(
-          color: AppColors.backgroundWhite,
+      button: onTap != null,
+      onTap: onTap,
+      child: Material(
+        color: AppColors.backgroundWhite,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-          border: Border.all(color: AppColors.border),
+          side: const BorderSide(color: AppColors.border),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 20, color: iconColor),
-            const SizedBox(height: AppConstants.paddingS),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  value,
-                  style: textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    fontFeatures: const [FontFeature.tabularFigures()],
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+          child: Padding(
+            padding: const EdgeInsets.all(AppConstants.paddingL),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, size: 20, color: iconColor),
+                const SizedBox(height: AppConstants.paddingS),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      value,
+                      style: textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(height: AppConstants.paddingXS),
+                Text(
+                  label,
+                  style: textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: AppConstants.paddingXS),
-            Text(
-              label,
-              style: textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

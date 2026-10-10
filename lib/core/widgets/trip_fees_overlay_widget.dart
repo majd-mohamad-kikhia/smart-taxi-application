@@ -13,17 +13,21 @@ class TripFeesOverlayWidget extends StatelessWidget {
   final double waitingFee;
   final RidePauseModel? pause;
 
+  /// False in the customer app, which doesn't show pauses at all.
+  final bool showPause;
+
   const TripFeesOverlayWidget({
     super.key,
     required this.waitingFee,
     required this.pause,
+    this.showPause = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     String price(double amount) => formatSyp(l10n, amount);
-    final pause = this.pause;
+    final pause = showPause ? this.pause : null;
     final isPaused = pause?.isPaused ?? false;
     final pauseTotal = pause?.totalFee ?? 0;
 

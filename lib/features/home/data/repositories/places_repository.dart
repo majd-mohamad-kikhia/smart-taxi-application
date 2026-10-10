@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../datasources/google_places_data_source.dart';
 import '../datasources/places_remote_data_source.dart';
 import '../models/place_suggestion_model.dart';
 import '../place_search_ranker.dart';
@@ -14,7 +15,7 @@ class PlacesException implements Exception {
   String toString() => message;
 }
 
-/// Photon-backed search for the location picker (search-as-you-type +
+/// Google Places search (Photon as the fallback) for the location picker (search-as-you-type +
 /// naming the dropped pin).
 class PlacesRepository {
   /// The first search only looks this far around the customer (~55 km).
@@ -29,7 +30,10 @@ class PlacesRepository {
 
   final PlacesRemoteDataSource _remoteDataSource;
 
-  const PlacesRepository(this._remoteDataSource);
+  /// Google Places, tried first; Photon answers when Google gives nothing.
+  final GooglePlacesDataSource? _google;
+
+  const PlacesRepository(this._remoteDataSource, [this._google]);
 
   /// Places for [query], nearest to ([nearLatitude], [nearLongitude]) first
   /// — pass the customer's own position, not the map's center, so "nearest
@@ -46,6 +50,21 @@ class PlacesRepository {
     double? nearLongitude,
   }) async {
     if (query.trim().isEmpty) return const [];
+    final fromGoogle = await _google?.search(query, limit: _maxSuggestions) ?? const [];
+    if (fromGoogle.isNotEmpty) {
+      // Latakia first, then the rest of Syria; inside each, nearest first.
+      return GooglePlacesDataSource.latakiaFirst(
+        nearLatitude == null || nearLongitude == null
+            ? fromGoogle
+            : PlaceSearchRanker.rank(
+                query,
+                fromGoogle,
+                fromLatitude: nearLatitude,
+                fromLongitude: nearLongitude,
+                limit: _maxSuggestions,
+              ),
+      );
+    }
     try {
       if (nearLatitude == null || nearLongitude == null) {
         return await _remoteDataSource.autocomplete(query);

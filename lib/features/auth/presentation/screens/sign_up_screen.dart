@@ -11,7 +11,7 @@ import '../../../../core/widgets/auth_form_layout_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
-import '../widgets/auth_footer_link_widget.dart';
+import '../../../../core/widgets/auth_footer_link_widget.dart';
 import '../widgets/privacy_policy_checkbox_field_widget.dart';
 
 class SignUpScreen extends StatefulWidget {

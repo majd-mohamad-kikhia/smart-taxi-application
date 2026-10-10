@@ -2,7 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../localization/app_strings.dart';
 
 class LocalNotificationService {
-  /// Every notification plays the car honk: `res/raw/car_honk.mp3` on
+  /// Every notification plays the car honk: `res/raw/car_honk.wav` on
   /// Android, `Runner/car_honk.caf` (bundled in the Xcode project) on iOS.
   static const _androidSound = 'car_honk';
   static const _iosSound = 'car_honk.caf';
@@ -11,6 +11,10 @@ class LocalNotificationService {
   /// system settings.
   static const _oldChannelId = 'mshoar_notifications';
 
+  /// The quieter honk's channel, replaced by [_channel] (a louder sound and
+  /// maximum importance) and deleted for the same reason.
+  static const _quietHonkChannelId = 'mshoar_notifications_honk';
+
   /// Its id must match the `default_notification_channel_id` meta-data in
   /// `AndroidManifest.xml`. Android fixes a channel's sound when it is first
   /// created, so a new sound needs a new id.
@@ -18,10 +22,10 @@ class LocalNotificationService {
   /// Named in the language active when it is created (Android lets the
   /// name be updated on the next launch).
   AndroidNotificationChannel get _channel => AndroidNotificationChannel(
-    'mshoar_notifications_honk',
+    'mshoar_notifications_loud',
     AppStrings.current.notificationsChannelName,
     description: AppStrings.current.notificationsChannelDescription,
-    importance: Importance.high,
+    importance: Importance.max,
     playSound: true,
     sound: const RawResourceAndroidNotificationSound(_androidSound),
   );
@@ -51,6 +55,7 @@ class LocalNotificationService {
           AndroidFlutterLocalNotificationsPlugin
         >();
     await android?.deleteNotificationChannel(channelId: _oldChannelId);
+    await android?.deleteNotificationChannel(channelId: _quietHonkChannelId);
     await android?.createNotificationChannel(_channel);
   }
 

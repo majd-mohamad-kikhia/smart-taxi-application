@@ -4,6 +4,7 @@ import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/models/route_point_model.dart';
+import '../../../../core/ride_rating/data/models/ride_rating_model.dart';
 
 /// Ride lifecycle status (`status_id` in swagger.json's `Ride` schema).
 /// Listed with [scheduled] first so the filter reads "upcoming → done".
@@ -134,6 +135,12 @@ class RideHistoryModel extends Equatable {
   /// Whether the driver's driven route was uploaded for this ride.
   final bool hasRoute;
 
+  /// Completed, has a driver and not rated yet: offer "Rate your driver".
+  final bool canRate;
+
+  /// The stars the customer gave, or null while unrated.
+  final RideRatingModel? rating;
+
   /// The path the driver actually drove, in time order (detail only).
   final List<RoutePointModel> route;
 
@@ -177,6 +184,8 @@ class RideHistoryModel extends Equatable {
     this.cancelledBy,
     this.stops = const [],
     this.hasRoute = false,
+    this.canRate = false,
+    this.rating,
     this.route = const [],
   });
 
@@ -234,9 +243,57 @@ class RideHistoryModel extends Equatable {
           .map((s) => RideStopModel.fromJson(s as Map<String, dynamic>))
           .toList(),
       hasRoute: json['has_route'] as bool? ?? route.isNotEmpty,
+      canRate: json['can_rate'] == true,
+      rating: RideRatingModel.tryParse(json['rating']),
       route: route,
     );
   }
+
+  /// The same ride once the customer has rated it.
+  RideHistoryModel withRating(RideRatingModel rating) => RideHistoryModel(
+        id: id,
+        status: status,
+        statusName: statusName,
+        vehicleTypeId: vehicleTypeId,
+        pickupLat: pickupLat,
+        pickupLng: pickupLng,
+        pickupAddress: pickupAddress,
+        pickupAddressDetails: pickupAddressDetails,
+        dropoffLat: dropoffLat,
+        dropoffLng: dropoffLng,
+        dropoffAddress: dropoffAddress,
+        dropoffAddressDetails: dropoffAddressDetails,
+        note: note,
+        passengersCount: passengersCount,
+        scheduledAt: scheduledAt,
+        dispatchedAt: dispatchedAt,
+        distanceKm: distanceKm,
+        estimatedDurationMin: estimatedDurationMin,
+        price: price,
+        estimatedPrice: estimatedPrice,
+        finalPrice: finalPrice,
+        stopsFeeTotal: stopsFeeTotal,
+        passengersFee: passengersFee,
+        waitingFee: waitingFee,
+        pauseFeeTotal: pauseFeeTotal,
+        pauseCount: pauseCount,
+        pauseTotalSeconds: pauseTotalSeconds,
+        actualDistanceKm: actualDistanceKm,
+        isPaid: isPaid,
+        paidAt: paidAt,
+        requestedAt: requestedAt,
+        acceptedAt: acceptedAt,
+        startedAt: startedAt,
+        completedAt: completedAt,
+        cancelledAt: cancelledAt,
+        cancellationReason: cancellationReason,
+        cancelledBy: cancelledBy,
+        stops: stops,
+        hasRoute: hasRoute,
+        canRate: false,
+        rating: rating,
+        route: route,
+      );
 
   bool get isCompleted => status == RideStatus.completed;
 
@@ -284,18 +341,19 @@ class RideHistoryModel extends Equatable {
   /// The distance driven when known, otherwise the order-time estimate.
   double? get shownDistanceKm => actualDistanceKm ?? distanceKm;
 
-  /// Base fare plus distance fare: what is left of the final price once the
-  /// stop, passengers, waiting and pause fees are taken out (the API sends
-  /// no separate base and distance amounts).
+  /// What is left of the final price once the passengers and waiting fees
+  /// are taken out (the API sends no separate base and distance amounts).
+  /// The prices of stops and pauses stay inside it: the customer's bill does
+  /// not list them, so the lines still add up to the total.
   double get tripFare =>
       (finalPrice ?? price) -
-      stopsFeeTotal -
       passengersFee -
-      waitingFee -
-      pauseFeeTotal;
+      waitingFee;
 
   @override
   List<Object?> get props => [
+        canRate,
+        rating,
         id,
         status,
         statusName,

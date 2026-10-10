@@ -6,8 +6,11 @@ import '../contact_us/presentation/screens/contact_us_screen.dart';
 import '../enums/user_role.dart';
 import '../session/app_user.dart';
 import '../../driver_features/driver_auth/presentation/screens/driver_sign_in_screen.dart';
+import '../../driver_features/driver_auth/presentation/screens/driver_sign_up_screen.dart';
+import '../../driver_features/driver_auth/presentation/screens/driver_signup_pending_screen.dart';
 import '../../driver_features/driver_gps_guard/presentation/widgets/driver_gps_guard_widget.dart';
 import '../../driver_features/driver_main_wrapper_screen.dart';
+import '../../driver_features/driver_ratings/presentation/screens/driver_ratings_screen.dart';
 import '../../driver_features/driver_shared_order/presentation/screens/shared_order_screen.dart';
 import '../../driver_features/driver_trip/data/models/driver_active_ride_model.dart';
 import '../../driver_features/driver_trip/presentation/screens/driver_trip_screen.dart';
@@ -87,12 +90,15 @@ class AppRouter {
   static const String signIn = '/sign-in';
   static const String signUp = '/sign-up';
   static const String driverSignIn = '/driver/sign-in';
+  static const String driverSignUp = '/driver/sign-up';
+  static const String driverSignupPending = '/driver/signup-pending';
   static const String driverHome = '/driver/home';
   static const String driverTrip = '/driver/trip';
 
   /// An office order opened from its WhatsApp link; takes the link's token
   /// (String) as `RouteSettings.arguments`.
   static const String driverSharedOrder = '/driver/shared-order';
+  static const String driverRatings = '/driver/ratings';
   static const String home = '/';
   static const String rideTracking = '/ride-tracking';
   static const String rideDetails = '/trips/details';
@@ -143,6 +149,10 @@ class AppRouter {
         return _buildRoute(settings, const SignUpScreen());
       case driverSignIn:
         return _buildRoute(settings, const DriverSignInScreen());
+      case driverSignUp:
+        return _buildRoute(settings, const DriverSignUpScreen());
+      case driverSignupPending:
+        return _buildRoute(settings, const DriverSignupPendingScreen());
       case driverHome:
         return _buildRoute(
           settings,
@@ -156,6 +166,8 @@ class AppRouter {
             child: DriverTripScreen(order: args.order, resume: args.resume),
           ),
         );
+      case driverRatings:
+        return _buildRoute(settings, const DriverRatingsScreen());
       case driverSharedOrder:
         return _buildRoute(
           settings,

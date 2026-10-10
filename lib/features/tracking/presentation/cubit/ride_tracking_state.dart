@@ -42,6 +42,11 @@ class RideTrackingState extends Equatable {
   /// whole trip). See [routeLeg].
   final List<RoutePointModel> routePoints;
 
+  /// The planned road from pickup to dropoff (Google Routes), drawn instead
+  /// of a straight line while the customer waits for the driver. Empty until
+  /// it has loaded.
+  final List<RoutePointModel> plannedRoute;
+
   /// Remaining road distance and travel time of [routeLeg]; null until the
   /// first route has loaded.
   final TripEtaModel? eta;
@@ -55,6 +60,10 @@ class RideTrackingState extends Equatable {
   /// The bill lines (distance, stops, waiting…) from the `completed` event.
   final RideFareBreakdownModel? fare;
   final bool isCancelling;
+
+  /// The `completed` event said the customer can rate this driver
+  /// (`can_rate`): the rating dialog follows the payment.
+  final bool canRate;
 
   /// The server's message when the last cancel attempt failed; the screen
   /// shows it once and the customer can retry.
@@ -72,10 +81,12 @@ class RideTrackingState extends Equatable {
     this.driverLocation,
     this.routePoints = const [],
     this.eta,
+    this.plannedRoute = const [],
     this.drivenPath = const [],
     this.finalPrice,
     this.fare,
     required this.isCancelling,
+    this.canRate = false,
     this.cancelError,
     this.exitReason,
   });
@@ -125,12 +136,14 @@ class RideTrackingState extends Equatable {
     RideLocationModel? driverLocation,
     List<RoutePointModel>? routePoints,
     TripEtaModel? eta,
+    List<RoutePointModel>? plannedRoute,
     bool clearRoute = false,
     bool clearEta = false,
     List<RoutePointModel>? drivenPath,
     double? finalPrice,
     RideFareBreakdownModel? fare,
     bool? isCancelling,
+    bool? canRate,
     String? cancelError,
     bool clearCancelError = false,
     RideTrackingExitReason? exitReason,
@@ -147,10 +160,12 @@ class RideTrackingState extends Equatable {
       driverLocation: driverLocation ?? this.driverLocation,
       routePoints: clearRoute ? const [] : (routePoints ?? this.routePoints),
       eta: clearEta ? null : (eta ?? this.eta),
+      plannedRoute: plannedRoute ?? this.plannedRoute,
       drivenPath: drivenPath ?? this.drivenPath,
       finalPrice: finalPrice ?? this.finalPrice,
       fare: fare ?? this.fare,
       isCancelling: isCancelling ?? this.isCancelling,
+      canRate: canRate ?? this.canRate,
       cancelError: clearCancelError ? null : (cancelError ?? this.cancelError),
       exitReason: exitReason ?? this.exitReason,
     );
@@ -158,6 +173,7 @@ class RideTrackingState extends Equatable {
 
   @override
   List<Object?> get props => [
+        canRate,
         connectionStatus,
         connectionError,
         ride,
@@ -168,6 +184,7 @@ class RideTrackingState extends Equatable {
         driverLocation,
         routePoints,
         eta,
+        plannedRoute,
         drivenPath,
         finalPrice,
         fare,

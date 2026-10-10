@@ -531,6 +531,103 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverSignInTitle => 'تسجيل دخول الكباتن';
 
   @override
+  String get driverSignupTitle => 'إنشاء حساب كابتن';
+
+  @override
+  String get driverSignupSubtitle =>
+      'أدخل بياناتك وبيانات سيارتك. يراجع المدير حسابك قبل أن تتمكن من تسجيل الدخول.';
+
+  @override
+  String get driverSignupCarSection => 'سيارتك';
+
+  @override
+  String get driverSignupBrandLabel => 'نوع السيارة (الماركة)';
+
+  @override
+  String get driverSignupBrandHint => 'مثال: كيا';
+
+  @override
+  String get driverSignupModelLabel => 'الموديل';
+
+  @override
+  String get driverSignupModelHint => 'مثال: سيراتو';
+
+  @override
+  String get driverSignupColorLabel => 'لون السيارة';
+
+  @override
+  String get driverSignupColorHint => 'مثال: أبيض';
+
+  @override
+  String get driverSignupPlateLabel => 'رقم اللوحة';
+
+  @override
+  String get driverSignupPlateHint => 'مثال: 123456';
+
+  @override
+  String get driverSignupAddressLabel => 'العنوان (اختياري)';
+
+  @override
+  String get driverSignupVehicleType => 'فئة السيارة';
+
+  @override
+  String get driverSignupOwnership => 'لمن تعود ملكية السيارة؟';
+
+  @override
+  String get driverSignupOwnershipOwner => 'أملكها';
+
+  @override
+  String get driverSignupOwnershipCompany => 'تملكها شركة';
+
+  @override
+  String get driverSignupPhotoPerson => 'صورتك الشخصية';
+
+  @override
+  String get driverSignupPhotoCar => 'صورة السيارة';
+
+  @override
+  String get driverSignupPhotoAdd => 'اضغط لإضافة صورة';
+
+  @override
+  String get driverSignupPhotoCamera => 'التقاط صورة';
+
+  @override
+  String get driverSignupPhotoGallery => 'اختيار من المعرض';
+
+  @override
+  String get driverSignupPhotoRequired => 'يرجى إضافة هذه الصورة';
+
+  @override
+  String get driverSignupChooseOne => 'يرجى الاختيار';
+
+  @override
+  String get driverSignupPhotoTooLarge =>
+      'حجم هذه الصورة أكبر من 5 ميغابايت، يرجى اختيار صورة أخرى';
+
+  @override
+  String get driverSignupPhotoUnreadable =>
+      'تعذّرت قراءة الصورة، يرجى اختيارها من جديد';
+
+  @override
+  String get driverSignupPlateRegistered => 'رقم اللوحة هذا مسجّل مسبقاً';
+
+  @override
+  String get driverSignupFieldRequired => 'هذا الحقل مطلوب';
+
+  @override
+  String get driverPendingTitle => 'حسابك بانتظار الموافقة';
+
+  @override
+  String get driverPendingMessage =>
+      'شكراً لك! استلمنا بياناتك. سيراجعها المدير، ويمكنك تسجيل الدخول فور الموافقة على حسابك.';
+
+  @override
+  String get driverPendingAction => 'العودة لتسجيل الدخول';
+
+  @override
+  String get errAccountRejected => 'تم رفض حسابك، يرجى التواصل مع الدعم';
+
+  @override
   String get signUp => 'إنشاء حساب';
 
   @override
@@ -581,6 +678,76 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get driverAcceptTrip => 'قبول الرحلة';
+
+  @override
+  String get rateDriverTitle => 'قيّم الكابتن';
+
+  @override
+  String get myRatingsTitle => 'تقييماتي';
+
+  @override
+  String ratingsCount(int count) {
+    return '$count تقييم';
+  }
+
+  @override
+  String get noRatingsYet => 'لا توجد تقييمات بعد. سيظهر أول تقييم هنا.';
+
+  @override
+  String get profileRating => 'التقييم';
+
+  @override
+  String newRatingToast(int stars) {
+    return 'تقييم جديد ⭐ $stars';
+  }
+
+  @override
+  String ratingFromCustomer(String name) {
+    return 'من $name';
+  }
+
+  @override
+  String ratingTripNumber(int id) {
+    return 'الرحلة #$id';
+  }
+
+  @override
+  String get rateDriverMessage => 'كيف كانت رحلتك؟';
+
+  @override
+  String get rateCommentLabel => 'تعليق (اختياري)';
+
+  @override
+  String get rateCommentHint => 'أخبرنا المزيد عن رحلتك';
+
+  @override
+  String get rateSend => 'إرسال التقييم';
+
+  @override
+  String get rateSkip => 'تخطّي';
+
+  @override
+  String get rateThanks => 'شكراً لتقييمك';
+
+  @override
+  String get rateYourDriver => 'قيّم الكابتن';
+
+  @override
+  String get yourRating => 'تقييمك';
+
+  @override
+  String starsOutOfFive(int count) {
+    return '$count من 5 نجوم';
+  }
+
+  @override
+  String get tripFinishQueued =>
+      'لا يوجد اتصال. ستُنهى الرحلة تلقائياً بمجرد عودة الاتصال.';
+
+  @override
+  String orderOfferSecondsLeft(int seconds) {
+    return 'متبقّي $seconds ث';
+  }
 
   @override
   String get driverAcceptTripFailed => 'تعذر قبول الرحلة';
@@ -709,7 +876,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get billCustomer => 'الزبون';
 
   @override
-  String get billDriver => 'السائق';
+  String get billDriver => 'الكابتن';
 
   @override
   String get billItem => 'البند';
@@ -743,7 +910,7 @@ class AppLocalizationsAr extends AppLocalizations {
     String model,
     String plate,
   ) {
-    return 'مرحباً 👋 أنا سائق Smart Taxi الخاص بك وأنا في طريقي إليك 🚖\n\n👤 الاسم: $driverName\n📞 رقم الهاتف: $phone\n🚗 نوع السيارة: $brand $model\n🎨 اللون: $color\n🔢 رقم اللوحة: $plate';
+    return 'مرحباً 👋 أنا كابتن Smart Taxi الخاص بك وأنا في طريقي إليك 🚖\n\n👤 الاسم: $driverName\n📞 رقم الهاتف: $phone\n🚗 نوع السيارة: $brand $model\n🎨 اللون: $color\n🔢 رقم اللوحة: $plate';
   }
 
   @override
@@ -977,13 +1144,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get priceEstimateTag => '(سعر تقديري)';
 
   @override
-  String get rideAwaitingDriver => 'بانتظار وصول السائق';
+  String get rideAwaitingDriver => 'بانتظار قبول الطلب';
+
+  @override
+  String get rideAwaitingArrival => 'بانتظار وصول الكابتن';
 
   @override
   String get rideAccepted => 'تم قبول طلبك';
 
   @override
-  String get rideDriverArrived => 'السائق وصل';
+  String get rideDriverArrived => 'الكابتن وصل';
 
   @override
   String get rideInProgress => 'الرحلة جارية';
@@ -995,10 +1165,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get rideRequestCancelled => 'تم إلغاء الطلب';
 
   @override
-  String get trackDriverOnTheWay => 'السائق في الطريق إليك';
+  String get trackDriverOnTheWay => 'الكابتن في الطريق إليك';
 
   @override
-  String get trackDriverAtPickup => 'السائق وصل لنقطة الانطلاق';
+  String get trackDriverAtPickup => 'الكابتن وصل لنقطة الانطلاق';
 
   @override
   String distanceMetersShort(String value) {
@@ -1007,7 +1177,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String tripEtaToPickup(String duration, String distance) {
-    return 'يصل السائق خلال $duration · $distance';
+    return 'يصل الكابتن خلال $duration · $distance';
   }
 
   @override
@@ -1038,10 +1208,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get payDriverTitle => 'اكتملت الرحلة';
 
   @override
-  String get payDriverMessage => 'يرجى دفع المبلغ للسائق';
+  String get payDriverMessage => 'يرجى دفع المبلغ للكابتن';
 
   @override
-  String get payDriverWaiting => 'بانتظار تأكيد السائق لاستلام الدفعة';
+  String get payDriverWaiting => 'بانتظار تأكيد الكابتن لاستلام الدفعة';
 
   @override
   String get trackTrip => 'تتبع الرحلة';
@@ -1063,7 +1233,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get rideStatusAcceptedHist => 'تم قبول الطلب';
 
   @override
-  String get rideStatusArrivedHist => 'وصل السائق';
+  String get rideStatusArrivedHist => 'وصل الكابتن';
 
   @override
   String get rideStatusInProgressHist => 'جارية';
@@ -1080,7 +1250,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get rideDrivenRouteTitle => 'المسار الذي سلكه السائق';
+  String get rideDrivenRouteTitle => 'المسار الذي سلكه الكابتن';
 
   @override
   String get errLoadDetails => 'تعذر تحميل التفاصيل';
@@ -1089,7 +1259,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cancelledByCustomer => 'العميل';
 
   @override
-  String get cancelledByDriver => 'السائق';
+  String get cancelledByDriver => 'الكابتن';
 
   @override
   String get cancelledByManager => 'الإدارة';
@@ -1334,6 +1504,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deleteAccountDone => 'تم حذف حسابك';
 
   @override
+  String get accountDeletionNoticeTitle => 'جارٍ حذف حسابك';
+
+  @override
+  String get accountDeletionNoticeMessage =>
+      'سيتم حذف حسابك بالكامل خلال 7 أيام تقريباً. سيتم الآن إعادتك إلى الشاشة الأولى.';
+
+  @override
   String get errIncorrectPassword => 'كلمة المرور غير صحيحة';
 
   @override
@@ -1347,7 +1524,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverDeleteReasonHint => 'لماذا تريد المغادرة؟';
 
   @override
-  String get driverDeleteSubmit => 'إرسال الطلب';
+  String get driverDeleteSubmit => 'حذف الحساب';
 
   @override
   String get driverDeletionPendingTitle => 'طلب حذف الحساب قيد المراجعة';
@@ -1470,6 +1647,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noContactNumbers => 'لا توجد أرقام تواصل بعد.';
 
   @override
+  String get contactCallCenter => 'اتصل بمركز الاتصال';
+
+  @override
+  String locationFeeIncluded(String fee) {
+    return 'يشمل رسم منطقة قدره $fee';
+  }
+
+  @override
+  String locationFeeIncludedFor(String fee, String area) {
+    return 'يشمل رسم منطقة قدره $fee ($area)';
+  }
+
+  @override
   String get whatsappNotAvailable => 'واتساب غير متاح على هذا الجهاز';
 
   @override
@@ -1549,7 +1739,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addressDetailsHint => 'المبنى، الطابق، علامة مميزة…';
 
   @override
-  String get rideNoteLabel => 'ملاحظة للسائق';
+  String get rideNoteLabel => 'ملاحظة للكابتن';
 
   @override
   String get rideNoteHint => 'مثال: أنا عند البوابة الرئيسية';
@@ -1578,7 +1768,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vehicleOwnership => 'الملكية';
 
   @override
-  String get vehicleOwnershipOwner => 'ملك السائق';
+  String get vehicleOwnershipOwner => 'ملك الكابتن';
 
   @override
   String get vehicleOwnershipCompany => 'ملك الشركة';
@@ -1632,7 +1822,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sharedOrderYours => 'هذا الطلب لك بالفعل';
 
   @override
-  String get sharedOrderTaken => 'تم أخذ هذا الطلب من سائق آخر';
+  String get sharedOrderTaken => 'تم أخذ هذا الطلب من كابتن آخر';
 
   @override
   String get sharedOrderCancelled => 'تم إلغاء هذا الطلب';
@@ -1647,7 +1837,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sharedOrderAcceptFailed => 'تعذّر قبول الطلب. حاول مرة أخرى';
 
   @override
-  String get sharedOrderDriversOnly => 'افتح هذا الرابط بحساب سائق';
+  String get sharedOrderDriversOnly => 'افتح هذا الرابط بحساب كابتن';
 
   @override
   String passengersCount(int count) {
@@ -1701,16 +1891,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String cancelStrikeWarning(int count, int limit, int hours) {
-    return 'إلغاء الطلب بعد قبول السائق يُحسب عليك (ألغيت $count من $limit). عند الوصول إلى $limit لن تستطيع الطلب لمدة $hours ساعة. هل تريد الإلغاء؟';
+    return 'إلغاء الطلب بعد قبول الكابتن يُحسب عليك (ألغيت $count من $limit). عند الوصول إلى $limit لن تستطيع الطلب لمدة $hours ساعة. هل تريد الإلغاء؟';
   }
 
   @override
   String cancelStrikeWarningLast(int count, int limit, int hours) {
-    return 'ألغيت $count من $limit بعد قبول السائق. هذا الإلغاء سيوقف الطلب من حسابك لمدة $hours ساعة. هل تريد الإلغاء؟';
+    return 'ألغيت $count من $limit بعد قبول الكابتن. هذا الإلغاء سيوقف الطلب من حسابك لمدة $hours ساعة. هل تريد الإلغاء؟';
   }
 
   @override
   String cancelStrikeWarningUnknown(int hours) {
-    return 'إلغاء الطلب بعد قبول السائق يُحسب عليك. عند تكرار ذلك لن تستطيع الطلب لمدة $hours ساعة. هل تريد الإلغاء؟';
+    return 'إلغاء الطلب بعد قبول الكابتن يُحسب عليك. عند تكرار ذلك لن تستطيع الطلب لمدة $hours ساعة. هل تريد الإلغاء؟';
   }
 }

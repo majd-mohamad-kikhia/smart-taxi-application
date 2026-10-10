@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../theme/app_colors.dart';
 
 /// Row pairing a plain text prompt with a tappable action label, used to
 /// switch between sign in and sign up.

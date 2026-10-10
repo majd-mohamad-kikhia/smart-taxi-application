@@ -1,13 +1,14 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/services/push_notification_service.dart';
+import '../models/driver_signup_request_model.dart';
 import '../models/driver_user_model.dart';
 
 /// Remote data source for the Driver feature. Talks to the Driver Auth
 /// endpoints via [Dio] — see `lib/features/auth/data/swagger.json` for
-/// the full contract. Driver signup isn't implemented in this app (it
-/// requires multipart photo uploads and is out of scope for now) —
-/// drivers are onboarded another way and only log in here.
+/// the full contract. A driver can also create his own account
+/// ([signup], multipart with two photos); it stays pending until a manager
+/// approves it.
 class DriverRemoteDataSource {
   final Dio _dio;
   final ApiEndpoints _endpoints;
@@ -34,6 +35,31 @@ class DriverRemoteDataSource {
     return DriverUserModel.fromApiData(
       response.data['data'] as Map<String, dynamic>,
     );
+  }
+
+  /// `POST /api/driver/auth/signup` (multipart): the driver and his car are
+  /// created together, pending approval. The reply carries tokens, but the
+  /// account can't be used until approved, so nothing is read from it.
+  Future<void> signup(DriverSignupRequestModel request) async {
+    final form = FormData.fromMap(request.toFields())
+      ..files.addAll([
+        MapEntry('photo', await MultipartFile.fromFile(request.photoPath, filename: 'photo.jpg')),
+        MapEntry(
+          'vehicle_photo',
+          await MultipartFile.fromFile(request.vehiclePhotoPath, filename: 'vehicle.jpg'),
+        ),
+      ]);
+    await _dio.post(_endpoints.driverSignup, data: form);
+  }
+
+  /// The active car types for the signup form (no token needed).
+  Future<List<SignupVehicleType>> getSignupVehicleTypes() async {
+    final response = await _dio.get(_endpoints.driverSignupVehicleTypes);
+    final list = (response.data['data'] as Map)['vehicle_types'] as List;
+    return [
+      for (final item in list)
+        SignupVehicleType.fromJson(Map<String, dynamic>.from(item as Map)),
+    ];
   }
 
   /// Cheapest authenticated driver call (`GET .../account/deletion-request`),

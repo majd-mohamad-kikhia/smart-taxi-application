@@ -44,6 +44,14 @@ class OrderOfferModel extends Equatable {
   /// ride was accepted. Null for an offer, or when it wasn't worked out.
   final PickupEtaModel? pickupEta;
 
+  /// When the server withdraws this offer from the driver (UTC). Offers go
+  /// out in waves: a driver can accept only during his own
+  /// [offerSeconds]-second turn. Null for an offer that doesn't expire.
+  final DateTime? expiresAt;
+
+  /// Length of the driver's turn, in seconds; null when the server didn't say.
+  final int? offerSeconds;
+
   const OrderOfferModel({
     required this.rideId,
     required this.vehicleTypeId,
@@ -65,6 +73,8 @@ class OrderOfferModel extends Equatable {
     this.passengersCount,
     this.passengersFee = 0,
     this.pickupEta,
+    this.expiresAt,
+    this.offerSeconds,
   });
 
   factory OrderOfferModel.fromJson(Map<String, dynamic> json) {
@@ -88,7 +98,23 @@ class OrderOfferModel extends Equatable {
       note: textOrNull(json['note']),
       passengersCount: countOrNull(json['passengers_count']),
       passengersFee: feeOf(json),
+      expiresAt: expiryOf(json),
+      offerSeconds: countOrNull(json['expires_in_seconds']),
     );
+  }
+
+  /// When the offer runs out: `expires_at`, never later than
+  /// `expires_in_seconds` from now, so a phone clock that runs behind can't
+  /// show a longer turn than the server gave.
+  static DateTime? expiryOf(Map<String, dynamic> json, {DateTime? now}) {
+    final at = json['expires_at'];
+    final seconds = countOrNull(json['expires_in_seconds']);
+    final current = (now ?? DateTime.now()).toUtc();
+    final fromSeconds = seconds == null ? null : current.add(Duration(seconds: seconds));
+    final fromDate = at is String ? DateTime.tryParse(at)?.toUtc() : null;
+    if (fromDate == null) return fromSeconds;
+    if (fromSeconds != null && fromDate.isAfter(fromSeconds)) return fromSeconds;
+    return fromDate;
   }
 
   /// The same ride with the points, price and texts from an updated ride
@@ -123,6 +149,8 @@ class OrderOfferModel extends Equatable {
           : passengersCount,
       passengersFee: json.containsKey('passengers_fee') ? feeOf(json) : passengersFee,
       pickupEta: pickupEta,
+      expiresAt: expiresAt,
+      offerSeconds: offerSeconds,
     );
   }
 
@@ -148,6 +176,8 @@ class OrderOfferModel extends Equatable {
     passengersCount: passengersCount,
     passengersFee: passengersFee,
     pickupEta: eta,
+    expiresAt: expiresAt,
+    offerSeconds: offerSeconds,
   );
 
   /// The same ride once the number of passengers is known.
@@ -196,5 +226,7 @@ class OrderOfferModel extends Equatable {
         passengersCount,
         passengersFee,
         pickupEta,
+        expiresAt,
+        offerSeconds,
       ];
 }

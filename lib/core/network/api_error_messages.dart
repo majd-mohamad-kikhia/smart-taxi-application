@@ -33,6 +33,7 @@ class ApiErrorMessages {
     'internal server error': (l) => l.errServer,
     'your account is pending approval': (l) => l.errAccountPending,
     'your account is suspended': (l) => l.errAccountSuspended,
+    'your account has been rejected': (l) => l.errAccountRejected,
     // 401 on any call once a driver's deletion request was approved.
     'this account has been deleted': (l) => l.errAccountDeleted,
   };

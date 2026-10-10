@@ -15,19 +15,27 @@ import 'driver_deletion_status_card_widget.dart';
 /// button, or — per the latest request's status — "under review" with a
 /// cancel action, or "declined" with the manager's note and the button again.
 class DriverAccountDeletionSectionWidget extends StatelessWidget {
-  const DriverAccountDeletionSectionWidget({super.key});
+  /// Runs once a new deletion request has been sent (the form already closed).
+  final VoidCallback onRequestSent;
+
+  const DriverAccountDeletionSectionWidget({
+    super.key,
+    required this.onRequestSent,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<DriverAccountDeletionCubit>(
       create: (_) => sl<DriverAccountDeletionCubit>()..load(),
-      child: const _DeletionSectionView(),
+      child: _DeletionSectionView(onRequestSent: onRequestSent),
     );
   }
 }
 
 class _DeletionSectionView extends StatelessWidget {
-  const _DeletionSectionView();
+  final VoidCallback onRequestSent;
+
+  const _DeletionSectionView({required this.onRequestSent});
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +81,11 @@ class _DeletionSectionView extends StatelessWidget {
 
         final request = state.request;
         final deleteButton = DeleteAccountButtonWidget(
-          onPressed: () => showDriverDeleteAccountDialog(context, cubit: cubit),
+          onPressed: () => showDriverDeleteAccountDialog(
+            context,
+            cubit: cubit,
+            onRequested: onRequestSent,
+          ),
         );
         return switch (request?.status) {
           DriverDeletionStatus.pending => DriverDeletionStatusCardWidget(

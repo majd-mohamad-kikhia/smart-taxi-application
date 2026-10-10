@@ -8,6 +8,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/session/session_cubit.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/account_deletion_notice_dialog_widget.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
@@ -70,6 +71,16 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
     Navigator.of(
       context,
     ).pushNamedAndRemoveUntil(AppRouter.roleSelection, (route) => false);
+  }
+
+  /// The request is with the manager. Say how long the removal takes, then
+  /// sign this device out and leave for the first screen.
+  void _onDeletionRequested(BuildContext context) {
+    if (!context.mounted) return;
+    showAccountDeletionNoticeDialog(
+      context,
+      onContinue: () => _logout(context),
+    );
   }
 
   void _openComplaintDialog(BuildContext context) {
@@ -170,7 +181,9 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
                   LogoutFooterWidget(
                     isLoading: _isLoggingOut,
                     onLogout: () => _confirmLogout(context),
-                    belowLogout: const DriverAccountDeletionSectionWidget(),
+                    belowLogout: DriverAccountDeletionSectionWidget(
+                      onRequestSent: () => _onDeletionRequested(context),
+                    ),
                   ),
                 ],
               ),

@@ -13,10 +13,18 @@ class FareBreakdownWidget extends StatelessWidget {
   final RideFareBreakdownModel fare;
   final bool showTotal;
 
+  /// False in the customer's bill, which lists neither the price of stops
+  /// nor of pauses: their amounts are added to the distance line, so the
+  /// lines still add up to the total.
+  final bool showStops;
+  final bool showPauses;
+
   const FareBreakdownWidget({
     super.key,
     required this.fare,
     this.showTotal = true,
+    this.showStops = true,
+    this.showPauses = true,
   });
 
   @override
@@ -29,8 +37,15 @@ class FareBreakdownWidget extends StatelessWidget {
       children: [
         if (fare.baseFare > 0)
           BillRowWidget(label: l10n.fareBaseFare, value: price(fare.baseFare)),
-        BillRowWidget(label: l10n.fareDistanceFare, value: price(fare.distanceFare)),
-        if (fare.stopsFeeTotal > 0)
+        BillRowWidget(
+          label: l10n.fareDistanceFare,
+          value: price(
+            fare.distanceFare +
+                (showStops ? 0 : fare.stopsFeeTotal) +
+                (showPauses ? 0 : fare.pauseFeeTotal),
+          ),
+        ),
+        if (showStops && fare.stopsFeeTotal > 0)
           BillRowWidget(label: l10n.fareStopsFee, value: price(fare.stopsFeeTotal)),
         if (fare.passengersFee > 0)
           BillRowWidget(
@@ -51,7 +66,7 @@ class FareBreakdownWidget extends StatelessWidget {
                   ),
             value: price(fare.waitingFee),
           ),
-        if (fare.pauseFeeTotal > 0)
+        if (showPauses && fare.pauseFeeTotal > 0)
           BillRowWidget(
             label: l10n.farePauses,
             detail: l10n.farePausesDetail(

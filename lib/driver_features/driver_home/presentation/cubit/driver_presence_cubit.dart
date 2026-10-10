@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/datasources/driver_socket_service.dart';
+import '../../data/driver_presence_store.dart';
 import '../../data/location_ticker.dart';
 import 'driver_presence_state.dart';
 
@@ -25,11 +26,41 @@ class DriverPresenceCubit extends Cubit<DriverPresenceState> {
 
   final DriverSocketService _socketService;
   final LocationTicker _locationTicker;
+  final DriverPresenceStore _store;
   Timer? _connectWatchdog;
   int _connectAttempts = 0;
 
-  DriverPresenceCubit(this._socketService, this._locationTicker)
+  /// The socket was connected at least once in this online session. After
+  /// that a drop is never given up on: the driver keeps trying to come back
+  /// (visibly "Connecting…") until he goes offline.
+  bool _wasConnected = false;
+
+  DriverPresenceCubit(this._socketService, this._locationTicker, this._store)
       : super(DriverPresenceState.initial());
+
+  /// App start / resume: if the driver is meant to be online, connect now
+  /// (first start) or reconnect (the socket died while the app was away).
+  /// Never shows "online" without a live socket.
+  Future<void> resumeIfWasOnline() async {
+    if (isClosed) return;
+    switch (state.status) {
+      case DriverPresenceStatus.offline:
+      case DriverPresenceStatus.error:
+        if (await _store.wantsOnline()) await goOnline();
+      case DriverPresenceStatus.online:
+        if (!_socketService.isConnected) _reconnect();
+      case DriverPresenceStatus.connecting:
+        break;
+    }
+  }
+
+  void _reconnect() {
+    final token = ApiClient.authToken;
+    if (token == null || isClosed) return;
+    emit(state.copyWith(status: DriverPresenceStatus.connecting, clearError: true));
+    _connectAttempts = 0;
+    _connectSocket(token);
+  }
 
   Future<void> goOnline() async {
     if (state.status == DriverPresenceStatus.online ||
@@ -40,6 +71,7 @@ class DriverPresenceCubit extends Cubit<DriverPresenceState> {
     if (token == null) return;
 
     emit(state.copyWith(status: DriverPresenceStatus.connecting, clearError: true));
+    unawaited(_store.setWantsOnline(true));
 
     try {
       await _locationTicker.start(
@@ -95,6 +127,7 @@ class DriverPresenceCubit extends Cubit<DriverPresenceState> {
       onConnect: () {
         _connectWatchdog?.cancel();
         _connectAttempts = 0;
+        _wasConnected = true;
         // The server lists the driver as available once it has a location.
         _locationTicker.resend();
         if (!isClosed) {
@@ -109,6 +142,13 @@ class DriverPresenceCubit extends Cubit<DriverPresenceState> {
         _armConnectWatchdog(token);
       },
       onConnectError: (_) {
+        if (_wasConnected) {
+          // socket.io keeps retrying; show it, and make sure a fresh socket
+          // (with the current token) follows if it doesn't come back.
+          if (!isClosed) emit(state.copyWith(status: DriverPresenceStatus.connecting));
+          _armConnectWatchdog(token);
+          return;
+        }
         _connectWatchdog?.cancel();
         if (!isClosed) {
           emit(state.copyWith(
@@ -124,7 +164,7 @@ class DriverPresenceCubit extends Cubit<DriverPresenceState> {
     _connectWatchdog?.cancel();
     _connectWatchdog = Timer(_connectTimeout, () async {
       if (isClosed || state.status != DriverPresenceStatus.connecting) return;
-      if (_connectAttempts >= _maxConnectAttempts) {
+      if (_connectAttempts >= _maxConnectAttempts && !_wasConnected) {
         await _tearDown();
         if (!isClosed) {
           emit(state.copyWith(
@@ -146,6 +186,8 @@ class DriverPresenceCubit extends Cubit<DriverPresenceState> {
   }
 
   Future<void> goOffline() async {
+    _wasConnected = false;
+    unawaited(_store.setWantsOnline(false));
     await _tearDown();
     if (!isClosed) emit(DriverPresenceState.initial());
   }

@@ -17,7 +17,7 @@ class ActiveRideCardWidget extends StatelessWidget {
   /// to the raw value rather than an empty string.
   String _statusLabel(AppLocalizations l10n) => switch (ride.status) {
     'requested' => l10n.rideAwaitingDriver,
-    'accepted' => l10n.rideAccepted,
+    'accepted' => l10n.rideAwaitingArrival,
     'arrived' => l10n.rideDriverArrived,
     'in_progress' => l10n.rideInProgress,
     'completed' => l10n.rideCompleted,

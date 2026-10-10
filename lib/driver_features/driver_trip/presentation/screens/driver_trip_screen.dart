@@ -33,7 +33,8 @@ class DriverTripScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<DriverTripCubit>(
-      create: (_) => sl<DriverTripCubit>(param1: order, param2: resume)..resumeIfNeeded(),
+      create: (_) => sl<DriverTripCubit>(param1: order, param2: resume)..resumeIfNeeded()
+        ..trackToPickup(),
       child: const _DriverTripView(),
     );
   }
@@ -115,6 +116,9 @@ class _DriverTripView extends StatelessWidget {
                   DriverPickupMapWidget(
                     pickupLat: state.order.pickupLat,
                     pickupLng: state.order.pickupLng,
+                    driverLat: state.carLat,
+                    driverLng: state.carLng,
+                    route: state.pickupRoute,
                   ),
                   _BottomPanel(state: state),
                 ],
@@ -200,6 +204,7 @@ class _InProgressView extends StatelessWidget {
                     status: state.status,
                     isUpdating: state.isUpdating,
                     isCancelling: state.isCancelling,
+                    isFinishQueued: state.isFinishQueued,
                     isPaused: state.isPaused,
                   ),
                 ],

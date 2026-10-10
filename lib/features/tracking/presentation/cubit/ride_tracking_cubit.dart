@@ -17,6 +17,8 @@ import '../../data/datasources/customer_ride_socket_service.dart';
 import '../../data/models/ride_driver_model.dart';
 import '../../data/models/ride_location_model.dart';
 import '../../data/models/ride_vehicle_model.dart';
+import '../../../../core/services/google_routes_service.dart';
+import '../../../../core/services/route_service.dart';
 import '../../data/models/tracked_ride_model.dart';
 import 'ride_tracking_state.dart';
 
@@ -46,6 +48,8 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
   final CustomerRideSocketService _socketService;
   final TripRouteTracker _routeTracker;
   final AccountBlockCubit _accountBlock;
+  final GoogleRoutesService? _plannedRoutes;
+  final RouteService? _fallbackRoutes;
   Timer? _cancelAnswerTimer;
   RideRouteLeg _trackedLeg = RideRouteLeg.none;
 
@@ -56,13 +60,54 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
     required RideModel initialRide,
     required PickedLocationModel pickup,
     required PickedLocationModel dropoff,
-  }) : super(RideTrackingState.initial(
+    GoogleRoutesService? plannedRoutes,
+    RouteService? fallbackRoutes,
+  }) : _plannedRoutes = plannedRoutes,
+       _fallbackRoutes = fallbackRoutes,
+       super(RideTrackingState.initial(
           ride: TrackedRideModel.fromRideModel(initialRide),
           pickup: pickup,
           dropoff: dropoff,
         ));
 
+  /// Loads the road from pickup to dropoff once (Google Routes), so the map
+  /// shows the real way instead of a straight line from the first moment.
+  Future<void> _loadPlannedRoute() async {
+    final service = _plannedRoutes;
+    if (service == null) return;
+    final from = state.pickup, to = state.dropoff;
+    try {
+      final route = await service.computeRoute(
+        fromLat: from.latitude,
+        fromLng: from.longitude,
+        toLat: to.latitude,
+        toLng: to.longitude,
+      );
+      if (!isClosed && route.points.length >= 2) {
+        emit(state.copyWith(plannedRoute: route.points));
+        return;
+      }
+    } catch (e) {
+      debugPrint('RideTrackingCubit: Google route failed: $e');
+    }
+    // Google gave no road: OSRM, so the map never shows only a straight line.
+    final fallback = _fallbackRoutes;
+    if (fallback == null) return;
+    try {
+      final route = await fallback.getRoute(
+        fromLat: from.latitude,
+        fromLng: from.longitude,
+        toLat: to.latitude,
+        toLng: to.longitude,
+      );
+      if (!isClosed && route.length >= 2) emit(state.copyWith(plannedRoute: route));
+    } catch (e) {
+      debugPrint('RideTrackingCubit: fallback route failed: $e');
+    }
+  }
+
   void connect() {
+    unawaited(_loadPlannedRoute());
     final token = ApiClient.authToken;
     if (token == null) {
       emit(state.copyWith(
@@ -116,8 +161,14 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
     try {
       final rideJson = data['ride'] as Map?;
       if (rideJson == null) return;
-      final ride = TrackedRideModel.fromJson(Map<String, dynamic>.from(rideJson));
+      var ride = TrackedRideModel.fromJson(Map<String, dynamic>.from(rideJson));
       if (ride.id != state.ride.id) return;
+      // A snapshot that names the driver means the order was accepted, even
+      // when its `status` still says `requested` (or the status event was
+      // missed): never show "waiting for acceptance" beside a driver.
+      if (data['driver'] is Map && ride.status == 'requested') {
+        ride = ride.copyWithStatus(statusId: 2, status: 'accepted');
+      }
 
       final driverJson = data['driver'] as Map?;
       final vehicleJson = data['vehicle'] as Map?;
@@ -194,6 +245,7 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
         emit(state.copyWith(
           ride: updatedRide,
           finalPrice: finalPrice,
+          canRate: data['can_rate'] == true,
           fare: RideFareBreakdownModel.fromParent(data, fallbackFinalPrice: finalPrice),
         ));
         unawaited(_updateRoute());

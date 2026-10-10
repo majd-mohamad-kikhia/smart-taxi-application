@@ -23,6 +23,10 @@ class DriverTripState extends Equatable {
   final bool isCancelling;
   final bool isCancelled;
 
+  /// The finish call did not get through (no connection); the app keeps
+  /// sending it until it does, or the driver taps Finish again.
+  final bool isFinishQueued;
+
   /// Who cancelled, when the server said so (null for a cancel this device
   /// made itself).
   final RideCancelledBy? cancelledBy;
@@ -34,6 +38,10 @@ class DriverTripState extends Equatable {
 
   /// Planned road route, pickup to dropoff — fixed for the whole trip.
   final List<RoutePointModel> routePoints;
+
+  /// The road from the driver to the pickup (Google Routes), shown before the
+  /// trip starts; empty once it has.
+  final List<RoutePointModel> pickupRoute;
 
   /// The path the car has actually driven since the ride started.
   final List<RoutePointModel> drivenPath;
@@ -73,12 +81,14 @@ class DriverTripState extends Equatable {
     required this.isUpdating,
     required this.isCancelling,
     required this.isCancelled,
+    this.isFinishQueued = false,
     this.cancelledBy,
     this.errorMessage,
     this.carLat,
     this.carLng,
     this.routePoints = const [],
     this.drivenPath = const [],
+    this.pickupRoute = const [],
     this.waiting,
     this.pause,
     this.fare,
@@ -132,12 +142,14 @@ class DriverTripState extends Equatable {
     bool? isUpdating,
     bool? isCancelling,
     bool? isCancelled,
+    bool? isFinishQueued,
     RideCancelledBy? cancelledBy,
     String? errorMessage,
     double? carLat,
     double? carLng,
     List<RoutePointModel>? routePoints,
     List<RoutePointModel>? drivenPath,
+    List<RoutePointModel>? pickupRoute,
     RideWaitingModel? waiting,
     RidePauseModel? pause,
     DriverTripFareModel? fare,
@@ -156,12 +168,14 @@ class DriverTripState extends Equatable {
       isUpdating: isUpdating ?? this.isUpdating,
       isCancelling: isCancelling ?? this.isCancelling,
       isCancelled: isCancelled ?? this.isCancelled,
+      isFinishQueued: isFinishQueued ?? this.isFinishQueued,
       cancelledBy: cancelledBy ?? this.cancelledBy,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       carLat: carLat ?? this.carLat,
       carLng: carLng ?? this.carLng,
       routePoints: routePoints ?? this.routePoints,
       drivenPath: drivenPath ?? this.drivenPath,
+      pickupRoute: pickupRoute ?? this.pickupRoute,
       waiting: waiting ?? this.waiting,
       pause: pause ?? this.pause,
       fare: fare ?? this.fare,
@@ -182,12 +196,14 @@ class DriverTripState extends Equatable {
     isUpdating,
     isCancelling,
     isCancelled,
+    isFinishQueued,
     cancelledBy,
     errorMessage,
     carLat,
     carLng,
     routePoints,
     drivenPath,
+    pickupRoute,
     waiting,
     pause,
     fare,

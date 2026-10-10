@@ -19,6 +19,10 @@ class OrderAcceptResult extends Equatable {
   /// accepted, the offer is still open, and the driver has to top up first.
   final bool walletTooLow;
 
+  /// The refusal is "This offer has expired" (409): the driver's turn on
+  /// this order is over. Not an error to show — the card just goes.
+  final bool offerExpired;
+
   /// The server's time to the pickup for the position sent with the accept;
   /// null when none was sent or the server couldn't work it out.
   final PickupEtaModel? eta;
@@ -27,6 +31,7 @@ class OrderAcceptResult extends Equatable {
     required this.ok,
     this.message,
     this.walletTooLow = false,
+    this.offerExpired = false,
     this.eta,
   });
 
@@ -50,11 +55,24 @@ class OrderAcceptResult extends Equatable {
     return OrderAcceptResult(
       ok: false,
       walletTooLow: walletTooLow,
+      offerExpired: !walletTooLow && _isExpired(ack, error),
       message: _text(error) ??
           _text(ack['message']) ??
           (error is Map ? _text(error['message']) : null) ??
           _text(walletReason),
     );
+  }
+
+  /// A 409 (`status` / `statusCode` / `code`, at the top or inside `error`),
+  /// or a refusal whose text says the offer expired. Best effort: the ack's
+  /// exact shape for this refusal is not documented.
+  static bool _isExpired(Map ack, Object? error) {
+    bool is409(Object? holder) =>
+        holder is Map &&
+        [holder['status'], holder['statusCode'], holder['code']].any((v) => v == 409);
+    if (is409(ack) || is409(error)) return true;
+    final text = _text(error) ?? _text(ack['message']) ?? (error is Map ? _text(error['message']) : null);
+    return text != null && text.toLowerCase().contains('expired');
   }
 
   /// `eta` sits in the accepted ride (`ride.eta`, or `data.eta`); read
@@ -72,5 +90,5 @@ class OrderAcceptResult extends Equatable {
       value is String && value.trim().isNotEmpty ? value : null;
 
   @override
-  List<Object?> get props => [ok, message, walletTooLow, eta];
+  List<Object?> get props => [ok, message, walletTooLow, offerExpired, eta];
 }

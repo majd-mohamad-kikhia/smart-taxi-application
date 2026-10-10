@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -7,6 +8,7 @@ import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/meta_item_widget.dart';
 import '../../../../core/widgets/passengers_fee_meta_widget.dart';
 import '../../../../core/widgets/ride_note_widget.dart';
+import 'order_offer_countdown_widget.dart';
 
 /// A single ride offer on the driver home screen. [isAccepting] shows a
 /// spinner in place of the button's label; [enabled] disables the button
@@ -39,6 +41,11 @@ class DriverOrderCardWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (order.expiresAt != null)
+            OrderOfferCountdownWidget(
+              expiresAt: order.expiresAt!,
+              totalSeconds: order.offerSeconds ?? AppConstants.orderOfferSeconds,
+            ),
           Row(
             children: [
               _PricePill(price: order.estimatedPrice, isEstimate: order.priceIsEstimate),

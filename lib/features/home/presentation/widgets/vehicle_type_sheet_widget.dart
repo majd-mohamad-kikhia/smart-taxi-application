@@ -50,12 +50,9 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
     super.dispose();
   }
 
-  double? _priceOf(VehicleTypeQuoteModel type) =>
-      type.displayPrice(widget.quote.distanceKm);
-
   /// A type can be requested only when it is available and has a price.
   bool _isChoosable(VehicleTypeQuoteModel type) =>
-      type.available && _priceOf(type) != null;
+      type.available && type.price != null;
 
   VehicleTypeQuoteModel? get _selected {
     for (final type in widget.quote.vehicleTypes) {
@@ -91,7 +88,7 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
     final types = quote.vehicleTypes;
     final hasChoice = types.any(_isChoosable);
     final selected = _selected;
-    final selectedPrice = selected == null ? null : _priceOf(selected);
+    final selectedPrice = selected?.price;
 
     return SafeArea(
       child: Padding(
@@ -140,7 +137,8 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
                         for (final type in types) ...[
                           VehicleTypeTileWidget(
                             vehicleType: type,
-                            price: _priceOf(type),
+                            locationFeeName: quote.locationFeeName,
+                            price: type.price,
                             selected: type.vehicleTypeId == _selectedId,
                             onTap: _isChoosable(type)
                                 ? () => setState(
@@ -280,10 +278,9 @@ class _FeeRules extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final waiting = quote.waitingFee;
-    final pause = quote.pauseFee;
+    // Pauses during the trip are not shown to the customer.
     final hasWaiting = waiting?.isCharged ?? false;
-    final hasPause = pause?.isCharged ?? false;
-    if (!hasWaiting && !hasPause) return const SizedBox.shrink();
+    if (!hasWaiting) return const SizedBox.shrink();
 
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
@@ -306,18 +303,6 @@ class _FeeRules extends StatelessWidget {
                 '${l10n.waitingAtPickup}: ${l10n.waitingRules(
                   '${waiting!.freeMinutes}',
                   formatSyp(l10n, waiting.pricePerMinute),
-                )}',
-                style: textTheme.bodyMedium,
-              ),
-            ),
-          if (hasPause)
-            Padding(
-              padding: const EdgeInsets.only(bottom: AppConstants.paddingS),
-              child: Text(
-                '${l10n.pauseStopLabel}: ${l10n.pauseRules(
-                  formatSyp(l10n, pause!.baseFee),
-                  '${pause.includedMinutes}',
-                  formatSyp(l10n, pause.pricePerMinute),
                 )}',
                 style: textTheme.bodyMedium,
               ),

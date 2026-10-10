@@ -48,7 +48,11 @@
 			<string>ar</string>
 			<string>en</string>
 		</array>
-		<key>NSLocationWhenInUseUsageDescription</key>
+		<key>NSCameraUsageDescription</key>
+	<string>Smart Taxi uses the camera so you can take your photo and your car's photo when you create a captain account. | تستخدم Smart Taxi الكاميرا لالتقاط صورتك وصورة سيارتك عند إنشاء حساب كابتن.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Smart Taxi reads the photos you choose for your captain account (your photo and your car's). | تقرأ Smart Taxi الصور التي تختارها لحساب الكابتن (صورتك وصورة سيارتك).</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Smart Taxi uses your location to set your pickup point on the map and to track your ride. Drivers are also shown to nearby riders. | نستخدم موقعك لتحديد نقطة الانطلاق على الخريطة وتتبع رحلتك، ولإظهار السائق للركاب القريبين.</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 		<string>While you are online as a driver, Smart Taxi uses your location, including in the background, so riders and dispatch can see you and your trip route is recorded. | نحتاج موقعك أثناء عملك كسائق، حتى في الخلفية، ليظهر للركاب والإدارة ولتسجيل مسار الرحلة.</string>

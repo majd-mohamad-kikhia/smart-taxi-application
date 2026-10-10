@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
@@ -5,12 +6,30 @@ import '../../../../core/network/token_check.dart';
 import '../datasources/driver_local_data_source.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../datasources/driver_remote_data_source.dart';
+import '../models/driver_signup_request_model.dart';
 import '../models/driver_user_model.dart';
 
 class DriverAuthException implements Exception {
   final String message;
 
   const DriverAuthException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+/// A refused signup: the message for the whole form, and what the server
+/// said about single fields (`phone_number`, `plate_number`, `photo`, …).
+class DriverSignupException implements Exception {
+  final String message;
+  final int? statusCode;
+  final Map<String, String> rawErrors;
+
+  const DriverSignupException(
+    this.message, {
+    this.statusCode,
+    this.rawErrors = const {},
+  });
 
   @override
   String toString() => message;
@@ -35,6 +54,42 @@ class DriverRepository {
       return driver;
     } on DioException catch (e) {
       throw _mapDioException(e);
+    }
+  }
+
+  /// The car types a new driver can choose from — always asked of the
+  /// server, never kept.
+  Future<List<SignupVehicleType>> signupVehicleTypes() async {
+    try {
+      return await _remoteDataSource.getSignupVehicleTypes();
+    } on DioException catch (e) {
+      final error = e.error;
+      throw DriverSignupException(
+        error is ApiException ? error.message : AppStrings.current.errServerUnreachable,
+        statusCode: error is ApiException ? error.statusCode : null,
+      );
+    } on TypeError {
+      throw DriverSignupException(AppStrings.current.errUnexpected);
+    }
+  }
+
+  /// Creates the driver's own account and car (pending approval). Nothing is
+  /// saved on the device: the driver signs in once a manager approves.
+  Future<void> signup(DriverSignupRequestModel request) async {
+    try {
+      await _remoteDataSource.signup(request);
+    } on DioException catch (e) {
+      final error = e.error;
+      if (error is ApiException) {
+        throw DriverSignupException(
+          error.message,
+          statusCode: error.statusCode,
+          rawErrors: error.rawErrors ?? const {},
+        );
+      }
+      throw DriverSignupException(AppStrings.current.errServerUnreachable);
+    } on FileSystemException {
+      throw DriverSignupException(AppStrings.current.driverSignupPhotoUnreadable);
     }
   }
 

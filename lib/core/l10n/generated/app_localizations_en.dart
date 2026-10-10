@@ -545,6 +545,105 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverSignInTitle => 'Captain sign in';
 
   @override
+  String get driverSignupTitle => 'Create a captain account';
+
+  @override
+  String get driverSignupSubtitle =>
+      'Enter your details and your car\'s. A manager reviews your account before you can sign in.';
+
+  @override
+  String get driverSignupCarSection => 'Your car';
+
+  @override
+  String get driverSignupBrandLabel => 'Car brand';
+
+  @override
+  String get driverSignupBrandHint => 'e.g. Kia';
+
+  @override
+  String get driverSignupModelLabel => 'Car model';
+
+  @override
+  String get driverSignupModelHint => 'e.g. Cerato';
+
+  @override
+  String get driverSignupColorLabel => 'Car color';
+
+  @override
+  String get driverSignupColorHint => 'e.g. White';
+
+  @override
+  String get driverSignupPlateLabel => 'Plate number';
+
+  @override
+  String get driverSignupPlateHint => 'e.g. 123456';
+
+  @override
+  String get driverSignupAddressLabel => 'Address (optional)';
+
+  @override
+  String get driverSignupVehicleType => 'Car type';
+
+  @override
+  String get driverSignupOwnership => 'Who owns the car?';
+
+  @override
+  String get driverSignupOwnershipOwner => 'I own it';
+
+  @override
+  String get driverSignupOwnershipCompany => 'A company owns it';
+
+  @override
+  String get driverSignupPhotoPerson => 'Your photo';
+
+  @override
+  String get driverSignupPhotoCar => 'Car photo';
+
+  @override
+  String get driverSignupPhotoAdd => 'Tap to add a photo';
+
+  @override
+  String get driverSignupPhotoCamera => 'Take a photo';
+
+  @override
+  String get driverSignupPhotoGallery => 'Choose from gallery';
+
+  @override
+  String get driverSignupPhotoRequired => 'Please add this photo';
+
+  @override
+  String get driverSignupChooseOne => 'Please choose one';
+
+  @override
+  String get driverSignupPhotoTooLarge =>
+      'This photo is larger than 5 MB, please choose another';
+
+  @override
+  String get driverSignupPhotoUnreadable =>
+      'Couldn\'t read the photo, please choose it again';
+
+  @override
+  String get driverSignupPlateRegistered =>
+      'This plate number is already registered';
+
+  @override
+  String get driverSignupFieldRequired => 'This field is required';
+
+  @override
+  String get driverPendingTitle => 'Your account is waiting for approval';
+
+  @override
+  String get driverPendingMessage =>
+      'Thank you! We received your details. A manager will review them, and you can sign in as soon as your account is approved.';
+
+  @override
+  String get driverPendingAction => 'Back to sign in';
+
+  @override
+  String get errAccountRejected =>
+      'Your account has been rejected, please contact support';
+
+  @override
   String get signUp => 'Create account';
 
   @override
@@ -596,6 +695,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get driverAcceptTrip => 'Accept trip';
+
+  @override
+  String get rateDriverTitle => 'Rate your driver';
+
+  @override
+  String get myRatingsTitle => 'My ratings';
+
+  @override
+  String ratingsCount(int count) {
+    return '$count ratings';
+  }
+
+  @override
+  String get noRatingsYet => 'No ratings yet. Your first one will show here.';
+
+  @override
+  String get profileRating => 'Rating';
+
+  @override
+  String newRatingToast(int stars) {
+    return 'New rating ⭐ $stars';
+  }
+
+  @override
+  String ratingFromCustomer(String name) {
+    return 'From $name';
+  }
+
+  @override
+  String ratingTripNumber(int id) {
+    return 'Trip #$id';
+  }
+
+  @override
+  String get rateDriverMessage => 'How was your trip?';
+
+  @override
+  String get rateCommentLabel => 'Comment (optional)';
+
+  @override
+  String get rateCommentHint => 'Tell us more about your trip';
+
+  @override
+  String get rateSend => 'Send rating';
+
+  @override
+  String get rateSkip => 'Skip';
+
+  @override
+  String get rateThanks => 'Thank you for your rating';
+
+  @override
+  String get rateYourDriver => 'Rate your driver';
+
+  @override
+  String get yourRating => 'Your rating';
+
+  @override
+  String starsOutOfFive(int count) {
+    return '$count out of 5 stars';
+  }
+
+  @override
+  String get tripFinishQueued =>
+      'No connection. The trip will finish automatically as soon as you are back online.';
+
+  @override
+  String orderOfferSecondsLeft(int seconds) {
+    return '$seconds s left';
+  }
 
   @override
   String get driverAcceptTripFailed => 'Couldn\'t accept the trip';
@@ -998,6 +1167,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rideAwaitingDriver => 'Waiting for a driver to accept';
 
   @override
+  String get rideAwaitingArrival => 'Waiting for the driver to arrive';
+
+  @override
   String get rideAccepted => 'Your request was accepted';
 
   @override
@@ -1352,6 +1524,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAccountDone => 'Your account has been deleted';
 
   @override
+  String get accountDeletionNoticeTitle => 'Account deletion in progress';
+
+  @override
+  String get accountDeletionNoticeMessage =>
+      'Your account will be completely deleted within about 7 days. You will now be taken back to the start screen.';
+
+  @override
   String get errIncorrectPassword => 'Incorrect password';
 
   @override
@@ -1365,7 +1544,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverDeleteReasonHint => 'Why are you leaving?';
 
   @override
-  String get driverDeleteSubmit => 'Send request';
+  String get driverDeleteSubmit => 'Delete account';
 
   @override
   String get driverDeletionPendingTitle => 'Deletion request under review';
@@ -1487,6 +1666,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noContactNumbers => 'No contact numbers yet.';
+
+  @override
+  String get contactCallCenter => 'Call our call center';
+
+  @override
+  String locationFeeIncluded(String fee) {
+    return 'Includes a location fee of $fee';
+  }
+
+  @override
+  String locationFeeIncludedFor(String fee, String area) {
+    return 'Includes a location fee of $fee ($area)';
+  }
 
   @override
   String get whatsappNotAvailable => 'WhatsApp isn\'t available on this device';

@@ -20,19 +20,29 @@ class RideQuoteModel extends Equatable {
   /// Current rules for stopping during the trip; null when not sent.
   final PauseFeeRulesModel? pauseFee;
 
+  /// The listed area that carries a location fee (`location_fee.name`), to
+  /// tell the customer which one; null when the trip touches none. The fee
+  /// itself is per car (see `VehicleTypeQuoteModel.locationFee`) — the
+  /// top-level `fee` is only for old apps and is not read.
+  final String? locationFeeName;
+
   const RideQuoteModel({
     required this.distanceKm,
     required this.estimatedDurationMin,
     required this.vehicleTypes,
     this.waitingFee,
     this.pauseFee,
+    this.locationFeeName,
   });
 
   factory RideQuoteModel.fromJson(Map<String, dynamic> json) {
     final types = json['vehicle_types'] as List? ?? [];
     final rules = json['waiting_fee'];
     final pauseRules = json['pause_fee'];
+    final area = json['location_fee'];
+    final areaName = area is Map ? area['name'] : null;
     return RideQuoteModel(
+      locationFeeName: areaName is String && areaName.trim().isNotEmpty ? areaName.trim() : null,
       pauseFee: pauseRules is Map
           ? PauseFeeRulesModel.fromJson(Map<String, dynamic>.from(pauseRules))
           : null,
@@ -48,5 +58,5 @@ class RideQuoteModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [distanceKm, estimatedDurationMin, vehicleTypes, waitingFee, pauseFee];
+  List<Object?> get props => [distanceKm, estimatedDurationMin, vehicleTypes, waitingFee, pauseFee, locationFeeName];
 }

@@ -44,6 +44,7 @@ class ApiEndpoints {
   String get customerRideChooseVehicle => '/api/customer/rides/choose-vehicle';
   String customerRideById(int id) => '/api/customer/rides/$id';
   String customerRideCancel(int id) => '/api/customer/rides/$id/cancel';
+  String customerRideRating(int id) => '/api/customer/rides/$id/rating';
 
   // ─── Customer Saved Addresses ──────────────────────────────
   String get customerSavedAddresses => '/api/customer/saved-addresses';
@@ -52,6 +53,7 @@ class ApiEndpoints {
 
   // ─── Driver Auth ───────────────────────────────────────────
   String get driverSignup => '/api/driver/auth/signup';
+  String get driverSignupVehicleTypes => '/api/driver/auth/vehicle-types';
   String get driverLogin => '/api/driver/auth/login';
   String get driverLogout => '/api/driver/auth/logout';
   String get driverLanguage => '/api/driver/language';
@@ -88,6 +90,9 @@ class ApiEndpoints {
   /// GET latest request · POST ask for deletion · DELETE cancel the pending one.
   String get driverAccountDeletionRequest =>
       '/api/driver/account/deletion-request';
+
+  // ─── Driver Ratings ────────────────────────────────────────
+  String get driverRatings => '/api/driver/ratings';
 
   // ─── Driver Profile ────────────────────────────────────────
   String get driverVehicle => '/api/driver/vehicle';

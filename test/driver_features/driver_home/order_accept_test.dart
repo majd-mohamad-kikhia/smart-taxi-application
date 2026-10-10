@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mshoar/core/services/current_location_service.dart';
 import 'package:mshoar/driver_features/driver_home/data/datasources/driver_socket_service.dart';
+import 'package:mshoar/driver_features/driver_home/data/datasources/new_order_alert.dart';
 import 'package:mshoar/driver_features/driver_home/data/models/order_accept_result_model.dart';
 import 'package:mshoar/driver_features/driver_home/presentation/cubit/driver_orders_cubit.dart';
 import 'package:mshoar/driver_features/driver_home/presentation/cubit/driver_orders_state.dart';
@@ -44,6 +45,14 @@ class _FakeLocation extends Fake implements CurrentLocationService {
 
   @override
   Future<Position?> quickPosition({Duration limit = const Duration(seconds: 2)}) async => position;
+}
+
+class _SilentAlert implements NewOrderAlert {
+  @override
+  Future<void> start() async {}
+
+  @override
+  Future<void> stop() async {}
 }
 
 class _FakePresence extends Fake implements DriverPresenceCubit {
@@ -141,7 +150,7 @@ void main() {
     setUp(() {
       socket = _FakeSocket();
       location = _FakeLocation();
-      cubit = DriverOrdersCubit(socket, location, _FakePresence());
+      cubit = DriverOrdersCubit(socket, location, _FakePresence(), _SilentAlert());
       socket.onOffer!(_offer(24));
     });
 

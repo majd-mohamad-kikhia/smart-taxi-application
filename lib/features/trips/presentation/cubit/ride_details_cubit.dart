@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/ride_rating/data/models/ride_rating_model.dart';
 import '../../data/models/ride_history_model.dart';
 import '../../data/repositories/trips_repository.dart';
 
@@ -46,6 +47,13 @@ class RideDetailsCubit extends Cubit<RideDetailsState> {
       if (isClosed) return;
       emit(RideDetailsState(isLoading: false, errorMessage: e.message));
     }
+  }
+
+  /// The customer just rated this ride: show the stars, hide the button.
+  void applyRating(RideRatingModel rating) {
+    final ride = state.ride;
+    if (isClosed || ride == null) return;
+    emit(RideDetailsState(ride: ride.withRating(rating), isLoading: false));
   }
 
   Future<void> cancelScheduled({String? reason}) async {

@@ -7,6 +7,8 @@ import '../../driver_features/driver_auth/data/datasources/driver_remote_data_so
 import '../../driver_features/driver_auth/data/repositories/driver_repository.dart';
 import '../../driver_features/driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import '../../driver_features/driver_home/data/datasources/driver_socket_service.dart';
+import '../../driver_features/driver_home/data/datasources/new_order_alert.dart';
+import '../../driver_features/driver_home/data/driver_presence_store.dart';
 import '../../driver_features/driver_home/data/location_ticker.dart';
 import '../../driver_features/driver_home/presentation/cubit/driver_orders_cubit.dart';
 import '../../driver_features/driver_home/presentation/cubit/driver_presence_cubit.dart';
@@ -23,6 +25,12 @@ import '../app_version/data/datasources/app_version_remote_datasource.dart';
 import '../app_version/data/repositories/app_version_repository.dart';
 import '../app_version/presentation/cubit/app_version_cubit.dart';
 import '../complaints/complaint_cubit.dart';
+import '../../driver_features/driver_ratings/data/datasources/driver_ratings_remote_data_source.dart';
+import '../../driver_features/driver_ratings/data/repositories/driver_ratings_repository.dart';
+import '../../driver_features/driver_ratings/presentation/cubit/driver_ratings_cubit.dart';
+import '../ride_rating/data/datasources/ride_rating_remote_data_source.dart';
+import '../ride_rating/data/repositories/ride_rating_repository.dart';
+import '../ride_rating/presentation/cubit/ride_rating_cubit.dart';
 import '../contact_us/data/datasources/contact_us_remote_datasource.dart';
 import '../contact_us/data/models/contact_number_model.dart';
 import '../contact_us/data/repositories/contact_us_repository.dart';
@@ -77,7 +85,10 @@ import '../localization/locale_local_data_source.dart';
 import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
 import '../network/api_error_handler.dart';
+import '../../features/home/data/datasources/google_places_data_source.dart';
 import '../services/current_location_service.dart';
+import '../services/photo_picker_service.dart';
+import '../../driver_features/driver_auth/presentation/cubit/driver_signup_cubit.dart';
 import '../services/google_api_credentials_loader.dart';
 import '../services/google_routes_service.dart';
 import '../services/planned_route_loader.dart';
@@ -179,6 +190,18 @@ void setupInjection() {
     );
   }
 
+  sl.registerLazySingleton<PhotoPickerService>(() => PhotoPickerService());
+  // ─── Core Ride Rating ───────────────────────────────────────
+  sl.registerLazySingleton<RideRatingRemoteDataSource>(
+    () => RideRatingRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+  );
+  sl.registerLazySingleton<RideRatingRepository>(
+    () => RideRatingRepository(sl<RideRatingRemoteDataSource>()),
+  );
+  sl.registerFactoryParam<RideRatingCubit, int, void>(
+    (rideId, _) => RideRatingCubit(sl<RideRatingRepository>(), rideId: rideId),
+  );
+
   // ─── Core Session ───────────────────────────────────────────
   sl.registerLazySingleton<SessionCubit>(() => SessionCubit());
 
@@ -248,7 +271,7 @@ void setupInjection() {
   // ─── Core Services ──────────────────────────────────────────
   sl.registerLazySingleton<RouteService>(() => RouteService());
   sl.registerFactory<PlannedRouteLoader>(
-    () => PlannedRouteLoader(sl<RouteService>()),
+    () => PlannedRouteLoader(sl<RouteService>(), google: sl<GoogleRoutesService>()),
   );
   // The customer's map: Google Routes (road line + distance + arrival
   // time). `.env` is loaded before injection is set up (see main.dart); its
@@ -361,6 +384,9 @@ void setupInjection() {
   );
   // Singleton (not a factory) so the signed-in driver survives navigation
   // from sign in into the driver app shell.
+  sl.registerFactory<DriverSignupCubit>(
+    () => DriverSignupCubit(sl<DriverRepository>(), sl<PhotoPickerService>()),
+  );
   sl.registerLazySingleton<DriverAuthCubit>(
     () => DriverAuthCubit(sl<DriverRepository>(), sl<SessionCubit>()),
   );
@@ -374,10 +400,16 @@ void setupInjection() {
   // Socket.IO connection instead of opening two.
   sl.registerLazySingleton<DriverSocketService>(() => DriverSocketService());
   sl.registerFactory<LocationTicker>(() => LocationTicker());
+  sl.registerLazySingleton<DriverPresenceStore>(() => DriverPresenceStore());
+  sl.registerLazySingleton<NewOrderAlert>(() => AudioNewOrderAlert());
   // Singleton so the live-location connection survives tab switches in
   // `DriverMainWrapperScreen`'s `IndexedStack`.
   sl.registerLazySingleton<DriverPresenceCubit>(
-    () => DriverPresenceCubit(sl<DriverSocketService>(), sl<LocationTicker>()),
+    () => DriverPresenceCubit(
+      sl<DriverSocketService>(),
+      sl<LocationTicker>(),
+      sl<DriverPresenceStore>(),
+    ),
   );
   // Singleton for the same reason — order cards must survive tab switches
   // and keep listening on the shared socket.
@@ -386,6 +418,7 @@ void setupInjection() {
       sl<DriverSocketService>(),
       sl<CurrentLocationService>(),
       sl<DriverPresenceCubit>(),
+      sl<NewOrderAlert>(),
     ),
   );
 
@@ -430,6 +463,8 @@ void setupInjection() {
       sl<DriverSocketService>().activeRide,
       order,
       resume: resume,
+      pickupRouteTracker: sl<TripRouteTracker>(),
+      fallbackRoutes: sl<RouteService>(),
     ),
   );
   sl.registerFactory<DriverActiveRideCubit>(
@@ -512,6 +547,17 @@ void setupInjection() {
     () => DriverAccountDeletionCubit(sl<DriverAccountDeletionRepository>()),
   );
 
+  // ─── Driver Ratings Feature ─────────────────────────────────
+  sl.registerLazySingleton<DriverRatingsRemoteDataSource>(
+    () => DriverRatingsRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+  );
+  sl.registerLazySingleton<DriverRatingsRepository>(
+    () => DriverRatingsRepository(sl<DriverRatingsRemoteDataSource>()),
+  );
+  sl.registerFactory<DriverRatingsCubit>(
+    () => DriverRatingsCubit(sl<DriverRatingsRepository>()),
+  );
+
   // ─── Driver Wallet Feature ──────────────────────────────────
   sl.registerLazySingleton<DriverWalletRemoteDataSource>(
     () => DriverWalletRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
@@ -554,7 +600,10 @@ void setupInjection() {
     () => PlacesRemoteDataSource(),
   );
   sl.registerLazySingleton<PlacesRepository>(
-    () => PlacesRepository(sl<PlacesRemoteDataSource>()),
+    () => PlacesRepository(
+      sl<PlacesRemoteDataSource>(),
+      GooglePlacesDataSource(credentials: sl<GoogleApiCredentialsLoader>().load),
+    ),
   );
   sl.registerFactory<HomeCubit>(
     () => HomeCubit(
@@ -601,6 +650,8 @@ void setupInjection() {
       sl<CustomerRideSocketService>(),
       sl<TripRouteTracker>(),
       sl<AccountBlockCubit>(),
+      plannedRoutes: sl<GoogleRoutesService>(),
+      fallbackRoutes: sl<RouteService>(),
       initialRide: args.initialRide,
       pickup: args.pickup,
       dropoff: args.dropoff,

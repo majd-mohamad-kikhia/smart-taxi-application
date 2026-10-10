@@ -1070,6 +1070,192 @@ abstract class AppLocalizations {
   /// **'Captain sign in'**
   String get driverSignInTitle;
 
+  /// No description provided for @driverSignupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a captain account'**
+  String get driverSignupTitle;
+
+  /// No description provided for @driverSignupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your details and your car\'s. A manager reviews your account before you can sign in.'**
+  String get driverSignupSubtitle;
+
+  /// No description provided for @driverSignupCarSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Your car'**
+  String get driverSignupCarSection;
+
+  /// No description provided for @driverSignupBrandLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Car brand'**
+  String get driverSignupBrandLabel;
+
+  /// No description provided for @driverSignupBrandHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Kia'**
+  String get driverSignupBrandHint;
+
+  /// No description provided for @driverSignupModelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Car model'**
+  String get driverSignupModelLabel;
+
+  /// No description provided for @driverSignupModelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Cerato'**
+  String get driverSignupModelHint;
+
+  /// No description provided for @driverSignupColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Car color'**
+  String get driverSignupColorLabel;
+
+  /// No description provided for @driverSignupColorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. White'**
+  String get driverSignupColorHint;
+
+  /// No description provided for @driverSignupPlateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate number'**
+  String get driverSignupPlateLabel;
+
+  /// No description provided for @driverSignupPlateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 123456'**
+  String get driverSignupPlateHint;
+
+  /// No description provided for @driverSignupAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address (optional)'**
+  String get driverSignupAddressLabel;
+
+  /// No description provided for @driverSignupVehicleType.
+  ///
+  /// In en, this message translates to:
+  /// **'Car type'**
+  String get driverSignupVehicleType;
+
+  /// No description provided for @driverSignupOwnership.
+  ///
+  /// In en, this message translates to:
+  /// **'Who owns the car?'**
+  String get driverSignupOwnership;
+
+  /// No description provided for @driverSignupOwnershipOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'I own it'**
+  String get driverSignupOwnershipOwner;
+
+  /// No description provided for @driverSignupOwnershipCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'A company owns it'**
+  String get driverSignupOwnershipCompany;
+
+  /// No description provided for @driverSignupPhotoPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photo'**
+  String get driverSignupPhotoPerson;
+
+  /// No description provided for @driverSignupPhotoCar.
+  ///
+  /// In en, this message translates to:
+  /// **'Car photo'**
+  String get driverSignupPhotoCar;
+
+  /// No description provided for @driverSignupPhotoAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to add a photo'**
+  String get driverSignupPhotoAdd;
+
+  /// No description provided for @driverSignupPhotoCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get driverSignupPhotoCamera;
+
+  /// No description provided for @driverSignupPhotoGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get driverSignupPhotoGallery;
+
+  /// No description provided for @driverSignupPhotoRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add this photo'**
+  String get driverSignupPhotoRequired;
+
+  /// No description provided for @driverSignupChooseOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose one'**
+  String get driverSignupChooseOne;
+
+  /// No description provided for @driverSignupPhotoTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo is larger than 5 MB, please choose another'**
+  String get driverSignupPhotoTooLarge;
+
+  /// No description provided for @driverSignupPhotoUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read the photo, please choose it again'**
+  String get driverSignupPhotoUnreadable;
+
+  /// No description provided for @driverSignupPlateRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'This plate number is already registered'**
+  String get driverSignupPlateRegistered;
+
+  /// No description provided for @driverSignupFieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get driverSignupFieldRequired;
+
+  /// No description provided for @driverPendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is waiting for approval'**
+  String get driverPendingTitle;
+
+  /// No description provided for @driverPendingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! We received your details. A manager will review them, and you can sign in as soon as your account is approved.'**
+  String get driverPendingMessage;
+
+  /// No description provided for @driverPendingAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get driverPendingAction;
+
+  /// No description provided for @errAccountRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been rejected, please contact support'**
+  String get errAccountRejected;
+
   /// No description provided for @signUp.
   ///
   /// In en, this message translates to:
@@ -1171,6 +1357,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Accept trip'**
   String get driverAcceptTrip;
+
+  /// No description provided for @rateDriverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate your driver'**
+  String get rateDriverTitle;
+
+  /// No description provided for @myRatingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My ratings'**
+  String get myRatingsTitle;
+
+  /// No description provided for @ratingsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ratings'**
+  String ratingsCount(int count);
+
+  /// No description provided for @noRatingsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No ratings yet. Your first one will show here.'**
+  String get noRatingsYet;
+
+  /// No description provided for @profileRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get profileRating;
+
+  /// No description provided for @newRatingToast.
+  ///
+  /// In en, this message translates to:
+  /// **'New rating ⭐ {stars}'**
+  String newRatingToast(int stars);
+
+  /// No description provided for @ratingFromCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String ratingFromCustomer(String name);
+
+  /// No description provided for @ratingTripNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip #{id}'**
+  String ratingTripNumber(int id);
+
+  /// No description provided for @rateDriverMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'How was your trip?'**
+  String get rateDriverMessage;
+
+  /// No description provided for @rateCommentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment (optional)'**
+  String get rateCommentLabel;
+
+  /// No description provided for @rateCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us more about your trip'**
+  String get rateCommentHint;
+
+  /// No description provided for @rateSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send rating'**
+  String get rateSend;
+
+  /// No description provided for @rateSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get rateSkip;
+
+  /// No description provided for @rateThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your rating'**
+  String get rateThanks;
+
+  /// No description provided for @rateYourDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate your driver'**
+  String get rateYourDriver;
+
+  /// No description provided for @yourRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating'**
+  String get yourRating;
+
+  /// No description provided for @starsOutOfFive.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} out of 5 stars'**
+  String starsOutOfFive(int count);
+
+  /// No description provided for @tripFinishQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. The trip will finish automatically as soon as you are back online.'**
+  String get tripFinishQueued;
+
+  /// No description provided for @orderOfferSecondsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s left'**
+  String orderOfferSecondsLeft(int seconds);
 
   /// No description provided for @driverAcceptTripFailed.
   ///
@@ -1911,6 +2211,12 @@ abstract class AppLocalizations {
   /// **'Waiting for a driver to accept'**
   String get rideAwaitingDriver;
 
+  /// No description provided for @rideAwaitingArrival.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the driver to arrive'**
+  String get rideAwaitingArrival;
+
   /// No description provided for @rideAccepted.
   ///
   /// In en, this message translates to:
@@ -2511,6 +2817,18 @@ abstract class AppLocalizations {
   /// **'Your account has been deleted'**
   String get deleteAccountDone;
 
+  /// No description provided for @accountDeletionNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion in progress'**
+  String get accountDeletionNoticeTitle;
+
+  /// No description provided for @accountDeletionNoticeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account will be completely deleted within about 7 days. You will now be taken back to the start screen.'**
+  String get accountDeletionNoticeMessage;
+
   /// No description provided for @errIncorrectPassword.
   ///
   /// In en, this message translates to:
@@ -2538,7 +2856,7 @@ abstract class AppLocalizations {
   /// No description provided for @driverDeleteSubmit.
   ///
   /// In en, this message translates to:
-  /// **'Send request'**
+  /// **'Delete account'**
   String get driverDeleteSubmit;
 
   /// No description provided for @driverDeletionPendingTitle.
@@ -2750,6 +3068,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No contact numbers yet.'**
   String get noContactNumbers;
+
+  /// No description provided for @contactCallCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Call our call center'**
+  String get contactCallCenter;
+
+  /// No description provided for @locationFeeIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes a location fee of {fee}'**
+  String locationFeeIncluded(String fee);
+
+  /// No description provided for @locationFeeIncludedFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes a location fee of {fee} ({area})'**
+  String locationFeeIncludedFor(String fee, String area);
 
   /// No description provided for @whatsappNotAvailable.
   ///

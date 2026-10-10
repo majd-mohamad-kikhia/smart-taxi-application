@@ -7,6 +7,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/account_deletion_notice_dialog_widget.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
@@ -144,20 +145,19 @@ class _SettingsView extends StatelessWidget {
   }
 
   void _openDeleteAccountDialog(BuildContext context) {
-    // The messenger and navigator outlive this screen, which is removed
-    // from the stack as soon as the account is deleted.
-    final messenger = ScaffoldMessenger.of(context);
-    final navigator = Navigator.of(context);
-    final message = context.l10n.deleteAccountDone;
     showDeleteAccountDialog(
       context,
       createCubit: () => sl<DeleteAccountCubit>(),
       onDeleted: () {
-        navigator.pushNamedAndRemoveUntil(
-          AppRouter.roleSelection,
-          (route) => false,
+        if (!context.mounted) return;
+        // This device is already signed out; say how long the removal takes,
+        // then leave for the first screen (the notice has no other exit).
+        showAccountDeletionNoticeDialog(
+          context,
+          onContinue: () => Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil(AppRouter.roleSelection, (route) => false),
         );
-        showAppSnackBarOn(messenger, message, type: AppSnackBarType.success);
       },
     );
   }

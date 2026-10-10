@@ -111,6 +111,7 @@ dart run flutter_native_splash:create    # regenerate the native splash screen
 | `socket_io_client` | Realtime: ride offers, live driver location, ride status, account blocks. | [lib/core/network/socket_client.dart](lib/core/network/socket_client.dart) plus 3 socket services |
 | `google_maps_flutter` | All maps (pickup, live trip, route tab, ride history map, location picker). | `*_map_widget.dart`, `location_picker_screen.dart` |
 | `geolocator` | GPS position, permission, "is GPS on" checks, distances. | Location services, the driver GPS guard, and the driver location ticker |
+| `audioplayers` | Plays the looping new-order alert (`assets/sounds/new_order.wav`) for 10 s in the driver app. | `AudioNewOrderAlert`, started by `DriverOrdersCubit` |
 | `shared_preferences` | Local persistence (sessions, language, offline route data). | `*_local_data_source.dart`; see [Local storage](#10-local-storage) |
 | `firebase_core` + `firebase_messaging` | FCM push notifications (pinned to exact versions `4.14.0` / `16.6.0`). | [lib/core/services/push_notification_service.dart](lib/core/services/push_notification_service.dart) |
 | `flutter_local_notifications` | Shows FCM pushes as system notifications while the app is in the foreground. Android channel id: `mshoar_notifications`. | [lib/core/services/local_notification_service.dart](lib/core/services/local_notification_service.dart) |
@@ -344,6 +345,8 @@ API envelope (from swagger): success → `{ "success": true, "data": ... }`, err
 | **Driver auth** | `POST /api/driver/auth/login` · `POST .../logout` · `POST .../signup` (defined, unused) · `PUT /api/driver/language` |
 | **Driver rides** | `GET /api/driver/rides/active` · `POST /api/driver/rides/{id}/` + `accept` (unused, accept goes via socket) / `pickup` / `start` / `pause` / `resume` / `finish` / `cancel` / `confirm-payment` · `PUT /api/driver/rides/{id}/route` |
 | **Driver other** | `PUT /api/driver/search-radius` · `GET /api/driver/wallet` · `GET /api/driver/financial-report` · `POST /api/driver/complaints` · `/api/driver/account/deletion-request` (GET latest / POST request / DELETE cancel) · `GET /api/driver/vehicle` |
+| **Driver signup** | `POST /api/driver/auth/signup` (multipart: text + `photo` + `vehicle_photo`, ≤ 5 MB each) → account is **pending**; login answers 403 until a manager approves (pending / suspended / rejected messages). Car types come from `GET /api/driver/auth/vehicle-types` (active only, names shown as the manager set them, never cached) |
+| **Ratings** | `POST /api/customer/rides/{id}/rating` (1–5 stars + optional comment, once per trip; `409 already rated`) · `GET /api/driver/ratings?page=&limit=` (summary + list) · ride objects carry `can_rate` / `rating` |
 
 Check `api_endpoints.dart` for the exact methods; the table above is a map, not the contract.
 
@@ -354,7 +357,7 @@ Check `api_endpoints.dart` for the exact methods; the table above is a map, not 
 
 | Service | Lifetime | Listens to | Sends |
 | --- | --- | --- | --- |
-| [DriverSocketService](lib/driver_features/driver_home/data/datasources/driver_socket_service.dart) | Singleton while the driver is online, shared by presence + orders cubits | `driver:orders_snapshot`, `driver:order_offer`, `driver:order_remove`, `driver:ride_cancelled` | `driver:location {lat,lng}` (periodic, from `LocationTicker`), `driver:order_accept {ride_id}` **with ack** `{ok, error}` — read by `OrderAcceptResult.fromAck`, which also understands the API error shape (`errors.wallet_balance` = wallet too low) |
+| [DriverSocketService](lib/driver_features/driver_home/data/datasources/driver_socket_service.dart) | Singleton while the driver is online, shared by presence + orders cubits | `driver:orders_snapshot`, `driver:order_offer` (waves: `expires_in_seconds` + `expires_at` → 10 s countdown on the card), `driver:order_remove` (also `reason: timeout` when the turn ends), `driver:ride_cancelled`, `driver:rating_received` (toast + new average) | `driver:location {lat,lng}` (periodic, from `LocationTicker`), `driver:order_accept {ride_id}` **with ack** `{ok, error}` — read by `OrderAcceptResult.fromAck`, which also understands the API error shape (`errors.wallet_balance` = wallet too low) |
 | [CustomerRideSocketService](lib/features/tracking/data/datasources/customer_ride_socket_service.dart) | Fresh per tracking screen | `customer:ride_accepted`, `customer:driver_location`, `customer:ride_status`, `customer:ride_pause_update`, `customer:ride_paid`, `customer:active_ride` | `customer:ride_cancel {ride_id, cancellation_reason?}` **with ack** |
 | [AccountBlockSocketService](lib/core/account_block/account_block_socket_service.dart) | Always on while anyone is signed in | `customer:block_status` / `driver:block_status` (manager's ride block), `app:version_changed` (triggers a version re-check) | |
 
@@ -424,7 +427,7 @@ Check `api_endpoints.dart` for the exact methods; the table above is a map, not 
 3. Navigate to **`RideTrackingScreen`** (`features/tracking`): the socket pushes driver accepted → live driver location → status changes →
    waiting/pause timers → completed → **payment-due dialog** → `customer:ride_paid` closes it. Back is blocked until the ride ends. The customer can cancel with a reason.
 4. **My requests tab** (`features/trips`): paginated history with a status filter → ride details (route map of the driven path, bill, timestamps).
-5. **Settings** (`features/settings`): profile card + edit profile, language, privacy policy, contact us, complaint, delete account (password-confirmed), logout.
+5. **Settings** (`features/settings`): profile card + edit profile, language, privacy policy, contact us, complaint, delete account (password-confirmed; afterwards a "takes about 7 days" notice, then back to the role-selection screen), logout.
 6. **Notifications**: the bell in the top bar (`AppBrandBarWidget`, with an unread badge) opens `NotificationsScreen`.
 
 ### Driver flow
@@ -440,7 +443,7 @@ Check `api_endpoints.dart` for the exact methods; the table above is a map, not 
 5. **Route tab** (`driver_route`): a **private, on-device-only** meter (arrived → start → stops → finish, with distance and timers). Nothing is sent to the server.
 6. **Wallet tab** (`driver_wallet`): monthly financial report (earnings, commissions, rewards, fines, compensations, net income, balance), month picker, and a fines drill-down (wallet transactions filtered to `penalty`).
 7. **Profile tab** (`driver_profile`): read-only info from login + vehicle card (`GET /api/driver/vehicle`).
-8. **Settings tab** (`driver_settings`): search radius slider (1–10 km), language, contact us, complaint, privacy policy, **account deletion request** (pending/approved/rejected, can be cancelled), logout.
+8. **Settings tab** (`driver_settings`): search radius slider (1–10 km), language, contact us, complaint, privacy policy, **account deletion request** (pending/approved/rejected, can be cancelled; once sent, a "takes about 7 days" notice, then the driver is signed out and returned to the role-selection screen), logout.
 
 ---
 
@@ -615,6 +618,7 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [complaint_dialog_widget.dart](lib/core/widgets/complaint_dialog_widget.dart): `showComplaintDialog()`, the complaint form.
 - [contact_us_button_widget.dart](lib/core/widgets/contact_us_button_widget.dart): "Contact us" button for settings.
 - [delete_account_button_widget.dart](lib/core/widgets/delete_account_button_widget.dart): quiet destructive "delete account" button.
+- [account_deletion_notice_dialog_widget.dart](lib/core/widgets/account_deletion_notice_dialog_widget.dart): "your account will be deleted within about 7 days" notice; its only exit hands over to the caller, which returns to the role-selection screen.
 - [fare_breakdown_widget.dart](lib/core/widgets/fare_breakdown_widget.dart): full bill of a finished ride.
 - [fee_chip_widget.dart](lib/core/widgets/fee_chip_widget.dart): small dark pill floating on the map.
 - [trip_eta_chip_widget.dart](lib/core/widgets/trip_eta_chip_widget.dart): pill with the time and road distance left.
@@ -659,7 +663,8 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [data/datasources/ride_request_remote_data_source.dart](lib/features/home/data/datasources/ride_request_remote_data_source.dart): `rides/locations`, `choose-vehicle`, cancel.
 - [data/models/place_suggestion_model.dart](lib/features/home/data/models/place_suggestion_model.dart): one search suggestion.
 - [data/models/ride_quote_model.dart](lib/features/home/data/models/ride_quote_model.dart): step-1 result (distance, ETA, vehicle quotes).
-- [data/models/vehicle_type_quote_model.dart](lib/features/home/data/models/vehicle_type_quote_model.dart): one vehicle type + price.
+- [data/models/vehicle_type_quote_model.dart](lib/features/home/data/models/vehicle_type_quote_model.dart): one vehicle type + the server's `estimated_price` (flat price per distance band; the app never calculates a price, `price_per_km` / `base_fare` are not read).
+- The vehicle tiles show each car's `location_fee` (already inside `estimated_price`) and the area name from `location_fee.name`.
 - [data/repositories/places_repository.dart](lib/features/home/data/repositories/places_repository.dart): place search repository.
 - [data/repositories/ride_request_repository.dart](lib/features/home/data/repositories/ride_request_repository.dart): order flow repository.
 - [presentation/cubit/home_cubit.dart](lib/features/home/presentation/cubit/home_cubit.dart): quote → choose vehicle → cancel → reset.
@@ -756,6 +761,11 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 **driver_home/**
 - [data/datasources/driver_socket_service.dart](lib/driver_features/driver_home/data/datasources/driver_socket_service.dart): driver socket (offers, cancellations, location emit, accept with ack).
 - [data/location_ticker.dart](lib/driver_features/driver_home/data/location_ticker.dart): periodic GPS reads for the live location.
+- [data/datasources/new_order_alert.dart](lib/driver_features/driver_home/data/datasources/new_order_alert.dart): new-order alert sound (loops 10 s; stops on accept, empty list or offline).
+- **`core/ride_rating/`**: the customer's rating of a driver — `RideRatingCubit`, `showRideRatingDialog` (5 stars + comment + Send/Skip; opened after the payment on the tracking screen when the `completed` event has `can_rate`, and from "Rate your driver" in the trip details), `StarRatingWidget`.
+- **`driver_features/driver_ratings/`**: "My ratings" (average, bars per star, paged list), opened from the rating tile on the driver profile. `driver:rating_received` shows a "New rating ⭐ n" toast and updates the profile average.
+- [presentation/widgets/order_offer_countdown_widget.dart](lib/driver_features/driver_home/presentation/widgets/order_offer_countdown_widget.dart): the driver's turn on an offer: seconds left + draining bar.
+- [features/home/data/datasources/google_places_data_source.dart](lib/features/home/data/datasources/google_places_data_source.dart): place search with Google Places (New) Text Search, Syria first (`regionCode SY` + Syria box bias, Arabic, 5 s timeouts, paused 5 min after a 400/401/403); Photon is the fallback.
 - [presentation/cubit/driver_orders_cubit.dart](lib/driver_features/driver_home/presentation/cubit/driver_orders_cubit.dart): ride offer cards + accept.
 - [presentation/cubit/driver_orders_state.dart](lib/driver_features/driver_home/presentation/cubit/driver_orders_state.dart): offers + accepting id + errors.
 - [presentation/cubit/driver_presence_cubit.dart](lib/driver_features/driver_home/presentation/cubit/driver_presence_cubit.dart): online/offline toggle, socket + ticker lifecycle.
@@ -775,12 +785,12 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [data/models/driver_trip_payment_model.dart](lib/driver_features/driver_trip/data/models/driver_trip_payment_model.dart): payment split + wallet after commission.
 - [data/models/recorded_route_point_model.dart](lib/driver_features/driver_trip/data/models/recorded_route_point_model.dart): recorded GPS sample + pending upload model.
 - [data/models/ride_cancellation_model.dart](lib/driver_features/driver_trip/data/models/ride_cancellation_model.dart): who cancelled + reason (socket or push).
-- [data/repositories/driver_trip_repository.dart](lib/driver_features/driver_trip/data/repositories/driver_trip_repository.dart): trip actions repository.
+- [data/repositories/driver_trip_repository.dart](lib/driver_features/driver_trip/data/repositories/driver_trip_repository.dart): trip actions repository (finish has a hard 15 s timeout; every failure becomes a `DriverTripException`, `isNetwork` when the server was never heard from).
 - [data/repositories/driver_trip_route_repository.dart](lib/driver_features/driver_trip/data/repositories/driver_trip_route_repository.dart): save + upload routes, `uploadPending()`.
 - [data/route_distance_calculator.dart](lib/driver_features/driver_trip/data/route_distance_calculator.dart): length of a recorded route.
 - [presentation/cubit/driver_active_ride_cubit.dart](lib/driver_features/driver_trip/presentation/cubit/driver_active_ride_cubit.dart): "was I mid-ride?" check on shell open.
 - [presentation/cubit/driver_active_ride_state.dart](lib/driver_features/driver_trip/presentation/cubit/driver_active_ride_state.dart): ride to resume (or none).
-- [presentation/cubit/driver_trip_cubit.dart](lib/driver_features/driver_trip/presentation/cubit/driver_trip_cubit.dart): the whole active-ride state machine + route recording.
+- [presentation/cubit/driver_trip_cubit.dart](lib/driver_features/driver_trip/presentation/cubit/driver_trip_cubit.dart): the whole active-ride state machine + route recording. Finish never spins for ever: on no connection it is kept (`isFinishQueued`) and re-sent every 8 s; a `409` is checked against `GET /api/driver/rides/active` and treated as success if the trip is completed there.
 - [presentation/cubit/driver_trip_state.dart](lib/driver_features/driver_trip/presentation/cubit/driver_trip_state.dart): `DriverTripStatus` (accepted/arrived/inProgress/completed) + data.
 - [presentation/screens/driver_trip_screen.dart](lib/driver_features/driver_trip/presentation/screens/driver_trip_screen.dart): active-ride screen.
 - [presentation/widgets/driver_fare_dialog_widget.dart](lib/driver_features/driver_trip/presentation/widgets/driver_fare_dialog_widget.dart): what to collect + confirm payment.

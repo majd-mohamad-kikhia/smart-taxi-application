@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/vehicle_type_icon_widget.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
@@ -14,6 +15,9 @@ import '../../data/models/vehicle_type_quote_model.dart';
 class VehicleTypeTileWidget extends StatelessWidget {
   final VehicleTypeQuoteModel vehicleType;
 
+  /// The area behind this car's location fee, when the server named one.
+  final String? locationFeeName;
+
   /// The price to show, or null when the server could not quote one.
   final double? price;
   final bool selected;
@@ -22,6 +26,7 @@ class VehicleTypeTileWidget extends StatelessWidget {
   const VehicleTypeTileWidget({
     super.key,
     required this.vehicleType,
+    this.locationFeeName,
     required this.price,
     required this.selected,
     required this.onTap,
@@ -80,6 +85,22 @@ class VehicleTypeTileWidget extends StatelessWidget {
                           vehicleType.description!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                      if (vehicleType.locationFee > 0 && statusText == null) ...[
+                        const SizedBox(height: AppConstants.paddingXS),
+                        Text(
+                          locationFeeName == null
+                              ? l10n.locationFeeIncluded(
+                                  formatNewSyp(l10n, vehicleType.locationFee),
+                                )
+                              : l10n.locationFeeIncludedFor(
+                                  formatNewSyp(l10n, vehicleType.locationFee),
+                                  locationFeeName!,
+                                ),
                           style: textTheme.bodySmall?.copyWith(
                             color: AppColors.textSecondary,
                           ),

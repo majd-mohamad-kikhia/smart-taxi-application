@@ -161,11 +161,15 @@ class RideBillPdfBuilder {
         : '${l10n.farePassengersFee} (${l10n.passengersCount(passengers)})';
     final lines = <(String, String, double)>[
       if (fare.baseFare > 0) (en.fareBaseFare, ar.fareBaseFare, fare.baseFare),
-      (en.fareDistanceFare, ar.fareDistanceFare, fare.distanceFare),
-      if (fare.stopsFeeTotal > 0) (en.fareStopsFee, ar.fareStopsFee, fare.stopsFeeTotal),
+      // The bill doesn't list stops or pauses: their prices are inside the
+      // distance line, so the lines still add up to the total.
+      (
+        en.fareDistanceFare,
+        ar.fareDistanceFare,
+        fare.distanceFare + fare.stopsFeeTotal + fare.pauseFeeTotal,
+      ),
       if (fare.passengersFee > 0) (withPassengers(en), withPassengers(ar), fare.passengersFee),
       if (fare.waitingFee > 0) (en.fareWaiting, ar.fareWaiting, fare.waitingFee),
-      if (fare.pauseFeeTotal > 0) (en.farePauses, ar.farePauses, fare.pauseFeeTotal),
       if (fare.rounding != 0) (en.fareRounding, ar.fareRounding, fare.rounding),
     ];
     final headStyle = pw.TextStyle(fontSize: 8, color: _muted, fontWeight: pw.FontWeight.bold);

@@ -12,8 +12,11 @@ io.Socket createSocket(String accessToken) {
         .setPath('/socket.io/')
         .setTransports(['websocket'])
         .enableReconnection()
-        .setReconnectionAttempts(20)
+        // Never give up: after a server restart or a lost connection the
+        // app must come back by itself. Back-off from 1 s up to 10 s.
+        .setReconnectionAttempts(1 << 30)
         .setReconnectionDelay(1000)
+        .setReconnectionDelayMax(10000)
         .setAuth({'token': accessToken})
         .disableAutoConnect()
         .build(),

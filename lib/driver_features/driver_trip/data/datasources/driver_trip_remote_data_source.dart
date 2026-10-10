@@ -29,6 +29,16 @@ class DriverTripRemoteDataSource {
         : null;
   }
 
+  /// The driver's latest ride when the server has just completed it — used
+  /// after a finish whose answer never arrived, to learn that the trip did
+  /// finish. Null for any other state (or no ride).
+  Future<DriverRideFinishModel?> fetchFinishedActiveRide() async {
+    final response = await _dio.get(_endpoints.driverActiveRide);
+    final data = (response.data as Map)['data'];
+    if (data is! Map || data['status'] != 'completed') return null;
+    return DriverRideFinishModel.fromRideJson(Map<String, dynamic>.from(data));
+  }
+
   /// The driver's registered car (`GET /api/driver/vehicle`).
   Future<DriverTripVehicleModel> fetchVehicle() async {
     final response = await _dio.get(_endpoints.driverVehicle);
