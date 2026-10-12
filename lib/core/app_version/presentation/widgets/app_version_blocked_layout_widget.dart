@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../constants/app_constants.dart';
-import '../../../theme/app_colors.dart';
+import '../../../theme/app_palette.dart';
 
 /// Shared body of the full-screen "you can't continue" pages (force update,
 /// maintenance): an icon, the server's title and message, an optional
@@ -42,7 +42,7 @@ class AppVersionBlockedLayoutWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ExcludeSemantics(
-                child: Icon(icon, size: 72, color: AppColors.primary),
+                child: Icon(icon, size: 72, color: context.colors.primaryContent),
               ),
               const SizedBox(height: AppConstants.paddingXL),
               Semantics(
@@ -62,7 +62,7 @@ class AppVersionBlockedLayoutWidget extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: textTheme.bodyLarge?.copyWith(
                   height: 1.55,
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
               ),
               if (highlight != null) ...[
@@ -73,7 +73,7 @@ class AppVersionBlockedLayoutWidget extends StatelessWidget {
                     vertical: AppConstants.paddingM,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primarySurface,
+                    color: context.colors.primarySurface,
                     borderRadius: BorderRadius.circular(
                       AppConstants.radiusLarge,
                     ),
@@ -81,10 +81,10 @@ class AppVersionBlockedLayoutWidget extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.schedule_rounded,
                         size: 20,
-                        color: AppColors.primary,
+                        color: context.colors.primaryContent,
                       ),
                       const SizedBox(width: AppConstants.paddingS),
                       Flexible(
@@ -107,7 +107,7 @@ class AppVersionBlockedLayoutWidget extends StatelessWidget {
                   textAlign: TextAlign.start,
                   style: textTheme.bodyMedium?.copyWith(
                     height: 1.5,
-                    color: AppColors.textTertiary,
+                    color: context.colors.textTertiary,
                   ),
                 ),
               ],

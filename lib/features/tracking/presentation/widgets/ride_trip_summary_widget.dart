@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../data/models/tracked_ride_model.dart';
 
@@ -21,18 +22,18 @@ class RideTripSummaryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: AppColors.backgroundMuted, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(color: context.colors.backgroundMuted, borderRadius: BorderRadius.circular(14)),
       child: Column(
         children: [
           _LocationRow(icon: Icons.radio_button_checked_rounded, color: AppColors.success, label: pickup.displayLabel),
-          const Padding(
+          Padding(
             padding: EdgeInsetsDirectional.only(start: 9),
-            child: SizedBox(height: 16, child: VerticalDivider(width: 1, thickness: 1.5, color: AppColors.border)),
+            child: SizedBox(height: 16, child: VerticalDivider(width: 1, thickness: 1.5, color: context.colors.border)),
           ),
           _LocationRow(icon: Icons.location_on_rounded, color: AppColors.error, label: dropoff.displayLabel),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: AppColors.border),
+            child: Divider(height: 1, color: context.colors.border),
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,17 +63,17 @@ class RideTripSummaryWidget extends StatelessWidget {
                   children: [
                     PriceTextWidget(
                       price: ride.price!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.primary,
+                        color: context.colors.primaryContent,
                         fontFeatures: [FontFeature.tabularFigures()],
                       ),
                     ),
                     if (ride.priceIsEstimate)
                       Text(
                         context.l10n.priceEstimateTag,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                       ),
                   ],
                 ),
@@ -96,9 +97,9 @@ class _MetaItem extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 15, color: AppColors.textTertiary),
+        Icon(icon, size: 15, color: context.colors.textTertiary),
         const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        Text(label, style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
       ],
     );
   }
@@ -121,7 +122,7 @@ class _LocationRow extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),

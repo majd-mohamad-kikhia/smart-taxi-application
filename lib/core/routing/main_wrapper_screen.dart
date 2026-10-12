@@ -30,10 +30,13 @@ class _MainWrapperScreenState extends State<MainWrapperScreen> {
   int _currentIndex = 0;
   late final AppLifecycleListener _lifecycle;
 
-  static const List<Widget> _tabs = [
-    HomeScreen(),
-    TripsScreen(),
-    SettingsScreen(),
+  /// Bumped when the "create order" tab is tapped, so the home screen clears
+  /// its From and To points.
+  final ValueNotifier<int> _resetHome = ValueNotifier<int>(0);
+  late final List<Widget> _tabs = [
+    HomeScreen(resetSignal: _resetHome),
+    const TripsScreen(),
+    const SettingsScreen(),
   ];
 
   @override
@@ -47,6 +50,7 @@ class _MainWrapperScreenState extends State<MainWrapperScreen> {
   @override
   void dispose() {
     _lifecycle.dispose();
+    _resetHome.dispose();
     super.dispose();
   }
 
@@ -68,7 +72,10 @@ class _MainWrapperScreenState extends State<MainWrapperScreen> {
         bottomNavigationBar: AppBottomNavWidget(
           currentIndex: _currentIndex,
           items: _navItems(context.l10n),
-          onTap: (index) => setState(() => _currentIndex = index),
+          onTap: (index) {
+            if (index == 0) _resetHome.value++;
+            setState(() => _currentIndex = index);
+          },
         ),
       ),
     );

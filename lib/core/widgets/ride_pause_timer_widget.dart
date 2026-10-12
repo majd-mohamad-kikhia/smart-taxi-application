@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/ride_pause_model.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import '../utils/format_price.dart';
 import 'live_fee_card_widget.dart';
 import 'second_ticker_widget.dart';
@@ -66,7 +67,7 @@ class RidePauseTimerWidget extends StatelessWidget {
           feeText: feeText,
           accent: isIncluded
               ? AppColors.success
-              : (isCharged ? AppColors.warning : AppColors.textSecondary),
+              : (isCharged ? AppColors.warning : context.colors.textSecondary),
           semanticsLabel: [
             l10n.pauseTripPaused,
             LiveFeeCardWidget.spoken(l10n, snapshot.elapsedSeconds),

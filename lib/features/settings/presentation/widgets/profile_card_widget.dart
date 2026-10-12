@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/network_photo_widget.dart';
 import '../../data/models/user_profile_model.dart';
 
@@ -21,9 +22,9 @@ class ProfileCardWidget extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -72,7 +73,7 @@ class ProfileCardWidget extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: AppColors.borderLight),
+          Divider(height: 1, color: context.colors.borderLight),
           // The ink lives on a Material above the card's fill, so the press
           // shows.
           Material(
@@ -96,15 +97,15 @@ class ProfileCardWidget extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(AppConstants.paddingS),
                           decoration: BoxDecoration(
-                            color: AppColors.primarySurface,
+                            color: context.colors.primarySurface,
                             borderRadius: BorderRadius.circular(
                               AppConstants.radiusMedium,
                             ),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.edit_outlined,
                             size: 18,
-                            color: AppColors.primary,
+                            color: context.colors.primaryContent,
                           ),
                         ),
                         const SizedBox(width: AppConstants.paddingM),
@@ -116,9 +117,9 @@ class ProfileCardWidget extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.chevron_right_rounded,
-                          color: AppColors.textTertiary,
+                          color: context.colors.textTertiary,
                         ),
                       ],
                     ),
@@ -143,7 +144,7 @@ class _ContactRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.textSecondary),
+        Icon(icon, size: 16, color: context.colors.textSecondary),
         const SizedBox(width: AppConstants.paddingS),
         Expanded(
           child: Text(

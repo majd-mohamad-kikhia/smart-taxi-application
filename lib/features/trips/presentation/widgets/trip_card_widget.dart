@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_date.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/price_text_widget.dart';
@@ -64,7 +64,7 @@ class TripCardWidget extends StatelessWidget {
       label: spoken,
       onTap: onTap,
       child: Material(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
         child: InkWell(
           borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
@@ -73,7 +73,7 @@ class TripCardWidget extends StatelessWidget {
             padding: const EdgeInsets.all(AppConstants.paddingL),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +101,7 @@ class TripCardWidget extends StatelessWidget {
                             price: price!,
                             style: textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w800,
-                              color: AppColors.primary,
+                              color: context.colors.primaryContent,
                               fontFeatures: const [FontFeature.tabularFigures()],
                             ),
                           ),
@@ -109,7 +109,7 @@ class TripCardWidget extends StatelessWidget {
                             Text(
                               l10n.priceEstimateTag,
                               style: textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
+                                color: context.colors.textSecondary,
                               ),
                             ),
                         ],

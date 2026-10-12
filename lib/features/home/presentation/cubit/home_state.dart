@@ -106,21 +106,12 @@ class HomeState extends Equatable {
     bool clearQuote = false,
     bool clearActiveRide = false,
     bool clearLocations = false,
-    bool swapLocations = false,
   }) {
     return HomeState(
       greeting: greeting ?? this.greeting,
       userName: userName ?? this.userName,
-      fromLocation: clearLocations
-          ? null
-          : swapLocations
-              ? this.toLocation
-              : (fromLocation ?? this.fromLocation),
-      toLocation: clearLocations
-          ? null
-          : swapLocations
-              ? this.fromLocation
-              : (toLocation ?? this.toLocation),
+      fromLocation: clearLocations ? null : (fromLocation ?? this.fromLocation),
+      toLocation: clearLocations ? null : (toLocation ?? this.toLocation),
       isSearching: isSearching ?? this.isSearching,
       quote: clearQuote ? null : (quote ?? this.quote),
       isBooking: isBooking ?? this.isBooking,

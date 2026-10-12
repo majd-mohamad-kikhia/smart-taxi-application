@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// One line of a bill: a label (with an optional detail such as
 /// "3 min × 500") and a right-aligned value. Values use tabular figures so
@@ -52,7 +52,7 @@ class BillRowWidget extends StatelessWidget {
               value,
               textAlign: TextAlign.end,
               style: base?.copyWith(
-                color: valueColor ?? AppColors.textPrimary,
+                color: valueColor ?? context.colors.textPrimary,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),

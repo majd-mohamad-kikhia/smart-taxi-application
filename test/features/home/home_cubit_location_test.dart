@@ -70,31 +70,31 @@ void main() {
 
   tearDown(() => cubit.close());
 
-  group('swapLocations', () {
-    test('exchanges pickup and dropoff', () {
+  group('resetPoints', () {
+    test('clears both points and the quote', () {
       cubit
         ..setFromLocation(_home)
         ..setToLocation(_work)
-        ..swapLocations();
-
-      expect(cubit.state.fromLocation, _work);
-      expect(cubit.state.toLocation, _home);
-    });
-
-    test('moves a lone point to the other side', () {
-      cubit
-        ..setFromLocation(_home)
-        ..swapLocations();
+        ..resetPoints();
 
       expect(cubit.state.fromLocation, isNull);
-      expect(cubit.state.toLocation, _home);
+      expect(cubit.state.toLocation, isNull);
+      expect(cubit.state.quote, isNull);
     });
 
-    test('does nothing while no point is picked', () {
-      final before = cubit.state;
-      cubit.swapLocations();
+    test('clears a lone point too', () {
+      cubit
+        ..setToLocation(_work)
+        ..resetPoints();
+      expect(cubit.state.toLocation, isNull);
+    });
 
-      expect(cubit.state, before);
+    test('does nothing when no point is set', () {
+      final states = <Object>[];
+      final sub = cubit.stream.listen(states.add);
+      cubit.resetPoints();
+      expect(states, isEmpty);
+      sub.cancel();
     });
   });
 

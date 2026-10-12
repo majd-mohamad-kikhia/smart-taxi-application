@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// A headline figure on the profile (rating, wallet balance): an icon, the
 /// value as a heavy tabular figure that scales down rather than wrapping,
@@ -33,10 +33,10 @@ class ProfileFigureTileWidget extends StatelessWidget {
       button: onTap != null,
       onTap: onTap,
       child: Material(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: context.colors.border),
         ),
         child: InkWell(
           onTap: onTap,
@@ -66,7 +66,7 @@ class ProfileFigureTileWidget extends StatelessWidget {
                   label,
                   style: textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],

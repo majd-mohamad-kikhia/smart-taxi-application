@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../data/models/route_session_model.dart';
 import '../cubit/route_tracker_cubit.dart';
@@ -34,7 +34,7 @@ class _DriverRouteView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       body: BlocListener<RouteTrackerCubit, RouteTrackerState>(
         listenWhen: (previous, current) =>
             current.errorMessage != null &&
@@ -122,12 +122,12 @@ class _BottomPanel extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.backgroundWhite,
+                color: context.colors.backgroundWhite,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.border),
-                boxShadow: const [
+                border: Border.all(color: context.colors.border),
+                boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadowMedium,
+                    color: context.colors.shadowMedium,
                     blurRadius: 16,
                     offset: Offset(0, -2),
                   ),

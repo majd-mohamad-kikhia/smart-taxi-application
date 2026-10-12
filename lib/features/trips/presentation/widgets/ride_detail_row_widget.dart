@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// One label and value line on the ride details. The label may wrap and the
 /// value takes the rest of the width, so a long label or reason never
@@ -35,7 +35,7 @@ class RideDetailRowWidget extends StatelessWidget {
               textAlign: TextAlign.end,
               style: textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
               ),
             ),
           ),

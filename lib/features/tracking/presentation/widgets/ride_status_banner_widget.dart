@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../data/models/tracked_ride_model.dart';
 import '../cubit/ride_tracking_state.dart';
 
@@ -22,13 +22,13 @@ class RideStatusBannerWidget extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(color: AppColors.primarySurface, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(color: context.colors.primarySurface, borderRadius: BorderRadius.circular(14)),
       child: Row(
         children: [
           if (isWaiting)
-            const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
+            SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primaryContent))
           else
-            const Icon(Icons.directions_car_filled_rounded, color: AppColors.primary, size: 22),
+            Icon(Icons.directions_car_filled_rounded, color: context.colors.primaryContent, size: 22),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -36,7 +36,7 @@ class RideStatusBannerWidget extends StatelessWidget {
               children: [
                 Text(
                   ride.statusLabel(context.l10n),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: context.colors.textPrimary),
                 ),
                 if (connectionStatus != RideTrackingConnectionStatus.connected) ...[
                   const SizedBox(height: 2),
@@ -44,7 +44,7 @@ class RideStatusBannerWidget extends StatelessWidget {
                     connectionStatus == RideTrackingConnectionStatus.error
                         ? context.l10n.connectionErrorRetrying
                         : context.l10n.connecting,
-                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 11, color: context.colors.textSecondary),
                   ),
                 ],
               ],

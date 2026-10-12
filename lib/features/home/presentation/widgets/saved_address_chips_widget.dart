@@ -3,7 +3,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
 import '../../../../core/saved_addresses/presentation/saved_address_type_ui.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// The customer's saved places as one-tap chips under a From / To card;
 /// tapping one fills that point. Scrolls sideways when there are many.
@@ -31,12 +31,12 @@ class SavedAddressChipsWidget extends StatelessWidget {
         itemBuilder: (context, index) {
           final address = addresses[index];
           return ActionChip(
-            avatar: Icon(address.type.icon, size: 18, color: AppColors.primary),
+            avatar: Icon(address.type.icon, size: 18, color: context.colors.primaryContent),
             label: Text(address.title(l10n)),
             tooltip: address.address,
             onPressed: () => onSelected(address),
-            backgroundColor: AppColors.neutralSurface,
-            side: const BorderSide(color: AppColors.border),
+            backgroundColor: context.colors.neutralSurface,
+            side: BorderSide(color: context.colors.border),
             labelStyle: Theme.of(context).textTheme.labelLarge,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppConstants.radiusFull),

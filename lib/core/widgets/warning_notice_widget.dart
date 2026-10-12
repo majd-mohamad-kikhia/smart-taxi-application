@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// An amber box with a warning icon and [message], for a heads-up that
 /// isn't an error (e.g. what a cancel will cost).
@@ -14,14 +15,14 @@ class WarningNoticeWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppConstants.paddingM),
       decoration: BoxDecoration(
-        color: AppColors.accentSurface,
+        color: context.colors.warningSurface,
         borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-        border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.warning_amber_rounded, color: AppColors.accent, size: 20),
+          const Icon(Icons.warning_amber_rounded, color: AppColors.warning, size: 20),
           const SizedBox(width: AppConstants.paddingS),
           Expanded(
             child: Text(
@@ -29,7 +30,7 @@ class WarningNoticeWidget extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(color: AppColors.textPrimary),
+                  ?.copyWith(color: context.colors.textPrimary),
             ),
           ),
         ],

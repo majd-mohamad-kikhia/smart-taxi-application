@@ -4,7 +4,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
@@ -63,7 +63,7 @@ class _SharedOrderViewState extends State<_SharedOrderView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: AppBar(title: Text(context.l10n.sharedOrderTitle)),
       body: MultiBlocListener(
         listeners: [
@@ -255,13 +255,13 @@ class _MessageView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 56, color: AppColors.textSecondary),
+              Icon(icon, size: 56, color: context.colors.textSecondary),
               const SizedBox(height: AppConstants.paddingL),
               Text(
                 message,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                       height: 1.4,
                     ),
               ),

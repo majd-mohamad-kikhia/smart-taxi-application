@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// The "search for a place" pill at the top of the home map. It is a button,
 /// not a text field: tapping it opens the place picker, where the typing
@@ -19,8 +19,8 @@ class HomeSearchBarWidget extends StatelessWidget {
       label: hint,
       excludeSemantics: true,
       child: Material(
-        color: AppColors.neutralSurface,
-        shape: StadiumBorder(side: BorderSide(color: AppColors.border)),
+        color: context.colors.neutralSurface,
+        shape: StadiumBorder(side: BorderSide(color: context.colors.border)),
         child: InkWell(
           onTap: onTap,
           customBorder: const StadiumBorder(),
@@ -37,16 +37,16 @@ class HomeSearchBarWidget extends StatelessWidget {
                       hint,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textTertiary,
+                        color: context.colors.textTertiary,
                       ),
                     ),
                   ),
                   const SizedBox(width: AppConstants.paddingM),
-                  const Icon(
+                  Icon(
                     Icons.search_rounded,
-                    color: AppColors.primary,
+                    color: context.colors.primaryContent,
                     size: 22,
                   ),
                 ],

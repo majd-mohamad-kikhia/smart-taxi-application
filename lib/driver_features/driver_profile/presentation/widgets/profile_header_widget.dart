@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/network_photo_widget.dart';
 import '../../../driver_auth/data/models/driver_status.dart';
 import '../../../driver_auth/data/models/driver_user_model.dart';
@@ -24,14 +25,14 @@ class ProfileHeaderWidget extends StatelessWidget {
 
   Color get _color => switch (driver.status) {
     DriverStatus.active => AppColors.success,
-    DriverStatus.pending => AppColors.accent,
+    DriverStatus.pending => AppColors.warning,
     DriverStatus.suspended || DriverStatus.rejected => AppColors.error,
   };
 
-  Color get _wash => switch (driver.status) {
-    DriverStatus.active => AppColors.successSurface,
-    DriverStatus.pending => AppColors.accentSurface,
-    DriverStatus.suspended || DriverStatus.rejected => AppColors.errorSurface,
+  Color _wash(BuildContext context) => switch (driver.status) {
+    DriverStatus.active => context.colors.successSurface,
+    DriverStatus.pending => context.colors.warningSurface,
+    DriverStatus.suspended || DriverStatus.rejected => context.colors.errorSurface,
   };
 
   String? _note(BuildContext context) {
@@ -54,9 +55,9 @@ class ProfileHeaderWidget extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppConstants.paddingL),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,7 +84,7 @@ class ProfileHeaderWidget extends StatelessWidget {
                         vertical: AppConstants.paddingXS,
                       ),
                       decoration: BoxDecoration(
-                        color: _wash,
+                        color: _wash(context),
                         borderRadius: BorderRadius.circular(
                           AppConstants.radiusFull,
                         ),
@@ -98,7 +99,7 @@ class ProfileHeaderWidget extends StatelessWidget {
                               driver.status.label(l10n),
                               style: textTheme.labelMedium?.copyWith(
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: context.colors.textPrimary,
                               ),
                             ),
                           ),

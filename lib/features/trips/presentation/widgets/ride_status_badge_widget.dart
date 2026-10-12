@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../data/models/ride_history_model.dart';
 
 /// A ride's status as an icon and a word on the status's wash, so it never
@@ -15,13 +16,13 @@ class RideStatusBadgeWidget extends StatelessWidget {
   Color get _color => switch (status) {
         RideStatus.completed => AppColors.success,
         RideStatus.cancelled => AppColors.error,
-        _ => AppColors.accent,
+        _ => AppColors.warning,
       };
 
-  Color get _wash => switch (status) {
-        RideStatus.completed => AppColors.successSurface,
-        RideStatus.cancelled => AppColors.errorSurface,
-        _ => AppColors.accentSurface,
+  Color _wash(BuildContext context) => switch (status) {
+        RideStatus.completed => context.colors.successSurface,
+        RideStatus.cancelled => context.colors.errorSurface,
+        _ => context.colors.warningSurface,
       };
 
   IconData get _icon => switch (status) {
@@ -42,7 +43,7 @@ class RideStatusBadgeWidget extends StatelessWidget {
         vertical: AppConstants.paddingXS,
       ),
       decoration: BoxDecoration(
-        color: _wash,
+        color: _wash(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusFull),
       ),
       child: Row(
@@ -55,7 +56,7 @@ class RideStatusBadgeWidget extends StatelessWidget {
               status.label(context.l10n),
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
               ),
             ),
           ),

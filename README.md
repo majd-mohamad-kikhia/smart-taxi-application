@@ -112,12 +112,19 @@ dart run flutter_native_splash:create    # regenerate the native splash screen
 | `google_maps_flutter` | All maps (pickup, live trip, route tab, ride history map, location picker). | `*_map_widget.dart`, `location_picker_screen.dart` |
 | `geolocator` | GPS position, permission, "is GPS on" checks, distances. | Location services, the driver GPS guard, and the driver location ticker |
 | `audioplayers` | Plays the looping new-order alert (`assets/sounds/new_order.wav`) for 10 s in the driver app. | `AudioNewOrderAlert`, started by `DriverOrdersCubit` |
+
+### Themes (light and dark)
+
+- `lib/core/theme/app_palette.dart`: `AppPalette`, a `ThemeExtension` with every color that differs between the themes (page / surface ladder, text, borders, tinted washes, nav, shadows, and `primaryContent` = the brand green as text/icon, deepened on light). Read it in widgets as **`context.colors.textPrimary`** — never write a raw color.
+- `lib/core/theme/app_colors.dart`: only the colors that are the same in both themes. The brand is **green**: `primary` (fills, white text 5:1), `primaryBright` (what stands out on the dark map: pin, route, taxi), `accent` (teal, the gradient's cool end) and `primaryGradient` (green → teal: main buttons, wallet card, the car-type sheet's request button). Meaning keeps its own colors: `warning` / `star` amber, `success`, `error`. Also white, black and the map routes.
+- `lib/core/theme/app_theme.dart`: `AppTheme.dark` and `AppTheme.light`, each built once and shared (font text themes are expensive); both carry their palette. `MaterialApp` gets `theme`, `darkTheme` and `themeMode`; the status bar icons follow the theme.
+- `lib/core/theme/theme_cubit.dart`: the user's choice (Light / Dark, dark by default), saved on the device; switched from **Settings → Appearance** (customer and driver), applied at once with the palette animating between the two.
+- `lib/core/theme/app_map_style.dart`: `MapStyleMixin` gives every Google map the dark style in the dark theme and the default map in the light one.
 | `shared_preferences` | Local persistence (sessions, language, offline route data). | `*_local_data_source.dart`; see [Local storage](#10-local-storage) |
 | `firebase_core` + `firebase_messaging` | FCM push notifications (pinned to exact versions `4.14.0` / `16.6.0`). | [lib/core/services/push_notification_service.dart](lib/core/services/push_notification_service.dart) |
 | `flutter_local_notifications` | Shows FCM pushes as system notifications while the app is in the foreground. Android channel id: `mshoar_notifications`. | [lib/core/services/local_notification_service.dart](lib/core/services/local_notification_service.dart) |
 | `flutter_localizations` + `intl` | ar/en localization (gen-l10n), date and number formatting. | `lib/core/l10n/`, `lib/core/utils/format_*.dart` |
 | `google_fonts` | **Tajawal** font for all text (good Arabic + Latin). | [lib/core/theme/app_theme.dart](lib/core/theme/app_theme.dart) |
-| `lottie` | The yellow taxi loading animation (`assets/loader/taxi_loader_yellow.json`). | [lib/core/widgets/app_loader_widget.dart](lib/core/widgets/app_loader_widget.dart) |
 | `flutter_dotenv` | Loads `.env` at startup; `GOOGLE_MAPS_API_KEY` is read for the Google Routes API. | [lib/main.dart](lib/main.dart) |
 | `flutter_markdown_plus` | Renders the privacy policy, which the server returns as Markdown. | [lib/core/widgets/privacy_policy_markdown_widget.dart](lib/core/widgets/privacy_policy_markdown_widget.dart) |
 | `package_info_plus` | Reads the installed app version for the server version check. | [lib/core/app_version/data/repositories/app_version_repository.dart](lib/core/app_version/data/repositories/app_version_repository.dart) |
@@ -394,7 +401,7 @@ Check `api_endpoints.dart` for the exact methods; the table above is a map, not 
 
 **Location & routes** ([lib/core/services/](lib/core/services/)): `CurrentLocationService` (one-off position + permission handling), `RouteService` (OSRM call), `PlannedRouteLoader` (loads the planned route once per trip and caches it; the line never re-routes while driving; used by the driver), `GoogleRoutesService` (Google Routes call: line + distance + duration) and `TripRouteTracker` (used by the customer's tracking: fetches a route once, snaps every GPS fix onto it with `RouteMatcher` for the remaining distance/time, and re-fetches only when the car leaves the route or the route is 3+ min old; never more than once per 15 s).
 
-**Theme** ([lib/core/theme/](lib/core/theme/)): `AppColors` holds **every** color as a named token (don't use raw `Color(0x...)` in widgets). `AppTheme.darkTheme` is the only theme. Brand is yellow on near-black. Font: Tajawal. Spacing, radius and animation constants are in `AppConstants`. See [DESIGN.md](DESIGN.md).
+**Theme** ([lib/core/theme/](lib/core/theme/)): `AppColors` holds **every** color as a named token (don't use raw `Color(0x...)` in widgets). `AppTheme.darkTheme` is the only theme. Brand is green on near-black. Font: Tajawal. Spacing, radius and animation constants are in `AppConstants`. See [DESIGN.md](DESIGN.md).
 
 **Validators** ([lib/core/validators/](lib/core/validators/)): phone and password rules matching swagger. `PhoneInputFormatter` converts Arabic-Indic/Persian digits to ASCII.
 
@@ -611,7 +618,7 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [auth_form_layout_widget.dart](lib/core/widgets/auth_form_layout_widget.dart): shared scaffold for sign in/up screens.
 - [auth_header_widget.dart](lib/core/widgets/auth_header_widget.dart): logo + title + subtitle header for auth screens.
 - [auth_language_toggle_widget.dart](lib/core/widgets/auth_language_toggle_widget.dart): one-tap language switch before sign-in.
-- [auth_primary_button_widget.dart](lib/core/widgets/auth_primary_button_widget.dart): full-width yellow submit button with loading state.
+- [auth_primary_button_widget.dart](lib/core/widgets/auth_primary_button_widget.dart): full-width green submit button with loading state.
 - [auth_text_field_widget.dart](lib/core/widgets/auth_text_field_widget.dart): labeled text field with optional password toggle.
 - [bill_row_widget.dart](lib/core/widgets/bill_row_widget.dart): one bill line (label, detail, value).
 - [cancel_reason_dialog_widget.dart](lib/core/widgets/cancel_reason_dialog_widget.dart): cancel-trip dialog with preset reasons (both roles).
@@ -664,6 +671,7 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [data/models/place_suggestion_model.dart](lib/features/home/data/models/place_suggestion_model.dart): one search suggestion.
 - [data/models/ride_quote_model.dart](lib/features/home/data/models/ride_quote_model.dart): step-1 result (distance, ETA, vehicle quotes).
 - [data/models/vehicle_type_quote_model.dart](lib/features/home/data/models/vehicle_type_quote_model.dart): one vehicle type + the server's `estimated_price` (flat price per distance band; the app never calculates a price, `price_per_km` / `base_fare` are not read).
+- [presentation/widgets/vehicle_type_sheet_widget.dart](lib/features/home/presentation/widgets/vehicle_type_sheet_widget.dart), [vehicle_type_tile_widget.dart](lib/features/home/presentation/widgets/vehicle_type_tile_widget.dart), [vehicle_request_button_widget.dart](lib/features/home/presentation/widgets/vehicle_request_button_widget.dart): the car-type sheet — header with the trip's distance/time pill, a trip card, selectable cards (green wash + glow when chosen) and a gradient pill confirm button. The choice is a `ValueNotifier`, so a tap repaints only the cards and the button.
 - The vehicle tiles show each car's `location_fee` (already inside `estimated_price`) and the area name from `location_fee.name`.
 - [data/repositories/places_repository.dart](lib/features/home/data/repositories/places_repository.dart): place search repository.
 - [data/repositories/ride_request_repository.dart](lib/features/home/data/repositories/ride_request_repository.dart): order flow repository.
@@ -762,6 +770,7 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 - [data/datasources/driver_socket_service.dart](lib/driver_features/driver_home/data/datasources/driver_socket_service.dart): driver socket (offers, cancellations, location emit, accept with ack).
 - [data/location_ticker.dart](lib/driver_features/driver_home/data/location_ticker.dart): periodic GPS reads for the live location.
 - [data/datasources/new_order_alert.dart](lib/driver_features/driver_home/data/datasources/new_order_alert.dart): new-order alert sound (loops 10 s; stops on accept, empty list or offline).
+- [data/datasources/incoming_order_call_alert.dart](lib/driver_features/driver_home/data/datasources/incoming_order_call_alert.dart): a new order while the app is in the background / screen off shows like an incoming call (Android full-screen notification over the lock screen, honk + vibration until answered or the 10 s turn ends; iOS time-sensitive banner). Needs the driver online (the socket stays alive through the location foreground service). `CompositeNewOrderAlert` runs it beside the in-app sound, which plays only while the app is on screen.
 - **`core/ride_rating/`**: the customer's rating of a driver — `RideRatingCubit`, `showRideRatingDialog` (5 stars + comment + Send/Skip; opened after the payment on the tracking screen when the `completed` event has `can_rate`, and from "Rate your driver" in the trip details), `StarRatingWidget`.
 - **`driver_features/driver_ratings/`**: "My ratings" (average, bars per star, paged list), opened from the rating tile on the driver profile. `driver:rating_received` shows a "New rating ⭐ n" toast and updates the profile average.
 - [presentation/widgets/order_offer_countdown_widget.dart](lib/driver_features/driver_home/presentation/widgets/order_offer_countdown_widget.dart): the driver's turn on an offer: seconds left + draining bar.
@@ -860,7 +869,6 @@ Generated files are **not** listed one by one. Don't edit them by hand:
 
 | Path | What it is |
 | --- | --- |
-| `assets/loader/taxi_loader_yellow.json` | Lottie loader |
 | `assets/map_styles/dark_map_style.json` | Google Maps dark style |
 | `assets/icons/app_logo_icons/` | Master logo (1024), Android 12 splash variant, exported icon sizes for Android/iOS/web |
 | `android/`, `ios/` | Native projects (Maps key wiring, FCM config, permissions: location, foreground service, notifications) |

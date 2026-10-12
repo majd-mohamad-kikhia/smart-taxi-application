@@ -4,7 +4,7 @@ import '../injection/injection.dart';
 import '../localization/l10n_context_extension.dart';
 import '../privacy_policy/privacy_policy_cubit.dart';
 import '../privacy_policy/privacy_policy_state.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'app_animated_dialog.dart';
 import 'app_loader_widget.dart';
 import 'auth_primary_button_widget.dart';
@@ -52,7 +52,7 @@ class _PrivacyPolicyContentWidget extends StatelessWidget {
                     Text(
                       state.errorMessage ?? l10n.errServerUnreachable,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 13, color: AppColors.errorText),
+                      style: TextStyle(fontSize: 13, color: context.colors.errorText),
                     ),
                     const SizedBox(height: 8),
                     OutlinedButton(
@@ -68,7 +68,7 @@ class _PrivacyPolicyContentWidget extends StatelessWidget {
                   return Text(
                     l10n.privacyPolicyEmpty,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
                   );
                 }
                 return ConstrainedBox(

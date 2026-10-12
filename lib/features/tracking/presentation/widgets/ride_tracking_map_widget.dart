@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_map_style.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/car_heading_tracker.dart';
 import '../../../../core/utils/taxi_marker_icon.dart';
 import '../../data/models/ride_location_model.dart';
@@ -38,9 +39,8 @@ class RideTrackingMapWidget extends StatefulWidget {
   State<RideTrackingMapWidget> createState() => _RideTrackingMapWidgetState();
 }
 
-class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
+class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> with MapStyleMixin {
   GoogleMapController? _mapController;
-  String? _mapStyle;
   BitmapDescriptor? _taxiIcon;
   final _heading = CarHeadingTracker();
 
@@ -53,17 +53,12 @@ class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
   @override
   void initState() {
     super.initState();
-    _loadMapStyle();
     _loadTaxiIcon();
     _roadLine = _buildRoadLine(widget.routePoints);
     final location = widget.driverLocation;
     if (location != null) _heading.update(LatLng(location.lat, location.lng));
   }
 
-  Future<void> _loadMapStyle() async {
-    final style = await rootBundle.loadString('assets/map_styles/dark_map_style.json');
-    if (mounted) setState(() => _mapStyle = style);
-  }
 
   Future<void> _loadTaxiIcon() async {
     final icon = await TaxiMarkerIcon.load();
@@ -163,7 +158,7 @@ class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
     final roadLine = _roadLine;
 
     return GoogleMap(
-      style: _mapStyle,
+      style: mapStyle,
       initialCameraPosition: CameraPosition(target: driverPoint ?? pickupPoint, zoom: 14),
       myLocationEnabled: false,
       myLocationButtonEnabled: false,
@@ -175,7 +170,7 @@ class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
           Polyline(
             polylineId: const PolylineId('planned_route'),
             points: [for (final p in widget.plannedRoute) LatLng(p.lat, p.lng)],
-            color: AppColors.textTertiary,
+            color: context.colors.textTertiary,
             width: 4,
             jointType: JointType.round,
             startCap: Cap.roundCap,
@@ -185,7 +180,7 @@ class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> {
           Polyline(
             polylineId: const PolylineId('pickup_dropoff'),
             points: [pickupPoint, dropoffPoint],
-            color: AppColors.textTertiary,
+            color: context.colors.textTertiary,
             width: 3,
             patterns: [PatternItem.dash(20), PatternItem.gap(10)],
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// One tab definition for [AppBottomNavWidget].
 class AppNavItem {
@@ -39,14 +40,14 @@ class AppBottomNavWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: AppColors.navBackground,
+      decoration: BoxDecoration(
+        color: context.colors.navBackground,
         border: Border(
-          top: BorderSide(color: AppColors.borderLight, width: 1),
+          top: BorderSide(color: context.colors.borderLight, width: 1),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowMedium,
+            color: context.colors.shadowMedium,
             blurRadius: 12,
             offset: Offset(0, -3),
           ),
@@ -108,7 +109,7 @@ class _NavItemState extends State<_NavItem> {
   Widget build(BuildContext context) {
     final item = widget.item;
     final isActive = widget.isActive;
-    final color = isActive ? AppColors.navActive : AppColors.navInactive;
+    final color = isActive ? context.colors.navActive : context.colors.navInactive;
     final duration = MediaQuery.disableAnimationsOf(context)
         ? Duration.zero
         : AppConstants.animFast;
@@ -130,7 +131,7 @@ class _NavItemState extends State<_NavItem> {
           hoverColor: AppColors.transparent,
           overlayColor: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.focused)
-                ? AppColors.accent.withValues(alpha: 0.12)
+                ? context.colors.navActive.withValues(alpha: 0.12)
                 : AppColors.transparent,
           ),
           child: AnimatedScale(
@@ -147,7 +148,7 @@ class _NavItemState extends State<_NavItem> {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: isActive
-                        ? AppColors.accentSurface
+                        ? context.colors.primarySurface
                         : AppColors.transparent,
                     borderRadius: BorderRadius.circular(
                       AppConstants.radiusFull,

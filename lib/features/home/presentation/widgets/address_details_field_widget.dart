@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// Optional directions the map can't show: building, floor, landmark.
 class AddressDetailsFieldWidget extends StatelessWidget {
@@ -22,7 +22,7 @@ class AddressDetailsFieldWidget extends StatelessWidget {
       minLines: 1,
       textInputAction: TextInputAction.done,
       textCapitalization: TextCapitalization.sentences,
-      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+      style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
       decoration: InputDecoration(
         isDense: true,
         counterText: '',

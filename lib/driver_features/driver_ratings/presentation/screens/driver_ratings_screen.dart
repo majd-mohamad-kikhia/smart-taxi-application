@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
 import '../cubit/driver_ratings_cubit.dart';
 import '../cubit/driver_ratings_state.dart';
@@ -20,7 +20,7 @@ class DriverRatingsScreen extends StatelessWidget {
     return BlocProvider<DriverRatingsCubit>(
       create: (_) => sl<DriverRatingsCubit>()..load(),
       child: Scaffold(
-        backgroundColor: AppColors.backgroundGray,
+        backgroundColor: context.colors.backgroundGray,
         appBar: AppBar(title: Text(context.l10n.myRatingsTitle)),
         body: const _RatingsBody(),
       ),
@@ -66,7 +66,7 @@ class _RatingsBody extends StatelessWidget {
                         child: Text(
                           context.l10n.noRatingsYet,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textSecondary),
+                          style: TextStyle(color: context.colors.textSecondary),
                         ),
                       ),
                     for (final rating in state.ratings) ...[
@@ -113,7 +113,7 @@ class _Message extends StatelessWidget {
             Text(
               text,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
             TextButton(onPressed: onAction, child: Text(actionLabel)),
           ],

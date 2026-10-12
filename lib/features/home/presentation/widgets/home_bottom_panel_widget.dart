@@ -11,6 +11,7 @@ import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import 'active_ride_card_widget.dart';
+import 'home_gps_button_widget.dart';
 import 'route_points_card_widget.dart';
 
 /// Everything pinned to the bottom of the home map: the From / To card and
@@ -44,15 +45,22 @@ class HomeBottomPanelWidget extends StatelessWidget {
               ActiveRideCardWidget(ride: state.activeRide!),
               const SizedBox(height: AppConstants.paddingM),
             ],
+            // "Use my location", above the From / To card at its right end.
+            Align(
+              alignment: Alignment.centerRight,
+              child: HomeGpsButtonWidget(
+                isLoading: state.isLocating,
+                onTap: isLocked ? null : cubit.locateMe,
+                size: 64,
+                glow: true,
+              ),
+            ),
+            const SizedBox(height: AppConstants.paddingS),
             RoutePointsCardWidget(
               from: state.fromLocation,
               to: state.toLocation,
               onPickFrom: isLocked ? null : onPickFrom,
               onPickTo: isLocked ? null : onPickTo,
-              onSwap: isLocked ||
-                      (state.fromLocation == null && state.toLocation == null)
-                  ? null
-                  : cubit.swapLocations,
             ),
             const SizedBox(height: AppConstants.paddingM),
             if (state.hasActiveRide)

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// Inline error message shown above a form's submit button. The message is
 /// primary-colored body text (readable on the red wash); red is kept for
@@ -20,7 +21,7 @@ class AuthErrorBannerWidget extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(AppConstants.paddingM),
         decoration: BoxDecoration(
-          color: AppColors.errorSurface,
+          color: context.colors.errorSurface,
           borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
           border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
         ),
@@ -35,7 +36,7 @@ class AuthErrorBannerWidget extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium
-                    ?.copyWith(color: AppColors.textPrimary),
+                    ?.copyWith(color: context.colors.textPrimary),
               ),
             ),
           ],

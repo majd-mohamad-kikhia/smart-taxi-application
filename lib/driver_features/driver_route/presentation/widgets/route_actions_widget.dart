@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../data/models/route_session_model.dart';
 import '../cubit/route_tracker_cubit.dart';
 
-/// The route tab's buttons for the current step. Each step has one yellow
+/// The route tab's buttons for the current step. Each step has one green
 /// primary, as on the trip screen: Start recording (idle, waiting), Finish
 /// while recording, Resume while stopped. "I've arrived" and Pause are
 /// neutral. Finish asks first, because it ends the recording; "Start a new
@@ -73,10 +73,10 @@ class RouteActionsWidget extends StatelessWidget {
         if (isStarting) ...[
           ClipRRect(
             borderRadius: BorderRadius.circular(AppConstants.radiusFull),
-            child: const LinearProgressIndicator(
+            child: LinearProgressIndicator(
               minHeight: 3,
-              color: AppColors.primary,
-              backgroundColor: AppColors.backgroundMuted,
+              color: context.colors.primaryContent,
+              backgroundColor: context.colors.backgroundMuted,
             ),
           ),
           const SizedBox(height: AppConstants.paddingM),
@@ -87,14 +87,14 @@ class RouteActionsWidget extends StatelessWidget {
   }
 
   /// Pause/Resume beside Finish, on the live map (so both have solid
-  /// fills). Exactly one is the yellow primary: Finish while recording,
+  /// fills). Exactly one is the green primary: Finish while recording,
   /// Resume while stopped.
   Widget _inProgressRow(BuildContext context, RouteTrackerCubit cubit) {
     final l10n = context.l10n;
     final finish = isPaused
         ? AppNeutralButtonWidget(
             label: l10n.routeFinish,
-            backgroundColor: AppColors.backgroundWhite,
+            backgroundColor: context.colors.backgroundWhite,
             onPressed: () => _confirmFinish(context, cubit),
           )
         : AuthPrimaryButtonWidget(
@@ -111,7 +111,7 @@ class RouteActionsWidget extends StatelessWidget {
         : AppNeutralButtonWidget(
             label: l10n.routePause,
             icon: Icons.pause_rounded,
-            backgroundColor: AppColors.backgroundWhite,
+            backgroundColor: context.colors.backgroundWhite,
             onPressed: cubit.pauseTrip,
           );
 

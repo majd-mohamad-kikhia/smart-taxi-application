@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/fee_chip_widget.dart';
 import '../../../../core/widgets/second_ticker_widget.dart';
 import '../../data/models/route_session_model.dart';
@@ -76,7 +77,7 @@ class RouteLiveTimersWidget extends StatelessWidget {
                             icon: Icons.coffee_rounded,
                             label: l10n.pauseTripPaused,
                             duration: session.currentPauseDuration(now),
-                            accent: AppColors.primary,
+                            accent: context.colors.primaryContent,
                           );
                   },
                 ),

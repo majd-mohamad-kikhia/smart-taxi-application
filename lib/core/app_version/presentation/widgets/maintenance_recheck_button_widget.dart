@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../constants/app_constants.dart';
 import '../../../localization/l10n_context_extension.dart';
-import '../../../theme/app_colors.dart';
+import '../../../theme/app_palette.dart';
 import '../../../widgets/auth_primary_button_widget.dart';
 import '../cubit/app_version_cubit.dart';
 
@@ -61,7 +61,7 @@ class _MaintenanceRecheckButtonWidgetState
                       ? Icons.wifi_off_rounded
                       : Icons.build_circle_outlined,
                   size: 18,
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
                 const SizedBox(width: AppConstants.paddingS),
                 Flexible(

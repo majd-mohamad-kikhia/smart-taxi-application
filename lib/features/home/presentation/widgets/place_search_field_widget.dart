@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// Rounded "search for a place" text field with a spinner while searching and
 /// a clear button once something is typed.
@@ -25,34 +25,34 @@ class PlaceSearchFieldWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.neutralSurface,
+        color: context.colors.neutralSurface,
         borderRadius: BorderRadius.circular(AppConstants.radiusFull),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: TextField(
         controller: controller,
         autofocus: autofocus,
         onChanged: onChanged,
-        style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+        style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
         decoration: InputDecoration(
           hintText: context.l10n.searchPlaceHint,
-          hintStyle: const TextStyle(
-            color: AppColors.textTertiary,
+          hintStyle: TextStyle(
+            color: context.colors.textTertiary,
             fontSize: 14,
           ),
-          prefixIcon: const Icon(
+          prefixIcon: Icon(
             Icons.search_rounded,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
           ),
           suffixIcon: isSearching
-              ? const Padding(
+              ? Padding(
                   padding: EdgeInsets.all(14),
                   child: SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.primary,
+                      color: context.colors.primaryContent,
                     ),
                   ),
                 )
@@ -61,9 +61,9 @@ class PlaceSearchFieldWidget extends StatelessWidget {
                   builder: (context, _) => controller.text.isEmpty
                       ? const SizedBox.shrink()
                       : IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.close_rounded,
-                            color: AppColors.textTertiary,
+                            color: context.colors.textTertiary,
                             size: 18,
                           ),
                           onPressed: onClear,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// What a snack bar is telling the user. Drives its accent color and icon.
 enum AppSnackBarType { success, error, warning, info }
@@ -54,7 +55,7 @@ class AppSnackBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = _SnackBarTone(type);
+    final style = _SnackBarTone(context, type);
     final radius = BorderRadius.circular(AppConstants.radiusMedium);
 
     return Center(
@@ -62,12 +63,12 @@ class AppSnackBarWidget extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: _maxWidth),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: AppColors.neutralSurface,
+            color: context.colors.neutralSurface,
             borderRadius: radius,
-            border: Border.all(color: AppColors.neutralBorder),
-            boxShadow: const [
+            border: Border.all(color: context.colors.neutralBorder),
+            boxShadow: [
               BoxShadow(
-                color: AppColors.shadowStrong,
+                color: context.colors.shadowStrong,
                 blurRadius: 16,
                 offset: Offset(0, 6),
               ),
@@ -97,7 +98,7 @@ class AppSnackBarWidget extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
-                                    color: AppColors.textPrimary,
+                                    color: context.colors.textPrimary,
                                     fontWeight: FontWeight.w600,
                                     height: 1.35,
                                   ),
@@ -145,25 +146,25 @@ class _SnackBarTone {
 
   const _SnackBarTone._(this.color, this.surface, this.icon);
 
-  factory _SnackBarTone(AppSnackBarType type) => switch (type) {
-    AppSnackBarType.success => const _SnackBarTone._(
+  factory _SnackBarTone(BuildContext context, AppSnackBarType type) => switch (type) {
+    AppSnackBarType.success => _SnackBarTone._(
       AppColors.success,
-      AppColors.successSurface,
+      context.colors.successSurface,
       Icons.check_rounded,
     ),
-    AppSnackBarType.error => const _SnackBarTone._(
+    AppSnackBarType.error => _SnackBarTone._(
       AppColors.error,
-      AppColors.errorSurface,
+      context.colors.errorSurface,
       Icons.priority_high_rounded,
     ),
-    AppSnackBarType.warning => const _SnackBarTone._(
-      AppColors.accent,
-      AppColors.accentSurface,
+    AppSnackBarType.warning => _SnackBarTone._(
+      AppColors.warning,
+      context.colors.warningSurface,
       Icons.warning_amber_rounded,
     ),
-    AppSnackBarType.info => const _SnackBarTone._(
+    AppSnackBarType.info => _SnackBarTone._(
       AppColors.primary,
-      AppColors.primarySurface,
+      context.colors.primarySurface,
       Icons.info_outline_rounded,
     ),
   };

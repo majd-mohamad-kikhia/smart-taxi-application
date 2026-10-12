@@ -6,6 +6,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/validators/auth_validators.dart';
 import '../../../../core/validators/phone_input_formatter.dart';
 import '../../../../core/widgets/app_choice_chip_widget.dart';
@@ -179,7 +180,7 @@ class _SignUpViewState extends State<_SignUpView> {
                   Text(
                     state.typesError!,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: context.colors.textSecondary),
                   ),
                   TextButton(onPressed: cubit.loadVehicleTypes, child: Text(l10n.retry)),
                 ],

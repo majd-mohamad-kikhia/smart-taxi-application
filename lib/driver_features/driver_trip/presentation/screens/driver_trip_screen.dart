@@ -4,6 +4,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../../../../core/widgets/live_trip_map_widget.dart';
@@ -48,7 +49,7 @@ class _DriverTripView extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColors.backgroundGray,
+        backgroundColor: context.colors.backgroundGray,
         body: MultiBlocListener(
           // Each listener reacts to one thing happening once. (They used to
           // be one listener that re-opened the fare dialog whenever an error
@@ -191,9 +192,9 @@ class _InProgressView extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.backgroundWhite,
+                      color: context.colors.backgroundWhite,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: context.colors.border),
                     ),
                     child: OrderRouteDetailsWidget(
                       order: state.order,
@@ -231,12 +232,12 @@ class _BottomPanel extends StatelessWidget {
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.backgroundWhite,
+            color: context.colors.backgroundWhite,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border),
-            boxShadow: const [
+            border: Border.all(color: context.colors.border),
+            boxShadow: [
               BoxShadow(
-                color: AppColors.shadowMedium,
+                color: context.colors.shadowMedium,
                 blurRadius: 16,
                 offset: Offset(0, -2),
               ),

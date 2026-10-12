@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../cubit/driver_settings_cubit.dart';
 
 /// Draggable control for the driver's ride-search radius. Whole
@@ -34,18 +35,18 @@ class SearchRadiusSliderWidget extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppConstants.paddingL),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.social_distance_rounded,
-                color: AppColors.primary,
+                color: context.colors.primaryContent,
                 size: 20,
               ),
               const SizedBox(width: AppConstants.paddingS),
@@ -63,14 +64,14 @@ class SearchRadiusSliderWidget extends StatelessWidget {
                   vertical: AppConstants.paddingXS,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primarySurface,
+                  color: context.colors.primarySurface,
                   borderRadius: BorderRadius.circular(AppConstants.radiusFull),
                 ),
                 child: Text(
                   l10n.distanceKm('$valueKm'),
                   style: textTheme.labelMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    color: context.colors.primaryContent,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
@@ -93,7 +94,7 @@ class SearchRadiusSliderWidget extends StatelessWidget {
                   l10n.searchRadiusUnsaved,
                   style: textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ],
@@ -101,11 +102,11 @@ class SearchRadiusSliderWidget extends StatelessWidget {
           ],
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
-              activeTrackColor: AppColors.primary,
-              inactiveTrackColor: AppColors.borderStrong,
-              thumbColor: AppColors.primary,
+              activeTrackColor: context.colors.primaryContent,
+              inactiveTrackColor: context.colors.borderStrong,
+              thumbColor: context.colors.primaryContent,
               overlayColor: AppColors.primary.withValues(alpha: 0.15),
-              valueIndicatorColor: AppColors.primary,
+              valueIndicatorColor: context.colors.primaryContent,
               valueIndicatorTextStyle: const TextStyle(
                 color: AppColors.textOnPrimary,
                 fontWeight: FontWeight.w700,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// The small heading above a group on a settings screen. Use it on its own
 /// above a control that is already a card (the language picker, a slider);
@@ -22,7 +22,7 @@ class SettingsHeadingWidget extends StatelessWidget {
         child: Text(
           title,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
       ),
@@ -53,15 +53,15 @@ class SettingsSectionWidget extends StatelessWidget {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.backgroundWhite,
+            color: context.colors.backgroundWhite,
             borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.colors.border),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
             children: [
               for (var i = 0; i < children.length; i++) ...[
-                if (i > 0) const Divider(height: 1, color: AppColors.borderLight),
+                if (i > 0) Divider(height: 1, color: context.colors.borderLight),
                 children[i],
               ],
             ],

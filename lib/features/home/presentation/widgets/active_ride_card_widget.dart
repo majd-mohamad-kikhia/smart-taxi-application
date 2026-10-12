@@ -4,6 +4,7 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 
 /// Summary of the ride the customer just requested — its status and
@@ -31,7 +32,7 @@ class ActiveRideCardWidget extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppConstants.paddingL),
       decoration: BoxDecoration(
-        color: AppColors.primarySurface,
+        color: context.colors.primarySurface,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
       ),
@@ -45,18 +46,18 @@ class ActiveRideCardWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   _statusLabel(context.l10n),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
               Text(
                 '#${ride.id}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: AppColors.textTertiary,
+                  color: context.colors.textTertiary,
                 ),
               ),
             ],
@@ -68,10 +69,10 @@ class ActiveRideCardWidget extends StatelessWidget {
                 PriceTextWidget(
                   price: ride.price!,
                   alignment: CrossAxisAlignment.start,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.primary,
+                    color: context.colors.primaryContent,
                     fontFeatures: [FontFeature.tabularFigures()],
                   ),
                 ),
@@ -79,9 +80,9 @@ class ActiveRideCardWidget extends StatelessWidget {
                 if (ride.priceIsEstimate)
                   Text(
                     context.l10n.priceEstimateTag,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textTertiary,
+                      color: context.colors.textTertiary,
                     ),
                   ),
               ],
@@ -109,7 +110,7 @@ class _StatusIndicator extends StatelessWidget {
         height: 16,
         child: CircularProgressIndicator(
           strokeWidth: 2,
-          color: AppColors.primary,
+          color: context.colors.primaryContent,
           semanticsLabel: label,
         ),
       );
@@ -120,6 +121,6 @@ class _StatusIndicator extends StatelessWidget {
       'in_progress' => Icons.route_rounded,
       _ => Icons.local_taxi_rounded,
     };
-    return Icon(icon, size: 18, color: AppColors.primary);
+    return Icon(icon, size: 18, color: context.colors.primaryContent);
   }
 }

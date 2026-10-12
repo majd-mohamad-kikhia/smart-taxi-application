@@ -3,6 +3,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_date.dart';
 import '../../../../core/widgets/second_ticker_widget.dart';
 import '../../data/models/shared_order_preview_model.dart';
@@ -25,7 +26,7 @@ class SharedOrderStatusWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final tone = _toneOf(availability);
+    final tone = _toneOf(context, availability);
     final opensAt = this.opensAt;
     final showCountdown = availability == SharedOrderAvailability.scheduled &&
         opensAt != null &&
@@ -53,7 +54,7 @@ class SharedOrderStatusWidget extends StatelessWidget {
                   Text(
                     _messageOf(context, l10n),
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: AppColors.textPrimary,
+                          color: context.colors.textPrimary,
                           fontWeight: FontWeight.w700,
                           height: 1.35,
                         ),
@@ -64,7 +65,7 @@ class SharedOrderStatusWidget extends StatelessWidget {
                       builder: (context) => Text(
                         l10n.sharedOrderOpensIn(_countdown(opensAt)),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.textSecondary,
+                              color: context.colors.textSecondary,
                               fontFeatures: const [FontFeature.tabularFigures()],
                             ),
                       ),
@@ -121,15 +122,15 @@ class SharedOrderStatusWidget extends StatelessWidget {
     };
   }
 
-  static ({Color color, Color surface}) _toneOf(SharedOrderAvailability availability) {
+  static ({Color color, Color surface}) _toneOf(BuildContext context, SharedOrderAvailability availability) {
     return switch (availability) {
       SharedOrderAvailability.available ||
-      SharedOrderAvailability.yours => (color: AppColors.success, surface: AppColors.successSurface),
+      SharedOrderAvailability.yours => (color: AppColors.success, surface: context.colors.successSurface),
       SharedOrderAvailability.taken ||
       SharedOrderAvailability.cancelled ||
       SharedOrderAvailability.blocked ||
-      SharedOrderAvailability.notActive => (color: AppColors.error, surface: AppColors.errorSurface),
-      _ => (color: AppColors.accent, surface: AppColors.accentSurface),
+      SharedOrderAvailability.notActive => (color: AppColors.error, surface: context.colors.errorSurface),
+      _ => (color: AppColors.warning, surface: context.colors.warningSurface),
     };
   }
 }

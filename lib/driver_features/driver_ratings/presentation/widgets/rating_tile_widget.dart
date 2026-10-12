@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/ride_rating/presentation/widgets/star_rating_widget.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_date.dart';
 import '../../data/models/driver_ratings_page_model.dart';
 
@@ -26,9 +26,9 @@ class RatingTileWidget extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppConstants.paddingL),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +40,7 @@ class RatingTileWidget extends StatelessWidget {
               if (rating.ratedAt != null)
                 Text(
                   formatDateTime(context, rating.ratedAt!),
-                  style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                  style: textTheme.bodySmall?.copyWith(color: context.colors.textSecondary),
                 ),
             ],
           ),
@@ -54,14 +54,14 @@ class RatingTileWidget extends StatelessWidget {
               if (name != null && name.isNotEmpty) l10n.ratingFromCustomer(name),
               l10n.ratingTripNumber(rating.rideId),
             ].join(' · '),
-            style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+            style: textTheme.bodySmall?.copyWith(color: context.colors.textSecondary),
           ),
           if (route.isNotEmpty)
             Text(
               route,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: textTheme.bodySmall?.copyWith(color: AppColors.textTertiary),
+              style: textTheme.bodySmall?.copyWith(color: context.colors.textTertiary),
             ),
         ],
       ),

@@ -1,27 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../data/models/place_suggestion_model.dart';
 import '../cubit/map_pick_cubit.dart';
 import '../cubit/map_pick_state.dart';
-import 'home_gps_button_widget.dart';
 import 'place_search_field_widget.dart';
 import 'place_suggestions_card_widget.dart';
 
-/// Top of the home map while a point is being placed: back, a place search,
-/// the GPS button and the search results.
+/// Top of the home map while a point is being placed: back, a place search
+/// and the search results.
 class MapPickTopWidget extends StatefulWidget {
-  final bool isLocating;
   final VoidCallback onBack;
-  final VoidCallback onLocate;
 
-  const MapPickTopWidget({
-    super.key,
-    required this.isLocating,
-    required this.onBack,
-    required this.onLocate,
-  });
+  const MapPickTopWidget({super.key, required this.onBack});
 
   @override
   State<MapPickTopWidget> createState() => _MapPickTopWidgetState();
@@ -71,11 +63,6 @@ class _MapPickTopWidgetState extends State<MapPickTopWidget> {
                     onClear: _clear,
                   ),
                 ),
-                const SizedBox(width: AppConstants.paddingM),
-                HomeGpsButtonWidget(
-                  isLoading: widget.isLocating,
-                  onTap: widget.onLocate,
-                ),
               ],
             ),
           ),
@@ -113,17 +100,17 @@ class _BackButtonWidget extends StatelessWidget {
     return Tooltip(
       message: MaterialLocalizations.of(context).backButtonTooltip,
       child: Material(
-        color: AppColors.neutralSurface,
-        shape: const CircleBorder(side: BorderSide(color: AppColors.border)),
+        color: context.colors.neutralSurface,
+        shape: CircleBorder(side: BorderSide(color: context.colors.border)),
         child: InkWell(
           onTap: onTap,
           customBorder: const CircleBorder(),
-          child: const SizedBox(
+          child: SizedBox(
             width: 48,
             height: 48,
             child: Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: AppColors.textPrimary,
+              color: context.colors.textPrimary,
               size: 20,
             ),
           ),

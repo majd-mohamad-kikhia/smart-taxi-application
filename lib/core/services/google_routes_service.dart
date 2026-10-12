@@ -30,16 +30,17 @@ class GoogleRoutesService {
   GoogleRoutesService({
     required Future<GoogleApiCredentials> Function() credentials,
     Dio? dio,
-  })  : _credentials = credentials,
-        _dio = dio ??
-            Dio(
-              BaseOptions(
-                baseUrl: AppConstants.googleRoutesBaseUrl,
-                connectTimeout: const Duration(seconds: 6),
-                receiveTimeout: const Duration(seconds: 8),
-                contentType: Headers.jsonContentType,
-              ),
-            );
+  }) : _credentials = credentials,
+       _dio =
+           dio ??
+           Dio(
+             BaseOptions(
+               baseUrl: AppConstants.googleRoutesBaseUrl,
+               connectTimeout: const Duration(seconds: 6),
+               receiveTimeout: const Duration(seconds: 8),
+               contentType: Headers.jsonContentType,
+             ),
+           );
 
   /// The fastest road route from ([fromLat], [fromLng]) to ([toLat], [toLng]).
   ///
@@ -68,15 +69,19 @@ class GoogleRoutesService {
           'travelMode': 'DRIVE',
           // Live-traffic travel time without the slower "optimal" search.
           'routingPreference': 'TRAFFIC_AWARE',
+          // Google's alternatives too: the shortest of them is drawn.
+          'computeAlternativeRoutes': true,
           'polylineQuality': 'HIGH_QUALITY',
           'polylineEncoding': 'ENCODED_POLYLINE',
           'units': 'METRIC',
         },
-        options: Options(headers: {
-          'X-Goog-Api-Key': credentials.apiKey,
-          'X-Goog-FieldMask': _fieldMask,
-          ...credentials.appHeaders,
-        }),
+        options: Options(
+          headers: {
+            'X-Goog-Api-Key': credentials.apiKey,
+            'X-Goog-FieldMask': _fieldMask,
+            ...credentials.appHeaders,
+          },
+        ),
       );
     } on DioException catch (e) {
       debugPrint(
@@ -90,29 +95,43 @@ class GoogleRoutesService {
   }
 
   static Map<String, dynamic> _waypoint(double lat, double lng) => {
-        'location': {
-          'latLng': {'latitude': lat, 'longitude': lng},
-        },
-      };
+    'location': {
+      'latLng': {'latitude': lat, 'longitude': lng},
+    },
+  };
 
   /// proto3 JSON omits zero values, so a missing distance or duration means
   /// 0 (origin == destination); a missing polyline means no usable route.
   static DrivingRouteModel _parse(dynamic data) {
     final routes = data is Map ? data['routes'] : null;
-    if (routes is! List || routes.isEmpty || routes.first is! Map) {
+    if (routes is! List || routes.isEmpty) {
       throw RouteException(AppStrings.current.errServerUnreachable);
     }
-    final route = routes.first as Map;
+    // The shortest by distance among the usable routes (Google's own
+    // recommendation is the fastest, which is often a little longer). Ties
+    // keep Google's order. Its own travel time is the ETA.
+    DrivingRouteModel? shortest;
+    for (final route in routes) {
+      final candidate = route is Map ? _parseRoute(route) : null;
+      if (candidate != null &&
+          (shortest == null ||
+              candidate.distanceMeters < shortest.distanceMeters)) {
+        shortest = candidate;
+      }
+    }
+    if (shortest == null) {
+      throw RouteException(AppStrings.current.errServerUnreachable);
+    }
+    return shortest;
+  }
+
+  /// One route of the answer, or null when it has no usable polyline.
+  static DrivingRouteModel? _parseRoute(Map route) {
     final polyline = route['polyline'];
     final encoded = polyline is Map ? polyline['encodedPolyline'] : null;
-    if (encoded is! String || encoded.isEmpty) {
-      throw RouteException(AppStrings.current.errServerUnreachable);
-    }
-
+    if (encoded is! String || encoded.isEmpty) return null;
     final points = PolylineDecoder.decode(encoded);
-    if (points.length < 2) {
-      throw RouteException(AppStrings.current.errServerUnreachable);
-    }
+    if (points.length < 2) return null;
     return DrivingRouteModel(
       points: points,
       distanceMeters: (route['distanceMeters'] as num?)?.toDouble() ?? 0,

@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/theme/app_map_style.dart';
 
 /// A still map with the order's pickup (green) and drop-off (red) pins,
 /// framed so both are in view. Gestures are off: it is a preview, and it
@@ -20,17 +20,10 @@ class SharedOrderMapWidget extends StatefulWidget {
   State<SharedOrderMapWidget> createState() => _SharedOrderMapWidgetState();
 }
 
-class _SharedOrderMapWidgetState extends State<SharedOrderMapWidget> {
+class _SharedOrderMapWidgetState extends State<SharedOrderMapWidget> with MapStyleMixin {
   static const _framePadding = 48.0;
 
-  String? _mapStyle;
   GoogleMapController? _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadMapStyle();
-  }
 
   @override
   void didUpdateWidget(SharedOrderMapWidget oldWidget) {
@@ -46,10 +39,6 @@ class _SharedOrderMapWidgetState extends State<SharedOrderMapWidget> {
     super.dispose();
   }
 
-  Future<void> _loadMapStyle() async {
-    final style = await rootBundle.loadString('assets/map_styles/dark_map_style.json');
-    if (mounted) setState(() => _mapStyle = style);
-  }
 
   void _frame() {
     final bounds = LatLngBounds(
@@ -68,7 +57,7 @@ class _SharedOrderMapWidgetState extends State<SharedOrderMapWidget> {
   @override
   Widget build(BuildContext context) {
     return GoogleMap(
-      style: _mapStyle,
+      style: mapStyle,
       initialCameraPosition: CameraPosition(target: widget.pickup, zoom: 13),
       onMapCreated: (controller) {
         _controller = controller;

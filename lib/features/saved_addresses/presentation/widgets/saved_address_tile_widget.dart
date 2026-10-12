@@ -3,7 +3,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
 import '../../../../core/saved_addresses/presentation/saved_address_type_ui.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// One row of the "Saved places" screen. With an [address] it shows the
 /// place (tap to edit, menu to edit or delete); without one it is the
@@ -39,7 +39,7 @@ class SavedAddressTileWidget extends StatelessWidget {
             .join(' · ');
 
     return Material(
-      color: AppColors.backgroundWhite,
+      color: context.colors.backgroundWhite,
       borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
       child: InkWell(
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
@@ -52,20 +52,20 @@ class SavedAddressTileWidget extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.colors.border),
           ),
           child: Row(
             children: [
               Container(
                 width: 40,
                 height: 40,
-                decoration: const BoxDecoration(
-                  color: AppColors.primarySurface,
+                decoration: BoxDecoration(
+                  color: context.colors.primarySurface,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   address == null ? Icons.add_rounded : type.icon,
-                  color: AppColors.primary,
+                  color: context.colors.primaryContent,
                   size: 22,
                 ),
               ),
@@ -82,7 +82,7 @@ class SavedAddressTileWidget extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ],
@@ -98,16 +98,16 @@ class SavedAddressTileWidget extends StatelessWidget {
               else if (address != null && onDelete != null)
                 IconButton(
                   tooltip: l10n.delete,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.delete_outline_rounded,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                   onPressed: onDelete,
                 )
               else
-                const Icon(
+                Icon(
                   Icons.chevron_right_rounded,
-                  color: AppColors.textTertiary,
+                  color: context.colors.textTertiary,
                 ),
             ],
           ),

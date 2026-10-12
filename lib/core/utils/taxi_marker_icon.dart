@@ -3,7 +3,7 @@ import 'package:flutter/painting.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../theme/app_colors.dart';
 
-/// The top-view yellow taxi used for every live-tracked car on the maps.
+/// The top-view green taxi used for every live-tracked car on the maps.
 ///
 /// Drawn with a canvas (no bitmap asset), facing north so a flat marker's
 /// `rotation` can point it along the direction of travel. The icon is
@@ -51,7 +51,7 @@ class TaxiMarkerIcon {
     );
 
     // Body and outline.
-    canvas.drawRRect(body, fill..color = AppColors.primaryYellow);
+    canvas.drawRRect(body, fill..color = AppColors.primaryBright);
     canvas.drawRRect(
       body,
       Paint()
@@ -73,7 +73,7 @@ class TaxiMarkerIcon {
       ..lineTo(0.18 * w, 0.40 * h)
       ..close();
     canvas.drawPath(windscreen, fill..color = AppColors.darkGray);
-    canvas.drawRect(box(0.18, 0.40, 0.82, 0.62), fill..color = AppColors.orangeGold);
+    canvas.drawRect(box(0.18, 0.40, 0.82, 0.62), fill..color = AppColors.white);
     canvas.drawRRect(round(box(0.20, 0.62, 0.80, 0.74), 0.08), fill..color = AppColors.darkGray);
 
     // Taxi sign on the roof.

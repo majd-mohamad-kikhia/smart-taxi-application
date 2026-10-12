@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// A single labeled value tile in the wallet statement grid. Money values
 /// are tabular and scale down instead of wrapping. Pass [icon] for the round
@@ -12,7 +13,8 @@ class WalletStatCardWidget extends StatelessWidget {
   final IconData? icon;
   final Color? iconColor;
   final Color? iconBackground;
-  final Color valueColor;
+  /// Defaults to the theme's primary text color.
+  final Color? valueColor;
   final VoidCallback? onTap;
 
   const WalletStatCardWidget({
@@ -22,7 +24,7 @@ class WalletStatCardWidget extends StatelessWidget {
     this.icon,
     this.iconColor,
     this.iconBackground,
-    this.valueColor = AppColors.textPrimary,
+    this.valueColor,
     this.onTap,
   });
 
@@ -32,9 +34,9 @@ class WalletStatCardWidget extends StatelessWidget {
     final card = Container(
       padding: const EdgeInsets.all(AppConstants.paddingL),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -50,7 +52,7 @@ class WalletStatCardWidget extends StatelessWidget {
                       value,
                       style: textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w800,
-                        color: valueColor,
+                        color: valueColor ?? context.colors.textPrimary,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
@@ -61,7 +63,7 @@ class WalletStatCardWidget extends StatelessWidget {
                   label,
                   style: textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -73,17 +75,17 @@ class WalletStatCardWidget extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: iconBackground ?? AppColors.primarySurface,
+                color: iconBackground ?? context.colors.primarySurface,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 18, color: iconColor ?? AppColors.primary),
+              child: Icon(icon, size: 18, color: iconColor ?? context.colors.primaryContent),
             ),
           ],
           if (onTap != null) ...[
             const SizedBox(width: AppConstants.paddingXS),
-            const Icon(
+            Icon(
               Icons.chevron_right_rounded,
-              color: AppColors.textTertiary,
+              color: context.colors.textTertiary,
             ),
           ],
         ],

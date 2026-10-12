@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../localization/l10n_context_extension.dart';
-import '../../../theme/app_colors.dart';
+import '../../../theme/app_palette.dart';
 import '../../../widgets/app_animated_dialog.dart';
 import '../../data/models/app_version_model.dart';
 import '../cubit/app_version_cubit.dart';
@@ -37,7 +37,7 @@ Future<void> showOptionalUpdateDialog(
             notes,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               height: 1.5,
-              color: AppColors.textTertiary,
+              color: context.colors.textTertiary,
             ),
           ),
     onConfirm: () =>

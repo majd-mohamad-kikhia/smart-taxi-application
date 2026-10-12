@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/second_ticker_widget.dart';
 
 /// The driver's turn on an order: the seconds left and a bar draining to
@@ -46,7 +47,7 @@ class OrderOfferCountdownWidget extends StatelessWidget {
                 Icon(
                   Icons.timer_outlined,
                   size: 16,
-                  color: urgent ? AppColors.error : AppColors.textSecondary,
+                  color: urgent ? AppColors.error : context.colors.textSecondary,
                 ),
                 const SizedBox(width: 4),
                 Text(
@@ -54,7 +55,7 @@ class OrderOfferCountdownWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: urgent ? AppColors.error : AppColors.textSecondary,
+                    color: urgent ? AppColors.error : context.colors.textSecondary,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
@@ -73,10 +74,10 @@ class OrderOfferCountdownWidget extends StatelessWidget {
             child: LinearProgressIndicator(
               value: value,
               minHeight: 4,
-              backgroundColor: AppColors.borderLight,
+              backgroundColor: context.colors.borderLight,
               color: value * totalSeconds <= _urgentSeconds
                   ? AppColors.error
-                  : AppColors.primary,
+                  : context.colors.primaryContent,
             ),
           ),
         ),

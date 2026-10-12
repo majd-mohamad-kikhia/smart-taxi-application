@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_map_style.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// Read-only preview of the path a finished ride actually drove: the blue
 /// driven line with a start (green) and end (red) pin, fitted to the map.
@@ -19,21 +20,7 @@ class RideRouteMapWidget extends StatefulWidget {
   State<RideRouteMapWidget> createState() => _RideRouteMapWidgetState();
 }
 
-class _RideRouteMapWidgetState extends State<RideRouteMapWidget> {
-  String? _mapStyle;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadMapStyle();
-  }
-
-  Future<void> _loadMapStyle() async {
-    final style = await rootBundle.loadString(
-      'assets/map_styles/dark_map_style.json',
-    );
-    if (mounted) setState(() => _mapStyle = style);
-  }
+class _RideRouteMapWidgetState extends State<RideRouteMapWidget> with MapStyleMixin {
 
   LatLngBounds _bounds(List<LatLng> points) {
     final lats = points.map((p) => p.latitude);
@@ -54,10 +41,10 @@ class _RideRouteMapWidgetState extends State<RideRouteMapWidget> {
         aspectRatio: 16 / 10,
         // Until the dark style has loaded, a plain card-colored box stands
         // in, so a light default map never flashes.
-        child: _mapStyle == null
-            ? const ColoredBox(color: AppColors.backgroundMuted)
+        child: !mapStyleReady
+            ? ColoredBox(color: context.colors.backgroundMuted)
             : GoogleMap(
-                style: _mapStyle,
+                style: mapStyle,
                 initialCameraPosition: CameraPosition(
                   target: points.first,
                   zoom: 14,

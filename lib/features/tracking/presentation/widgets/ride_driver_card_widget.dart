@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/network_photo_widget.dart';
 import '../../data/models/ride_driver_model.dart';
 import '../../data/models/ride_vehicle_model.dart';
@@ -34,18 +35,18 @@ class RideDriverCardWidget extends StatelessWidget {
                   Flexible(
                     child: Text(
                       driver.fullName,
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.colors.textPrimary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   if (driver.rating != null) ...[
                     const SizedBox(width: 6),
-                    const Icon(Icons.star_rounded, color: AppColors.accent, size: 14),
+                    const Icon(Icons.star_rounded, color: AppColors.star, size: 14),
                     const SizedBox(width: 2),
                     Text(
                       driver.rating!.toStringAsFixed(1),
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.colors.textSecondary),
                     ),
                   ],
                 ],
@@ -53,7 +54,7 @@ class RideDriverCardWidget extends StatelessWidget {
               const SizedBox(height: 3),
               Text(
                 vehicle.summary,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.textSecondary),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -61,11 +62,11 @@ class RideDriverCardWidget extends StatelessWidget {
                 const SizedBox(height: 3),
                 Row(
                   children: [
-                    const Icon(Icons.call_outlined, size: 13, color: AppColors.textTertiary),
+                    Icon(Icons.call_outlined, size: 13, color: context.colors.textTertiary),
                     const SizedBox(width: 4),
                     Text(
                       driver.phoneNumber,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                      style: TextStyle(fontSize: 12, color: context.colors.textTertiary),
                     ),
                   ],
                 ),

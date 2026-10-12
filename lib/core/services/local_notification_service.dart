@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../localization/app_strings.dart';
 
@@ -30,6 +31,19 @@ class LocalNotificationService {
     sound: const RawResourceAndroidNotificationSound(_androidSound),
   );
 
+  /// The "incoming order" channel: maximum importance, the honk, and it may
+  /// take over the screen like a call (see [showIncomingOrderCall]).
+  AndroidNotificationChannel get _callChannel => AndroidNotificationChannel(
+    'mshoar_incoming_order',
+    AppStrings.current.incomingOrderChannelName,
+    description: AppStrings.current.incomingOrderChannelDescription,
+    importance: Importance.max,
+    playSound: true,
+    enableVibration: true,
+    sound: const RawResourceAndroidNotificationSound(_androidSound),
+    audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+  );
+
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   Future<void>? _initialization;
@@ -57,6 +71,74 @@ class LocalNotificationService {
     await android?.deleteNotificationChannel(channelId: _oldChannelId);
     await android?.deleteNotificationChannel(channelId: _quietHonkChannelId);
     await android?.createNotificationChannel(_channel);
+    await android?.createNotificationChannel(_callChannel);
+  }
+
+  /// A new order while the app is not on screen: shown like an incoming call.
+  /// On Android it takes over the screen (even a locked one) with a
+  /// full-screen intent that opens the app, rings with the honk and vibrates
+  /// until it is answered or [timeout] passes (the order's own turn). On iOS
+  /// it is a time-sensitive banner: iOS gives no app a call screen without
+  /// CallKit.
+  Future<void> showIncomingOrderCall({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    await initialize();
+    await _plugin.show(
+      id: id,
+      title: title,
+      body: body,
+      payload: payload,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          _callChannel.id,
+          _callChannel.name,
+          channelDescription: _callChannel.description,
+          importance: Importance.max,
+          priority: Priority.max,
+          category: AndroidNotificationCategory.call,
+          fullScreenIntent: true,
+          ongoing: true,
+          autoCancel: true,
+          timeoutAfter: timeout.inMilliseconds,
+          playSound: true,
+          sound: const RawResourceAndroidNotificationSound(_androidSound),
+          audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+          enableVibration: true,
+          vibrationPattern: Int64List.fromList([0, 600, 300, 600, 300, 600]),
+          // FLAG_INSISTENT: the sound repeats until the notification goes.
+          additionalFlags: Int32List.fromList([4]),
+          visibility: NotificationVisibility.public,
+          ticker: title,
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentSound: true,
+          sound: _iosSound,
+          interruptionLevel: InterruptionLevel.timeSensitive,
+        ),
+      ),
+    );
+  }
+
+  Future<void> cancel(int id) async {
+    await initialize();
+    await _plugin.cancel(id: id);
+  }
+
+  /// Android 14+: whether the app may take over the screen. Asks (opens the
+  /// system's setting) when it may not; true elsewhere.
+  Future<bool> requestFullScreenIntentPermission() async {
+    await initialize();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    return await android?.requestFullScreenIntentPermission() ?? true;
   }
 
   Future<void> show({

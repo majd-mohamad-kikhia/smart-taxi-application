@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// One label and value line on the profile. The labels share one column and
 /// the values share another, both starting at the same edge on every row, so
@@ -35,7 +35,7 @@ class ProfileInfoRowWidget extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 18, color: AppColors.primary),
+            Icon(icon, size: 18, color: context.colors.primaryContent),
             const SizedBox(width: AppConstants.paddingM),
             Expanded(flex: 2, child: Text(label, style: textTheme.bodyMedium)),
             const SizedBox(width: AppConstants.paddingM),

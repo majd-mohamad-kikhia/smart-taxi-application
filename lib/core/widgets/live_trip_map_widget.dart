@@ -1,15 +1,15 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/route_point_model.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_map_style.dart';
 import '../utils/car_heading_tracker.dart';
 import '../utils/taxi_marker_icon.dart';
 
 /// Full-bleed map for a trip that is underway: the moving taxi, the
 /// destination pin, and two lines: the planned road route ([routePoints],
-/// yellow, fixed from start to end) and the path the car has actually
+/// green, fixed from start to end) and the path the car has actually
 /// driven ([drivenPath], blue). Shared by the driver's and the customer's
 /// in-progress screens so both see the same picture.
 ///
@@ -37,9 +37,8 @@ class LiveTripMapWidget extends StatefulWidget {
   State<LiveTripMapWidget> createState() => _LiveTripMapWidgetState();
 }
 
-class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
+class _LiveTripMapWidgetState extends State<LiveTripMapWidget> with MapStyleMixin {
   GoogleMapController? _mapController;
-  String? _mapStyle;
   BitmapDescriptor? _taxiIcon;
   final _heading = CarHeadingTracker();
   bool _hasFitted = false;
@@ -60,16 +59,11 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
   @override
   void initState() {
     super.initState();
-    _loadMapStyle();
     _loadTaxiIcon();
     final car = _car;
     if (car != null) _heading.update(car);
   }
 
-  Future<void> _loadMapStyle() async {
-    final style = await rootBundle.loadString('assets/map_styles/dark_map_style.json');
-    if (mounted) setState(() => _mapStyle = style);
-  }
 
   Future<void> _loadTaxiIcon() async {
     final icon = await TaxiMarkerIcon.load();
@@ -135,7 +129,7 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> {
     final taxiIcon = _taxiIcon;
     final plannedLine = _plannedPolyline();
     return GoogleMap(
-      style: _mapStyle,
+      style: mapStyle,
       initialCameraPosition: CameraPosition(target: car ?? _destination, zoom: 15),
       myLocationEnabled: false,
       myLocationButtonEnabled: false,

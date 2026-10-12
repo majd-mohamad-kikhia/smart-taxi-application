@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/fare_breakdown_widget.dart';
 
@@ -35,7 +35,7 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
       explicitChildNodes: true,
       label: l10n.payDriverTitle,
       child: Dialog(
-        backgroundColor: AppColors.backgroundWhite,
+        backgroundColor: context.colors.backgroundWhite,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusXL),
         ),
@@ -45,9 +45,9 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(
+              Icon(
                 Icons.payments_rounded,
-                color: AppColors.primary,
+                color: context.colors.primaryContent,
                 size: 40,
               ),
               const SizedBox(height: AppConstants.paddingM),
@@ -88,7 +88,7 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
                     height: 14,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.primary,
+                      color: context.colors.primaryContent,
                       semanticsLabel: l10n.payDriverWaiting,
                     ),
                   ),
@@ -97,7 +97,7 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
                     child: Text(
                       l10n.payDriverWaiting,
                       style: textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ),

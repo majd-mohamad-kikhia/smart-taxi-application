@@ -8,6 +8,7 @@ import '../../../../core/routing/app_router.dart';
 import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
 import '../../../../core/saved_addresses/presentation/saved_address_type_ui.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
@@ -67,7 +68,7 @@ class _SavedAddressFormViewState extends State<_SavedAddressFormView> {
         : l10n.savedAddressEditTitle(widget.existing!.title(l10n));
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: AppBar(title: Text(title)),
       body: BlocConsumer<SavedAddressFormCubit, SavedAddressFormState>(
         listenWhen: (previous, current) =>
@@ -107,7 +108,7 @@ class _SavedAddressFormViewState extends State<_SavedAddressFormView> {
                         const SizedBox(height: AppConstants.paddingS),
                         Text(
                           locationError,
-                          style: const TextStyle(color: AppColors.errorText, fontSize: 13),
+                          style: TextStyle(color: context.colors.errorText, fontSize: 13),
                         ),
                       ],
                       if (_needsLabel) ...[

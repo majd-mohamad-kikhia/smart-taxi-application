@@ -17,7 +17,9 @@ import 'core/routing/app_router.dart';
 import 'core/services/push_notification_service.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
-import 'core/widgets/app_splash_widget.dart';
+import 'core/theme/theme_cubit.dart';
+import 'core/splash/splash_signal.dart';
+import 'core/widgets/splash_video_widget.dart';
 import 'driver_features/driver_auth/data/repositories/driver_repository.dart';
 import 'driver_features/driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
@@ -41,17 +43,18 @@ Future<void> main() async {
     ),
   );
 
-  // The first frame is the splash with the taxi animation, shown at once and
-  // for as long as the startup work below takes; `_launch` then replaces it
-  // with the real app.
-  runApp(const _SplashApp());
+  // The first frame is the splash video, shown at once. `_launch` replaces it
+  // with the real app once the startup work below is done AND the video has
+  // ended (or was skipped with a tap).
+  final splash = SplashSignal();
+  runApp(_SplashApp(signal: splash));
 
-  await _start();
+  await _start(splash);
 }
 
 /// Everything the app needs before its first real screen: settings, Firebase,
 /// the saved session and the version check.
-Future<void> _start() async {
+Future<void> _start(SplashSignal splash) async {
   await dotenv.load(fileName: '.env');
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -61,6 +64,7 @@ Future<void> _start() async {
 
   // Restore the saved language before the first frame.
   await sl<LocaleCubit>().load();
+  await sl<ThemeCubit>().load();
 
   // Not awaited: the permission prompt shouldn't hold back the first frame.
   unawaited(sl<PushNotificationService>().initialize());
@@ -79,7 +83,7 @@ Future<void> _start() async {
       await customerRepository.logout();
     } else {
       sl<AuthCubit>().hydrate(restoredCustomer);
-      await _launch(AppRouter.home);
+      await _launch(AppRouter.home, splash);
       return;
     }
   }
@@ -91,36 +95,34 @@ Future<void> _start() async {
       await driverRepository.logout();
     } else {
       sl<DriverAuthCubit>().hydrate(restoredDriver);
-      await _launch(AppRouter.driverHome);
+      await _launch(AppRouter.driverHome, splash);
       return;
     }
   }
 
-  await _launch(AppRouter.roleSelection);
+  await _launch(AppRouter.roleSelection, splash);
 }
 
 /// Asks the server whether this version may run — the splash stays up while
 /// waiting (the cubit gives up and lets the user in after a few seconds) —
 /// then starts the app on [initialRoute], or on the force-update /
 /// maintenance screen when the server says so.
-Future<void> _launch(String initialRoute) async {
+Future<void> _launch(String initialRoute, SplashSignal splash) async {
   final versionCubit = sl<AppVersionCubit>();
   await versionCubit.check();
+
+  // The splash video plays to its end (or until it is tapped); a safety
+  // limit keeps a stuck video from holding the app back.
+  await splash.finished.timeout(const Duration(seconds: 15), onTimeout: () {});
 
   switch (versionCubit.state) {
     case AppVersionForceUpdate(:final info):
       runApp(
-        MshoarApp(
-          initialRoute: AppRouter.forceUpdate,
-          initialArguments: info,
-        ),
+        MshoarApp(initialRoute: AppRouter.forceUpdate, initialArguments: info),
       );
     case AppVersionMaintenance(:final info):
       runApp(
-        MshoarApp(
-          initialRoute: AppRouter.maintenance,
-          initialArguments: info,
-        ),
+        MshoarApp(initialRoute: AppRouter.maintenance, initialArguments: info),
       );
     case AppVersionAllowed() || AppVersionChecking():
       runApp(MshoarApp(initialRoute: initialRoute));
@@ -131,20 +133,21 @@ Future<void> _launch(String initialRoute) async {
   unawaited(sl<SharedOrderLinkHandler>().start());
 }
 
-/// The app shown while it starts up: just the splash, in the dark theme. It
-/// has no navigator routes or localization; its only text is the brand
-/// slogan, which is the same in every language.
+/// The app shown while it starts up: just the splash video, in the dark
+/// theme. It has no navigator routes or localization.
 class _SplashApp extends StatelessWidget {
-  const _SplashApp();
+  final SplashSignal signal;
+
+  const _SplashApp({required this.signal});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      home: const Scaffold(
+      theme: AppTheme.dark,
+      home: Scaffold(
         backgroundColor: AppColors.black,
-        body: AppSplashWidget(),
+        body: SplashVideoWidget(signal: signal),
       ),
     );
   }
@@ -165,44 +168,59 @@ class MshoarApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<LocaleCubit>.value(value: sl<LocaleCubit>()),
+        BlocProvider<ThemeCubit>.value(value: sl<ThemeCubit>()),
         BlocProvider<AppVersionCubit>.value(value: sl<AppVersionCubit>()),
       ],
       child: BlocSelector<LocaleCubit, Locale, Locale>(
         selector: (locale) => locale,
-        builder: (context, locale) => MaterialApp(
-          navigatorKey: AppRouter.navigatorKey,
-          builder: (context, child) =>
-              AppVersionGateWidget(child: child ?? const SizedBox.shrink()),
-          onGenerateTitle: (context) => context.l10n.appName,
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.darkTheme,
+        builder: (context, locale) =>
+            BlocSelector<ThemeCubit, ThemeMode, ThemeMode>(
+              selector: (mode) => mode,
+              builder: (context, themeMode) => MaterialApp(
+                navigatorKey: AppRouter.navigatorKey,
+                builder: (context, child) =>
+                    AnnotatedRegion<SystemUiOverlayStyle>(
+                      // Status bar icons that read on the active theme's page.
+                      value: AppTheme.overlayStyleFor(
+                        Theme.of(context).brightness,
+                      ),
+                      child: AppVersionGateWidget(
+                        child: child ?? const SizedBox.shrink(),
+                      ),
+                    ),
+                onGenerateTitle: (context) => context.l10n.appName,
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.light,
+                darkTheme: AppTheme.dark,
+                themeMode: themeMode,
 
-          // Text direction follows the locale (Arabic → RTL, English →
-          // LTR) through the Material/Widgets localization delegates, so
-          // no global Directionality override is needed.
-          locale: locale,
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
+                // Text direction follows the locale (Arabic → RTL, English →
+                // LTR) through the Material/Widgets localization delegates, so
+                // no global Directionality override is needed.
+                locale: locale,
+                supportedLocales: AppLocalizations.supportedLocales,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
 
-          initialRoute: initialRoute,
-          onGenerateRoute: AppRouter.onGenerateRoute,
-          // Route names with a nested path (e.g. `/driver/home`) would
-          // otherwise have Flutter's default initial-route handling split
-          // them into one route per path segment (`/driver`, then
-          // `/driver/home`), silently pushing an extra unmatched-route
-          // fallback screen underneath the real one. Building a single route
-          // straight from the full name avoids that.
-          onGenerateInitialRoutes: (initialRouteName) {
-            return [
-              AppRouter.onGenerateRoute(
-                RouteSettings(
-                  name: initialRouteName,
-                  arguments: initialArguments,
-                ),
+                initialRoute: initialRoute,
+                onGenerateRoute: AppRouter.onGenerateRoute,
+                // Route names with a nested path (e.g. `/driver/home`) would
+                // otherwise have Flutter's default initial-route handling split
+                // them into one route per path segment (`/driver`, then
+                // `/driver/home`), silently pushing an extra unmatched-route
+                // fallback screen underneath the real one. Building a single route
+                // straight from the full name avoids that.
+                onGenerateInitialRoutes: (initialRouteName) {
+                  return [
+                    AppRouter.onGenerateRoute(
+                      RouteSettings(
+                        name: initialRouteName,
+                        arguments: initialArguments,
+                      ),
+                    ),
+                  ];
+                },
               ),
-            ];
-          },
-        ),
+            ),
       ),
     );
   }

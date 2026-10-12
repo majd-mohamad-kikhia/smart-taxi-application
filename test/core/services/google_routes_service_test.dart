@@ -39,26 +39,85 @@ GoogleRoutesService _service(
   String apiKey = 'test-key',
   Map<String, String> appHeaders = const {},
 }) {
-  final dio = Dio(BaseOptions(
-    baseUrl: AppConstants.googleRoutesBaseUrl,
-    contentType: Headers.jsonContentType,
-  ))
-    ..httpClientAdapter = adapter;
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: AppConstants.googleRoutesBaseUrl,
+      contentType: Headers.jsonContentType,
+    ),
+  )..httpClientAdapter = adapter;
   return GoogleRoutesService(
-    credentials: () async => GoogleApiCredentials(apiKey: apiKey, appHeaders: appHeaders),
+    credentials: () async =>
+        GoogleApiCredentials(apiKey: apiKey, appHeaders: appHeaders),
     dio: dio,
   );
 }
 
 Future<void> _compute(GoogleRoutesService service) => service.computeRoute(
-      fromLat: 35.5,
-      fromLng: 35.8,
-      toLat: 35.6,
-      toLng: 35.9,
-    );
+  fromLat: 35.5,
+  fromLng: 35.8,
+  toLat: 35.6,
+  toLng: 35.9,
+);
 
 void main() {
   const polyline = '_p~iF~ps|U_ulLnnqC_mqNvxq`@';
+
+  test(
+    'asks for alternatives and draws the shortest by distance, with its own time',
+    () async {
+      final adapter = _FakeAdapter({
+        'routes': [
+          // Google's recommendation: the fastest, but longer.
+          {
+            'distanceMeters': 5200,
+            'duration': '600s',
+            'polyline': {'encodedPolyline': polyline},
+          },
+          {
+            'distanceMeters': 4100,
+            'duration': '780s',
+            'polyline': {'encodedPolyline': polyline},
+          },
+          {
+            'distanceMeters': 4800,
+            'duration': '700s',
+            'polyline': {'encodedPolyline': polyline},
+          },
+        ],
+      });
+
+      final route = await _service(
+        adapter,
+      ).computeRoute(fromLat: 35.5, fromLng: 35.8, toLat: 35.6, toLng: 35.9);
+
+      expect(
+        (adapter.request!.data as Map)['computeAlternativeRoutes'],
+        isTrue,
+      );
+      expect(route.distanceMeters, 4100);
+      expect(route.durationSeconds, 780);
+    },
+  );
+
+  test(
+    'a route without a usable line is skipped, not the whole answer',
+    () async {
+      final adapter = _FakeAdapter({
+        'routes': [
+          {'distanceMeters': 1000, 'duration': '100s'},
+          {
+            'distanceMeters': 4100,
+            'duration': '780s',
+            'polyline': {'encodedPolyline': polyline},
+          },
+        ],
+      });
+      final route = await _service(
+        adapter,
+      ).computeRoute(fromLat: 35.5, fromLng: 35.8, toLat: 35.6, toLng: 35.9);
+      expect(route.distanceMeters, 4100);
+    },
+  );
 
   test('asks only for distance, duration and line, and parses them', () async {
     final adapter = _FakeAdapter({
@@ -71,19 +130,19 @@ void main() {
       ],
     });
 
-    final route = await _service(adapter).computeRoute(
-      fromLat: 35.5,
-      fromLng: 35.8,
-      toLat: 35.6,
-      toLng: 35.9,
-    );
+    final route = await _service(
+      adapter,
+    ).computeRoute(fromLat: 35.5, fromLng: 35.8, toLat: 35.6, toLng: 35.9);
 
     expect(route.distanceMeters, 4210);
     expect(route.durationSeconds, 845);
     expect(route.points, hasLength(3));
 
     final request = adapter.request!;
-    expect(request.uri.toString(), 'https://routes.googleapis.com/directions/v2:computeRoutes');
+    expect(
+      request.uri.toString(),
+      'https://routes.googleapis.com/directions/v2:computeRoutes',
+    );
     expect(request.headers['X-Goog-Api-Key'], 'test-key');
     expect(
       request.headers['X-Goog-FieldMask'],
@@ -98,25 +157,36 @@ void main() {
     });
   });
 
-  test('says which app is calling, so a key restricted to that app is accepted', () async {
-    final adapter = _FakeAdapter({
-      'routes': [
-        {
-          'polyline': {'encodedPolyline': polyline},
-        },
-      ],
-    });
+  test(
+    'says which app is calling, so a key restricted to that app is accepted',
+    () async {
+      final adapter = _FakeAdapter({
+        'routes': [
+          {
+            'polyline': {'encodedPolyline': polyline},
+          },
+        ],
+      });
 
-    await _compute(_service(adapter, appHeaders: {
-      'X-Android-Package': 'com.ma.smarttaxi',
-      'X-Android-Cert': '4108A6765831A2FC66A66D3CAD92A444F3219CC1',
-    }));
+      await _compute(
+        _service(
+          adapter,
+          appHeaders: {
+            'X-Android-Package': 'com.ma.smarttaxi',
+            'X-Android-Cert': '4108A6765831A2FC66A66D3CAD92A444F3219CC1',
+          },
+        ),
+      );
 
-    final headers = adapter.request!.headers;
-    expect(headers['X-Android-Package'], 'com.ma.smarttaxi');
-    expect(headers['X-Android-Cert'], '4108A6765831A2FC66A66D3CAD92A444F3219CC1');
-    expect(headers['X-Goog-Api-Key'], 'test-key');
-  });
+      final headers = adapter.request!.headers;
+      expect(headers['X-Android-Package'], 'com.ma.smarttaxi');
+      expect(
+        headers['X-Android-Cert'],
+        '4108A6765831A2FC66A66D3CAD92A444F3219CC1',
+      );
+      expect(headers['X-Goog-Api-Key'], 'test-key');
+    },
+  );
 
   test('a zero distance is omitted by the API and reads as 0', () async {
     final adapter = _FakeAdapter({
@@ -127,12 +197,9 @@ void main() {
       ],
     });
 
-    final route = await _service(adapter).computeRoute(
-      fromLat: 35.5,
-      fromLng: 35.8,
-      toLat: 35.5,
-      toLng: 35.8,
-    );
+    final route = await _service(
+      adapter,
+    ).computeRoute(fromLat: 35.5, fromLng: 35.8, toLat: 35.5, toLng: 35.8);
 
     expect(route.distanceMeters, 0);
     expect(route.durationSeconds, 0);
@@ -141,20 +208,32 @@ void main() {
   test('no key: fails without sending anything', () async {
     final adapter = _FakeAdapter(const {});
 
-    await expectLater(_compute(_service(adapter, apiKey: '')), throwsA(isA<RouteException>()));
+    await expectLater(
+      _compute(_service(adapter, apiKey: '')),
+      throwsA(isA<RouteException>()),
+    );
     expect(adapter.request, isNull);
   });
 
   test('a rejected key (403) is a RouteException', () async {
     final adapter = _FakeAdapter({
-      'error': {'code': 403, 'message': 'Routes API has not been used in project'},
+      'error': {
+        'code': 403,
+        'message': 'Routes API has not been used in project',
+      },
     }, status: 403);
 
-    await expectLater(_compute(_service(adapter)), throwsA(isA<RouteException>()));
+    await expectLater(
+      _compute(_service(adapter)),
+      throwsA(isA<RouteException>()),
+    );
   });
 
   test('no route found is a RouteException', () async {
-    await expectLater(_compute(_service(_FakeAdapter(const {}))), throwsA(isA<RouteException>()));
+    await expectLater(
+      _compute(_service(_FakeAdapter(const {}))),
+      throwsA(isA<RouteException>()),
+    );
     await expectLater(
       _compute(_service(_FakeAdapter({'routes': <Object>[]}))),
       throwsA(isA<RouteException>()),

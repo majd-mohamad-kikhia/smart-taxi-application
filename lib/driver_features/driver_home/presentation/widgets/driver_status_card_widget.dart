@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../driver_auth/data/models/driver_status.dart';
 import '../../../driver_auth/data/models/driver_user_model.dart';
 
@@ -18,9 +19,9 @@ class DriverStatusCardWidget extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,10 +31,10 @@ class DriverStatusCardWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   driver.fullName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
@@ -43,20 +44,20 @@ class DriverStatusCardWidget extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             driver.phone,
-            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
           ),
           if (vehicle != null) ...[
             const Divider(height: 24),
             Row(
               children: [
-                const Icon(Icons.directions_car_rounded, color: AppColors.primary, size: 20),
+                Icon(Icons.directions_car_rounded, color: context.colors.primaryContent, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     '${vehicle.brand} ${vehicle.model} • ${vehicle.color} • ${vehicle.plateNumber}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

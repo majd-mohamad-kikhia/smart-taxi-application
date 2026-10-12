@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../localization/app_locales.dart';
 import '../localization/l10n_context_extension.dart';
 import '../localization/locale_cubit.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// A compact one-tap language switch for the screens before sign-in, so
 /// someone who reads English can change the language without first having
@@ -31,7 +31,7 @@ class AuthLanguageToggleWidget extends StatelessWidget {
             icon: const Icon(Icons.translate_rounded, size: 18),
             label: Text(AppLocales.nativeName(next)),
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.textLink,
+              foregroundColor: context.colors.textLink,
               minimumSize: const Size(48, 48),
             ),
           ),

@@ -7,6 +7,7 @@ import '../../driver_features/driver_auth/data/datasources/driver_remote_data_so
 import '../../driver_features/driver_auth/data/repositories/driver_repository.dart';
 import '../../driver_features/driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import '../../driver_features/driver_home/data/datasources/driver_socket_service.dart';
+import '../../driver_features/driver_home/data/datasources/incoming_order_call_alert.dart';
 import '../../driver_features/driver_home/data/datasources/new_order_alert.dart';
 import '../../driver_features/driver_home/data/driver_presence_store.dart';
 import '../../driver_features/driver_home/data/location_ticker.dart';
@@ -88,6 +89,8 @@ import '../network/api_error_handler.dart';
 import '../../features/home/data/datasources/google_places_data_source.dart';
 import '../../features/home/data/datasources/nominatim_reverse_data_source.dart';
 import '../services/current_location_service.dart';
+import '../theme/theme_cubit.dart';
+import '../theme/theme_local_data_source.dart';
 import '../services/photo_picker_service.dart';
 import '../../driver_features/driver_auth/presentation/cubit/driver_signup_cubit.dart';
 import '../services/google_api_credentials_loader.dart';
@@ -144,6 +147,9 @@ void setupInjection() {
     () => LanguageRepository(
       LanguageRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
     ),
+  );
+  sl.registerLazySingleton<ThemeCubit>(
+    () => ThemeCubit(const ThemeLocalDataSource()),
   );
   sl.registerLazySingleton<LocaleCubit>(
     () => LocaleCubit(
@@ -399,7 +405,15 @@ void setupInjection() {
   sl.registerLazySingleton<DriverSocketService>(() => DriverSocketService());
   sl.registerFactory<LocationTicker>(() => LocationTicker());
   sl.registerLazySingleton<DriverPresenceStore>(() => DriverPresenceStore());
-  sl.registerLazySingleton<NewOrderAlert>(() => AudioNewOrderAlert());
+  sl.registerLazySingleton<IncomingOrderCallAlert>(
+    () => IncomingOrderCallAlert(sl<LocalNotificationService>()),
+  );
+  sl.registerLazySingleton<NewOrderAlert>(
+    () => CompositeNewOrderAlert([
+      AudioNewOrderAlert(),
+      sl<IncomingOrderCallAlert>(),
+    ]),
+  );
   // Singleton so the live-location connection survives tab switches in
   // `DriverMainWrapperScreen`'s `IndexedStack`.
   sl.registerLazySingleton<DriverPresenceCubit>(

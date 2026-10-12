@@ -4,6 +4,7 @@ import '../localization/app_locales.dart';
 import '../localization/l10n_context_extension.dart';
 import '../localization/locale_cubit.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'app_snack_bar_widget.dart';
 
 /// Settings card with a dropdown to switch the app language. Shared by the
@@ -18,9 +19,9 @@ class LanguageDropdownWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -28,23 +29,23 @@ class LanguageDropdownWidget extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: AppColors.primarySurface,
+              color: context.colors.primarySurface,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.translate_rounded,
               size: 20,
-              color: AppColors.primary,
+              color: context.colors.primaryContent,
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               context.l10n.language,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
               ),
             ),
           ),
@@ -86,11 +87,11 @@ class _LanguagePickerState extends State<_LanguagePicker> {
           tooltip: context.l10n.language,
           initialValue: current,
           offset: const Offset(0, 46),
-          color: AppColors.backgroundWhite,
+          color: context.colors.backgroundWhite,
           elevation: 8,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
-            side: const BorderSide(color: AppColors.border),
+            side: BorderSide(color: context.colors.border),
           ),
           enabled: !_isSaving,
           onSelected: _select,
@@ -109,39 +110,39 @@ class _LanguagePickerState extends State<_LanguagePicker> {
             alignment: AlignmentDirectional.centerStart,
             padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 8, 8),
             decoration: BoxDecoration(
-              color: AppColors.backgroundMuted,
+              color: context.colors.backgroundMuted,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.colors.border),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   AppLocales.nativeName(current),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
                 const SizedBox(width: 4),
                 if (_isSaving)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.all(2),
                     child: SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: AppColors.primary,
+                        color: context.colors.primaryContent,
                       ),
                     ),
                   )
                 else
-                  const Icon(
+                  Icon(
                     Icons.keyboard_arrow_down_rounded,
                     size: 20,
-                    color: AppColors.primary,
+                    color: context.colors.primaryContent,
                   ),
               ],
             ),
@@ -168,7 +169,7 @@ class _LanguageOption extends StatelessWidget {
           height: 24,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : AppColors.backgroundMuted,
+            color: isSelected ? AppColors.primary : context.colors.backgroundMuted,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
@@ -178,7 +179,7 @@ class _LanguageOption extends StatelessWidget {
               fontWeight: FontWeight.w800,
               color: isSelected
                   ? AppColors.textOnPrimary
-                  : AppColors.textSecondary,
+                  : context.colors.textSecondary,
             ),
           ),
         ),
@@ -188,14 +189,14 @@ class _LanguageOption extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-            color: isSelected ? AppColors.primary : AppColors.textPrimary,
+            color: isSelected ? context.colors.primaryContent : context.colors.textPrimary,
           ),
         ),
         const SizedBox(width: 12),
         Icon(
           Icons.check_rounded,
           size: 18,
-          color: isSelected ? AppColors.primary : AppColors.transparent,
+          color: isSelected ? context.colors.primaryContent : AppColors.transparent,
         ),
       ],
     );

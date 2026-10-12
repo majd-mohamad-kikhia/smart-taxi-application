@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_date.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/meta_item_widget.dart';
@@ -70,7 +70,7 @@ class _Summary extends StatelessWidget {
                 child: Text(
                   vehicleTypeName,
                   style: textTheme.titleMedium?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -81,7 +81,7 @@ class _Summary extends StatelessWidget {
               price: order.estimatedPrice,
               prefix: order.priceIsEstimate ? '~' : '',
               style: textTheme.titleLarge?.copyWith(
-                color: AppColors.primary,
+                color: context.colors.primaryContent,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -122,9 +122,9 @@ class _Card extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppConstants.paddingL),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: child,
     );

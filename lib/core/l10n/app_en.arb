@@ -291,6 +291,20 @@
   "searchRadiusSaved": "Search radius saved",
   "searchRadiusSaveFailed": "Couldn't save the search radius",
   "driverAcceptTrip": "Accept trip",
+  "incomingOrderChannelName": "Incoming orders",
+  "incomingOrderChannelDescription": "A new order for you, shown like an incoming call",
+  "incomingOrderTitle": "New order",
+  "incomingOrderBody": "{price} · {distance} to the pickup",
+  "@incomingOrderBody": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
   "rateDriverTitle": "Rate your driver",
   "myRatingsTitle": "My ratings",
   "ratingsCount": "{count} ratings",
@@ -554,11 +568,15 @@
   "confirmLocation": "Confirm location",
   "searchPlaceHint": "Search for a place...",
   "useMyLocation": "Use my location",
-  "swapPickupAndDestination": "Swap pickup and destination",
   "mapLocationFallback": "Location on the map",
   "priceEstimateTag": "(estimated price)",
   "rideAwaitingDriver": "Waiting for a driver to accept",
   "rideAwaitingArrival": "Waiting for the driver to arrive",
+  "appearance": "Appearance",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "editPoint": "Edit",
+  "cancelRoute": "Cancel route",
   "rideAccepted": "Your request was accepted",
   "rideDriverArrived": "The driver has arrived",
   "rideInProgress": "Trip in progress",

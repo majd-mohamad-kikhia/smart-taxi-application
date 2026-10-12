@@ -4,7 +4,7 @@ import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/validators/auth_validators.dart';
 import '../../../../core/validators/phone_input_formatter.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
@@ -119,7 +119,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   arguments: UserRole.customer,
                 ),
                 style: TextButton.styleFrom(
-                  foregroundColor: AppColors.textLink,
+                  foregroundColor: context.colors.textLink,
                   minimumSize: const Size(48, 48),
                   padding: EdgeInsets.zero,
                 ),

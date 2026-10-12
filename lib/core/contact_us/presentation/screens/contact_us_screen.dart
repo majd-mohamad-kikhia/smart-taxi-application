@@ -4,7 +4,7 @@ import '../../../constants/app_constants.dart';
 import '../../../enums/user_role.dart';
 import '../../../injection/injection.dart';
 import '../../../localization/l10n_context_extension.dart';
-import '../../../theme/app_colors.dart';
+import '../../../theme/app_palette.dart';
 import '../../../widgets/app_loader_widget.dart';
 import '../../data/models/contact_number_model.dart';
 import '../cubit/contact_us_cubit.dart';
@@ -58,7 +58,7 @@ class _ContactUsViewState extends State<_ContactUsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: AppBar(title: Text(context.l10n.contactUs)),
       body: BlocBuilder<ContactUsCubit, ContactUsState>(
         builder: (context, state) => switch (state) {
@@ -70,9 +70,9 @@ class _ContactUsViewState extends State<_ContactUsView> {
           ContactUsLoaded(:final numbers) when numbers.isEmpty => Center(
             child: Text(
               context.l10n.noContactNumbers,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
               ),
             ),
           ),

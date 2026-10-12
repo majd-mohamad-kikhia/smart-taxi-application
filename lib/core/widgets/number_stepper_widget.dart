@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// A whole number between [min] and [max] with − / + buttons on each side.
 /// Keeps its own value and reports every change through [onChanged].
@@ -62,7 +62,7 @@ class _NumberStepperWidgetState extends State<NumberStepperWidget> {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
             ),
@@ -91,10 +91,10 @@ class _StepButton extends StatelessWidget {
       iconSize: 28,
       constraints: const BoxConstraints(minWidth: 52, minHeight: 52),
       style: IconButton.styleFrom(
-        backgroundColor: AppColors.primarySurface,
-        foregroundColor: AppColors.primary,
-        disabledBackgroundColor: AppColors.backgroundMuted,
-        disabledForegroundColor: AppColors.textTertiary,
+        backgroundColor: context.colors.primarySurface,
+        foregroundColor: context.colors.primaryContent,
+        disabledBackgroundColor: context.colors.backgroundMuted,
+        disabledForegroundColor: context.colors.textTertiary,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusFull),
         ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../constants/app_constants.dart';
 import '../../../localization/l10n_context_extension.dart';
-import '../../../theme/app_colors.dart';
+import '../../../theme/app_palette.dart';
 import '../../../widgets/app_animated_dialog.dart';
 import '../../../widgets/app_neutral_button_widget.dart';
 import '../../../widgets/auth_error_banner_widget.dart';
@@ -152,7 +152,7 @@ class RideRatingSummaryWidget extends StatelessWidget {
           Text(
             rating.comment!,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
             ),
           ),
         ],

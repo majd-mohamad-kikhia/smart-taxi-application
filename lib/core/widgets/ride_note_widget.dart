@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../localization/l10n_context_extension.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// The customer's note for the driver ("I have two suitcases") on a soft
-/// yellow wash, labelled so it never reads as an address.
+/// green wash, labelled so it never reads as an address.
 class RideNoteWidget extends StatelessWidget {
   final String note;
 
@@ -24,13 +24,13 @@ class RideNoteWidget extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(AppConstants.paddingM),
         decoration: BoxDecoration(
-          color: AppColors.primarySurface,
+          color: context.colors.primarySurface,
           borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.sticky_note_2_outlined, size: 18, color: AppColors.primary),
+            Icon(Icons.sticky_note_2_outlined, size: 18, color: context.colors.primaryContent),
             const SizedBox(width: AppConstants.paddingS),
             Expanded(
               child: Column(
@@ -38,7 +38,7 @@ class RideNoteWidget extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
+                    style: textTheme.labelMedium?.copyWith(color: context.colors.textSecondary),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -46,7 +46,7 @@ class RideNoteWidget extends StatelessWidget {
                     maxLines: maxLines,
                     overflow: maxLines == null ? null : TextOverflow.ellipsis,
                     style: textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

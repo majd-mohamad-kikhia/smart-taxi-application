@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
@@ -13,7 +14,7 @@ import 'passengers_count_dialog_widget.dart';
 import 'share_ride_info_button_widget.dart';
 
 /// Action buttons for the active ride, driven by [DriverTripStatus]. Each
-/// phase has exactly one yellow primary: "I've arrived" (accepted), Start
+/// phase has exactly one green primary: "I've arrived" (accepted), Start
 /// the trip (arrived), Finish (in progress) or Resume (paused). Cancel is
 /// a separate red-outlined button with its own row, so it is never a
 /// thumb-width away from the primary. Finish asks for a confirmation first,
@@ -107,10 +108,10 @@ class DriverTripActionsWidget extends StatelessWidget {
         if (_isBusy) ...[
           ClipRRect(
             borderRadius: BorderRadius.circular(AppConstants.radiusFull),
-            child: const LinearProgressIndicator(
+            child: LinearProgressIndicator(
               minHeight: 3,
-              color: AppColors.primary,
-              backgroundColor: AppColors.backgroundMuted,
+              color: context.colors.primaryContent,
+              backgroundColor: context.colors.backgroundMuted,
             ),
           ),
           const SizedBox(height: AppConstants.paddingM),
@@ -128,7 +129,7 @@ class DriverTripActionsWidget extends StatelessWidget {
       icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.error),
       label: Text(context.l10n.cancelTrip, textAlign: TextAlign.center),
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textPrimary,
+        foregroundColor: context.colors.textPrimary,
         side: const BorderSide(color: AppColors.error, width: 1.5),
         padding: const EdgeInsets.symmetric(
           horizontal: AppConstants.paddingM,
@@ -139,14 +140,14 @@ class DriverTripActionsWidget extends StatelessWidget {
   }
 
   /// Pause/Resume beside Finish, on the live map (so both have solid
-  /// fills). Exactly one of them is the yellow primary: Finish while the
+  /// fills). Exactly one of them is the green primary: Finish while the
   /// trip runs, Resume while it is paused.
   Widget _inProgressRow(BuildContext context, DriverTripCubit cubit) {
     final l10n = context.l10n;
     final finish = isPaused
         ? AppNeutralButtonWidget(
             label: l10n.driverFinishTrip,
-            backgroundColor: AppColors.backgroundWhite,
+            backgroundColor: context.colors.backgroundWhite,
             onPressed: _isBusy ? null : () => _confirmFinish(context, cubit),
           )
         : AuthPrimaryButtonWidget(
@@ -163,7 +164,7 @@ class DriverTripActionsWidget extends StatelessWidget {
         : AppNeutralButtonWidget(
             label: l10n.driverPauseTrip,
             icon: Icons.pause_rounded,
-            backgroundColor: AppColors.backgroundWhite,
+            backgroundColor: context.colors.backgroundWhite,
             onPressed: _isBusy ? null : cubit.pauseTrip,
           );
 

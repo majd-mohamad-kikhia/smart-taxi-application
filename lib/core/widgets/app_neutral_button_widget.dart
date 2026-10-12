@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// Outlined button in neutral colors for the safe way out of a decision
 /// ("Go back", "Not now") or a calm, reversible action ("Log out"). It never
@@ -37,9 +37,9 @@ class AppNeutralButtonWidget extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         backgroundColor: backgroundColor,
         disabledBackgroundColor: backgroundColor,
-        foregroundColor: AppColors.textPrimary,
-        disabledForegroundColor: isLoading ? AppColors.textPrimary : null,
-        side: const BorderSide(color: AppColors.borderStrong, width: 1.5),
+        foregroundColor: context.colors.textPrimary,
+        disabledForegroundColor: isLoading ? context.colors.textPrimary : null,
+        side: BorderSide(color: context.colors.borderStrong, width: 1.5),
         padding: const EdgeInsets.symmetric(
           horizontal: AppConstants.paddingM,
           vertical: 14,
@@ -51,7 +51,7 @@ class AppNeutralButtonWidget extends StatelessWidget {
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2.2,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
                 semanticsLabel: label,
               ),
             )

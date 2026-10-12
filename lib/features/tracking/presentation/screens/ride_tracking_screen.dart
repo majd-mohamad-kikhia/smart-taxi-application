@@ -11,7 +11,7 @@ import '../../../../core/models/ride_model.dart';
 import '../../../../core/models/trip_eta_model.dart';
 import '../../../../core/ride_rating/presentation/cubit/ride_rating_cubit.dart';
 import '../../../../core/ride_rating/presentation/widgets/ride_rating_dialog_widget.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
@@ -102,7 +102,7 @@ class _RideTrackingView extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColors.backgroundWhite,
+        backgroundColor: context.colors.backgroundWhite,
         body: BlocConsumer<RideTrackingCubit, RideTrackingState>(
           listenWhen: (previous, current) =>
               (previous.exitReason != current.exitReason && current.exitReason != null) ||
@@ -251,10 +251,10 @@ class _TrackingSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.backgroundWhite,
+      decoration: BoxDecoration(
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [BoxShadow(color: AppColors.shadowMedium, blurRadius: 16, offset: Offset(0, -4))],
+        boxShadow: [BoxShadow(color: context.colors.shadowMedium, blurRadius: 16, offset: Offset(0, -4))],
       ),
       child: Column(
         children: [
@@ -263,7 +263,7 @@ class _TrackingSheet extends StatelessWidget {
             child: Container(
               width: 40,
               height: 4,
-              decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
             ),
           ),
           Expanded(

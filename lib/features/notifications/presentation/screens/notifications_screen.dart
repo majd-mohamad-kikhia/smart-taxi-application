@@ -4,7 +4,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/paginated_list_widget.dart';
 import '../../data/models/notification_model.dart';
@@ -41,7 +41,7 @@ class _NotificationsView extends StatelessWidget {
     final cubit = context.read<NotificationsCubit>();
     final l10n = context.l10n;
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: AppBar(
         title: Text(l10n.notificationsTitle),
         actions: [
@@ -52,7 +52,7 @@ class _NotificationsView extends StatelessWidget {
                 : TextButton(
                     onPressed: cubit.markAllRead,
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.textLink,
+                      foregroundColor: context.colors.textLink,
                       minimumSize: const Size(48, 48),
                     ),
                     child: Text(l10n.notificationsMarkAllRead),

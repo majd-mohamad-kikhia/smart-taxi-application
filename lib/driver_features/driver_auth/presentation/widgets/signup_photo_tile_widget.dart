@@ -4,6 +4,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/services/photo_picker_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// One photo of the signup form: shows the chosen image (or a prompt) and,
 /// on tap, offers the camera or the gallery. [error] is shown under it.
@@ -61,10 +62,10 @@ class SignupPhotoTileWidget extends StatelessWidget {
           button: true,
           label: label,
           child: Material(
-            color: AppColors.backgroundWhite,
+            color: context.colors.backgroundWhite,
             shape: RoundedRectangleBorder(
               borderRadius: radius,
-              side: BorderSide(color: error == null ? AppColors.border : AppColors.error),
+              side: BorderSide(color: error == null ? context.colors.border : AppColors.error),
             ),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
@@ -76,12 +77,12 @@ class SignupPhotoTileWidget extends StatelessWidget {
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(icon, size: 32, color: AppColors.textSecondary),
+                          Icon(icon, size: 32, color: context.colors.textSecondary),
                           const SizedBox(height: AppConstants.paddingS),
                           Text(label, style: textTheme.titleSmall),
                           Text(
                             l10n.driverSignupPhotoAdd,
-                            style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                            style: textTheme.bodySmall?.copyWith(color: context.colors.textSecondary),
                           ),
                         ],
                       )

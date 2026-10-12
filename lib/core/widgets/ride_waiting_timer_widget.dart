@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/ride_waiting_model.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import '../utils/format_price.dart';
 import 'live_fee_card_widget.dart';
 import 'second_ticker_widget.dart';
@@ -60,7 +61,7 @@ class RideWaitingTimerWidget extends StatelessWidget {
           feeText: feeText,
           accent: isFree
               ? AppColors.success
-              : (isCharged ? AppColors.warning : AppColors.textSecondary),
+              : (isCharged ? AppColors.warning : context.colors.textSecondary),
           semanticsLabel: [
             l10n.waitingAtPickup,
             LiveFeeCardWidget.spoken(l10n, snapshot.elapsedSeconds),

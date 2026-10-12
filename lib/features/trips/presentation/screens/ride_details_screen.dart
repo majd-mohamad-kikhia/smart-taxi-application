@@ -7,6 +7,7 @@ import '../../../../core/ride_rating/presentation/cubit/ride_rating_cubit.dart';
 import '../../../../core/ride_rating/presentation/widgets/ride_rating_dialog_widget.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_date.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
@@ -36,7 +37,7 @@ class RideDetailsScreen extends StatelessWidget {
     return BlocProvider<RideDetailsCubit>(
       create: (_) => sl<RideDetailsCubit>(param1: rideId)..load(),
       child: Scaffold(
-        backgroundColor: AppColors.backgroundGray,
+        backgroundColor: context.colors.backgroundGray,
         appBar: AppBar(title: Text(context.l10n.rideDetailsTitle('$rideId'))),
         body: BlocConsumer<RideDetailsCubit, RideDetailsState>(
           listenWhen: (previous, current) =>
@@ -193,9 +194,9 @@ class _Section extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppConstants.paddingL),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: child,
     );
@@ -304,7 +305,7 @@ class _Fare extends StatelessWidget {
               money(price),
               style: textTheme.displayMedium?.copyWith(
                 fontWeight: FontWeight.w800,
-                color: AppColors.primary,
+                color: context.colors.primaryContent,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
@@ -351,7 +352,7 @@ class _PaymentStatus extends StatelessWidget {
       children: [
         Icon(
           ride.isPaid ? Icons.check_circle_rounded : Icons.schedule_rounded,
-          color: ride.isPaid ? AppColors.success : AppColors.accent,
+          color: ride.isPaid ? AppColors.success : AppColors.warning,
         ),
         const SizedBox(width: AppConstants.paddingM),
         Expanded(
@@ -465,10 +466,10 @@ class _Error extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline_rounded,
               size: 40,
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
             ),
             const SizedBox(height: AppConstants.paddingM),
             Semantics(
