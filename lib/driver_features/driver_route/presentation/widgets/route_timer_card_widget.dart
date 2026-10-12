@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_palette.dart';
 import 'route_duration_format.dart';
 
@@ -29,14 +30,14 @@ class RouteTimerCardWidget extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: context.colors.neutralSurface.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: accent.withValues(alpha: 0.55), width: 1.5),
+        color: context.colors.backgroundWhite,
+        borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+        border: Border.all(color: context.colors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: context.colors.shadowStrong,
-            blurRadius: 16,
-            offset: Offset(0, 4),
+            color: context.colors.shadowMedium,
+            blurRadius: 12,
+            offset: const Offset(0, 2),
           ),
         ],
       ),

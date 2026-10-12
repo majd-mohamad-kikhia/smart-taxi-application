@@ -5,9 +5,11 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
+import '../../../../core/saved_addresses/data/models/saved_place_preset.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_cubit.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_state.dart';
 import '../../../../core/saved_addresses/presentation/saved_address_type_ui.dart';
+import '../../../../core/saved_addresses/presentation/saved_place_slots.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
@@ -15,8 +17,8 @@ import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../widgets/saved_address_tile_widget.dart';
 
-/// "Saved places": Home and Work on top (an "Add" row while missing), then
-/// the customer's other places.
+/// "Saved places": Home, Work and the ready-made places (gym, school…) on
+/// top (an "Add" row while missing), then the customer's own named places.
 class SavedAddressesScreen extends StatelessWidget {
   const SavedAddressesScreen({super.key});
 
@@ -48,6 +50,7 @@ class _SavedAddressesView extends StatelessWidget {
                     onRetry: context.read<SavedAddressesCubit>().load,
                   );
           }
+          final slots = SavedPlaceSlots.from(state.addresses);
           return Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 560),
@@ -56,17 +59,29 @@ class _SavedAddressesView extends StatelessWidget {
                 child: ListView(
                   padding: const EdgeInsets.all(AppConstants.paddingL),
                   children: [
-                    for (final type in const [SavedAddressType.home, SavedAddressType.work]) ...[
-                      _tile(context, state, type, state.ofType(type)),
+                    _tile(context, state, SavedAddressType.home, slots.home),
+                    const SizedBox(height: AppConstants.paddingM),
+                    _tile(context, state, SavedAddressType.work, slots.work),
+                    const SizedBox(height: AppConstants.paddingM),
+                    for (final preset in SavedPlacePreset.values) ...[
+                      _tile(
+                        context,
+                        state,
+                        SavedAddressType.other,
+                        slots.presets[preset],
+                        preset: preset,
+                      ),
                       const SizedBox(height: AppConstants.paddingM),
                     ],
-                    const SizedBox(height: AppConstants.paddingM),
-                    Text(
-                      l10n.savedAddressOtherPlaces,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: AppConstants.paddingM),
-                    for (final address in state.others) ...[
+                    if (slots.custom.isNotEmpty) ...[
+                      const SizedBox(height: AppConstants.paddingM),
+                      Text(
+                        l10n.savedAddressOtherPlaces,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: AppConstants.paddingM),
+                    ],
+                    for (final address in slots.custom) ...[
                       _tile(context, state, address.type, address),
                       const SizedBox(height: AppConstants.paddingM),
                     ],
@@ -89,13 +104,15 @@ class _SavedAddressesView extends StatelessWidget {
     BuildContext context,
     SavedAddressesState state,
     SavedAddressType type,
-    SavedAddressModel? address,
-  ) {
+    SavedAddressModel? address, {
+    SavedPlacePreset? preset,
+  }) {
     return SavedAddressTileWidget(
       type: type,
+      preset: preset,
       address: address,
       isDeleting: address != null && state.deletingId == address.id,
-      onTap: () => _openForm(context, type, existing: address),
+      onTap: () => _openForm(context, type, existing: address, preset: preset),
       onDelete: address == null ? null : () => _confirmDelete(context, address),
     );
   }
@@ -104,12 +121,17 @@ class _SavedAddressesView extends StatelessWidget {
     BuildContext context,
     SavedAddressType type, {
     SavedAddressModel? existing,
+    SavedPlacePreset? preset,
   }) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = context.l10n;
     final replaced = await Navigator.of(context).pushNamed(
       AppRouter.savedAddressForm,
-      arguments: SavedAddressFormRouteArgs(type: type, existing: existing),
+      arguments: SavedAddressFormRouteArgs(
+        type: type,
+        existing: existing,
+        preset: preset,
+      ),
     );
     if (replaced is! bool) return;
     showAppSnackBarOn(

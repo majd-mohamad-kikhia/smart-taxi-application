@@ -37,7 +37,7 @@ class SearchRadiusSliderWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: context.colors.border),
+        border: Border.all(color: context.colors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,10 +84,10 @@ class SearchRadiusSliderWidget extends StatelessWidget {
             const SizedBox(height: AppConstants.paddingS),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.edit_note_rounded,
                   size: 16,
-                  color: AppColors.accent,
+                  color: context.colors.accentContent,
                 ),
                 const SizedBox(width: AppConstants.paddingXS),
                 Text(

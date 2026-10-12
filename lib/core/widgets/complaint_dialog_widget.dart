@@ -130,6 +130,7 @@ class _ComplaintFormWidgetState extends State<_ComplaintFormWidget> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: AuthPrimaryButtonWidget(
+                      showArrow: false,
                       label: l10n.send,
                       isLoading: isSubmitting,
                       onPressed: () => _submit(context),

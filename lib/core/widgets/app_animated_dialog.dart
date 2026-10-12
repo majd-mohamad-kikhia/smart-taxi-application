@@ -23,6 +23,9 @@ enum AppDialogTone { destructive, primary, success, warning }
 Future<T?> showAppDialog<T>({
   required BuildContext context,
   required String title,
+
+  /// A short line above the title in the tone's color ("Arrived safely").
+  String? eyebrow,
   String? message,
   String? confirmLabel,
   String? cancelLabel,
@@ -64,6 +67,7 @@ Future<T?> showAppDialog<T>({
           child: AppDialogLayoutWidget(
             child: AppAnimatedDialog(
               title: title,
+              eyebrow: eyebrow,
               message: message,
               confirmLabel: confirmLabel,
               cancelLabel: cancelLabel ?? context.l10n.goBack,
@@ -99,6 +103,7 @@ Future<T?> showAppDialog<T>({
 
 class AppAnimatedDialog extends StatelessWidget {
   final String title;
+  final String? eyebrow;
   final String? message;
   final String? confirmLabel;
   final String cancelLabel;
@@ -112,6 +117,7 @@ class AppAnimatedDialog extends StatelessWidget {
   const AppAnimatedDialog({
     super.key,
     required this.title,
+    this.eyebrow,
     this.message,
     this.confirmLabel,
     required this.cancelLabel,
@@ -171,20 +177,24 @@ class AppAnimatedDialog extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.colors.backgroundWhite,
           borderRadius: BorderRadius.circular(AppConstants.radiusXL),
-          border: Border.all(color: context.colors.border),
-          boxShadow: [
-            BoxShadow(
-              color: context.colors.shadowStrong,
-              blurRadius: 24,
-              offset: Offset(0, 8),
-            ),
-          ],
+          border: Border.all(color: context.colors.borderLight),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             _DialogBadge(icon: icon, palette: palette),
             const SizedBox(height: AppConstants.paddingL),
+            if (eyebrow != null) ...[
+              Text(
+                eyebrow!,
+                textAlign: TextAlign.center,
+                style: textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: palette.accent,
+                ),
+              ),
+              const SizedBox(height: AppConstants.paddingXS),
+            ],
             Text(
               title,
               textAlign: TextAlign.center,
@@ -259,8 +269,9 @@ class _DialogPalette {
   });
 }
 
-/// Flat round icon tile: the accent icon on its wash. Decorative, so it is
-/// hidden from screen readers (the title names the dialog).
+/// Flat round badge: a solid circle in the tone's color with the icon on it,
+/// inside a ring of the tone's wash. Decorative, so it is hidden from screen
+/// readers (the title names the dialog).
 class _DialogBadge extends StatelessWidget {
   final IconData icon;
   final _DialogPalette palette;
@@ -271,10 +282,16 @@ class _DialogBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExcludeSemantics(
       child: Container(
-        width: 64,
-        height: 64,
+        width: 76,
+        height: 76,
+        alignment: Alignment.center,
         decoration: BoxDecoration(color: palette.surface, shape: BoxShape.circle),
-        child: Icon(icon, color: palette.accent, size: 30),
+        child: Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(color: palette.solid, shape: BoxShape.circle),
+          child: Icon(icon, color: palette.onSolid, size: 28),
+        ),
       ),
     );
   }

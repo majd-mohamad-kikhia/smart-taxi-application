@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/app_icon_tile_widget.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
+import '../../../../core/widgets/app_surface_card_widget.dart';
 import '../../../../core/widgets/entrance_animation_widget.dart';
 import '../../data/models/ride_booking_options_model.dart';
 import '../../data/models/ride_quote_model.dart';
@@ -41,6 +42,11 @@ class VehicleTypeSheetWidget extends StatefulWidget {
 
 class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
   static const _maxNoteLength = 500;
+
+  // The opening animation: the header first, then the cars one by one once
+  // the sheet has slid up.
+  static const _headerDelay = Duration(milliseconds: 120);
+  static const _listDelay = Duration(milliseconds: 260);
 
   final ValueNotifier<int?> _selectedId = ValueNotifier<int?>(null);
   final TextEditingController _noteController = TextEditingController();
@@ -108,16 +114,24 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const _DragHandle(),
-            const SizedBox(height: AppConstants.paddingL),
-            _Header(
-              distanceKm: quote.distanceKm,
-              durationMin: quote.estimatedDurationMin,
+            EntranceAnimationWidget(
+              startDelay: _headerDelay,
+              from: const Offset(0, 16),
+              child: _Header(
+                distanceKm: quote.distanceKm,
+                durationMin: quote.estimatedDurationMin,
+                availableCount: types.where(_isChoosable).length,
+              ),
             ),
             const SizedBox(height: AppConstants.paddingM),
-            _TripCard(
-              pickupLabel: widget.pickupLabel,
-              dropoffLabel: widget.dropoffLabel,
+            EntranceAnimationWidget(
+              index: 1,
+              startDelay: _headerDelay,
+              from: const Offset(0, 16),
+              child: _TripCard(
+                pickupLabel: widget.pickupLabel,
+                dropoffLabel: widget.dropoffLabel,
+              ),
             ),
             const SizedBox(height: AppConstants.paddingM),
             Flexible(
@@ -134,8 +148,11 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
                                   padding: const EdgeInsets.only(
                                     bottom: AppConstants.paddingM,
                                   ),
-                                  child: EntranceAnimationWidget(
+                                  // After the sheet has slid up, the cars
+                                  // slide in one by one.
+                                  child: EntranceAnimationWidget.slide(
                                     index: i,
+                                    startDelay: _listDelay,
                                     child: VehicleTypeTileWidget(
                                       vehicleType: types[i],
                                       locationFeeName: quote.locationFeeName,
@@ -162,26 +179,37 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
             ),
             const SizedBox(height: AppConstants.paddingM),
             if (hasChoice) ...[
-              const _EstimateNote(),
-              const SizedBox(height: AppConstants.paddingM),
-              ValueListenableBuilder<int?>(
-                valueListenable: _selectedId,
-                builder: (context, selectedId, _) {
-                  final selected = _selected(selectedId);
-                  final price = selected?.price;
-                  return VehicleRequestButtonWidget(
-                    label: selected == null || price == null
-                        ? l10n.pickVehicleType
-                        : l10n.requestVehicle(
-                            selected.name,
-                            formatSyp(l10n, price),
-                          ),
-                    onPressed: selected == null
-                        ? null
-                        : () => _request(selected.vehicleTypeId),
-                  );
-                },
+              EntranceAnimationWidget(
+                // Rises in once the cars are in.
+                startDelay:
+                    _listDelay +
+                    EntranceAnimationWidget.slideStagger *
+                        types.length.clamp(
+                          0,
+                          EntranceAnimationWidget.maxStaggered,
+                        ),
+                from: const Offset(0, 40),
+                child: ValueListenableBuilder<int?>(
+                  valueListenable: _selectedId,
+                  builder: (context, selectedId, _) {
+                    final selected = _selected(selectedId);
+                    final price = selected?.price;
+                    return VehicleRequestButtonWidget(
+                      label: selected == null || price == null
+                          ? l10n.pickVehicleType
+                          : l10n.requestVehicle(
+                              selected.name,
+                              formatSyp(l10n, price),
+                            ),
+                      onPressed: selected == null
+                          ? null
+                          : () => _request(selected.vehicleTypeId),
+                    );
+                  },
+                ),
               ),
+              const SizedBox(height: AppConstants.paddingM),
+              const _EstimateNote(),
             ] else
               AppNeutralButtonWidget(
                 label: l10n.close,
@@ -194,30 +222,18 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
   }
 }
 
-class _DragHandle extends StatelessWidget {
-  const _DragHandle();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 44,
-        height: 5,
-        decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.35),
-          borderRadius: BorderRadius.circular(AppConstants.radiusFull),
-        ),
-      ),
-    );
-  }
-}
-
-/// The title, and the trip's distance and time in a green pill beside it.
+/// The title with how many rides can be requested under it, and the trip's
+/// distance and time in a green pill beside it.
 class _Header extends StatelessWidget {
   final double distanceKm;
   final int durationMin;
+  final int availableCount;
 
-  const _Header({required this.distanceKm, required this.durationMin});
+  const _Header({
+    required this.distanceKm,
+    required this.durationMin,
+    required this.availableCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -230,14 +246,26 @@ class _Header extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Semantics(
-            header: true,
-            child: Text(
-              l10n.pickVehicleType,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.pickVehicleType,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              if (availableCount > 0)
+                Text(
+                  l10n.ridesAvailable(availableCount),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: colors.textSecondary),
+                ),
+            ],
           ),
         ),
         if (summary.isNotEmpty) ...[
@@ -288,34 +316,35 @@ class _TripCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return DecoratedBox(
-      decoration: BoxDecoration(
+    return SizedBox(
+      width: double.infinity,
+      child: AppSurfaceCardWidget(
         color: colors.backgroundMuted,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-      ),
-      child: Padding(
+        bordered: false,
         padding: const EdgeInsets.all(AppConstants.paddingM),
         child: Column(
           children: [
             _AddressRow(
               icon: Icons.trip_origin_rounded,
-              color: AppColors.primaryBright,
+              color: colors.primaryContent,
               label: pickupLabel,
             ),
             Padding(
-              padding: const EdgeInsetsDirectional.only(start: 8),
+              padding: const EdgeInsetsDirectional.only(
+                start: _tileSize / 2 - 1,
+              ),
               child: SizedBox(
-                height: 14,
+                height: 12,
                 child: VerticalDivider(
-                  width: 1,
-                  thickness: 1.5,
-                  color: colors.borderStrong,
+                  width: 2,
+                  thickness: 2,
+                  color: colors.border,
                 ),
               ),
             ),
             _AddressRow(
               icon: Icons.location_on_rounded,
-              color: AppColors.accent,
+              color: colors.accentContent,
               label: dropoffLabel,
             ),
           ],
@@ -323,6 +352,8 @@ class _TripCard extends StatelessWidget {
       ),
     );
   }
+
+  static const _tileSize = 32.0;
 }
 
 class _AddressRow extends StatelessWidget {
@@ -340,8 +371,13 @@ class _AddressRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(width: AppConstants.paddingS),
+        AppIconTileWidget(
+          icon: icon,
+          size: _TripCard._tileSize,
+          background: context.colors.backgroundWhite,
+          foreground: color,
+        ),
+        const SizedBox(width: AppConstants.paddingM),
         Expanded(
           child: Text(
             label,
@@ -381,41 +417,30 @@ class _NoteField extends StatelessWidget {
   }
 }
 
-/// "The price is an estimate…", next to the button that commits to it: a
-/// tinted notice with an icon and readable text, so the customer sees it
-/// before they request.
+/// "The price is an estimate…", a small centered footnote under the button
+/// that commits to it: an icon and readable text, so the customer still sees
+/// it before they request.
 class _EstimateNote extends StatelessWidget {
   const _EstimateNote();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppConstants.paddingM,
-        vertical: AppConstants.paddingM,
-      ),
-      decoration: BoxDecoration(
-        color: context.colors.warningSurface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-        border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Icon(Icons.info_rounded, size: 22, color: AppColors.warning),
-          const SizedBox(width: AppConstants.paddingM),
-          Expanded(
-            child: Text(
-              context.l10n.priceEstimateNote,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: context.colors.textPrimary,
-                fontWeight: FontWeight.w600,
-                height: 1.4,
-              ),
-            ),
+    final colors = context.colors;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.info_outline_rounded, size: 14, color: colors.textTertiary),
+        const SizedBox(width: AppConstants.paddingXS),
+        Flexible(
+          child: Text(
+            context.l10n.priceEstimateNote,
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: colors.textTertiary),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

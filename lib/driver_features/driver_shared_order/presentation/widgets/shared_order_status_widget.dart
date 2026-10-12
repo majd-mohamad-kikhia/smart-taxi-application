@@ -40,7 +40,6 @@ class SharedOrderStatusWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: tone.surface,
           borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-          border: Border.all(color: tone.color.withValues(alpha: 0.35)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +124,7 @@ class SharedOrderStatusWidget extends StatelessWidget {
   static ({Color color, Color surface}) _toneOf(BuildContext context, SharedOrderAvailability availability) {
     return switch (availability) {
       SharedOrderAvailability.available ||
-      SharedOrderAvailability.yours => (color: AppColors.success, surface: context.colors.successSurface),
+      SharedOrderAvailability.yours => (color: context.colors.primaryContent, surface: context.colors.primarySurface),
       SharedOrderAvailability.taken ||
       SharedOrderAvailability.cancelled ||
       SharedOrderAvailability.blocked ||

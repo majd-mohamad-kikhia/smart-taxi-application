@@ -40,9 +40,10 @@ class AppConstants {
   /// says how long it lasts (`expires_in_seconds`).
   static const int orderOfferSeconds = 10;
 
-  static const double radiusMedium = 12.0;
-  static const double radiusLarge = 16.0;
-  static const double radiusXL = 24.0;
+  static const double radiusSmall = 10.0;
+  static const double radiusMedium = 14.0;
+  static const double radiusLarge = 20.0;
+  static const double radiusXL = 28.0;
   static const double radiusFull = 100.0;
 
   static const double paddingXS = 4.0;

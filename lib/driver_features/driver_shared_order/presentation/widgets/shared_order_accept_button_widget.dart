@@ -21,7 +21,7 @@ class SharedOrderAcceptButtonWidget extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: context.colors.backgroundWhite,
-        border: Border(top: BorderSide(color: context.colors.border)),
+        border: Border(top: BorderSide(color: context.colors.borderLight)),
       ),
       child: SafeArea(
         top: false,

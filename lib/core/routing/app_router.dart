@@ -29,6 +29,7 @@ import '../models/order_offer_model.dart';
 import '../models/picked_location_model.dart';
 import '../models/ride_model.dart';
 import '../saved_addresses/data/models/saved_address_model.dart';
+import '../saved_addresses/data/models/saved_place_preset.dart';
 import 'main_wrapper_screen.dart';
 
 /// Arguments for [AppRouter.rideTracking] — a route that (unlike the
@@ -75,12 +76,14 @@ class LocationPickerRouteArgs {
 }
 
 /// Arguments for [AppRouter.savedAddressForm]: a new place of [type], or
-/// [existing] to edit. The screen pops `replaced` (bool) once saved.
+/// [existing] to edit. A [preset] (gym, school…) is an `other` place with a
+/// ready-made name. The screen pops `replaced` (bool) once saved.
 class SavedAddressFormRouteArgs {
   final SavedAddressType type;
   final SavedAddressModel? existing;
+  final SavedPlacePreset? preset;
 
-  const SavedAddressFormRouteArgs({required this.type, this.existing});
+  const SavedAddressFormRouteArgs({required this.type, this.existing, this.preset});
 }
 
 class AppRouter {
@@ -212,7 +215,11 @@ class AppRouter {
         final args = settings.arguments! as SavedAddressFormRouteArgs;
         return _buildRoute(
           settings,
-          SavedAddressFormScreen(type: args.type, existing: args.existing),
+          SavedAddressFormScreen(
+            type: args.type,
+            existing: args.existing,
+            preset: args.preset,
+          ),
         );
       case contactUs:
         return _buildRoute(

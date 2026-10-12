@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/vehicle_type_icon_widget.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
 
-/// One card of the vehicle sheet: the car type's icon, its name and
-/// description, its price, and whether it is the current choice. The chosen
-/// card takes the brand's green wash, border and glow. A card can be chosen
-/// only when [onTap] is set (the type is available and has a price);
-/// otherwise it states why — "Currently unavailable" or "Price unavailable" —
-/// in readable text with an icon, not by dimming the whole card.
+/// One card of the vehicle sheet: a rounded thumbnail with the car type's
+/// icon, its name and description, and its price at the end. The chosen card
+/// is filled with the brand's green wash. A card can be chosen only when
+/// [onTap] is set (the type is available and has a price); otherwise it
+/// states why — "Currently unavailable" or "Price unavailable" — in readable
+/// text with an icon, not by dimming the whole card.
 class VehicleTypeTileWidget extends StatelessWidget {
-  static const _radius = 18.0;
+  static const _radius = AppConstants.radiusLarge;
+  static const _thumbWidth = 64.0;
+  static const _thumbHeight = 52.0;
 
   final VehicleTypeQuoteModel vehicleType;
 
@@ -58,18 +59,8 @@ class VehicleTypeTileWidget extends StatelessWidget {
           color: selected ? colors.primarySurface : colors.backgroundWhite,
           borderRadius: radius,
           border: Border.all(
-            color: selected ? AppColors.primary : colors.border,
-            width: selected ? 1.5 : 1,
+            color: selected ? colors.primarySurface : colors.borderLight,
           ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ]
-              : null,
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -82,9 +73,11 @@ class VehicleTypeTileWidget extends StatelessWidget {
                 children: [
                   Opacity(
                     opacity: isChoosable ? 1 : 0.5,
-                    child: VehicleTypeIconWidget(
+                    child: _ThumbnailWidget(
                       name: vehicleType.name,
-                      size: 56,
+                      selected: selected,
+                      width: _thumbWidth,
+                      height: _thumbHeight,
                     ),
                   ),
                   const SizedBox(width: AppConstants.paddingM),
@@ -118,6 +111,7 @@ class VehicleTypeTileWidget extends StatelessWidget {
                             statusText == null) ...[
                           const SizedBox(height: AppConstants.paddingXS),
                           _FeeChip(
+                            selected: selected,
                             text: locationFeeName == null
                                 ? l10n.locationFeeIncluded(
                                     formatNewSyp(l10n, vehicleType.locationFee),
@@ -157,24 +151,13 @@ class VehicleTypeTileWidget extends StatelessWidget {
                     const SizedBox(width: AppConstants.paddingS),
                     PriceTextWidget(
                       price: price!,
-                      style: textTheme.titleMedium?.copyWith(
+                      style: textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: isChoosable
-                            ? (selected
-                                  ? colors.primaryContent
-                                  : colors.textPrimary)
+                            ? colors.textPrimary
                             : colors.textSecondary,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
-                    ),
-                  ],
-                  if (isChoosable) ...[
-                    const SizedBox(width: AppConstants.paddingS),
-                    Icon(
-                      selected
-                          ? Icons.check_circle_rounded
-                          : Icons.radio_button_unchecked_rounded,
-                      color: selected ? AppColors.primary : colors.textTertiary,
                     ),
                   ],
                 ],
@@ -187,18 +170,56 @@ class VehicleTypeTileWidget extends StatelessWidget {
   }
 }
 
-/// The location fee, as a small teal-washed pill under the description.
+/// The rounded picture slot at the start of a card. The API carries no car
+/// photo, so it holds the icon that fits the type's name, on a soft wash.
+class _ThumbnailWidget extends StatelessWidget {
+  final String name;
+  final bool selected;
+  final double width;
+  final double height;
+
+  const _ThumbnailWidget({
+    required this.name,
+    required this.selected,
+    required this.width,
+    required this.height,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return ExcludeSemantics(
+      child: Container(
+        width: width,
+        height: height,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected ? colors.backgroundWhite : colors.backgroundMuted,
+          borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+        ),
+        child: Icon(
+          VehicleTypeIconWidget.iconFor(name),
+          size: 30,
+          color: colors.primaryContent,
+        ),
+      ),
+    );
+  }
+}
+
+/// The location fee, as a small green-washed pill under the description.
 class _FeeChip extends StatelessWidget {
   final String text;
+  final bool selected;
 
-  const _FeeChip({required this.text});
+  const _FeeChip({required this.text, required this.selected});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colors.accentSurface,
+        color: selected ? colors.backgroundWhite : colors.primarySurface,
         borderRadius: BorderRadius.circular(AppConstants.radiusFull),
       ),
       child: Padding(

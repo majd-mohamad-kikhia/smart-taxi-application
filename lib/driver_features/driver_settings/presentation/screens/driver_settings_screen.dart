@@ -132,7 +132,12 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 560),
               child: ListView(
-                padding: const EdgeInsets.all(AppConstants.paddingL),
+                padding: EdgeInsets.fromLTRB(
+                AppConstants.paddingL,
+                AppConstants.paddingL,
+                AppConstants.paddingL,
+                AppConstants.paddingL + MediaQuery.paddingOf(context).bottom,
+              ),
                 children: [
                   SettingsHeadingWidget(title: l10n.settingsSectionTrips),
                   SearchRadiusSliderWidget(

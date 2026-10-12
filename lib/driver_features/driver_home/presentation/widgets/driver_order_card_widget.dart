@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
@@ -36,8 +35,8 @@ class DriverOrderCardWidget extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: context.colors.backgroundWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.border),
+        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+        border: Border.all(color: context.colors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,8 +60,8 @@ class DriverOrderCardWidget extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           _LocationRow(
-            icon: Icons.radio_button_checked_rounded,
-            iconColor: AppColors.success,
+            icon: Icons.trip_origin_rounded,
+            iconColor: context.colors.primaryContent,
             label: order.pickupAddress,
             details: order.pickupAddressDetails,
           ),
@@ -75,7 +74,7 @@ class DriverOrderCardWidget extends StatelessWidget {
           ),
           _LocationRow(
             icon: Icons.location_on_rounded,
-            iconColor: AppColors.error,
+            iconColor: context.colors.accentContent,
             label: order.dropoffAddress,
             details: order.dropoffAddressDetails,
           ),
@@ -131,7 +130,7 @@ class _PricePill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: context.colors.primarySurface,
-        borderRadius: BorderRadius.circular(100),
+        borderRadius: BorderRadius.circular(AppConstants.radiusFull),
       ),
       child: PriceTextWidget(
         price: price,

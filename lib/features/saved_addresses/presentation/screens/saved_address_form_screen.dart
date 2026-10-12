@@ -6,6 +6,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
+import '../../../../core/saved_addresses/data/models/saved_place_preset.dart';
 import '../../../../core/saved_addresses/presentation/saved_address_type_ui.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
@@ -23,13 +24,27 @@ class SavedAddressFormScreen extends StatelessWidget {
   final SavedAddressType type;
   final SavedAddressModel? existing;
 
-  const SavedAddressFormScreen({super.key, required this.type, this.existing});
+  /// A ready-made place (gym, school…): named for the customer, so the form
+  /// asks only for the location.
+  final SavedPlacePreset? preset;
+
+  const SavedAddressFormScreen({
+    super.key,
+    required this.type,
+    this.existing,
+    this.preset,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SavedAddressFormCubit>(
       create: (_) => sl<SavedAddressFormCubit>(param1: type, param2: existing),
-      child: _SavedAddressFormView(type: type, existing: existing),
+      child: _SavedAddressFormView(
+        type: type,
+        existing: existing,
+        preset: preset,
+        presetLabel: preset?.name(context.l10n),
+      ),
     );
   }
 }
@@ -37,8 +52,15 @@ class SavedAddressFormScreen extends StatelessWidget {
 class _SavedAddressFormView extends StatefulWidget {
   final SavedAddressType type;
   final SavedAddressModel? existing;
+  final SavedPlacePreset? preset;
+  final String? presetLabel;
 
-  const _SavedAddressFormView({required this.type, this.existing});
+  const _SavedAddressFormView({
+    required this.type,
+    this.existing,
+    this.preset,
+    this.presetLabel,
+  });
 
   @override
   State<_SavedAddressFormView> createState() => _SavedAddressFormViewState();
@@ -48,10 +70,12 @@ class _SavedAddressFormViewState extends State<_SavedAddressFormView> {
   static const _maxLabelLength = 50;
 
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _labelController =
-      TextEditingController(text: widget.existing?.label ?? '');
+  late final TextEditingController _labelController = TextEditingController(
+    text: widget.existing?.label ?? widget.presetLabel ?? '',
+  );
 
-  bool get _needsLabel => widget.type == SavedAddressType.other;
+  bool get _needsLabel =>
+      widget.type == SavedAddressType.other && widget.preset == null;
 
   @override
   void dispose() {
@@ -62,7 +86,7 @@ class _SavedAddressFormViewState extends State<_SavedAddressFormView> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final typeName = widget.type.name(l10n);
+    final typeName = widget.preset?.name(l10n) ?? widget.type.name(l10n);
     final title = widget.existing == null
         ? l10n.savedAddressAddTitle(typeName)
         : l10n.savedAddressEditTitle(widget.existing!.title(l10n));
@@ -96,7 +120,7 @@ class _SavedAddressFormViewState extends State<_SavedAddressFormView> {
                     children: [
                       LocationSelectButtonWidget(
                         label: l10n.savedAddressLocation,
-                        icon: widget.type.icon,
+                        icon: widget.preset?.icon ?? widget.type.icon,
                         accentColor: AppColors.primary,
                         value: state.location,
                         placeholder: l10n.savedAddressPickOnMap,

@@ -36,7 +36,7 @@ class WalletStatCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: context.colors.border),
+        border: Border.all(color: context.colors.borderLight),
       ),
       child: Row(
         children: [

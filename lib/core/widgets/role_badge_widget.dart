@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../enums/user_role.dart';
 import '../localization/l10n_context_extension.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 
 /// Pill showing the role picked on the role-selection screen, shown at the
@@ -48,12 +47,12 @@ class RoleBadgeWidget extends StatelessWidget {
                   const SizedBox(width: AppConstants.paddingS),
                   Text(roleLabel, style: labelStyle?.copyWith(color: context.colors.primaryContent)),
                   const SizedBox(width: AppConstants.paddingM),
-                  const Icon(Icons.swap_horiz_rounded, size: 16, color: AppColors.accent),
+                  Icon(Icons.swap_horiz_rounded, size: 16, color: context.colors.accentContent),
                   const SizedBox(width: AppConstants.paddingXS),
                   Text(
                     l10n.change,
                     style: labelStyle?.copyWith(
-                      color: AppColors.accent,
+                      color: context.colors.accentContent,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

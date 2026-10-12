@@ -4,7 +4,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/format_price.dart';
 
-/// Hero card at the top of the wallet statement: the driver's wallet
+/// Solid green hero card at the top of the wallet statement: the driver's wallet
 /// balance as a heavy tabular figure with its currency, what it is for, and a
 /// one-line meaning. The number and the currency share one baseline and sit
 /// together in the middle of the card, in either language.
@@ -34,7 +34,7 @@ class WalletStatementSummaryCardWidget extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(AppConstants.paddingXXL),
         decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(AppConstants.radiusXL),
         ),
         child: Column(

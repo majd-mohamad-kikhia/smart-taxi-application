@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/widgets/app_icon_tile_widget.dart';
+import '../../../../core/widgets/app_surface_card_widget.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/fare_breakdown_widget.dart';
 
@@ -45,16 +48,37 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(
-                Icons.payments_rounded,
-                color: context.colors.primaryContent,
-                size: 40,
+              Center(
+                child: ExcludeSemantics(
+                  child: Container(
+                    width: 76,
+                    height: 76,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: context.colors.primarySurface,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.payments_rounded,
+                        color: AppColors.textOnPrimary,
+                        size: 26,
+                      ),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: AppConstants.paddingM),
               Text(
                 l10n.payDriverTitle,
                 textAlign: TextAlign.center,
-                style: textTheme.headlineSmall,
+                style: textTheme.headlineMedium,
               ),
               const SizedBox(height: AppConstants.paddingS),
               Text(
@@ -64,20 +88,66 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
               ),
               if (amount != null) ...[
                 const SizedBox(height: AppConstants.paddingL),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: PriceTextWidget(
-                    price: amount,
-                    alignment: CrossAxisAlignment.center,
-                    style: textTheme.displayLarge?.copyWith(
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
+                AppSurfaceCardWidget(
+                  color: context.colors.primarySurface,
+                  bordered: false,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppConstants.paddingL,
+                    vertical: AppConstants.paddingM,
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        l10n.fareTotal,
+                        style: textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: context.colors.primaryContent,
+                        ),
+                      ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: PriceTextWidget(
+                          price: amount,
+                          alignment: CrossAxisAlignment.center,
+                          style: textTheme.displayLarge?.copyWith(
+                            color: context.colors.primaryContent,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
               if (fare != null) ...[
                 const SizedBox(height: AppConstants.paddingL),
-                FareBreakdownWidget(fare: fare!, showTotal: false, showStops: false, showPauses: false),
+                Row(
+                  children: [
+                    const AppIconTileWidget(icon: Icons.receipt_long_rounded, size: 32),
+                    const SizedBox(width: AppConstants.paddingS),
+                    Expanded(
+                      child: Text(
+                        l10n.fareBreakdownTitle,
+                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppConstants.paddingS),
+                AppSurfaceCardWidget(
+                  color: context.colors.backgroundMuted,
+                  bordered: false,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppConstants.paddingL,
+                    vertical: AppConstants.paddingS,
+                  ),
+                  child: FareBreakdownWidget(
+                    fare: fare!,
+                    showTotal: false,
+                    showStops: false,
+                    showPauses: false,
+                  ),
+                ),
               ],
               const SizedBox(height: AppConstants.paddingXL),
               Row(

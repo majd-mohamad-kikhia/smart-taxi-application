@@ -17,7 +17,6 @@ class WarningNoticeWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.warningSurface,
         borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-        border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,13 +1,16 @@
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
-import '../../../../core/widgets/auth_header_widget.dart';
-import '../../../../core/widgets/auth_language_toggle_widget.dart';
+import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_surface_card_widget.dart';
+import '../../../../core/widgets/auth_brand_header_widget.dart';
+import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../cubit/auth_cubit.dart';
 import '../widgets/role_option_card_widget.dart';
 
@@ -37,70 +40,111 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Centered with a width cap on wide screens, and scrollable so a large
-    // text size or a short screen never overflows; on a normal phone the
-    // content still fills the height, with the button at the bottom.
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: LayoutBuilder(
-              builder: (context, constraints) => SingleChildScrollView(
-                padding: const EdgeInsets.all(AppConstants.paddingXXL),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: math.max(
-                      0,
-                      constraints.maxHeight - AppConstants.paddingXXL * 2,
-                    ),
+    final l10n = context.l10n;
+    // The green brand header on top with the two role cards in one white
+    // card riding up over its edge, and Continue at the bottom. Scrollable
+    // so a large text size or a short screen never overflows; on a normal
+    // phone the content still fills the height, with the button at the
+    // bottom.
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: AppTheme.overlayStyleFor(Brightness.dark),
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AuthBrandHeaderWidget(
+                    title: l10n.welcomeToApp,
+                    subtitle: l10n.chooseAccountType,
+                    overlap: _cardOverlap,
                   ),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      children: [
-                        const Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: AuthLanguageToggleWidget(),
-                        ),
-                        const Spacer(),
-                        AuthHeaderWidget(
-                          title: context.l10n.welcomeToApp,
-                          subtitle: context.l10n.chooseAccountType,
-                        ),
-                        const SizedBox(height: AppConstants.paddingXXL),
-                        RoleOptionCardWidget(
-                          role: UserRole.customer,
-                          icon: Icons.person_rounded,
-                          isSelected: _selected == UserRole.customer,
-                          onTap: () =>
-                              setState(() => _selected = UserRole.customer),
-                        ),
-                        const SizedBox(height: AppConstants.paddingM),
-                        RoleOptionCardWidget(
-                          role: UserRole.driver,
-                          icon: Icons.local_taxi_rounded,
-                          isSelected: _selected == UserRole.driver,
-                          onTap: () =>
-                              setState(() => _selected = UserRole.driver),
-                        ),
-                        const Spacer(),
-                        const SizedBox(height: AppConstants.paddingXXL),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _selected == null ? null : _continue,
-                            child: Text(context.l10n.continueLabel),
+                  Expanded(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 480),
+                        child: Transform.translate(
+                          offset: const Offset(0, -_cardOverlap),
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              AppConstants.paddingXL,
+                              0,
+                              AppConstants.paddingXL,
+                              MediaQuery.paddingOf(context).bottom,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      AppConstants.radiusXL,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: context.colors.shadowMedium,
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: AppSurfaceCardWidget(
+                                    radius: AppConstants.radiusXL,
+                                    padding: const EdgeInsets.all(
+                                      AppConstants.paddingL,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        RoleOptionCardWidget(
+                                          role: UserRole.customer,
+                                          icon: Icons.person_rounded,
+                                          isSelected:
+                                              _selected == UserRole.customer,
+                                          onTap: () => setState(
+                                            () => _selected = UserRole.customer,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: AppConstants.paddingM,
+                                        ),
+                                        RoleOptionCardWidget(
+                                          role: UserRole.driver,
+                                          icon: Icons.local_taxi_rounded,
+                                          isSelected:
+                                              _selected == UserRole.driver,
+                                          onTap: () => setState(
+                                            () => _selected = UserRole.driver,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const Spacer(),
+                                const SizedBox(height: AppConstants.paddingXXL),
+                                AuthPrimaryButtonWidget(
+                                  label: l10n.continueLabel,
+                                  isLoading: false,
+                                  onPressed: _selected == null ? null : _continue,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
+
+  /// How far the role card overlaps the green header.
+  static const double _cardOverlap = 48;
 }

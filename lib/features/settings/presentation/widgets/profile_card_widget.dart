@@ -3,6 +3,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/widgets/app_icon_tile_widget.dart';
 import '../../../../core/widgets/network_photo_widget.dart';
 import '../../data/models/user_profile_model.dart';
 
@@ -24,52 +25,55 @@ class ProfileCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: context.colors.border),
+        border: Border.all(color: context.colors.borderLight),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(AppConstants.paddingL),
-            child: Row(
+          // The person on the card's solid green top: photo, name, contacts.
+          Container(
+            width: double.infinity,
+            color: AppColors.primary,
+            padding: const EdgeInsets.fromLTRB(
+              AppConstants.paddingL,
+              AppConstants.paddingXL,
+              AppConstants.paddingL,
+              AppConstants.paddingL,
+            ),
+            child: Column(
               children: [
-                NetworkPhotoWidget(
-                  imagePath: profile.photoUrl,
-                  width: 64,
-                  height: 64,
-                  borderRadius: 32,
-                  placeholderIcon: Icons.person_rounded,
-                ),
-                const SizedBox(width: AppConstants.paddingL),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        profile.fullName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      if (profile.phone.isNotEmpty) ...[
-                        const SizedBox(height: AppConstants.paddingS),
-                        _ContactRow(
-                          icon: Icons.phone_outlined,
-                          text: profile.phone,
-                        ),
-                      ],
-                      if (profile.email.isNotEmpty) ...[
-                        const SizedBox(height: AppConstants.paddingXS),
-                        _ContactRow(
-                          icon: Icons.email_outlined,
-                          text: profile.email,
-                        ),
-                      ],
-                    ],
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.white.withValues(alpha: 0.3),
+                  ),
+                  child: NetworkPhotoWidget(
+                    imagePath: profile.photoUrl,
+                    width: 84,
+                    height: 84,
+                    borderRadius: 42,
+                    placeholderIcon: Icons.person_rounded,
                   ),
                 ),
+                const SizedBox(height: AppConstants.paddingM),
+                Text(
+                  profile.fullName,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: AppColors.textOnPrimary,
+                  ),
+                ),
+                if (profile.phone.isNotEmpty) ...[
+                  const SizedBox(height: AppConstants.paddingS),
+                  _ContactRow(icon: Icons.phone_outlined, text: profile.phone),
+                ],
+                if (profile.email.isNotEmpty) ...[
+                  const SizedBox(height: AppConstants.paddingXS),
+                  _ContactRow(icon: Icons.email_outlined, text: profile.email),
+                ],
               ],
             ),
           ),
@@ -94,19 +98,9 @@ class ProfileCardWidget extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(AppConstants.paddingS),
-                          decoration: BoxDecoration(
-                            color: context.colors.primarySurface,
-                            borderRadius: BorderRadius.circular(
-                              AppConstants.radiusMedium,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.edit_outlined,
-                            size: 18,
-                            color: context.colors.primaryContent,
-                          ),
+                        const AppIconTileWidget(
+                          icon: Icons.edit_outlined,
+                          size: 36,
                         ),
                         const SizedBox(width: AppConstants.paddingM),
                         Expanded(
@@ -143,18 +137,24 @@ class _ContactRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: context.colors.textSecondary),
+        Icon(
+          icon,
+          size: 16,
+          color: AppColors.textOnPrimary.withValues(alpha: 0.85),
+        ),
         const SizedBox(width: AppConstants.paddingS),
-        Expanded(
+        Flexible(
           child: Text(
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             // Phone numbers and emails read left to right in any language.
             textDirection: TextDirection.ltr,
-            textAlign: TextAlign.start,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.textOnPrimary.withValues(alpha: 0.9),
+            ),
           ),
         ),
       ],

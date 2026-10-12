@@ -45,8 +45,8 @@ class NotificationCardWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
           border: Border.all(
             color: isUnread
-                ? AppColors.primary.withValues(alpha: 0.4)
-                : context.colors.border,
+                ? context.colors.primarySurface
+                : context.colors.borderLight,
           ),
         ),
         // The ink lives on a Material above the fill, so the ripple shows.

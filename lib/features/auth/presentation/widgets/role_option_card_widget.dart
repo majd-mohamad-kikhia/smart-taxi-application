@@ -36,7 +36,7 @@ class RoleOptionCardWidget extends StatelessWidget {
           color: isSelected ? context.colors.primarySurface : context.colors.backgroundWhite,
           borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
           border: Border.all(
-            color: isSelected ? AppColors.primary : context.colors.border,
+            color: isSelected ? AppColors.primary : context.colors.borderLight,
             width: isSelected ? 1.5 : 1,
           ),
         ),

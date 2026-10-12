@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_palette.dart';
+import 'app_icon_tile_widget.dart';
 
 /// One tappable row of a settings list: a leading icon, a label and a
 /// trailing chevron that mirrors in Arabic. At least 56dp tall and read as a
@@ -35,13 +36,13 @@ class SettingsRowWidget extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(icon, size: 22, color: context.colors.textSecondary),
+                AppIconTileWidget(icon: icon, size: 36),
                 const SizedBox(width: AppConstants.paddingM),
                 Expanded(
                   child: Text(
                     label,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),

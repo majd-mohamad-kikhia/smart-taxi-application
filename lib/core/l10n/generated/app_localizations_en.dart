@@ -1737,6 +1737,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedAddressAddWork => 'Add work';
 
   @override
+  String savedAddressAddNamed(String name) {
+    return 'Add $name';
+  }
+
+  @override
+  String savedPlaceNotSaved(String name) {
+    return '$name isn\'t saved yet. Add it from Settings > Saved places.';
+  }
+
+  @override
+  String get savedPlaceGym => 'Gym';
+
+  @override
+  String get savedPlaceSchool => 'School';
+
+  @override
+  String get savedPlaceUniversity => 'University';
+
+  @override
+  String get savedPlaceFamily => 'Family home';
+
+  @override
   String get savedAddressOtherPlaces => 'Other places';
 
   @override
@@ -1949,4 +1971,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String cancelStrikeWarningUnknown(int hours) {
     return 'Cancelling after a driver accepted counts against you. Too many and you can\'t order for $hours hours. Cancel anyway?';
   }
+
+  @override
+  String get tripArrivedSafely => 'Arrived safely';
+
+  @override
+  String get tripCompletedTitle => 'Trip completed!';
+
+  @override
+  String get tripCompletedThanks =>
+      'Thank you for riding with Smart Taxi. We hope you enjoyed your trip.';
+
+  @override
+  String rateRideWith(String name) {
+    return 'How was your ride with $name?';
+  }
+
+  @override
+  String rateComplimentTitle(String name) {
+    return 'Give $name a compliment';
+  }
+
+  @override
+  String get complimentSmoothDriving => 'Smooth driving';
+
+  @override
+  String get complimentCleanCar => 'Clean car';
+
+  @override
+  String get complimentPolite => 'Polite & professional';
+
+  @override
+  String get complimentOnTime => 'Right on time';
+
+  @override
+  String get callDriver => 'Call driver';
+
+  @override
+  String ridesAvailable(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rides available',
+      one: '1 ride available',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fareBreakdownTitle => 'Fare breakdown';
+
+  @override
+  String get driverVerified => 'Verified driver';
 }

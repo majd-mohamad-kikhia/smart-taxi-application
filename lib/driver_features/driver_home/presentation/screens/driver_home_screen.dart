@@ -61,7 +61,12 @@ class DriverHomeScreen extends StatelessWidget {
             final driver = state.driver;
             if (driver == null) return const SizedBox.shrink();
             return ListView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                16 + MediaQuery.paddingOf(context).bottom,
+              ),
               children: [
                 DriverStatusCardWidget(driver: driver),
                 const SizedBox(height: 12),
@@ -188,7 +193,7 @@ class _OrdersPlaceholder extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: context.colors.border),
+        border: Border.all(color: context.colors.borderLight),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

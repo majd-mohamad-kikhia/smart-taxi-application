@@ -4,6 +4,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
@@ -194,7 +195,7 @@ class _InProgressView extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: context.colors.backgroundWhite,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: context.colors.border),
+                      border: Border.all(color: context.colors.borderLight),
                     ),
                     child: OrderRouteDetailsWidget(
                       order: state.order,
@@ -233,13 +234,13 @@ class _BottomPanel extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: context.colors.backgroundWhite,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: context.colors.border),
+            borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+            border: Border.all(color: context.colors.borderLight),
             boxShadow: [
               BoxShadow(
                 color: context.colors.shadowMedium,
-                blurRadius: 16,
-                offset: Offset(0, -2),
+                blurRadius: 12,
+                offset: const Offset(0, -2),
               ),
             ],
           ),

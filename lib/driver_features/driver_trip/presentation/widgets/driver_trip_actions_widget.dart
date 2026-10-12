@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
@@ -121,16 +120,16 @@ class DriverTripActionsWidget extends StatelessWidget {
     );
   }
 
-  /// Cancel: red outline and icon, but the label stays in the main text
-  /// color (red text on this surface is only 4.4:1).
+  /// Cancel: a soft red pill, with the label in the dark red text color.
   Widget _cancelButton(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: _isBusy || onCancel == null ? null : onCancel,
-      icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.error),
+      icon: const Icon(Icons.close_rounded, size: 18),
       label: Text(context.l10n.cancelTrip, textAlign: TextAlign.center),
       style: OutlinedButton.styleFrom(
-        foregroundColor: context.colors.textPrimary,
-        side: const BorderSide(color: AppColors.error, width: 1.5),
+        backgroundColor: context.colors.errorSurface,
+        foregroundColor: context.colors.errorText,
+        disabledBackgroundColor: context.colors.errorSurface.withValues(alpha: 0.5),
         padding: const EdgeInsets.symmetric(
           horizontal: AppConstants.paddingM,
           vertical: 14,
@@ -151,12 +150,16 @@ class DriverTripActionsWidget extends StatelessWidget {
             onPressed: _isBusy ? null : () => _confirmFinish(context, cubit),
           )
         : AuthPrimaryButtonWidget(
+            // Shares the row with another button: no room for the arrow.
+            showArrow: false,
             label: l10n.driverFinishTrip,
             isLoading: false,
             onPressed: _isBusy ? null : () => _confirmFinish(context, cubit),
           );
     final pauseOrResume = isPaused
         ? AuthPrimaryButtonWidget(
+            // Shares the row with another button: no room for the arrow.
+            showArrow: false,
             label: l10n.driverResumeTrip,
             isLoading: false,
             onPressed: _isBusy ? null : cubit.resumeTrip,

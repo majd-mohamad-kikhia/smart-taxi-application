@@ -52,7 +52,6 @@ class HomeBottomPanelWidget extends StatelessWidget {
                 isLoading: state.isLocating,
                 onTap: isLocked ? null : cubit.locateMe,
                 size: 64,
-                glow: true,
               ),
             ),
             const SizedBox(height: AppConstants.paddingS),

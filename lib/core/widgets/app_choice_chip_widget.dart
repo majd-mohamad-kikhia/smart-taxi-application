@@ -28,7 +28,9 @@ class AppChoiceChipWidget extends StatelessWidget {
       checkmarkColor: context.colors.primaryContent,
       backgroundColor: context.colors.backgroundMuted,
       selectedColor: context.colors.primarySurface,
-      side: BorderSide(color: selected ? AppColors.primary : context.colors.border),
+      side: selected
+          ? const BorderSide(color: AppColors.primary, width: 1.5)
+          : BorderSide.none,
       labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
             color: selected ? context.colors.primaryContent : context.colors.textPrimary,
           ),

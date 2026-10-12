@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
+import '../../../../core/saved_addresses/data/models/saved_place_preset.dart';
 import '../../../../core/saved_addresses/presentation/saved_address_type_ui.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/widgets/app_icon_tile_widget.dart';
 
 /// One row of the "Saved places" screen. With an [address] it shows the
 /// place (tap to edit, menu to edit or delete); without one it is the
-/// "Add home" / "Add work" invitation for [type].
+/// "Add home" / "Add work" (or, with a [preset], "Add gym"…) invitation.
 class SavedAddressTileWidget extends StatelessWidget {
   final SavedAddressType type;
+  final SavedPlacePreset? preset;
   final SavedAddressModel? address;
   final bool isDeleting;
   final VoidCallback onTap;
@@ -20,6 +23,7 @@ class SavedAddressTileWidget extends StatelessWidget {
     required this.type,
     required this.address,
     required this.onTap,
+    this.preset,
     this.onDelete,
     this.isDeleting = false,
   });
@@ -29,8 +33,14 @@ class SavedAddressTileWidget extends StatelessWidget {
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final address = this.address;
+    final preset = this.preset;
+    final accent = address?.accent ?? preset?.accent ?? type.accent;
     final title = address?.title(l10n) ??
-        (type == SavedAddressType.work ? l10n.savedAddressAddWork : l10n.savedAddressAddHome);
+        (preset != null
+            ? l10n.savedAddressAddNamed(preset.name(l10n))
+            : type == SavedAddressType.work
+                ? l10n.savedAddressAddWork
+                : l10n.savedAddressAddHome);
     final subtitle = address == null
         ? null
         : [address.address, address.addressDetails]
@@ -52,22 +62,14 @@ class SavedAddressTileWidget extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-            border: Border.all(color: context.colors.border),
+            border: Border.all(color: context.colors.borderLight),
           ),
           child: Row(
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: context.colors.primarySurface,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  address == null ? Icons.add_rounded : type.icon,
-                  color: context.colors.primaryContent,
-                  size: 22,
-                ),
+              AppIconTileWidget(
+                icon: address?.icon ?? Icons.add_rounded,
+                background: accent.wash(context),
+                foreground: accent.foreground(context),
               ),
               const SizedBox(width: AppConstants.paddingM),
               Expanded(

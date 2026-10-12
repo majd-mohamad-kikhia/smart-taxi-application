@@ -33,6 +33,10 @@ class PaginatedListWidget<T> extends StatefulWidget {
   /// after another). A row scrolled out of view and back does not play again.
   final bool animateItems;
 
+  /// With [animateItems], the livelier entrance of the car-type sheet: rows
+  /// slide in from the end edge and settle with a small overshoot.
+  final bool slideItemsIn;
+
   /// Pull-to-refresh handler. Omit it on screens with nothing to
   /// re-fetch (e.g. locally-cached data with no backing "get" endpoint)
   /// — when null, no [RefreshIndicator] is shown.
@@ -53,6 +57,7 @@ class PaginatedListWidget<T> extends StatefulWidget {
     this.padding = const EdgeInsets.fromLTRB(16, 14, 16, 8),
     this.separator = const SizedBox(height: 10),
     this.animateItems = false,
+    this.slideItemsIn = false,
     this.onRefresh,
   });
 
@@ -145,7 +150,11 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
     return ListView.separated(
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: widget.padding,
+      // Plus the bottom inset, so the last row scrolls clear of a floating
+      // nav bar (or the system gesture bar).
+      padding: widget.padding.add(
+        EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
+      ),
       itemCount: itemCount,
       separatorBuilder: (_, _) => widget.separator,
       itemBuilder: (context, index) {
@@ -156,11 +165,10 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
         }
         final item = widget.itemBuilder(context, widget.items[index], index);
         if (!widget.animateItems) return item;
-        return EntranceAnimationWidget(
-          index: index,
-          play: _entered.add(index),
-          child: item,
-        );
+        final play = _entered.add(index);
+        return widget.slideItemsIn
+            ? EntranceAnimationWidget.slide(index: index, play: play, child: item)
+            : EntranceAnimationWidget(index: index, play: play, child: item);
       },
     );
   }

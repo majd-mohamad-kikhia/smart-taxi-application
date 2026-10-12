@@ -48,6 +48,7 @@ class _TripsView extends StatelessWidget {
             emptyMessage: context.l10n.noRidesYet,
             emptyIcon: Icons.local_taxi_outlined,
             animateItems: true,
+            slideItemsIn: true,
             onLoadMore: cubit.loadMore,
             onRetry: cubit.refresh,
             onRefresh: cubit.refresh,

@@ -68,6 +68,8 @@ class _MainWrapperScreenState extends State<MainWrapperScreen> {
           current.noticeCount > previous.noticeCount && current.notice != null,
       listener: (context, state) => _showNotice(state.notice!),
       child: Scaffold(
+        // The tabs draw under the floating nav bar, which has no backdrop.
+        extendBody: true,
         body: IndexedStack(index: _currentIndex, children: _tabs),
         bottomNavigationBar: AppBottomNavWidget(
           currentIndex: _currentIndex,

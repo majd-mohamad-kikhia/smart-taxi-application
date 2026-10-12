@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/second_ticker_widget.dart';
 
@@ -70,7 +71,7 @@ class OrderOfferCountdownWidget extends StatelessWidget {
           tween: Tween(begin: start, end: 0),
           duration: _left,
           builder: (context, value, _) => ClipRRect(
-            borderRadius: BorderRadius.circular(100),
+            borderRadius: BorderRadius.circular(AppConstants.radiusFull),
             child: LinearProgressIndicator(
               value: value,
               minHeight: 4,

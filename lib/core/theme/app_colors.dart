@@ -16,22 +16,25 @@ class AppColors {
   static const Color gray = Color(0xFF9CA3AF);
   static const Color darkGray = Color(0xFF374151);
 
-  /// The brand green: buttons and solid fills. White text on it is 5.0:1.
-  static const Color primary = Color(0xFF15803D);
+  /// The brand green, a deep forest: buttons and solid fills. White text on
+  /// it is 6.6:1.
+  static const Color primary = Color(0xFF0B6B3A);
 
-  /// The same green, brighter: what has to stand out on the dark map and in
-  /// glows (the pin, the route line, the taxi).
-  static const Color primaryBright = Color(0xFF22C55E);
+  /// The same green, brighter: what has to stand out on the dark map (the
+  /// pin, the route line, the taxi).
+  static const Color primaryBright = Color(0xFF1F9D55);
 
-  /// The brand's cooler end: the teal the green fades into. White text on it
-  /// is 5.5:1.
-  static const Color accent = Color(0xFF0F766E);
+  /// The brand's dark ink green: solid fills that mark an end point (the
+  /// destination square). Too dark to read on the dark theme as an icon or
+  /// text — use `context.colors.accentContent` there. White text on it is
+  /// 14:1.
+  static const Color accent = Color(0xFF123524);
 
   /// Foreground on [primary] and [accent]: white.
   static const Color textOnPrimary = white;
 
   /// A disabled primary button: the brand green dimmed to 40%.
-  static const Color primaryDisabled = Color(0x6615803D);
+  static const Color primaryDisabled = Color(0x660B6B3A);
 
   static const Color success = Color(0xFF10B981);
   static const Color error = Color(0xFFEF4444);
@@ -40,8 +43,8 @@ class AppColors {
   /// one next to the green brand.
   static const Color warning = Color(0xFFF59E0B);
 
-  /// The gold of a star rating.
-  static const Color star = warning;
+  /// The green of a star rating.
+  static const Color star = primaryBright;
 
   /// Foreground on [warning]: dark (white on amber is only 2.1:1).
   static const Color textOnWarning = darkGray;
@@ -58,21 +61,5 @@ class AppColors {
   static const Color scrimStrong = Color(0x8A000000);
 
   static const Color mapRoutePlanned = primaryBright;
-  static const Color mapRouteDriven = Color(0xFF3B82F6);
-
-  /// The brand gradient, green to teal: the main buttons, the wallet card and
-  /// the car-type sheet's request button. White text on either end is at
-  /// least 5:1.
-  static const LinearGradient primaryGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [primary, accent],
-  );
-
-  /// [primaryGradient] at 40%, for a disabled button.
-  static const LinearGradient primaryGradientDisabled = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [primaryDisabled, Color(0x660F766E)],
-  );
+  static const Color mapRouteDriven = Color(0xFF8FB5A0);
 }

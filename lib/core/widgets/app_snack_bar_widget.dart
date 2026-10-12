@@ -41,7 +41,6 @@ void showAppSnackBarOn(
 /// [SnackBar] by [showAppSnackBar], which owns the slide/dismiss behavior.
 class AppSnackBarWidget extends StatelessWidget {
   static const double _maxWidth = 480;
-  static const double _accentWidth = 4;
   static const double _iconTileSize = 36;
 
   final String message;
@@ -68,48 +67,31 @@ class AppSnackBarWidget extends StatelessWidget {
             border: Border.all(color: context.colors.neutralBorder),
             boxShadow: [
               BoxShadow(
-                color: context.colors.shadowStrong,
-                blurRadius: 16,
-                offset: Offset(0, 6),
+                color: context.colors.shadowMedium,
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: ClipRRect(
-            borderRadius: radius,
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ColoredBox(
-                    color: style.color,
-                    child: const SizedBox(width: _accentWidth),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppConstants.paddingM),
-                      child: Row(
-                        children: [
-                          _IconTile(style: style, size: _iconTileSize),
-                          const SizedBox(width: AppConstants.paddingM),
-                          Expanded(
-                            child: Text(
-                              message,
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: context.colors.textPrimary,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.35,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppConstants.paddingM),
+            child: Row(
+              children: [
+                _IconTile(style: style, size: _iconTileSize),
+                const SizedBox(width: AppConstants.paddingM),
+                Expanded(
+                  child: Text(
+                    message,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: context.colors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      height: 1.35,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -131,7 +113,7 @@ class _IconTile extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: style.surface,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
       ),
       child: Icon(style.icon, color: style.color, size: 20),
     );
@@ -146,26 +128,27 @@ class _SnackBarTone {
 
   const _SnackBarTone._(this.color, this.surface, this.icon);
 
-  factory _SnackBarTone(BuildContext context, AppSnackBarType type) => switch (type) {
-    AppSnackBarType.success => _SnackBarTone._(
-      AppColors.success,
-      context.colors.successSurface,
-      Icons.check_rounded,
-    ),
-    AppSnackBarType.error => _SnackBarTone._(
-      AppColors.error,
-      context.colors.errorSurface,
-      Icons.priority_high_rounded,
-    ),
-    AppSnackBarType.warning => _SnackBarTone._(
-      AppColors.warning,
-      context.colors.warningSurface,
-      Icons.warning_amber_rounded,
-    ),
-    AppSnackBarType.info => _SnackBarTone._(
-      AppColors.primary,
-      context.colors.primarySurface,
-      Icons.info_outline_rounded,
-    ),
-  };
+  factory _SnackBarTone(BuildContext context, AppSnackBarType type) =>
+      switch (type) {
+        AppSnackBarType.success => _SnackBarTone._(
+          AppColors.success,
+          context.colors.successSurface,
+          Icons.check_rounded,
+        ),
+        AppSnackBarType.error => _SnackBarTone._(
+          AppColors.error,
+          context.colors.errorSurface,
+          Icons.priority_high_rounded,
+        ),
+        AppSnackBarType.warning => _SnackBarTone._(
+          AppColors.warning,
+          context.colors.warningSurface,
+          Icons.warning_amber_rounded,
+        ),
+        AppSnackBarType.info => _SnackBarTone._(
+          AppColors.primary,
+          context.colors.primarySurface,
+          Icons.info_outline_rounded,
+        ),
+      };
 }

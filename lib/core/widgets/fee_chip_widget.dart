@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_palette.dart';
 
-/// Small dark pill that floats over the live map, e.g. "Waiting fee:
-/// 1500 SYP" or "Track trip". It is a dark surface with a hairline border
-/// and light text, so it reads on the dark map, and the green icon sits on
-/// it at full contrast.
+/// Small surface pill that floats over the live map, e.g. "Waiting fee:
+/// 1500 SYP" or "Track trip". A solid surface with a hairline border and
+/// one neutral shadow, so it reads on any map, with the green icon at full
+/// contrast.
 class FeeChipWidget extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -20,14 +20,14 @@ class FeeChipWidget extends StatelessWidget {
         vertical: AppConstants.paddingS,
       ),
       decoration: BoxDecoration(
-        color: context.colors.backgroundWhite.withValues(alpha: 0.92),
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusFull),
-        border: Border.all(color: context.colors.border),
+        border: Border.all(color: context.colors.borderLight),
         boxShadow: [
           BoxShadow(
             color: context.colors.shadowMedium,
-            blurRadius: 6,
-            offset: Offset(0, 2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),

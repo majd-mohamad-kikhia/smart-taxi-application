@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_palette.dart';
 
-/// Outlined button in neutral colors for the safe way out of a decision
+/// Tonal pill in neutral colors for the safe way out of a decision
 /// ("Go back", "Not now") or a calm, reversible action ("Log out"). It never
 /// takes the accent or danger color, so it can sit beside a destructive or
 /// primary action without competing with it. Width comes from the parent
@@ -17,8 +17,8 @@ class AppNeutralButtonWidget extends StatelessWidget {
   final IconData? icon;
   final bool isLoading;
 
-  /// A solid fill, for a button that sits on the map where a transparent
-  /// outlined button would let the map show through.
+  /// A different solid fill, for a button that sits on a surface the default
+  /// muted fill would blend into (the map, a muted card).
   final Color? backgroundColor;
 
   const AppNeutralButtonWidget({
@@ -32,14 +32,15 @@ class AppNeutralButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fill = backgroundColor ?? context.colors.backgroundMuted;
     return OutlinedButton(
       onPressed: isLoading ? null : onPressed,
       style: OutlinedButton.styleFrom(
-        backgroundColor: backgroundColor,
-        disabledBackgroundColor: backgroundColor,
+        backgroundColor: fill,
+        disabledBackgroundColor: fill,
         foregroundColor: context.colors.textPrimary,
         disabledForegroundColor: isLoading ? context.colors.textPrimary : null,
-        side: BorderSide(color: context.colors.borderStrong, width: 1.5),
+        side: BorderSide.none,
         padding: const EdgeInsets.symmetric(
           horizontal: AppConstants.paddingM,
           vertical: 14,

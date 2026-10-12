@@ -62,7 +62,7 @@ class _Chip extends StatelessWidget {
         selectedColor: AppColors.primary,
         backgroundColor: context.colors.backgroundWhite,
         side: BorderSide(
-          color: isSelected ? AppColors.primary : context.colors.border,
+          color: isSelected ? AppColors.primary : context.colors.borderLight,
         ),
         labelStyle: TextStyle(
           fontSize: 12,

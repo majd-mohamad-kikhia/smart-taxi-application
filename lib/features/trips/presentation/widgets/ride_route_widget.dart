@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 
 /// Vertical pickup → (stops) → drop-off timeline. Each point has its own
 /// glyph and a spoken label ("From", "Stop 1", "To"), so the order never
-/// depends on dot color. Pickup and drop-off use the same green and teal as
+/// depends on dot color. Pickup and drop-off use the same green and ink green as
 /// the order screen.
 ///
 /// Addresses are capped at [maxLines] on a card; leave it null on the
@@ -56,7 +55,7 @@ class RideRouteWidget extends StatelessWidget {
         details: dropoffDetails,
         label: l10n.toLabel,
         icon: Icons.location_on_rounded,
-        color: AppColors.accent,
+        color: context.colors.accentContent,
       ),
     ];
     return Column(

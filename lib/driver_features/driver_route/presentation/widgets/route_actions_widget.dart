@@ -98,12 +98,16 @@ class RouteActionsWidget extends StatelessWidget {
             onPressed: () => _confirmFinish(context, cubit),
           )
         : AuthPrimaryButtonWidget(
+            // Shares the row with another button: no room for the arrow.
+            showArrow: false,
             label: l10n.routeFinish,
             isLoading: false,
             onPressed: () => _confirmFinish(context, cubit),
           );
     final pauseOrResume = isPaused
         ? AuthPrimaryButtonWidget(
+            // Shares the row with another button: no room for the arrow.
+            showArrow: false,
             label: l10n.routeResume,
             isLoading: false,
             onPressed: cubit.resumeTrip,

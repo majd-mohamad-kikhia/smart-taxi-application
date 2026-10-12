@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../constants/app_constants.dart';
 import 'app_colors.dart';
 import 'app_palette.dart';
 
@@ -46,27 +47,27 @@ class AppTheme {
         ),
         displaySmall: GoogleFonts.tajawal(
           fontSize: 24,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
           color: p.textPrimary,
         ),
         headlineLarge: GoogleFonts.tajawal(
           fontSize: 22,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
           color: p.textPrimary,
         ),
         headlineMedium: GoogleFonts.tajawal(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
+          fontSize: 21,
+          fontWeight: FontWeight.w800,
           color: p.textPrimary,
         ),
         headlineSmall: GoogleFonts.tajawal(
           fontSize: 18,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: p.textPrimary,
         ),
         titleLarge: GoogleFonts.tajawal(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontSize: 17,
+          fontWeight: FontWeight.w700,
           color: p.textPrimary,
         ),
         titleMedium: GoogleFonts.tajawal(
@@ -113,16 +114,30 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: p.backgroundWhite,
         elevation: 0,
-        scrolledUnderElevation: 0.5,
-        shadowColor: p.shadowLight,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: AppColors.transparent,
         systemOverlayStyle: overlayStyleFor(brightness),
         titleTextStyle: GoogleFonts.tajawal(
           fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: p.primaryContent,
+          fontWeight: FontWeight.w800,
+          color: p.textPrimary,
         ),
         iconTheme: IconThemeData(color: p.textPrimary),
         actionsIconTheme: IconThemeData(color: p.textPrimary),
+      ),
+      // The back button as an outlined circle, the way every screen header
+      // draws its round icon buttons.
+      actionIconTheme: ActionIconThemeData(
+        backButtonIconBuilder: (context) => Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: p.backgroundWhite,
+            shape: BoxShape.circle,
+            border: Border.all(color: p.border),
+          ),
+          child: Icon(Icons.arrow_back_rounded, size: 20, color: p.textPrimary),
+        ),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: p.navBackground,
@@ -131,7 +146,7 @@ class AppTheme {
         showSelectedLabels: true,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
-        elevation: 12,
+        elevation: 0,
         selectedLabelStyle: GoogleFonts.tajawal(
           fontSize: 11,
           fontWeight: FontWeight.w600,
@@ -146,49 +161,43 @@ class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.textOnPrimary,
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: const StadiumBorder(),
+          minimumSize: const Size(0, 56),
           textStyle: GoogleFonts.tajawal(
             fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: p.textLink,
-          side: BorderSide(color: p.textLink, width: 1.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          backgroundColor: p.primarySurface,
+          foregroundColor: p.primaryContent,
+          side: BorderSide.none,
+          shape: const StadiumBorder(),
+          minimumSize: const Size(0, 52),
           textStyle: GoogleFonts.tajawal(
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: p.backgroundWhite,
+        fillColor: p.backgroundMuted,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: p.borderStrong),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: p.borderStrong),
-        ),
+        border: _inputBorder(BorderSide.none),
+        enabledBorder: _inputBorder(BorderSide.none),
+        errorBorder: _inputBorder(BorderSide(color: p.errorText)),
+        focusedErrorBorder: _inputBorder(BorderSide(color: p.errorText, width: 1.5)),
         errorStyle: GoogleFonts.tajawal(fontSize: 12, color: p.errorText),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        focusedBorder: _inputBorder(
+          const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         hintStyle: GoogleFonts.tajawal(fontSize: 14, color: p.textTertiary),
       ),
@@ -220,13 +229,53 @@ class AppTheme {
         color: p.backgroundWhite,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: p.border, width: 1),
+          borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+          side: BorderSide(color: p.borderLight, width: 1),
         ),
         margin: EdgeInsets.zero,
       ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: p.backgroundWhite,
+        surfaceTintColor: AppColors.transparent,
+        elevation: 0,
+        showDragHandle: true,
+        dragHandleColor: p.border,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppConstants.radiusXL),
+          ),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: p.textPrimary,
+        contentTextStyle: GoogleFonts.tajawal(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: p.backgroundWhite,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: p.backgroundMuted,
+        selectedColor: p.primarySurface,
+        side: BorderSide.none,
+        shape: const StadiumBorder(),
+        labelStyle: GoogleFonts.tajawal(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: p.textPrimary,
+        ),
+      ),
     );
   }
+
+  static OutlineInputBorder _inputBorder(BorderSide side) => OutlineInputBorder(
+    borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+    borderSide: side,
+  );
 
   /// Status bar icons that read on the theme's page: light icons on dark,
   /// dark icons on light. The bar itself is transparent.

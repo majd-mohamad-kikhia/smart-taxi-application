@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../data/models/route_session_model.dart';
 import 'route_duration_format.dart';
@@ -38,8 +39,8 @@ class RouteSummaryCardWidget extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: context.colors.backgroundWhite,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: context.colors.border),
+                  borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+                  border: Border.all(color: context.colors.borderLight),
                   boxShadow: [
                     BoxShadow(
                       color: context.colors.shadowMedium,
@@ -55,9 +56,9 @@ class RouteSummaryCardWidget extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.flag_rounded,
-                            color: AppColors.success,
+                            color: context.colors.primaryContent,
                             size: 18,
                           ),
                           const SizedBox(width: 6),

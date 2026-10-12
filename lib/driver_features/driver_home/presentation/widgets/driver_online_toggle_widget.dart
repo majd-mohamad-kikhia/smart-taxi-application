@@ -6,6 +6,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/widgets/app_icon_tile_widget.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
@@ -45,12 +46,12 @@ class DriverOnlineToggleWidget extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(AppConstants.paddingL),
           decoration: BoxDecoration(
-            color: isOnline ? context.colors.successSurface : context.colors.backgroundWhite,
+            color: isOnline ? AppColors.primary : context.colors.backgroundWhite,
             borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
             border: Border.all(
               color: isOnline
-                  ? AppColors.success.withValues(alpha: 0.3)
-                  : context.colors.border,
+                  ? AppColors.primary
+                  : context.colors.borderLight,
             ),
           ),
           child: Column(
@@ -70,14 +71,21 @@ class DriverOnlineToggleWidget extends StatelessWidget {
                           liveRegion: true,
                           child: Text(
                             _title(context, state.status),
-                            style: textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: context.colors.textPrimary,
+                            style: textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: isOnline
+                                  ? AppColors.textOnPrimary
+                                  : context.colors.textPrimary,
                             ),
                           ),
                         ),
                         if (isOnline)
-                          Text(l10n.presenceOnline, style: textTheme.bodyMedium),
+                          Text(
+                            l10n.presenceOnline,
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: AppColors.textOnPrimary,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -162,7 +170,7 @@ class DriverOnlineToggleWidget extends StatelessWidget {
   }
 }
 
-/// A round status tile with a car icon: green when online, amber while
+/// A rounded status tile with a car icon: green when online, amber while
 /// connecting, grey when offline. No spinner: the title says the state in
 /// words ("Connecting…"), so the tile only needs a quiet tint. Decorative.
 class _StatusIcon extends StatelessWidget {
@@ -174,19 +182,16 @@ class _StatusIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isOnline
-        ? AppColors.success
+        ? AppColors.primary
         : (isConnecting ? AppColors.warning : context.colors.textSecondary);
     final wash = isOnline
-        ? AppColors.success.withValues(alpha: 0.18)
+        ? AppColors.white
         : (isConnecting ? context.colors.warningSurface : context.colors.backgroundMuted);
-    return ExcludeSemantics(
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(color: wash, shape: BoxShape.circle),
-        alignment: Alignment.center,
-        child: Icon(Icons.local_taxi_rounded, size: 22, color: color),
-      ),
+    return AppIconTileWidget(
+      icon: Icons.local_taxi_rounded,
+      size: 44,
+      background: wash,
+      foreground: color,
     );
   }
 }

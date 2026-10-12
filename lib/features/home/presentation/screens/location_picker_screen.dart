@@ -7,7 +7,6 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/services/current_location_service.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_map_style.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
@@ -186,7 +185,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
                 padding: const EdgeInsets.only(bottom: 36),
                 child: Icon(
                   Icons.location_on_rounded,
-                  color: widget.isPickup ? context.colors.primaryContent : AppColors.accent,
+                  color: widget.isPickup ? context.colors.primaryContent : context.colors.accentContent,
                   size: 44,
                 ),
               ),
@@ -272,7 +271,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
                 decoration: BoxDecoration(
                   color: context.colors.neutralSurface,
                   borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-                  border: Border.all(color: context.colors.border),
+                  border: Border.all(color: context.colors.borderLight),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

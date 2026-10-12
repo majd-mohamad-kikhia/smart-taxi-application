@@ -36,7 +36,7 @@ class ProfileFigureTileWidget extends StatelessWidget {
         color: context.colors.backgroundWhite,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-          side: BorderSide(color: context.colors.border),
+          side: BorderSide(color: context.colors.borderLight),
         ),
         child: InkWell(
           onTap: onTap,

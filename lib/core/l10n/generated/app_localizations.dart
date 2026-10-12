@@ -3189,6 +3189,42 @@ abstract class AppLocalizations {
   /// **'Add work'**
   String get savedAddressAddWork;
 
+  /// No description provided for @savedAddressAddNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {name}'**
+  String savedAddressAddNamed(String name);
+
+  /// No description provided for @savedPlaceNotSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} isn\'t saved yet. Add it from Settings > Saved places.'**
+  String savedPlaceNotSaved(String name);
+
+  /// No description provided for @savedPlaceGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get savedPlaceGym;
+
+  /// No description provided for @savedPlaceSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get savedPlaceSchool;
+
+  /// No description provided for @savedPlaceUniversity.
+  ///
+  /// In en, this message translates to:
+  /// **'University'**
+  String get savedPlaceUniversity;
+
+  /// No description provided for @savedPlaceFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family home'**
+  String get savedPlaceFamily;
+
   /// No description provided for @savedAddressOtherPlaces.
   ///
   /// In en, this message translates to:
@@ -3530,6 +3566,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancelling after a driver accepted counts against you. Too many and you can\'t order for {hours} hours. Cancel anyway?'**
   String cancelStrikeWarningUnknown(int hours);
+
+  /// No description provided for @tripArrivedSafely.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived safely'**
+  String get tripArrivedSafely;
+
+  /// No description provided for @tripCompletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip completed!'**
+  String get tripCompletedTitle;
+
+  /// No description provided for @tripCompletedThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for riding with Smart Taxi. We hope you enjoyed your trip.'**
+  String get tripCompletedThanks;
+
+  /// Rating question naming the driver.
+  ///
+  /// In en, this message translates to:
+  /// **'How was your ride with {name}?'**
+  String rateRideWith(String name);
+
+  /// Heading above the quick compliment chips in the rating dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Give {name} a compliment'**
+  String rateComplimentTitle(String name);
+
+  /// No description provided for @complimentSmoothDriving.
+  ///
+  /// In en, this message translates to:
+  /// **'Smooth driving'**
+  String get complimentSmoothDriving;
+
+  /// No description provided for @complimentCleanCar.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean car'**
+  String get complimentCleanCar;
+
+  /// No description provided for @complimentPolite.
+  ///
+  /// In en, this message translates to:
+  /// **'Polite & professional'**
+  String get complimentPolite;
+
+  /// No description provided for @complimentOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Right on time'**
+  String get complimentOnTime;
+
+  /// No description provided for @callDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Call driver'**
+  String get callDriver;
+
+  /// Subtitle of the vehicle sheet: how many vehicle types can be requested.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 ride available} other{{count} rides available}}'**
+  String ridesAvailable(int count);
+
+  /// No description provided for @fareBreakdownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare breakdown'**
+  String get fareBreakdownTitle;
+
+  /// No description provided for @driverVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified driver'**
+  String get driverVerified;
 }
 
 class _AppLocalizationsDelegate

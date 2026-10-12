@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../localization/app_locales.dart';
 import '../localization/l10n_context_extension.dart';
 import '../localization/locale_cubit.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 
 /// A compact one-tap language switch for the screens before sign-in, so
@@ -16,7 +17,10 @@ import '../theme/app_palette.dart';
 /// signed-in account the change is local; the current language is sent to
 /// the server when the person signs in.
 class AuthLanguageToggleWidget extends StatelessWidget {
-  const AuthLanguageToggleWidget({super.key});
+  /// On the solid brand-green header: white text on a soft white pill.
+  final bool onBrand;
+
+  const AuthLanguageToggleWidget({super.key, this.onBrand = false});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +35,10 @@ class AuthLanguageToggleWidget extends StatelessWidget {
             icon: const Icon(Icons.translate_rounded, size: 18),
             label: Text(AppLocales.nativeName(next)),
             style: TextButton.styleFrom(
-              foregroundColor: context.colors.textLink,
+              foregroundColor: onBrand ? AppColors.textOnPrimary : context.colors.textLink,
+              backgroundColor: onBrand ? AppColors.white.withValues(alpha: 0.16) : null,
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               minimumSize: const Size(48, 48),
             ),
           ),

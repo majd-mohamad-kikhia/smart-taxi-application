@@ -21,6 +21,11 @@ class AppPalette extends ThemeExtension<AppPalette> {
   /// The brand green where it is text, an icon or an outline on a surface:
   /// a light green on dark, the deeper brand green on light.
   final Color primaryContent;
+
+  /// The dark ink green where it is an icon, text or marker on a surface
+  /// (the destination point): the ink itself on light, a pale green-gray on
+  /// dark, where the ink would vanish.
+  final Color accentContent;
   final Color textOnPrimaryDisabled;
   final Color errorText;
 
@@ -72,6 +77,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.textTertiary,
     required this.textLink,
     required this.primaryContent,
+    required this.accentContent,
     required this.textOnPrimaryDisabled,
     required this.errorText,
     required this.neutralPage,
@@ -98,34 +104,35 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.shadowStrong,
   });
 
-  static const Color _gray = Color(0xFF9CA3AF);
-  static const Color _green = Color(0xFF4ADE80);
+  static const Color _gray = Color(0xFF8A9C92);
+  static const Color _green = Color(0xFF5FCB8B);
 
   static const dark = AppPalette(
-    textPrimary: Color(0xFFF5F6F7),
-    textSecondary: Color(0xFFB4B8C0),
-    textTertiary: Color(0xFF999DA6),
+    textPrimary: Color(0xFFE7F0EA),
+    textSecondary: Color(0xFFA9BAB0),
+    textTertiary: Color(0xFF8A9C92),
     textLink: _green,
     primaryContent: _green,
-    textOnPrimaryDisabled: Color(0xB3F5F6F7),
+    accentContent: Color(0xFFB7CEC0),
+    textOnPrimaryDisabled: Color(0xB3E7F0EA),
     errorText: Color(0xFFF87171),
-    neutralPage: Color(0xFF0F1012),
-    neutralSurface: Color(0xFF1E1F22),
-    neutralMuted: Color(0xFF2A2C30),
-    neutralDivider: Color(0xFF26282C),
-    neutralBorder: Color(0xFF34363B),
-    backgroundGray: Color(0xFF0F1012),
-    backgroundWhite: Color(0xFF1E1F22),
-    backgroundMuted: Color(0xFF2A2C30),
-    border: Color(0xFF34363B),
-    borderLight: Color(0xFF26282C),
-    borderStrong: Color(0xFF70747D),
-    primarySurface: Color(0xFF12301F),
-    accentSurface: Color(0xFF0F2E2C),
+    neutralPage: Color(0xFF0B1410),
+    neutralSurface: Color(0xFF13201A),
+    neutralMuted: Color(0xFF1B2B23),
+    neutralDivider: Color(0xFF1F3027),
+    neutralBorder: Color(0xFF26382E),
+    backgroundGray: Color(0xFF0B1410),
+    backgroundWhite: Color(0xFF13201A),
+    backgroundMuted: Color(0xFF1B2B23),
+    border: Color(0xFF26382E),
+    borderLight: Color(0xFF1F3027),
+    borderStrong: Color(0xFF6B8074),
+    primarySurface: Color(0xFF173A27),
+    accentSurface: Color(0xFF1B2B23),
     warningSurface: Color(0xFF3D2A14),
-    successSurface: Color(0xFF123420),
+    successSurface: Color(0xFF173A27),
     errorSurface: Color(0xFF3B1619),
-    navBackground: Color(0xFF1E1F22),
+    navBackground: Color(0xFF13201A),
     navActive: _green,
     navInactive: _gray,
     shadowLight: Color(0x0A000000),
@@ -134,33 +141,34 @@ class AppPalette extends ThemeExtension<AppPalette> {
   );
 
   static const light = AppPalette(
-    textPrimary: Color(0xFF111827),
-    textSecondary: Color(0xFF4B5563),
-    textTertiary: Color(0xFF5B6270),
-    textLink: Color(0xFF15803D),
-    primaryContent: Color(0xFF15803D),
-    // On the dimmed green of a disabled button over a white page.
-    textOnPrimaryDisabled: Color(0xFF14532D),
+    textPrimary: Color(0xFF0F1F17),
+    textSecondary: Color(0xFF4A5B51),
+    textTertiary: Color(0xFF5E6E64),
+    textLink: Color(0xFF0B6B3A),
+    primaryContent: Color(0xFF0B6B3A),
+    accentContent: Color(0xFF123524),
+    // On the dimmed green of a disabled button over the mint page.
+    textOnPrimaryDisabled: Color(0xFF0B4A28),
     errorText: Color(0xFFB91C1C),
-    neutralPage: Color(0xFFF4F5F7),
+    neutralPage: Color(0xFFF0F6F1),
     neutralSurface: Color(0xFFFFFFFF),
-    neutralMuted: Color(0xFFEDEFF2),
-    neutralDivider: Color(0xFFE5E7EB),
-    neutralBorder: Color(0xFFD9DCE1),
-    backgroundGray: Color(0xFFF4F5F7),
+    neutralMuted: Color(0xFFE6F1E9),
+    neutralDivider: Color(0xFFE7F0EA),
+    neutralBorder: Color(0xFFDCE8DF),
+    backgroundGray: Color(0xFFF0F6F1),
     backgroundWhite: Color(0xFFFFFFFF),
-    backgroundMuted: Color(0xFFEDEFF2),
-    border: Color(0xFFD9DCE1),
-    borderLight: Color(0xFFE5E7EB),
-    borderStrong: Color(0xFF8A8F99),
-    primarySurface: Color(0xFFDCFCE7),
-    accentSurface: Color(0xFFCCFBF1),
+    backgroundMuted: Color(0xFFE6F1E9),
+    border: Color(0xFFDCE8DF),
+    borderLight: Color(0xFFE7F0EA),
+    borderStrong: Color(0xFF7F9188),
+    primarySurface: Color(0xFFDDEFE3),
+    accentSurface: Color(0xFFE6F1E9),
     warningSurface: Color(0xFFFEEBCB),
     successSurface: Color(0xFFD9F5E6),
-    errorSurface: Color(0xFFFDE2E2),
+    errorSurface: Color(0xFFFCE8E8),
     navBackground: Color(0xFFFFFFFF),
-    navActive: Color(0xFF15803D),
-    navInactive: Color(0xFF6B7280),
+    navActive: Color(0xFF0B6B3A),
+    navInactive: Color(0xFF66766C),
     shadowLight: Color(0x0F000000),
     shadowMedium: Color(0x1F000000),
     shadowStrong: Color(0x33000000),
@@ -179,6 +187,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       textTertiary: mix(textTertiary, other.textTertiary),
       textLink: mix(textLink, other.textLink),
       primaryContent: mix(primaryContent, other.primaryContent),
+      accentContent: mix(accentContent, other.accentContent),
       textOnPrimaryDisabled: mix(
         textOnPrimaryDisabled,
         other.textOnPrimaryDisabled,

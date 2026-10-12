@@ -12,7 +12,6 @@ import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../cubit/map_pick_cubit.dart';
 import '../cubit/map_pick_state.dart';
-import '../widgets/cancel_route_button_widget.dart';
 import '../widgets/home_bottom_panel_widget.dart';
 import '../widgets/home_gps_button_widget.dart';
 import '../widgets/home_map_widget.dart';
@@ -156,12 +155,6 @@ class _HomeView extends StatelessWidget {
             child: Stack(
               children: [
                 const Positioned.fill(child: HomeMapWidget()),
-                // Left edge, vertically in the middle.
-                if (!isPicking)
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: CancelRouteButtonWidget(),
-                  ),
                 Align(
                   alignment: Alignment.topCenter,
                   child: ConstrainedBox(
@@ -176,7 +169,16 @@ class _HomeView extends StatelessWidget {
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: _maxContentWidth),
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(AppConstants.paddingL),
+                      // Only the panel itself takes touches: the empty space
+                      // around it (beside the GPS button) lets the map drag.
+                      hitTestBehavior: HitTestBehavior.deferToChild,
+                      // Clear of the floating nav bar drawn over the map.
+                      padding: EdgeInsets.fromLTRB(
+                        AppConstants.paddingL,
+                        AppConstants.paddingL,
+                        AppConstants.paddingL,
+                        AppConstants.paddingL + MediaQuery.paddingOf(context).bottom,
+                      ),
                       child: isPicking
                           ? const _HideWhileDragging(child: _PickPanel())
                           : HomeBottomPanelWidget(
@@ -308,7 +310,6 @@ class _PickPanel extends StatelessWidget {
             builder: (context, isLocating) => HomeGpsButtonWidget(
               isLoading: isLocating,
               size: 64,
-              glow: true,
               onTap: () => context.read<HomeCubit>().locateMe(setPickup: false),
             ),
           ),

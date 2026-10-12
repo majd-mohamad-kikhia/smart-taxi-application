@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../data/models/tracked_ride_model.dart';
 import '../cubit/ride_tracking_state.dart';
@@ -21,22 +23,34 @@ class RideStatusBannerWidget extends StatelessWidget {
     final isWaiting = ride.status == 'requested';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(color: context.colors.primarySurface, borderRadius: BorderRadius.circular(14)),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: context.colors.primarySurface,
+        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+      ),
       child: Row(
         children: [
-          if (isWaiting)
-            SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.primaryContent))
-          else
-            Icon(Icons.directions_car_filled_rounded, color: context.colors.primaryContent, size: 22),
-          const SizedBox(width: 10),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+            alignment: Alignment.center,
+            child: isWaiting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textOnPrimary),
+                  )
+                : const Icon(Icons.directions_car_filled_rounded, color: AppColors.textOnPrimary, size: 20),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   ride.statusLabel(context.l10n),
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: context.colors.textPrimary),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.textPrimary),
                 ),
                 if (connectionStatus != RideTrackingConnectionStatus.connected) ...[
                   const SizedBox(height: 2),

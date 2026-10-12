@@ -65,7 +65,12 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 560),
               child: ListView(
-                padding: const EdgeInsets.all(AppConstants.paddingL),
+                padding: EdgeInsets.fromLTRB(
+                AppConstants.paddingL,
+                AppConstants.paddingL,
+                AppConstants.paddingL,
+                AppConstants.paddingL + MediaQuery.paddingOf(context).bottom,
+              ),
                 children: [
                   ProfileHeaderWidget(driver: driver),
                   const SizedBox(height: AppConstants.paddingM),
@@ -147,7 +152,7 @@ class _Contact extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: context.colors.border),
+        border: Border.all(color: context.colors.borderLight),
       ),
       child: Column(
         children: [

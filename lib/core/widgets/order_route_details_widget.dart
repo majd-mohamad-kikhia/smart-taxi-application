@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/order_offer_model.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'meta_item_widget.dart';
 import 'passengers_fee_meta_widget.dart';
@@ -34,7 +33,7 @@ class OrderRouteDetailsWidget extends StatelessWidget {
         if (showPickup) ...[
           _PointRow(
             icon: Icons.radio_button_checked_rounded,
-            color: AppColors.success,
+            color: context.colors.primaryContent,
             label: l10n.fromLabel,
             address: order.pickupAddress,
             details: order.pickupAddressDetails,
@@ -52,7 +51,7 @@ class OrderRouteDetailsWidget extends StatelessWidget {
         ],
         _PointRow(
           icon: Icons.location_on_rounded,
-          color: AppColors.error,
+          color: context.colors.accentContent,
           label: l10n.toLabel,
           address: order.dropoffAddress,
           details: order.dropoffAddressDetails,

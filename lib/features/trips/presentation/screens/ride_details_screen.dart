@@ -11,8 +11,10 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_date.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
+import '../../../../core/widgets/app_icon_tile_widget.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
+import '../../../../core/widgets/app_surface_card_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/bill_row_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
@@ -66,7 +68,11 @@ class RideDetailsScreen extends StatelessWidget {
                     _Section(child: _Summary(ride: ride)),
                     const SizedBox(height: AppConstants.paddingM),
                     if (ride.shownPrice != null) ...[
-                      _Section(child: _Fare(ride: ride)),
+                      _Section(
+                        title: context.l10n.fareBreakdownTitle,
+                        icon: Icons.receipt_long_rounded,
+                        child: _Fare(ride: ride),
+                      ),
                       const SizedBox(height: AppConstants.paddingM),
                     ],
                     _Section(
@@ -183,22 +189,48 @@ Future<void> _openTracking(BuildContext context, RideHistoryModel ride) async {
   cubit.load();
 }
 
+/// One white card of the details; with [title] it opens with a heading: an
+/// icon tile and the title in bold.
 class _Section extends StatelessWidget {
   final Widget child;
+  final String? title;
+  final IconData? icon;
 
-  const _Section({required this.child});
+  const _Section({required this.child, this.title, this.icon});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final title = this.title;
+    return SizedBox(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppConstants.paddingL),
-      decoration: BoxDecoration(
-        color: context.colors.backgroundWhite,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: context.colors.border),
+      child: AppSurfaceCardWidget(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (title != null) ...[
+              Row(
+                children: [
+                  AppIconTileWidget(icon: icon ?? Icons.info_outline_rounded, size: 32),
+                  const SizedBox(width: AppConstants.paddingS),
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppConstants.paddingM),
+            ],
+            child,
+          ],
+        ),
       ),
-      child: child,
     );
   }
 }
@@ -292,23 +324,36 @@ class _Fare extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          ride.isPriceEstimate ? l10n.fareEstimatedPrice : l10n.fareFinalPrice,
-          style: textTheme.bodyMedium,
-        ),
-        const SizedBox(height: AppConstants.paddingXS),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              money(price),
-              style: textTheme.displayMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: context.colors.primaryContent,
-                fontFeatures: const [FontFeature.tabularFigures()],
+        // The price in its own tinted block, the figure the card is about.
+        AppSurfaceCardWidget(
+          color: context.colors.primarySurface,
+          bordered: false,
+          radius: AppConstants.radiusMedium,
+          padding: const EdgeInsets.all(AppConstants.paddingM),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  ride.isPriceEstimate ? l10n.fareEstimatedPrice : l10n.fareFinalPrice,
+                  style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                ),
               ),
-            ),
+              const SizedBox(width: AppConstants.paddingS),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Text(
+                    money(price),
+                    style: textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: context.colors.primaryContent,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         if (ride.isCompleted) ...[

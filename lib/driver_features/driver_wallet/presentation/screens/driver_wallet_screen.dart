@@ -118,7 +118,12 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
             onRefresh: _loadReport,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(AppConstants.paddingL),
+              padding: EdgeInsets.fromLTRB(
+                AppConstants.paddingL,
+                AppConstants.paddingL,
+                AppConstants.paddingL,
+                AppConstants.paddingL + MediaQuery.paddingOf(context).bottom,
+              ),
               children: [
                 _MonthStepper(
                   label: _monthLabel(l10n),

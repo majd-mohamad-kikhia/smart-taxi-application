@@ -5,6 +5,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_date.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/price_text_widget.dart';
+import '../../../../core/widgets/app_surface_card_widget.dart';
 import '../../../../core/widgets/meta_item_widget.dart';
 import '../../data/models/ride_history_model.dart';
 import 'ride_route_widget.dart';
@@ -63,88 +64,77 @@ class TripCardWidget extends StatelessWidget {
       excludeSemantics: true,
       label: spoken,
       onTap: onTap,
-      child: Material(
-        color: context.colors.backgroundWhite,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.all(AppConstants.paddingL),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-              border: Border.all(color: context.colors.border),
-            ),
-            child: Column(
+      child: AppSurfaceCardWidget(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Wrap(
-                        spacing: AppConstants.paddingS,
-                        runSpacing: AppConstants.paddingXS,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          if (showStatus) RideStatusBadgeWidget(status: ride.status),
-                          Text(date, style: textTheme.bodySmall),
-                        ],
-                      ),
-                    ),
-                    if (priceText != null) ...[
-                      const SizedBox(width: AppConstants.paddingM),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          PriceTextWidget(
-                            price: price!,
-                            style: textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: context.colors.primaryContent,
-                              fontFeatures: const [FontFeature.tabularFigures()],
-                            ),
-                          ),
-                          if (ride.isPriceEstimate)
-                            Text(
-                              l10n.priceEstimateTag,
-                              style: textTheme.bodySmall?.copyWith(
-                                color: context.colors.textSecondary,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: AppConstants.paddingM),
-                RideRouteWidget(
-                  pickup: ride.pickupAddress,
-                  dropoff: ride.dropoffAddress,
-                  maxLines: 2,
-                ),
-                if (distanceText != null || ride.hasRoute) ...[
-                  const SizedBox(height: AppConstants.paddingM),
-                  Wrap(
-                    spacing: AppConstants.paddingL,
+                Expanded(
+                  child: Wrap(
+                    spacing: AppConstants.paddingS,
                     runSpacing: AppConstants.paddingXS,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      if (distanceText != null)
-                        MetaItemWidget(
-                          icon: Icons.straighten_rounded,
-                          label: distanceText,
+                      if (showStatus)
+                        RideStatusBadgeWidget(status: ride.status),
+                      Text(date, style: textTheme.bodySmall),
+                    ],
+                  ),
+                ),
+                if (priceText != null) ...[
+                  const SizedBox(width: AppConstants.paddingM),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      PriceTextWidget(
+                        price: price!,
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: context.colors.primaryContent,
+                          fontFeatures: const [FontFeature.tabularFigures()],
                         ),
-                      if (ride.hasRoute)
-                        MetaItemWidget(
-                          icon: Icons.map_outlined,
-                          label: l10n.routeRecorded,
+                      ),
+                      if (ride.isPriceEstimate)
+                        Text(
+                          l10n.priceEstimateTag,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: context.colors.textSecondary,
+                          ),
                         ),
                     ],
                   ),
                 ],
               ],
             ),
-          ),
+            const SizedBox(height: AppConstants.paddingM),
+            RideRouteWidget(
+              pickup: ride.pickupAddress,
+              dropoff: ride.dropoffAddress,
+              maxLines: 2,
+            ),
+            if (distanceText != null || ride.hasRoute) ...[
+              const SizedBox(height: AppConstants.paddingM),
+              Wrap(
+                spacing: AppConstants.paddingL,
+                runSpacing: AppConstants.paddingXS,
+                children: [
+                  if (distanceText != null)
+                    MetaItemWidget(
+                      icon: Icons.straighten_rounded,
+                      label: distanceText,
+                    ),
+                  if (ride.hasRoute)
+                    MetaItemWidget(
+                      icon: Icons.map_outlined,
+                      label: l10n.routeRecorded,
+                    ),
+                ],
+              ),
+            ],
+          ],
         ),
       ),
     );

@@ -59,11 +59,11 @@ class _SettingsView extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 560),
               child: ListView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(
+                padding: EdgeInsets.fromLTRB(
                   AppConstants.paddingL,
                   AppConstants.paddingS,
                   AppConstants.paddingL,
-                  AppConstants.paddingXXL,
+                  AppConstants.paddingXXL + MediaQuery.paddingOf(context).bottom,
                 ),
                 children: [
                   ProfileCardWidget(

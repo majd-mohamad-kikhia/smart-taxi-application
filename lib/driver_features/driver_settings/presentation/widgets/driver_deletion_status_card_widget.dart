@@ -40,7 +40,6 @@ class DriverDeletionStatusCardWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: isError ? context.colors.errorSurface : context.colors.warningSurface,
           borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-          border: Border.all(color: accent.withValues(alpha: 0.5)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

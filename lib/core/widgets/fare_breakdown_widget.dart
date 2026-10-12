@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/ride_fare_breakdown_model.dart';
 import '../utils/format_price.dart';
+import '../constants/app_constants.dart';
+import '../theme/app_palette.dart';
+import 'app_surface_card_widget.dart';
 import 'bill_row_widget.dart';
 import 'live_fee_card_widget.dart';
 
@@ -80,12 +83,28 @@ class FareBreakdownWidget extends StatelessWidget {
             label: l10n.fareRounding,
             value: formatSignedPrice(l10n, fare.rounding, showPlus: true),
           ),
-        if (showTotal)
-          BillRowWidget(
-            label: l10n.fareTotal,
-            value: price(fare.finalPrice),
-            isBold: true,
+        if (showTotal) ...[
+          const SizedBox(height: AppConstants.paddingS),
+          // The total sits in its own tinted block so the figure the customer
+          // pays stands apart from the lines that add up to it.
+          SizedBox(
+            width: double.infinity,
+            child: AppSurfaceCardWidget(
+              color: context.colors.primarySurface,
+              bordered: false,
+              radius: AppConstants.radiusMedium,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.paddingM,
+                vertical: AppConstants.paddingS,
+              ),
+              child: BillRowWidget(
+                label: l10n.fareTotal,
+                value: price(fare.finalPrice),
+                isBold: true,
+              ),
+            ),
           ),
+        ],
       ],
     );
   }

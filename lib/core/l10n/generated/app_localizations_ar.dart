@@ -1716,6 +1716,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String get savedAddressAddWork => 'أضف العمل';
 
   @override
+  String savedAddressAddNamed(String name) {
+    return 'أضف $name';
+  }
+
+  @override
+  String savedPlaceNotSaved(String name) {
+    return 'لم تحفظ $name بعد. أضفه من الإعدادات > الأماكن المحفوظة.';
+  }
+
+  @override
+  String get savedPlaceGym => 'النادي الرياضي';
+
+  @override
+  String get savedPlaceSchool => 'المدرسة';
+
+  @override
+  String get savedPlaceUniversity => 'الجامعة';
+
+  @override
+  String get savedPlaceFamily => 'بيت الأهل';
+
+  @override
   String get savedAddressOtherPlaces => 'أماكن أخرى';
 
   @override
@@ -1930,4 +1952,58 @@ class AppLocalizationsAr extends AppLocalizations {
   String cancelStrikeWarningUnknown(int hours) {
     return 'إلغاء الطلب بعد قبول الكابتن يُحسب عليك. عند تكرار ذلك لن تستطيع الطلب لمدة $hours ساعة. هل تريد الإلغاء؟';
   }
+
+  @override
+  String get tripArrivedSafely => 'وصلت بأمان';
+
+  @override
+  String get tripCompletedTitle => 'اكتملت الرحلة!';
+
+  @override
+  String get tripCompletedThanks =>
+      'شكراً لاختيارك Smart Taxi. نتمنى أن تكون رحلتك ممتعة.';
+
+  @override
+  String rateRideWith(String name) {
+    return 'كيف كانت رحلتك مع $name؟';
+  }
+
+  @override
+  String rateComplimentTitle(String name) {
+    return 'أثنِ على $name';
+  }
+
+  @override
+  String get complimentSmoothDriving => 'قيادة سلسة';
+
+  @override
+  String get complimentCleanCar => 'سيارة نظيفة';
+
+  @override
+  String get complimentPolite => 'مهذّب ومحترف';
+
+  @override
+  String get complimentOnTime => 'وصل في الموعد';
+
+  @override
+  String get callDriver => 'اتصل بالكابتن';
+
+  @override
+  String ridesAvailable(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سيارة متاحة',
+      few: '$count سيارات متاحة',
+      two: 'سيارتان متاحتان',
+      one: 'سيارة واحدة متاحة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fareBreakdownTitle => 'تفاصيل الأجرة';
+
+  @override
+  String get driverVerified => 'كابتن موثّق';
 }

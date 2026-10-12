@@ -124,6 +124,8 @@ class _DriverMainWrapperScreenState extends State<DriverMainWrapperScreen>
           );
         },
         child: Scaffold(
+          // The tabs draw under the floating nav bar, which has no backdrop.
+          extendBody: true,
           body: IndexedStack(index: _currentIndex, children: _tabs),
           bottomNavigationBar: AppBottomNavWidget(
             currentIndex: _currentIndex,

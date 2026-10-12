@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../constants/app_constants.dart';
 import '../enums/user_role.dart';
+import '../theme/app_palette.dart';
+import '../theme/app_theme.dart';
+import 'app_surface_card_widget.dart';
 import 'auth_error_banner_widget.dart';
-import 'auth_header_widget.dart';
-import 'auth_language_toggle_widget.dart';
+import 'auth_brand_header_widget.dart';
 import 'auth_primary_button_widget.dart';
 import 'role_badge_widget.dart';
 
@@ -44,10 +47,11 @@ class AuthFormLayoutWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppConstants.paddingXXL),
+    // White status bar icons over the green header.
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: AppTheme.overlayStyleFor(Brightness.dark),
+      child: Scaffold(
+        body: SingleChildScrollView(
           child: Form(
             key: formKey,
             // Lets the keyboard and password managers fill the whole form
@@ -56,42 +60,76 @@ class AuthFormLayoutWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: AuthLanguageToggleWidget(),
+                  AuthBrandHeaderWidget(
+                    title: title,
+                    subtitle: subtitle,
+                    overlap: _cardOverlap,
+                    below: role == null
+                        ? null
+                        : RoleBadgeWidget(role: role!, onChange: onChangeRole),
                   ),
-                  const SizedBox(height: AppConstants.paddingS),
-                  AuthHeaderWidget(title: title, subtitle: subtitle),
-                  const SizedBox(height: AppConstants.paddingL),
-                  if (role != null)
-                    Center(
-                      child: RoleBadgeWidget(
-                        role: role!,
-                        onChange: onChangeRole,
+                  // The form card rides up over the header's bottom edge.
+                  Transform.translate(
+                    offset: const Offset(0, -_cardOverlap),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppConstants.paddingXL,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          DecoratedBox(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                AppConstants.radiusXL,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: context.colors.shadowMedium,
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: AppSurfaceCardWidget(
+                              radius: AppConstants.radiusXL,
+                              padding: const EdgeInsets.all(AppConstants.paddingXL),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  for (var i = 0; i < fields.length; i++) ...[
+                                    fields[i],
+                                    SizedBox(
+                                      height: i == fields.length - 1
+                                          ? AppConstants.paddingXL
+                                          : AppConstants.paddingL,
+                                    ),
+                                  ],
+                                  if (errorMessage != null) ...[
+                                    AuthErrorBannerWidget(message: errorMessage!),
+                                    const SizedBox(height: AppConstants.paddingM),
+                                  ],
+                                  AuthPrimaryButtonWidget(
+                                    label: submitLabel,
+                                    isLoading: isSubmitting,
+                                    onPressed: onSubmit,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (footer != null) ...[
+                            const SizedBox(height: AppConstants.paddingXL),
+                            footer!,
+                          ],
+                          SizedBox(
+                            height: MediaQuery.paddingOf(context).bottom +
+                                AppConstants.paddingL,
+                          ),
+                        ],
                       ),
                     ),
-                  const SizedBox(height: AppConstants.paddingXXL),
-                  for (var i = 0; i < fields.length; i++) ...[
-                    fields[i],
-                    SizedBox(
-                      height: i == fields.length - 1
-                          ? AppConstants.paddingXL
-                          : AppConstants.paddingL,
-                    ),
-                  ],
-                  if (errorMessage != null) ...[
-                    AuthErrorBannerWidget(message: errorMessage!),
-                    const SizedBox(height: AppConstants.paddingM),
-                  ],
-                  AuthPrimaryButtonWidget(
-                    label: submitLabel,
-                    isLoading: isSubmitting,
-                    onPressed: onSubmit,
                   ),
-                  if (footer != null) ...[
-                    const SizedBox(height: AppConstants.paddingXL),
-                    footer!,
-                  ],
                 ],
               ),
             ),
@@ -100,4 +138,7 @@ class AuthFormLayoutWidget extends StatelessWidget {
       ),
     );
   }
+
+  /// How far the form card overlaps the green header.
+  static const double _cardOverlap = 48;
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 
 /// Circular badge showing an icon that fits a vehicle type.
@@ -61,7 +60,7 @@ class VehicleTypeIconWidget extends StatelessWidget {
     // The accent for premium types; otherwise the brand green, deepened on
     // the light theme so it reads on white.
     final color = style.isAccent
-        ? AppColors.accent
+        ? context.colors.accentContent
         : context.colors.primaryContent;
     return Container(
       width: size,

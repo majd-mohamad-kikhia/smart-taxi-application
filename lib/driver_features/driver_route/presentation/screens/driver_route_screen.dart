@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../data/models/route_session_model.dart';
@@ -123,13 +124,13 @@ class _BottomPanel extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: context.colors.backgroundWhite,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: context.colors.border),
+                borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+                border: Border.all(color: context.colors.borderLight),
                 boxShadow: [
                   BoxShadow(
                     color: context.colors.shadowMedium,
-                    blurRadius: 16,
-                    offset: Offset(0, -2),
+                    blurRadius: 12,
+                    offset: const Offset(0, -2),
                   ),
                 ],
               ),

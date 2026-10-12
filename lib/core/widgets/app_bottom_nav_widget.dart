@@ -19,11 +19,12 @@ class AppNavItem {
 /// Shared bottom navigation bar used by every tab-based app shell
 /// (customer, driver, ...). Each shell supplies its own [items].
 ///
-/// The current tab is shown three ways, never by color alone: an amber
-/// wash pill behind its icon, a filled icon and a heavier label. Each tab is
-/// a real button (focus, "selected" for screen readers) with no ripple: when
+/// The bar floats over the page, inset from its edges. Its shell must set
+/// `extendBody: true`, so nothing is painted behind it. The current tab is shown
+/// three ways, never by color alone: a solid green pill behind its icon, a
+/// filled icon and a heavier label. Each tab is a real button (focus, "selected" for screen readers) with no ripple: when
 /// pressed, its icon and label ease in slightly instead, which stays quiet
-/// when you tap or hold. The bar is at least 60dp tall and grows with the
+/// when you tap or hold. The bar is at least 64dp tall and grows with the
 /// system text size.
 class AppBottomNavWidget extends StatelessWidget {
   final int currentIndex;
@@ -39,40 +40,53 @@ class AppBottomNavWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.colors.navBackground,
-        border: Border(
-          top: BorderSide(color: context.colors.borderLight, width: 1),
+    // A floating rounded bar inset from the screen edges, with nothing
+    // painted behind it: the shells extend their body under the bar, so the
+    // page or the map shows around it.
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.only(bottom: AppConstants.paddingS),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppConstants.paddingL,
+          AppConstants.paddingXS,
+          AppConstants.paddingL,
+          AppConstants.paddingS,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: context.colors.shadowMedium,
-            blurRadius: 12,
-            offset: Offset(0, -3),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: context.colors.navBackground,
+            borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+            border: Border.all(color: context.colors.borderLight),
+            boxShadow: [
+              BoxShadow(
+                color: context.colors.shadowMedium,
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      // The tabs are InkWells, which need a Material above them (the ripple
-      // itself is switched off).
-      child: Material(
-        color: AppColors.transparent,
-        child: SafeArea(
-          top: false,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 60),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (var i = 0; i < items.length; i++)
-                    _NavItem(
-                      index: i,
-                      isActive: i == currentIndex,
-                      item: items[i],
-                      onTap: onTap,
-                    ),
-                ],
+          // The tabs are InkWells, which need a Material above them (the
+          // ripple itself is switched off).
+          child: Material(
+            color: AppColors.transparent,
+            borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+            clipBehavior: Clip.antiAlias,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 64),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var i = 0; i < items.length; i++)
+                      _NavItem(
+                        index: i,
+                        isActive: i == currentIndex,
+                        item: items[i],
+                        onTap: onTap,
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -147,17 +161,15 @@ class _NavItemState extends State<_NavItem> {
                   height: _NavItem._pillHeight,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: isActive
-                        ? context.colors.primarySurface
-                        : AppColors.transparent,
+                    color: isActive ? AppColors.primary : AppColors.transparent,
                     borderRadius: BorderRadius.circular(
                       AppConstants.radiusFull,
                     ),
                   ),
                   child: Icon(
                     isActive ? item.activeIcon : item.icon,
-                    color: color,
-                    size: 24,
+                    color: isActive ? AppColors.textOnPrimary : color,
+                    size: 22,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -172,7 +184,7 @@ class _NavItemState extends State<_NavItem> {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: color,
-                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
                     ),
                   ),
                 ),

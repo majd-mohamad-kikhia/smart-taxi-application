@@ -924,6 +924,26 @@
   "savedAddressOther": "Other",
   "savedAddressAddHome": "Add home",
   "savedAddressAddWork": "Add work",
+  "savedAddressAddNamed": "Add {name}",
+  "@savedAddressAddNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "savedPlaceNotSaved": "{name} isn't saved yet. Add it from Settings > Saved places.",
+  "@savedPlaceNotSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "savedPlaceGym": "Gym",
+  "savedPlaceSchool": "School",
+  "savedPlaceUniversity": "University",
+  "savedPlaceFamily": "Family home",
   "savedAddressOtherPlaces": "Other places",
   "savedAddressAddPlace": "Add a place",
   "savedAddressReplaced": "{type} address updated",
@@ -1099,5 +1119,42 @@
         "type": "int"
       }
     }
-  }
+  },
+  "tripArrivedSafely": "Arrived safely",
+  "tripCompletedTitle": "Trip completed!",
+  "tripCompletedThanks": "Thank you for riding with Smart Taxi. We hope you enjoyed your trip.",
+  "rateRideWith": "How was your ride with {name}?",
+  "@rateRideWith": {
+    "description": "Rating question naming the driver.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rateComplimentTitle": "Give {name} a compliment",
+  "@rateComplimentTitle": {
+    "description": "Heading above the quick compliment chips in the rating dialog.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "complimentSmoothDriving": "Smooth driving",
+  "complimentCleanCar": "Clean car",
+  "complimentPolite": "Polite & professional",
+  "complimentOnTime": "Right on time",
+  "callDriver": "Call driver",
+  "ridesAvailable": "{count, plural, =1{1 ride available} other{{count} rides available}}",
+  "@ridesAvailable": {
+    "description": "Subtitle of the vehicle sheet: how many vehicle types can be requested.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fareBreakdownTitle": "Fare breakdown",
+  "driverVerified": "Verified driver"
 }

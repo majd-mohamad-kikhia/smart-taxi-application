@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../driver_auth/data/models/driver_status.dart';
@@ -20,8 +21,8 @@ class DriverStatusCardWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: context.colors.backgroundWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.border),
+        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+        border: Border.all(color: context.colors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,8 +77,8 @@ class _StatusBadge extends StatelessWidget {
 
   const _StatusBadge({required this.status});
 
-  Color get _color => switch (status) {
-        DriverStatus.active => AppColors.success,
+  Color _color(BuildContext context) => switch (status) {
+        DriverStatus.active => context.colors.primaryContent,
         DriverStatus.pending => AppColors.warning,
         DriverStatus.suspended => AppColors.error,
         DriverStatus.rejected => AppColors.error,
@@ -85,15 +86,16 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = _color(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(100),
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppConstants.radiusFull),
       ),
       child: Text(
         status.label(context.l10n),
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _color),
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color),
       ),
     );
   }

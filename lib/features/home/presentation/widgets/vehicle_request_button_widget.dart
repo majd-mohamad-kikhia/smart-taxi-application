@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 
-/// The vehicle sheet's confirm button: a tall pill in the brand's gradient
-/// with the label ("Request {vehicle} · {price}") and an arrow in a circle at
-/// its end, and a soft glow. A `null` [onPressed] dims it and takes the glow
-/// away. Only the label and its enabled state change between builds, so the
-/// gradient and shadow are cheap to repaint.
+/// The vehicle sheet's confirm button: a tall solid-green pill with a car icon,
+/// the label ("Request {vehicle} · {price}") and an arrow in a circle at its end. A
+/// `null` [onPressed] dims it.
 class VehicleRequestButtonWidget extends StatelessWidget {
   static const _height = 60.0;
   static const _radius = BorderRadius.all(Radius.circular(_height / 2));
@@ -33,19 +31,8 @@ class VehicleRequestButtonWidget extends StatelessWidget {
       excludeSemantics: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: enabled
-              ? AppColors.primaryGradient
-              : AppColors.primaryGradientDisabled,
+          color: enabled ? AppColors.primary : AppColors.primaryDisabled,
           borderRadius: _radius,
-          boxShadow: enabled
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.4),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ]
-              : null,
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -55,9 +42,11 @@ class VehicleRequestButtonWidget extends StatelessWidget {
             child: SizedBox(
               height: _height,
               child: Padding(
-                padding: const EdgeInsetsDirectional.only(start: 24, end: 10),
+                padding: const EdgeInsetsDirectional.only(start: 20, end: 10),
                 child: Row(
                   children: [
+                    Icon(Icons.directions_car_rounded, color: foreground, size: 22),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         label,

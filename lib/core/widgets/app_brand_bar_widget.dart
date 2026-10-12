@@ -61,10 +61,9 @@ class _BrandLogoWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const AppLogoWidget(size: 40),
+        const AppLogoWidget(size: 38),
         const SizedBox(width: 10),
-        // The wordmark: the app bar title style (brand green), larger and
-        // heavier. A line height of 1 with the extra leading split evenly
+        // The wordmark: the app bar title style, larger and heavier. A line height of 1 with the extra leading split evenly
         // puts the letters on the logo's vertical center instead of sitting
         // low in a taller line box.
         Padding(
@@ -74,8 +73,9 @@ class _BrandLogoWidget extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: base?.copyWith(
-              fontSize: 24,
+              fontSize: 21,
               fontWeight: FontWeight.w800,
+              color: context.colors.textPrimary,
               height: 1,
               leadingDistribution: TextLeadingDistribution.even,
             ),
@@ -142,8 +142,9 @@ class _NotificationBellWidgetState extends State<_NotificationBellWidget> {
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: context.colors.backgroundGray,
-                          borderRadius: BorderRadius.circular(12),
+                          color: context.colors.backgroundWhite,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: context.colors.border),
                         ),
                         child: Icon(
                           Icons.notifications_outlined,

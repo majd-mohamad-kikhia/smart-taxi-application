@@ -106,8 +106,8 @@ void main() {
       );
     });
 
-    test('dark text is readable on both ends of the brand gradient', () {
-      for (final end in AppColors.primaryGradient.colors) {
+    test('white text is readable on the brand greens', () {
+      for (final end in [AppColors.primary, AppColors.accent]) {
         expect(
           _contrast(AppColors.textOnPrimary, end),
           greaterThanOrEqualTo(4.5),
@@ -117,14 +117,14 @@ void main() {
     });
 
     test(
-      'a disabled button\'s label reads on its dimmed gradient, in both themes',
+      'a disabled button\'s label reads on its dimmed green, in both themes',
       () {
         for (final entry in {
           AppPalette.dark: AppPalette.dark.backgroundGray,
           AppPalette.light: AppPalette.light.backgroundGray,
         }.entries) {
-          // The 40% gradient blended over the page, then the label (with its own alpha) over that.
-          final dimmed = AppColors.primaryGradientDisabled.colors.map(
+          // The 40% green blended over the page, then the label (with its own alpha) over that.
+          final dimmed = [AppColors.primaryDisabled].map(
             (c) => Color.alphaBlend(c, entry.value),
           );
           for (final bg in dimmed) {

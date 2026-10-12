@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/account_block/account_block_cubit.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
@@ -12,15 +13,16 @@ import '../../../../core/models/trip_eta_model.dart';
 import '../../../../core/ride_rating/presentation/cubit/ride_rating_cubit.dart';
 import '../../../../core/ride_rating/presentation/widgets/ride_rating_dialog_widget.dart';
 import '../../../../core/theme/app_palette.dart';
-import '../../../../core/widgets/app_destructive_button_widget.dart';
+import '../../../../core/widgets/app_map_title_pill_widget.dart';
+import '../../../../core/widgets/app_sheet_handle_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
-import '../../../../core/widgets/fee_chip_widget.dart';
 import '../../../../core/widgets/live_trip_map_widget.dart';
 import '../../../../core/widgets/trip_eta_chip_widget.dart';
 import '../../../../core/widgets/trip_fees_overlay_widget.dart';
 import '../cubit/ride_tracking_cubit.dart';
 import '../cubit/ride_tracking_state.dart';
+import '../widgets/ride_contact_actions_widget.dart';
 import '../widgets/ride_driver_card_widget.dart';
 import '../widgets/ride_payment_due_dialog_widget.dart';
 import '../widgets/ride_status_banner_widget.dart';
@@ -78,13 +80,19 @@ void _showPaymentDue(BuildContext context, double? amount, RideFareBreakdownMode
 
 /// The trip is paid and the customer can rate the driver: ask for the
 /// rating (they may skip), then leave the screen with the usual message.
-Future<void> _rateThenLeave(BuildContext context, int rideId) async {
+Future<void> _rateThenLeave(
+  BuildContext context,
+  int rideId, {
+  RideRatingDriverInfo? driver,
+}) async {
   final navigator = Navigator.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final l10n = context.l10n;
   final outcome = await showRideRatingDialog(
     context,
     createCubit: () => sl<RideRatingCubit>(param1: rideId),
+    driver: driver,
+    justFinished: true,
   );
   navigator.pop();
   showAppSnackBarOn(
@@ -123,7 +131,23 @@ class _RideTrackingView extends StatelessWidget {
             // the pop below leaves the screen itself.
             if (ModalRoute.of(context)?.isCurrent == false) navigator.pop();
             if (isSuccess && state.canRate) {
-              _rateThenLeave(context, state.ride.id);
+              final driver = state.driver;
+              final vehicle = state.vehicle;
+              _rateThenLeave(
+                context,
+                state.ride.id,
+                driver: driver == null
+                    ? null
+                    : RideRatingDriverInfo(
+                        name: driver.fullName,
+                        photoUrl: driver.photoUrl,
+                        vehicle: vehicle == null
+                            ? null
+                            : [vehicle.brand, vehicle.model, vehicle.color]
+                                .where((part) => part.trim().isNotEmpty)
+                                .join(' • '),
+                      ),
+              );
               return;
             }
             navigator.pop();
@@ -211,10 +235,7 @@ class _ScreenHeader extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              FeeChipWidget(
-                icon: Icons.directions_car_rounded,
-                label: context.l10n.trackTrip,
-              ),
+              AppMapTitlePillWidget(title: context.l10n.trackTrip),
               const _TripEtaChip(towardsPickup: true),
             ],
           ),
@@ -253,19 +274,20 @@ class _TrackingSheet extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: context.colors.backgroundWhite,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [BoxShadow(color: context.colors.shadowMedium, blurRadius: 16, offset: Offset(0, -4))],
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppConstants.radiusXL),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: context.colors.shadowLight,
+            blurRadius: 12,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 10, bottom: 6),
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(color: context.colors.border, borderRadius: BorderRadius.circular(2)),
-            ),
-          ),
+          const AppSheetHandleWidget(),
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -277,12 +299,13 @@ class _TrackingSheet extends StatelessWidget {
                   if (state.isAccepted) ...[
                     RideDriverCardWidget(driver: state.driver!, vehicle: state.vehicle!),
                     const SizedBox(height: 14),
+                    RideContactActionsWidget(driverPhone: state.driver!.phoneNumber),
+                    const SizedBox(height: 14),
                   ],
                   RideTripSummaryWidget(pickup: state.pickup, dropoff: state.dropoff, ride: state.ride),
                   const SizedBox(height: 14),
-                  AppDestructiveButtonWidget(
-                    label: context.l10n.cancelTrip,
-                    isLoading: state.isCancelling,
+                  _CancelTripButton(
+                    isCancelling: state.isCancelling,
                     onPressed: () => _showCancelDialog(context),
                   ),
                   SizedBox(height: MediaQuery.of(context).padding.bottom + 4),
@@ -307,6 +330,47 @@ class _TrackingSheet extends StatelessWidget {
       builder: (_) => CancelReasonDialogWidget(warning: warning, showCancelLimit: false),
     );
     if (reason != null) cubit.submitCancellation(reason);
+  }
+}
+
+/// "Cancel trip" as a quiet red text button at the bottom of the sheet: the
+/// action is still behind the reason dialog, so it needs no heavy fill. A
+/// spinner takes its place while the cancel is being sent.
+class _CancelTripButton extends StatelessWidget {
+  final bool isCancelling;
+  final VoidCallback onPressed;
+
+  const _CancelTripButton({required this.isCancelling, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final label = context.l10n.cancelTrip;
+    return SizedBox(
+      height: 48,
+      child: Center(
+        child: isCancelling
+            ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: context.colors.errorText,
+                  semanticsLabel: label,
+                ),
+              )
+            : TextButton.icon(
+                onPressed: onPressed,
+                icon: const Icon(Icons.close_rounded, size: 18),
+                label: Text(label),
+                style: TextButton.styleFrom(
+                  foregroundColor: context.colors.errorText,
+                  textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+      ),
+    );
   }
 }
 
