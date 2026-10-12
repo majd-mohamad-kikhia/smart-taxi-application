@@ -3,6 +3,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// A selectable card representing one [UserRole] on the role-selection
 /// screen. The two cards form one choice, so screen readers get each as a
@@ -32,10 +33,10 @@ class RoleOptionCardWidget extends StatelessWidget {
       child: AnimatedContainer(
         duration: AppConstants.animFast,
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primarySurface : AppColors.backgroundWhite,
+          color: isSelected ? context.colors.primarySurface : context.colors.backgroundWhite,
           borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : context.colors.border,
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -54,12 +55,12 @@ class RoleOptionCardWidget extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary : AppColors.backgroundMuted,
+                      color: isSelected ? AppColors.primary : context.colors.backgroundMuted,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       icon,
-                      color: isSelected ? AppColors.textOnPrimary : AppColors.textSecondary,
+                      color: isSelected ? AppColors.textOnPrimary : context.colors.textSecondary,
                     ),
                   ),
                   const SizedBox(width: AppConstants.paddingM),
@@ -75,7 +76,7 @@ class RoleOptionCardWidget extends StatelessWidget {
                   ),
                   Icon(
                     isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                    color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                    color: isSelected ? context.colors.primaryContent : context.colors.textTertiary,
                   ),
                 ],
               ),

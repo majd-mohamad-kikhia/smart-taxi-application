@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_map_style.dart';
 import '../../../../core/utils/car_heading_tracker.dart';
 import '../../../../core/utils/taxi_marker_icon.dart';
 
@@ -36,7 +36,7 @@ class RouteMapWidget extends StatefulWidget {
   State<RouteMapWidget> createState() => _RouteMapWidgetState();
 }
 
-class _RouteMapWidgetState extends State<RouteMapWidget> {
+class _RouteMapWidgetState extends State<RouteMapWidget> with MapStyleMixin {
   // Shown until the first GPS fix — the app-wide default map centre.
   static const _fallbackCenter = LatLng(
     AppConstants.defaultMapLat,
@@ -44,7 +44,6 @@ class _RouteMapWidgetState extends State<RouteMapWidget> {
   );
 
   GoogleMapController? _controller;
-  String? _mapStyle;
   BitmapDescriptor? _taxiIcon;
   final _heading = CarHeadingTracker();
 
@@ -57,7 +56,6 @@ class _RouteMapWidgetState extends State<RouteMapWidget> {
   @override
   void initState() {
     super.initState();
-    _loadMapStyle();
     _loadTaxiIcon();
     final car = _car;
     if (car != null) _heading.update(car);
@@ -68,12 +66,6 @@ class _RouteMapWidgetState extends State<RouteMapWidget> {
     if (mounted) setState(() => _taxiIcon = icon);
   }
 
-  Future<void> _loadMapStyle() async {
-    final style = await rootBundle.loadString(
-      'assets/map_styles/dark_map_style.json',
-    );
-    if (mounted) setState(() => _mapStyle = style);
-  }
 
   @override
   void didUpdateWidget(covariant RouteMapWidget oldWidget) {
@@ -138,7 +130,7 @@ class _RouteMapWidgetState extends State<RouteMapWidget> {
     final path = [for (final p in widget.path) LatLng(p.lat, p.lng)];
 
     return GoogleMap(
-      style: _mapStyle,
+      style: mapStyle,
       initialCameraPosition: CameraPosition(
         target: car ?? (path.isNotEmpty ? path.last : _fallbackCenter),
         zoom: 15,

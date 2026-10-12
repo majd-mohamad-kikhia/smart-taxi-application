@@ -3,18 +3,18 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// The From / To card at the bottom of the home map: two tappable rows joined
-/// by a dotted connector, with a swap button at the end edge.
+/// by a dotted connector.
 ///
-/// A `null` [onPickFrom] / [onPickTo] / [onSwap] locks that control — while a
+/// A `null` [onPickFrom] / [onPickTo] locks that control — while a
 /// quote or booking is in flight, or a ride is live, the points can't change.
 class RoutePointsCardWidget extends StatelessWidget {
   final PickedLocationModel? from;
   final PickedLocationModel? to;
   final VoidCallback? onPickFrom;
   final VoidCallback? onPickTo;
-  final VoidCallback? onSwap;
 
   const RoutePointsCardWidget({
     super.key,
@@ -22,7 +22,6 @@ class RoutePointsCardWidget extends StatelessWidget {
     required this.to,
     required this.onPickFrom,
     required this.onPickTo,
-    required this.onSwap,
   });
 
   @override
@@ -36,9 +35,9 @@ class RoutePointsCardWidget extends StatelessWidget {
         bottom: AppConstants.paddingXS,
       ),
       decoration: BoxDecoration(
-        color: AppColors.neutralSurface,
+        color: context.colors.neutralSurface,
         borderRadius: BorderRadius.circular(AppConstants.radiusXL),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -49,9 +48,9 @@ class RoutePointsCardWidget extends StatelessWidget {
                 _PointRowWidget(
                   label: l10n.fromLabel,
                   placeholder: l10n.pickPickupPoint,
-                  marker: const Icon(
+                  marker: Icon(
                     Icons.trip_origin_rounded,
-                    color: AppColors.primary,
+                    color: context.colors.primaryContent,
                     size: 20,
                   ),
                   value: from,
@@ -72,10 +71,6 @@ class RoutePointsCardWidget extends StatelessWidget {
               ],
             ),
           ),
-          if (onSwap != null) ...[
-            const SizedBox(width: AppConstants.paddingS),
-            _SwapButtonWidget(onTap: onSwap!),
-          ],
         ],
       ),
     );
@@ -116,10 +111,10 @@ class _PointRowWidget extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -131,8 +126,8 @@ class _PointRowWidget extends StatelessWidget {
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: value != null
-                          ? AppColors.textPrimary
-                          : AppColors.textTertiary,
+                          ? context.colors.textPrimary
+                          : context.colors.textTertiary,
                     ),
                   ),
                   if (details != null)
@@ -140,14 +135,30 @@ class _PointRowWidget extends StatelessWidget {
                       details,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                 ],
               ),
             ),
+            // A word, not an icon: change this point.
+            if (value != null && onTap != null)
+              TextButton(
+                onPressed: onTap,
+                style: TextButton.styleFrom(
+                  backgroundColor: context.colors.primarySurface,
+                  foregroundColor: context.colors.primaryContent,
+                  minimumSize: const Size(56, 34),
+                  padding: const EdgeInsets.symmetric(horizontal: AppConstants.paddingM),
+                  shape: const StadiumBorder(
+                    side: BorderSide(color: AppColors.primary, width: 1),
+                  ),
+                  textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+                ),
+                child: Text(context.l10n.editPoint),
+              ),
           ],
         ),
       ),
@@ -173,55 +184,19 @@ class _ConnectorWidget extends StatelessWidget {
                 width: 3,
                 height: 3,
                 margin: const EdgeInsets.symmetric(vertical: 1.5),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.borderStrong,
+                  color: context.colors.borderStrong,
                 ),
               ),
             ),
           ),
         ),
         const SizedBox(width: AppConstants.paddingM),
-        const Expanded(
-          child: Divider(height: 1, color: AppColors.borderLight),
+        Expanded(
+          child: Divider(height: 1, color: context.colors.borderLight),
         ),
       ],
-    );
-  }
-}
-
-class _SwapButtonWidget extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _SwapButtonWidget({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final label = context.l10n.swapPickupAndDestination;
-    return Tooltip(
-      message: label,
-      child: Semantics(
-        button: true,
-        label: label,
-        excludeSemantics: true,
-        child: Material(
-          color: AppColors.neutralMuted,
-          shape: const CircleBorder(),
-          child: InkWell(
-            onTap: onTap,
-            customBorder: const CircleBorder(),
-            child: const SizedBox(
-              width: 44,
-              height: 44,
-              child: Icon(
-                Icons.swap_vert_rounded,
-                color: AppColors.textPrimary,
-                size: 22,
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

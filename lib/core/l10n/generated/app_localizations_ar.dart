@@ -680,6 +680,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverAcceptTrip => 'قبول الرحلة';
 
   @override
+  String get incomingOrderChannelName => 'الطلبات الواردة';
+
+  @override
+  String get incomingOrderChannelDescription =>
+      'طلب جديد لك، يظهر كأنه مكالمة واردة';
+
+  @override
+  String get incomingOrderTitle => 'طلب جديد';
+
+  @override
+  String incomingOrderBody(String price, String distance) {
+    return '$price · $distance حتى نقطة الانطلاق';
+  }
+
+  @override
   String get rateDriverTitle => 'قيّم الكابتن';
 
   @override
@@ -1135,9 +1150,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get useMyLocation => 'استخدم موقعي الحالي';
 
   @override
-  String get swapPickupAndDestination => 'تبديل نقطة الانطلاق والوجهة';
-
-  @override
   String get mapLocationFallback => 'موقع على الخريطة';
 
   @override
@@ -1148,6 +1160,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rideAwaitingArrival => 'بانتظار وصول الكابتن';
+
+  @override
+  String get appearance => 'المظهر';
+
+  @override
+  String get themeLight => 'فاتح';
+
+  @override
+  String get themeDark => 'داكن';
+
+  @override
+  String get editPoint => 'تعديل';
+
+  @override
+  String get cancelRoute => 'إلغاء المسار';
 
   @override
   String get rideAccepted => 'تم قبول طلبك';

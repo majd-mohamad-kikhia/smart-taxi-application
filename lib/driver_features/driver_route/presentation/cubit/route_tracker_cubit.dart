@@ -147,7 +147,7 @@ class RouteTrackerCubit extends Cubit<RouteTrackerState> {
     );
   }
 
-  /// The locate button: finds the driver right now, moves the yellow pin
+  /// The locate button: finds the driver right now, moves the green pin
   /// there and asks the map to centre on it. Works in every step, and never
   /// touches the recorded route.
   Future<void> locateMe() async {

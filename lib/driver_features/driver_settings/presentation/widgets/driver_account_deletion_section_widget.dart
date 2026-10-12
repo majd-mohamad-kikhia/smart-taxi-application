@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/delete_account_button_widget.dart';
 import '../../data/models/driver_deletion_request_model.dart';
@@ -72,7 +72,7 @@ class _DeletionSectionView extends StatelessWidget {
               Text(
                 state.loadError!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.colors.textSecondary),
               ),
               TextButton(onPressed: cubit.load, child: Text(l10n.retry)),
             ],

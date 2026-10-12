@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// Row pairing a plain text prompt with a tappable action label, used to
 /// switch between sign in and sign up.
@@ -28,7 +28,7 @@ class AuthFooterLinkWidget extends StatelessWidget {
             child: Text(
               actionLabel,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.primary,
+                color: context.colors.primaryContent,
                 fontWeight: FontWeight.w700,
               ),
             ),

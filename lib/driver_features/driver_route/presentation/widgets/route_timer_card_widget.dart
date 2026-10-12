@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import 'route_duration_format.dart';
 
 /// One live stopwatch on the route map: a coloured icon badge, a small
@@ -29,12 +29,12 @@ class RouteTimerCardWidget extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.neutralSurface.withValues(alpha: 0.96),
+        color: context.colors.neutralSurface.withValues(alpha: 0.96),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: accent.withValues(alpha: 0.55), width: 1.5),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: AppColors.shadowStrong,
+            color: context.colors.shadowStrong,
             blurRadius: 16,
             offset: Offset(0, 4),
           ),
@@ -78,10 +78,10 @@ class RouteTimerCardWidget extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ],
@@ -91,11 +91,11 @@ class RouteTimerCardWidget extends StatelessWidget {
                   Text(
                     formatRouteDuration(duration),
                     textDirection: TextDirection.ltr,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 32,
                       height: 1.1,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                       letterSpacing: 1,
                       fontFeatures: [FontFeature.tabularFigures()],
                     ),

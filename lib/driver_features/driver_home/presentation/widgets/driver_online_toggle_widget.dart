@@ -5,6 +5,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
@@ -19,7 +20,7 @@ import '../cubit/driver_presence_state.dart';
 /// `DriverStatusCardWidget`.
 ///
 /// It states where the driver stands and offers the one next action:
-/// offline shows a yellow "Go online", connecting shows "Connecting…" with an
+/// offline shows a green "Go online", connecting shows "Connecting…" with an
 /// amber tile (no spinner), online shows a green "You're online" with a
 /// neutral "Go offline". A failure
 /// shows its reason in the error banner, with a real "Open settings" button
@@ -44,12 +45,12 @@ class DriverOnlineToggleWidget extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(AppConstants.paddingL),
           decoration: BoxDecoration(
-            color: isOnline ? AppColors.successSurface : AppColors.backgroundWhite,
+            color: isOnline ? context.colors.successSurface : context.colors.backgroundWhite,
             borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
             border: Border.all(
               color: isOnline
                   ? AppColors.success.withValues(alpha: 0.3)
-                  : AppColors.border,
+                  : context.colors.border,
             ),
           ),
           child: Column(
@@ -71,7 +72,7 @@ class DriverOnlineToggleWidget extends StatelessWidget {
                             _title(context, state.status),
                             style: textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.colors.textPrimary,
                             ),
                           ),
                         ),
@@ -174,10 +175,10 @@ class _StatusIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isOnline
         ? AppColors.success
-        : (isConnecting ? AppColors.accent : AppColors.textSecondary);
+        : (isConnecting ? AppColors.warning : context.colors.textSecondary);
     final wash = isOnline
         ? AppColors.success.withValues(alpha: 0.18)
-        : (isConnecting ? AppColors.accentSurface : AppColors.backgroundMuted);
+        : (isConnecting ? context.colors.warningSurface : context.colors.backgroundMuted);
     return ExcludeSemantics(
       child: Container(
         width: 44,

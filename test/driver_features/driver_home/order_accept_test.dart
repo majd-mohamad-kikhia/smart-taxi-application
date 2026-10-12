@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mshoar/core/models/order_offer_model.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mshoar/core/services/current_location_service.dart';
 import 'package:mshoar/driver_features/driver_home/data/datasources/driver_socket_service.dart';
@@ -49,7 +50,7 @@ class _FakeLocation extends Fake implements CurrentLocationService {
 
 class _SilentAlert implements NewOrderAlert {
   @override
-  Future<void> start() async {}
+  Future<void> start({OrderOfferModel? order}) async {}
 
   @override
   Future<void> stop() async {}

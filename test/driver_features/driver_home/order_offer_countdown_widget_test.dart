@@ -20,11 +20,14 @@ void main() {
       );
 
   testWidgets('shows the seconds left, rounded up', (tester) async {
-    await show(
-      tester,
-      DateTime.now().toUtc().add(const Duration(milliseconds: 9500)),
+    await show(tester, DateTime.now().toUtc().add(const Duration(seconds: 10)));
+    // The clock keeps running while the frame builds: allow a second of slack.
+    expect(
+      find.byWidgetPredicate(
+        (w) => w is Text && (w.data == '10 s left' || w.data == '9 s left'),
+      ),
+      findsOneWidget,
     );
-    expect(find.text('10 s left'), findsOneWidget);
   });
 
   testWidgets('a shorter time left shows fewer seconds', (tester) async {

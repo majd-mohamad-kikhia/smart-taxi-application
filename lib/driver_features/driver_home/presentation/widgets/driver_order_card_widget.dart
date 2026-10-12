@@ -3,6 +3,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/meta_item_widget.dart';
@@ -34,9 +35,9 @@ class DriverOrderCardWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,11 +51,11 @@ class DriverOrderCardWidget extends StatelessWidget {
             children: [
               _PricePill(price: order.estimatedPrice, isEstimate: order.priceIsEstimate),
               const Spacer(),
-              Icon(Icons.social_distance_rounded, size: 16, color: AppColors.textTertiary),
+              Icon(Icons.social_distance_rounded, size: 16, color: context.colors.textTertiary),
               const SizedBox(width: 4),
               Text(
                 context.l10n.distanceKmToPickup(order.distanceToPickupKm.toStringAsFixed(1)),
-                style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                style: TextStyle(fontSize: 12, color: context.colors.textTertiary),
               ),
             ],
           ),
@@ -65,11 +66,11 @@ class DriverOrderCardWidget extends StatelessWidget {
             label: order.pickupAddress,
             details: order.pickupAddressDetails,
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsetsDirectional.only(start: 9),
             child: SizedBox(
               height: 16,
-              child: VerticalDivider(width: 1, thickness: 1.5, color: AppColors.borderLight),
+              child: VerticalDivider(width: 1, thickness: 1.5, color: context.colors.borderLight),
             ),
           ),
           _LocationRow(
@@ -104,8 +105,8 @@ class DriverOrderCardWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          // The card being accepted stays full yellow with a visible spinner;
-          // the other cards' buttons dim to a muted yellow while it is in
+          // The card being accepted stays full green with a visible spinner;
+          // the other cards' buttons dim to a muted green while it is in
           // flight (only one accept at a time).
           AuthPrimaryButtonWidget(
             label: context.l10n.driverAcceptTrip,
@@ -129,17 +130,17 @@ class _PricePill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.primarySurface,
+        color: context.colors.primarySurface,
         borderRadius: BorderRadius.circular(100),
       ),
       child: PriceTextWidget(
         price: price,
         prefix: isEstimate ? '~' : '',
         alignment: CrossAxisAlignment.start,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w700,
-          color: AppColors.primary,
+          color: context.colors.primaryContent,
           fontFeatures: [FontFeature.tabularFigures()],
         ),
       ),
@@ -173,14 +174,14 @@ class _LocationRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
               if (details != null)
                 Text(
                   details!,
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

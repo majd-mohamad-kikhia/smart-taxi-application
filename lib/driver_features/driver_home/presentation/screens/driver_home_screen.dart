@@ -7,6 +7,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/account_block_gate_widget.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
@@ -34,7 +35,7 @@ class DriverHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBrandBarWidget(),
@@ -185,9 +186,9 @@ class _OrdersPlaceholder extends StatelessWidget {
         vertical: AppConstants.paddingXXL,
       ),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -196,12 +197,12 @@ class _OrdersPlaceholder extends StatelessWidget {
             child: Container(
               width: 64,
               height: 64,
-              decoration: const BoxDecoration(
-                color: AppColors.backgroundMuted,
+              decoration: BoxDecoration(
+                color: context.colors.backgroundMuted,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: Icon(icon, size: 28, color: AppColors.textSecondary),
+              child: Icon(icon, size: 28, color: context.colors.textSecondary),
             ),
           ),
           const SizedBox(height: AppConstants.paddingL),
@@ -209,7 +210,7 @@ class _OrdersPlaceholder extends StatelessWidget {
             message,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                   height: 1.4,
                 ),
           ),
@@ -234,13 +235,13 @@ class _ReconnectingBanner extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: AppConstants.paddingM),
         padding: const EdgeInsets.all(AppConstants.paddingM),
         decoration: BoxDecoration(
-          color: AppColors.accentSurface,
+          color: context.colors.warningSurface,
           borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+          border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
-            const Icon(Icons.sync_problem_rounded, color: AppColors.accent, size: 20),
+            const Icon(Icons.sync_problem_rounded, color: AppColors.warning, size: 20),
             const SizedBox(width: AppConstants.paddingS),
             Expanded(
               child: Text(
@@ -248,7 +249,7 @@ class _ReconnectingBanner extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium
-                    ?.copyWith(color: AppColors.textPrimary),
+                    ?.copyWith(color: context.colors.textPrimary),
               ),
             ),
           ],

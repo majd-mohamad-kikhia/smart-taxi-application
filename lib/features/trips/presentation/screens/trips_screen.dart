@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/paginated_list_widget.dart';
 import '../../data/models/ride_history_model.dart';
@@ -31,7 +31,7 @@ class _TripsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBrandBarWidget(showNotifications: true),
@@ -47,6 +47,7 @@ class _TripsView extends StatelessWidget {
             errorMessage: state.errorMessage,
             emptyMessage: context.l10n.noRidesYet,
             emptyIcon: Icons.local_taxi_outlined,
+            animateItems: true,
             onLoadMore: cubit.loadMore,
             onRetry: cubit.refresh,
             onRefresh: cubit.refresh,

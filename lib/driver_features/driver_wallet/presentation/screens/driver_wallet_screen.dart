@@ -5,6 +5,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
@@ -101,7 +102,7 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBrandBarWidget(),
@@ -112,8 +113,8 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
           final l10n = context.l10n;
           final report = state.report;
           return RefreshIndicator(
-            color: AppColors.primary,
-            backgroundColor: AppColors.backgroundWhite,
+            color: context.colors.primaryContent,
+            backgroundColor: context.colors.backgroundWhite,
             onRefresh: _loadReport,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -182,7 +183,7 @@ class _MonthStepper extends StatelessWidget {
         IconButton(
           tooltip: l10n.walletPreviousMonth,
           icon: const Icon(Icons.chevron_left_rounded),
-          color: AppColors.textSecondary,
+          color: context.colors.textSecondary,
           onPressed: onPrevious,
         ),
         Flexible(
@@ -204,7 +205,7 @@ class _MonthStepper extends StatelessWidget {
         IconButton(
           tooltip: l10n.walletNextMonth,
           icon: const Icon(Icons.chevron_right_rounded),
-          color: AppColors.textSecondary,
+          color: context.colors.textSecondary,
           onPressed: onNext,
         ),
       ],
@@ -213,7 +214,7 @@ class _MonthStepper extends StatelessWidget {
 }
 
 /// The hero balance and the grid of the month's figures. Only the balance
-/// is yellow; earnings are green, bonuses amber, fines red, and the rest
+/// is green; earnings are green, bonuses amber, fines red, and the rest
 /// neutral. Every money figure carries its currency.
 class _Statement extends StatelessWidget {
   final DriverFinancialReportModel report;
@@ -238,7 +239,7 @@ class _Statement extends StatelessWidget {
                 value: money(report.driverEarnings),
                 icon: Icons.trending_up_rounded,
                 iconColor: AppColors.success,
-                iconBackground: AppColors.successSurface,
+                iconBackground: context.colors.successSurface,
               ),
             ),
             const SizedBox(width: AppConstants.paddingM),
@@ -258,8 +259,8 @@ class _Statement extends StatelessWidget {
                 label: l10n.walletBonuses,
                 value: money(report.rewardsTotal),
                 icon: Icons.card_giftcard_rounded,
-                iconColor: AppColors.accent,
-                iconBackground: AppColors.accentSurface,
+                iconColor: AppColors.warning,
+                iconBackground: context.colors.warningSurface,
               ),
             ),
             const SizedBox(width: AppConstants.paddingM),
@@ -268,8 +269,8 @@ class _Statement extends StatelessWidget {
                 label: l10n.walletTotalCommissions,
                 value: money(report.managerEarnings),
                 icon: Icons.percent_rounded,
-                iconColor: AppColors.textSecondary,
-                iconBackground: AppColors.backgroundMuted,
+                iconColor: context.colors.textSecondary,
+                iconBackground: context.colors.backgroundMuted,
               ),
             ),
           ],
@@ -283,7 +284,7 @@ class _Statement extends StatelessWidget {
                 value: money(report.finesTotal),
                 icon: Icons.warning_amber_rounded,
                 iconColor: AppColors.error,
-                iconBackground: AppColors.errorSurface,
+                iconBackground: context.colors.errorSurface,
                 onTap: onOpenFines,
               ),
             ),
@@ -313,10 +314,10 @@ class _WalletError extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingXXL),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline_rounded,
             size: 40,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
           ),
           const SizedBox(height: AppConstants.paddingM),
           Semantics(

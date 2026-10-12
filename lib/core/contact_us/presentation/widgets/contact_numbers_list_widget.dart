@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../constants/app_constants.dart';
 import '../../../injection/injection.dart';
 import '../../../localization/l10n_context_extension.dart';
-import '../../../theme/app_colors.dart';
+import '../../../theme/app_palette.dart';
 import '../../data/models/contact_number_model.dart';
 import '../cubit/contact_us_cubit.dart';
 import '../cubit/contact_us_state.dart';
@@ -36,10 +36,10 @@ class ContactNumbersListWidget extends StatelessWidget {
               Text(
                 context.l10n.contactCallCenter,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
               const SizedBox(height: AppConstants.paddingS),

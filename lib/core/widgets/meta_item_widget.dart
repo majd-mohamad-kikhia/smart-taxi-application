@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// A small icon and label for a fact about a trip, such as its distance or
 /// duration. Put several in a `Wrap` so they flow onto a second line at a
@@ -16,13 +16,13 @@ class MetaItemWidget extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: AppColors.textTertiary),
+        Icon(icon, size: 16, color: context.colors.textTertiary),
         const SizedBox(width: AppConstants.paddingXS),
         Flexible(
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),

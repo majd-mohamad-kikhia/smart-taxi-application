@@ -697,6 +697,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverAcceptTrip => 'Accept trip';
 
   @override
+  String get incomingOrderChannelName => 'Incoming orders';
+
+  @override
+  String get incomingOrderChannelDescription =>
+      'A new order for you, shown like an incoming call';
+
+  @override
+  String get incomingOrderTitle => 'New order';
+
+  @override
+  String incomingOrderBody(String price, String distance) {
+    return '$price · $distance to the pickup';
+  }
+
+  @override
   String get rateDriverTitle => 'Rate your driver';
 
   @override
@@ -1155,9 +1170,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get useMyLocation => 'Use my location';
 
   @override
-  String get swapPickupAndDestination => 'Swap pickup and destination';
-
-  @override
   String get mapLocationFallback => 'Location on the map';
 
   @override
@@ -1168,6 +1180,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rideAwaitingArrival => 'Waiting for the driver to arrive';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get editPoint => 'Edit';
+
+  @override
+  String get cancelRoute => 'Cancel route';
 
   @override
   String get rideAccepted => 'Your request was accepted';

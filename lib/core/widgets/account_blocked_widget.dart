@@ -4,6 +4,7 @@ import '../constants/app_constants.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/account_block_model.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import '../contact_us/data/models/contact_number_model.dart';
 import '../contact_us/presentation/widgets/contact_numbers_list_widget.dart';
 import 'countdown_text_widget.dart';
@@ -32,9 +33,9 @@ class AccountBlockedWidget extends StatelessWidget {
     final l10n = context.l10n;
     final until = block.blockedUntil;
     final serverMessage = block.message;
-    const detailStyle = TextStyle(
+    final detailStyle = TextStyle(
       fontSize: 13,
-      color: AppColors.textSecondary,
+      color: context.colors.textSecondary,
       height: 1.4,
     );
 
@@ -45,7 +46,7 @@ class AccountBlockedWidget extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(AppConstants.paddingXL),
           decoration: BoxDecoration(
-            color: AppColors.errorSurface,
+            color: context.colors.errorSurface,
             borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
             border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
           ),
@@ -59,10 +60,10 @@ class AccountBlockedWidget extends StatelessWidget {
                 child: Text(
                   l10n.accountBlockedTitle,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
@@ -107,9 +108,9 @@ class AccountBlockedWidget extends StatelessWidget {
                     block.strikeLimit,
                   ),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textTertiary,
+                    color: context.colors.textTertiary,
                   ),
                 ),
               ],

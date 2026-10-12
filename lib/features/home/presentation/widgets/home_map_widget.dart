@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/theme/app_map_style.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../cubit/map_pick_cubit.dart';
@@ -21,14 +21,13 @@ class HomeMapWidget extends StatefulWidget {
   State<HomeMapWidget> createState() => _HomeMapWidgetState();
 }
 
-class _HomeMapWidgetState extends State<HomeMapWidget> {
+class _HomeMapWidgetState extends State<HomeMapWidget> with MapStyleMixin {
   static const _defaultCenter = LatLng(
     AppConstants.defaultMapLat,
     AppConstants.defaultMapLng,
   );
 
   GoogleMapController? _controller;
-  String? _mapStyle;
 
   /// A move that was asked for before the map was created.
   ({LatLng target, double zoom})? _pendingMove;
@@ -50,7 +49,6 @@ class _HomeMapWidgetState extends State<HomeMapWidget> {
       _initialTarget.latitude,
       _initialTarget.longitude,
     );
-    _loadMapStyle();
   }
 
   @override
@@ -61,12 +59,6 @@ class _HomeMapWidgetState extends State<HomeMapWidget> {
     super.dispose();
   }
 
-  Future<void> _loadMapStyle() async {
-    final style = await rootBundle.loadString(
-      'assets/map_styles/dark_map_style.json',
-    );
-    if (mounted) setState(() => _mapStyle = style);
-  }
 
   void _moveTo(PickedLocationModel? location, double zoom) {
     if (location == null) return;
@@ -98,7 +90,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget> {
       child: Stack(
         children: [
           GoogleMap(
-            style: _mapStyle,
+            style: mapStyle,
             initialCameraPosition: CameraPosition(
               target: _initialTarget,
               zoom: 15,
@@ -117,6 +109,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget> {
                 );
               }
             },
+            onCameraMoveStarted: pick.onCameraMoveStarted,
             onCameraMove: (position) {
               _center = position.target;
               pick.onCameraMove(_center.latitude, _center.longitude);

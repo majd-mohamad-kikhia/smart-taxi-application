@@ -8,7 +8,7 @@ import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_cubit.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_state.dart';
 import '../../../../core/saved_addresses/presentation/saved_address_type_ui.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
@@ -36,7 +36,7 @@ class _SavedAddressesView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: AppBar(title: Text(l10n.savedAddressesTitle)),
       body: BlocBuilder<SavedAddressesCubit, SavedAddressesState>(
         builder: (context, state) {
@@ -156,10 +156,10 @@ class _LoadError extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline_rounded,
               size: 40,
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
             ),
             const SizedBox(height: AppConstants.paddingM),
             Text(

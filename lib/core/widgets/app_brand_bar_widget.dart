@@ -6,6 +6,7 @@ import '../localization/l10n_context_extension.dart';
 import '../notifications/unread_notifications_cubit.dart';
 import '../routing/app_router.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'app_logo_widget.dart';
 
 /// Shared brand top bar — the Mshoar logo and app name at the start edge —
@@ -24,7 +25,7 @@ class AppBrandBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.backgroundWhite,
+      color: context.colors.backgroundWhite,
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top,
         left: 16,
@@ -62,7 +63,7 @@ class _BrandLogoWidget extends StatelessWidget {
       children: [
         const AppLogoWidget(size: 40),
         const SizedBox(width: 10),
-        // The wordmark: the app bar title style (brand yellow), larger and
+        // The wordmark: the app bar title style (brand green), larger and
         // heavier. A line height of 1 with the extra leading split evenly
         // puts the letters on the logo's vertical center instead of sitting
         // low in a taller line box.
@@ -141,12 +142,12 @@ class _NotificationBellWidgetState extends State<_NotificationBellWidget> {
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: AppColors.backgroundGray,
+                          color: context.colors.backgroundGray,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.notifications_outlined,
-                          color: AppColors.textPrimary,
+                          color: context.colors.textPrimary,
                           size: 22,
                         ),
                       ),
@@ -167,7 +168,7 @@ class _NotificationBellWidgetState extends State<_NotificationBellWidget> {
                                 AppConstants.radiusFull,
                               ),
                               border: Border.all(
-                                color: AppColors.backgroundWhite,
+                                color: context.colors.backgroundWhite,
                                 width: 2,
                               ),
                             ),

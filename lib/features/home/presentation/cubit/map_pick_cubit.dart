@@ -94,6 +94,13 @@ class MapPickCubit extends Cubit<MapPickState> {
     return picked;
   }
 
+  /// The camera starts moving (a drag, or the map flying to a place).
+  void onCameraMoveStarted() {
+    if (!isClosed && state.isPicking && !state.isDragging) {
+      emit(state.copyWith(isDragging: true));
+    }
+  }
+
   void onCameraMove(double lat, double lng) {
     _centerLat = lat;
     _centerLng = lng;
@@ -107,7 +114,9 @@ class MapPickCubit extends Cubit<MapPickState> {
   void onCameraIdle(double lat, double lng) {
     _centerLat = lat;
     _centerLng = lng;
-    if (!isClosed && state.isPicking) _resolveCenter();
+    if (isClosed || !state.isPicking) return;
+    if (state.isDragging) emit(state.copyWith(isDragging: false));
+    _resolveCenter();
   }
 
   void search(String query) {

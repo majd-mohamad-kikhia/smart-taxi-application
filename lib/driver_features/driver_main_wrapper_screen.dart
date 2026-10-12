@@ -9,6 +9,7 @@ import '../core/widgets/app_bottom_nav_widget.dart';
 import '../core/widgets/app_snack_bar_widget.dart';
 import 'driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import 'driver_home/data/datasources/driver_socket_service.dart';
+import 'driver_home/data/datasources/incoming_order_call_alert.dart';
 import 'driver_home/presentation/cubit/driver_presence_cubit.dart';
 import 'driver_home/presentation/screens/driver_home_screen.dart';
 import 'driver_ratings/data/models/driver_ratings_page_model.dart';
@@ -43,6 +44,7 @@ class _DriverMainWrapperScreenState extends State<DriverMainWrapperScreen>
     // Online before the app was closed: connect again without waiting for
     // the toggle.
     sl<DriverPresenceCubit>().resumeIfWasOnline();
+    sl<IncomingOrderCallAlert>().askForScreenTakeoverOnce();
     _ratingSubscription = sl<DriverSocketService>().ratingReceived.listen(
       _onRatingReceived,
     );
@@ -69,6 +71,8 @@ class _DriverMainWrapperScreenState extends State<DriverMainWrapperScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // The socket may have died while the app was in the background.
     if (state == AppLifecycleState.resumed) {
+      // The driver is back in the app: the call outside it stops ringing.
+      sl<IncomingOrderCallAlert>().stop();
       sl<DriverPresenceCubit>().resumeIfWasOnline();
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../localization/l10n_context_extension.dart';
 import '../../../theme/app_colors.dart';
+import '../../../theme/app_palette.dart';
 
 /// Five stars. Read-only when [onChanged] is null; otherwise tapping a star
 /// picks that many. [value] is 0–5 (a fraction, like an average, fills the
@@ -79,7 +80,7 @@ class _Star extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final starIcon = Icon(icon, size: size, color: AppColors.accent);
+    final starIcon = Icon(icon, size: size, color: AppColors.star);
     final star = face == null
         ? starIcon
         : Column(
@@ -93,7 +94,7 @@ class _Star extends StatelessWidget {
                 child: Icon(
                   face,
                   size: size * 0.7,
-                  color: faceSelected ? AppColors.accent : AppColors.textTertiary,
+                  color: faceSelected ? AppColors.star : context.colors.textTertiary,
                 ),
               ),
             ],

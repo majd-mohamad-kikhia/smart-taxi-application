@@ -5,7 +5,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/saved_addresses/data/models/saved_address_model.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_cubit.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_state.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../cubit/map_pick_cubit.dart';
@@ -59,9 +59,9 @@ class _MapPickPanelWidgetState extends State<MapPickPanelWidget> {
         Container(
           padding: const EdgeInsets.all(AppConstants.paddingL),
           decoration: BoxDecoration(
-            color: AppColors.neutralSurface,
+            color: context.colors.neutralSurface,
             borderRadius: BorderRadius.circular(AppConstants.radiusXL),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.colors.border),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -123,9 +123,9 @@ class _AddressRowWidget extends StatelessWidget {
         final address = state.address;
         return Row(
           children: [
-            const Icon(
+            Icon(
               Icons.pin_drop_rounded,
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
               size: 18,
             ),
             const SizedBox(width: AppConstants.paddingS),
@@ -141,8 +141,8 @@ class _AddressRowWidget extends StatelessWidget {
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: address != null
-                      ? AppColors.textPrimary
-                      : AppColors.textSecondary,
+                      ? context.colors.textPrimary
+                      : context.colors.textSecondary,
                 ),
               ),
             ),

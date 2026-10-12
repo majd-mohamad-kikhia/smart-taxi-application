@@ -13,7 +13,10 @@ class GoogleApiCredentials extends Equatable {
   /// application [empty] are blocked").
   final Map<String, String> appHeaders;
 
-  const GoogleApiCredentials({required this.apiKey, this.appHeaders = const {}});
+  const GoogleApiCredentials({
+    required this.apiKey,
+    this.appHeaders = const {},
+  });
 
   static const GoogleApiCredentials none = GoogleApiCredentials(apiKey: '');
 
@@ -22,17 +25,21 @@ class GoogleApiCredentials extends Equatable {
 }
 
 /// Works out, once per app run, the key and identity headers for this
-/// platform. The key is always `GOOGLE_MAPS_API_KEY` from `.env`; the
-/// identity is what a key restricted to apps checks:
+/// platform. The key is the one that platform's app is restricted to: on
+/// Android the maps key built into the manifest (the Android key, the very
+/// one the map uses), elsewhere `GOOGLE_MAPS_API_KEY` from `.env` (the iOS
+/// key on iOS). The identity is what a key restricted to apps checks:
 ///
 /// - **Android**: the package name and the SHA-1 of the certificate the
 ///   running build is signed with, read natively (`MainActivity`). They
 ///   follow the build — debug, upload and Play signing each carry their own
-///   SHA-1.
+///   SHA-1. The `.env` key is only a fallback when the manifest has none.
 /// - **iOS**: the bundle identifier.
 /// - Anywhere else: no identity.
 class GoogleApiCredentialsLoader {
-  static const MethodChannel _defaultChannel = MethodChannel('smart_taxi/google_api');
+  static const MethodChannel _defaultChannel = MethodChannel(
+    'smart_taxi/google_api',
+  );
 
   final String _envKey;
   final MethodChannel _channel;
@@ -45,12 +52,13 @@ class GoogleApiCredentialsLoader {
     MethodChannel? channel,
     TargetPlatform? platform,
     Future<String> Function()? bundleId,
-  })  : _envKey = envKey,
-        _channel = channel ?? _defaultChannel,
-        _platform = platform ?? defaultTargetPlatform,
-        _bundleId = bundleId ?? _packageName;
+  }) : _envKey = envKey,
+       _channel = channel ?? _defaultChannel,
+       _platform = platform ?? defaultTargetPlatform,
+       _bundleId = bundleId ?? _packageName;
 
-  static Future<String> _packageName() async => (await PackageInfo.fromPlatform()).packageName;
+  static Future<String> _packageName() async =>
+      (await PackageInfo.fromPlatform()).packageName;
 
   /// The credentials; [GoogleApiCredentials.none] (not remembered, so the
   /// next call tries again) when they can't be had.
@@ -63,10 +71,13 @@ class GoogleApiCredentialsLoader {
   }
 
   Future<GoogleApiCredentials> _resolve() async {
-    if (_envKey.isEmpty) return _missing('GOOGLE_MAPS_API_KEY is missing from .env');
+    // Android has its own key (the manifest's); every other platform needs
+    // the one from `.env`.
+    if (_platform == TargetPlatform.android) return _android();
+    if (_envKey.isEmpty) {
+      return _missing('GOOGLE_MAPS_API_KEY is missing from .env');
+    }
     switch (_platform) {
-      case TargetPlatform.android:
-        return _android();
       case TargetPlatform.iOS:
         return GoogleApiCredentials(
           apiKey: _envKey,
@@ -89,8 +100,15 @@ class GoogleApiCredentialsLoader {
 
     final package = identity?['packageName'] as String? ?? '';
     final sha1 = identity?['certSha1'] as String? ?? '';
+    // The `.env` key is restricted to iOS apps: Google refuses it from an
+    // Android app (API_KEY_IOS_APP_BLOCKED), whatever headers come with it.
+    final manifestKey = identity?['apiKey'] as String? ?? '';
+    final apiKey = manifestKey.isNotEmpty ? manifestKey : _envKey;
+    if (apiKey.isEmpty) {
+      return _missing('no Google API key in the manifest or .env');
+    }
     return GoogleApiCredentials(
-      apiKey: _envKey,
+      apiKey: apiKey,
       appHeaders: {
         if (package.isNotEmpty) 'X-Android-Package': package,
         if (sha1.isNotEmpty) 'X-Android-Cert': sha1,

@@ -1,16 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_cubit.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../data/models/ride_booking_options_model.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../cubit/map_pick_cubit.dart';
 import '../cubit/map_pick_state.dart';
+import '../widgets/cancel_route_button_widget.dart';
 import '../widgets/home_bottom_panel_widget.dart';
 import '../widgets/home_gps_button_widget.dart';
 import '../widgets/home_map_widget.dart';
@@ -25,7 +27,11 @@ const double _maxContentWidth = 560;
 /// Entry point for the "create request" feature.
 /// Provides the [HomeCubit] and [MapPickCubit] and renders [_HomeView].
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  /// Bumped by the tab shell each time the "create order" tab is tapped: the
+  /// From and To points are cleared.
+  final ValueListenable<int>? resetSignal;
+
+  const HomeScreen({super.key, this.resetSignal});
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +45,67 @@ class HomeScreen extends StatelessWidget {
         BlocProvider<MapPickCubit>(create: (_) => sl<MapPickCubit>()),
         BlocProvider<SavedAddressesCubit>.value(value: sl<SavedAddressesCubit>()),
       ],
-      child: const _HomeView(),
+      child: _ResetOnSignal(signal: resetSignal, child: const _HomeView()),
     );
   }
+}
+
+/// While the map is being dragged the controls fade away (and stop taking
+/// touches), so the customer sees only the map and the pin; they fade back
+/// when it settles. The widgets stay mounted, so a typed search is kept.
+class _HideWhileDragging extends StatelessWidget {
+  final Widget child;
+
+  const _HideWhileDragging({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<MapPickCubit, MapPickState, bool>(
+      selector: (state) => state.isDragging,
+      builder: (context, dragging) => IgnorePointer(
+        ignoring: dragging,
+        child: AnimatedOpacity(
+          opacity: dragging ? 0 : 1,
+          duration: const Duration(milliseconds: 150),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+/// Clears the From and To points when [signal] changes, and leaves any pin
+/// mode first.
+class _ResetOnSignal extends StatefulWidget {
+  final ValueListenable<int>? signal;
+  final Widget child;
+
+  const _ResetOnSignal({required this.signal, required this.child});
+
+  @override
+  State<_ResetOnSignal> createState() => _ResetOnSignalState();
+}
+
+class _ResetOnSignalState extends State<_ResetOnSignal> {
+  @override
+  void initState() {
+    super.initState();
+    widget.signal?.addListener(_reset);
+  }
+
+  @override
+  void dispose() {
+    widget.signal?.removeListener(_reset);
+    super.dispose();
+  }
+
+  void _reset() {
+    context.read<MapPickCubit>().cancel();
+    context.read<HomeCubit>().resetPoints();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// The map fills the body. Over it, either the search row and the From / To
@@ -53,7 +117,7 @@ class _HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBrandBarWidget(showNotifications: true),
@@ -92,12 +156,18 @@ class _HomeView extends StatelessWidget {
             child: Stack(
               children: [
                 const Positioned.fill(child: HomeMapWidget()),
+                // Left edge, vertically in the middle.
+                if (!isPicking)
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: CancelRouteButtonWidget(),
+                  ),
                 Align(
                   alignment: Alignment.topCenter,
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: _maxContentWidth),
                     child: isPicking
-                        ? const _PickTop()
+                        ? const _HideWhileDragging(child: _PickTop())
                         : const _SearchRow(),
                   ),
                 ),
@@ -108,7 +178,7 @@ class _HomeView extends StatelessWidget {
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(AppConstants.paddingL),
                       child: isPicking
-                          ? const _PickPanel()
+                          ? const _HideWhileDragging(child: _PickPanel())
                           : HomeBottomPanelWidget(
                               onPickFrom: () => _enterPick(context, PickTarget.from),
                               onPickTo: () => _enterPick(context, PickTarget.to),
@@ -130,11 +200,11 @@ class _HomeView extends StatelessWidget {
     final cubit = context.read<HomeCubit>();
     final options = await showModalBottomSheet<RideBookingOptionsModel>(
       context: context,
-      backgroundColor: AppColors.neutralSurface,
+      backgroundColor: context.colors.neutralSurface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppConstants.radiusXL),
+          top: Radius.circular(28),
         ),
       ),
       builder: (_) => VehicleTypeSheetWidget(
@@ -200,14 +270,6 @@ class _SearchRow extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: AppConstants.paddingM),
-          BlocSelector<HomeCubit, HomeState, bool>(
-            selector: (state) => state.isLocating,
-            builder: (context, isLocating) => HomeGpsButtonWidget(
-              isLoading: isLocating,
-              onTap: context.read<HomeCubit>().locateMe,
-            ),
-          ),
         ],
       ),
     );
@@ -220,15 +282,7 @@ class _PickTop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<HomeCubit, HomeState, bool>(
-      selector: (state) => state.isLocating,
-      builder: (context, isLocating) => MapPickTopWidget(
-        isLocating: isLocating,
-        onBack: context.read<MapPickCubit>().cancel,
-        // Only moves the map: the pin decides the point, not the GPS.
-        onLocate: () => context.read<HomeCubit>().locateMe(setPickup: false),
-      ),
-    );
+    return MapPickTopWidget(onBack: context.read<MapPickCubit>().cancel);
   }
 }
 
@@ -241,13 +295,34 @@ class _PickPanel extends StatelessWidget {
     final home = context.read<HomeCubit>().state;
     final target = context.read<MapPickCubit>().state.target;
     final current = target == PickTarget.from ? home.fromLocation : home.toLocation;
-    return BlocSelector<HomeCubit, HomeState, String?>(
-      selector: (state) => state.errorMessage,
-      builder: (context, error) => MapPickPanelWidget(
-        initialDetails: current?.addressDetails,
-        errorMessage: error,
-        onConfirm: (details) => _confirm(context, details),
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // "Use my location", above the confirm box at its right end. It only
+        // moves the map: the pin decides the point, not the GPS.
+        Align(
+          alignment: Alignment.centerRight,
+          child: BlocSelector<HomeCubit, HomeState, bool>(
+            selector: (state) => state.isLocating,
+            builder: (context, isLocating) => HomeGpsButtonWidget(
+              isLoading: isLocating,
+              size: 64,
+              glow: true,
+              onTap: () => context.read<HomeCubit>().locateMe(setPickup: false),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppConstants.paddingS),
+        BlocSelector<HomeCubit, HomeState, String?>(
+          selector: (state) => state.errorMessage,
+          builder: (context, error) => MapPickPanelWidget(
+            initialDetails: current?.addressDetails,
+            errorMessage: error,
+            onConfirm: (details) => _confirm(context, details),
+          ),
+        ),
+      ],
     );
   }
 

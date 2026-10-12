@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// "I agree to the Privacy policy" checkbox for the sign-up form.
 /// It is a [FormField], so the form's `validate()` fails — and shows the
@@ -55,7 +56,7 @@ class _PrivacyPolicyCheckboxFieldWidgetState
                     activeColor: AppColors.primary,
                     checkColor: AppColors.textOnPrimary,
                     side: BorderSide(
-                      color: field.hasError ? AppColors.error : AppColors.textTertiary,
+                      color: field.hasError ? AppColors.error : context.colors.textTertiary,
                       width: 1.5,
                     ),
                   ),
@@ -63,19 +64,19 @@ class _PrivacyPolicyCheckboxFieldWidgetState
                     child: Text.rich(
                       TextSpan(
                         text: l10n.privacyPolicyAgreePrefix,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                         children: [
                           TextSpan(
                             text: l10n.privacyPolicy,
                             recognizer: _linkTap,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textLink,
+                              color: context.colors.textLink,
                               decoration: TextDecoration.underline,
-                              decorationColor: AppColors.textLink,
+                              decorationColor: context.colors.textLink,
                             ),
                           ),
                         ],
@@ -90,7 +91,7 @@ class _PrivacyPolicyCheckboxFieldWidgetState
                 padding: const EdgeInsetsDirectional.only(start: 12, top: 4),
                 child: Text(
                   field.errorText!,
-                  style: const TextStyle(fontSize: 12, color: AppColors.errorText),
+                  style: TextStyle(fontSize: 12, color: context.colors.errorText),
                 ),
               ),
           ],

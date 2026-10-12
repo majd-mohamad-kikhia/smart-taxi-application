@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// Card telling the driver where their account-deletion request stands:
 /// a title, optional body/note, and an optional action ("cancel request").
 /// [isError] switches to the red look used for a declined request; a request
-/// still under review is amber (not yellow, which stays for the one primary
+/// still under review is amber (not green, which stays for the one primary
 /// action). The card is a live region, so a change of status is announced.
 class DriverDeletionStatusCardWidget extends StatelessWidget {
   final IconData icon;
@@ -30,14 +31,14 @@ class DriverDeletionStatusCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final accent = isError ? AppColors.error : AppColors.accent;
+    final accent = isError ? AppColors.error : AppColors.warning;
     return Semantics(
       liveRegion: true,
       container: true,
       child: Container(
         padding: const EdgeInsets.all(AppConstants.paddingL),
         decoration: BoxDecoration(
-          color: isError ? AppColors.errorSurface : AppColors.accentSurface,
+          color: isError ? context.colors.errorSurface : context.colors.warningSurface,
           borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
           border: Border.all(color: accent.withValues(alpha: 0.5)),
         ),
@@ -69,7 +70,7 @@ class DriverDeletionStatusCardWidget extends StatelessWidget {
                 child: TextButton(
                   onPressed: isActionLoading ? null : onAction,
                   style: TextButton.styleFrom(
-                    foregroundColor: AppColors.textLink,
+                    foregroundColor: context.colors.textLink,
                     minimumSize: const Size(48, 48),
                   ),
                   child: isActionLoading

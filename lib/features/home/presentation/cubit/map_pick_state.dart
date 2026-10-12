@@ -39,7 +39,12 @@ class MapPickState extends Equatable {
     this.moveTarget,
     this.moveZoom = 16,
     this.moveCount = 0,
+    this.isDragging = false,
   });
+
+  /// The map is being moved: the screen hides its controls so the customer
+  /// sees only the map and the pin, and brings them back when it settles.
+  final bool isDragging;
 
   bool get isPicking => target != null;
 
@@ -57,6 +62,7 @@ class MapPickState extends Equatable {
     PickedLocationModel? moveTarget,
     double? moveZoom,
     int? moveCount,
+    bool? isDragging,
     bool clearAddress = false,
     bool clearSearchError = false,
   }) {
@@ -71,6 +77,7 @@ class MapPickState extends Equatable {
       moveTarget: moveTarget ?? this.moveTarget,
       moveZoom: moveZoom ?? this.moveZoom,
       moveCount: moveCount ?? this.moveCount,
+      isDragging: isDragging ?? this.isDragging,
     );
   }
 
@@ -86,5 +93,6 @@ class MapPickState extends Equatable {
         moveTarget,
         moveZoom,
         moveCount,
+        isDragging,
       ];
 }

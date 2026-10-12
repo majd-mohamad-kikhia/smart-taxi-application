@@ -1358,6 +1358,30 @@ abstract class AppLocalizations {
   /// **'Accept trip'**
   String get driverAcceptTrip;
 
+  /// No description provided for @incomingOrderChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming orders'**
+  String get incomingOrderChannelName;
+
+  /// No description provided for @incomingOrderChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A new order for you, shown like an incoming call'**
+  String get incomingOrderChannelDescription;
+
+  /// No description provided for @incomingOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New order'**
+  String get incomingOrderTitle;
+
+  /// No description provided for @incomingOrderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} · {distance} to the pickup'**
+  String incomingOrderBody(String price, String distance);
+
   /// No description provided for @rateDriverTitle.
   ///
   /// In en, this message translates to:
@@ -2187,12 +2211,6 @@ abstract class AppLocalizations {
   /// **'Use my location'**
   String get useMyLocation;
 
-  /// No description provided for @swapPickupAndDestination.
-  ///
-  /// In en, this message translates to:
-  /// **'Swap pickup and destination'**
-  String get swapPickupAndDestination;
-
   /// No description provided for @mapLocationFallback.
   ///
   /// In en, this message translates to:
@@ -2216,6 +2234,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for the driver to arrive'**
   String get rideAwaitingArrival;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @editPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editPoint;
+
+  /// No description provided for @cancelRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel route'**
+  String get cancelRoute;
 
   /// No description provided for @rideAccepted.
   ///

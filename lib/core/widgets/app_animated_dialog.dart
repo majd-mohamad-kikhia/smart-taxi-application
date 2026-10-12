@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'app_dialog_layout_widget.dart';
 import 'app_neutral_button_widget.dart';
 
@@ -122,38 +123,38 @@ class AppAnimatedDialog extends StatelessWidget {
     this.showActions = true,
   });
 
-  _DialogPalette get _palette {
+  _DialogPalette _palette(BuildContext context) {
     return switch (tone) {
-      AppDialogTone.destructive => const _DialogPalette(
+      AppDialogTone.destructive => _DialogPalette(
           accent: AppColors.error,
-          surface: AppColors.errorSurface,
+          surface: context.colors.errorSurface,
           solid: AppColors.errorDark,
           onSolid: AppColors.white,
         ),
-      AppDialogTone.primary => const _DialogPalette(
-          accent: AppColors.primary,
-          surface: AppColors.primarySurface,
+      AppDialogTone.primary => _DialogPalette(
+          accent: context.colors.primaryContent,
+          surface: context.colors.primarySurface,
           solid: AppColors.primary,
           onSolid: AppColors.textOnPrimary,
         ),
-      AppDialogTone.success => const _DialogPalette(
+      AppDialogTone.success => _DialogPalette(
           accent: AppColors.success,
-          surface: AppColors.successSurface,
+          surface: context.colors.successSurface,
           solid: AppColors.success,
           onSolid: AppColors.textOnSuccess,
         ),
-      AppDialogTone.warning => const _DialogPalette(
-          accent: AppColors.accent,
-          surface: AppColors.accentSurface,
-          solid: AppColors.accent,
-          onSolid: AppColors.textOnPrimary,
+      AppDialogTone.warning => _DialogPalette(
+          accent: AppColors.warning,
+          surface: context.colors.warningSurface,
+          solid: AppColors.warning,
+          onSolid: AppColors.textOnWarning,
         ),
     };
   }
 
   @override
   Widget build(BuildContext context) {
-    final palette = _palette;
+    final palette = _palette(context);
     final textTheme = Theme.of(context).textTheme;
 
     return Material(
@@ -168,12 +169,12 @@ class AppAnimatedDialog extends StatelessWidget {
           AppConstants.paddingXL,
         ),
         decoration: BoxDecoration(
-          color: AppColors.backgroundWhite,
+          color: context.colors.backgroundWhite,
           borderRadius: BorderRadius.circular(AppConstants.radiusXL),
-          border: Border.all(color: AppColors.border),
-          boxShadow: const [
+          border: Border.all(color: context.colors.border),
+          boxShadow: [
             BoxShadow(
-              color: AppColors.shadowStrong,
+              color: context.colors.shadowStrong,
               blurRadius: 24,
               offset: Offset(0, 8),
             ),

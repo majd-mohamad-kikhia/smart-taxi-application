@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
+import 'app_palette.dart';
 
+/// The app's two themes, built once (the font text themes are not cheap) and
+/// shared: [dark] and [light]. Both carry their [AppPalette], read in widgets
+/// as `context.colors`.
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get darkTheme {
+  static final ThemeData dark = _build(AppPalette.dark, Brightness.dark);
+  static final ThemeData light = _build(AppPalette.light, Brightness.light);
+
+  static ThemeData _build(AppPalette p, Brightness brightness) {
     final base = ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
@@ -15,113 +22,112 @@ class AppTheme {
         onPrimary: AppColors.textOnPrimary,
         secondary: AppColors.accent,
         onSecondary: AppColors.textOnPrimary,
-        surface: AppColors.backgroundWhite,
-        onSurface: AppColors.textPrimary,
+        surface: p.backgroundWhite,
+        onSurface: p.textPrimary,
         error: AppColors.error,
         onError: AppColors.textOnPrimary,
-        brightness: Brightness.dark,
+        brightness: brightness,
       ),
-      scaffoldBackgroundColor: AppColors.backgroundGray,
+      scaffoldBackgroundColor: p.backgroundGray,
     );
 
     return base.copyWith(
+      extensions: [p],
       textTheme: GoogleFonts.tajawalTextTheme(base.textTheme).copyWith(
         displayLarge: GoogleFonts.tajawal(
           fontSize: 32,
           fontWeight: FontWeight.w800,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         displayMedium: GoogleFonts.tajawal(
           fontSize: 28,
           fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         displaySmall: GoogleFonts.tajawal(
           fontSize: 24,
           fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         headlineLarge: GoogleFonts.tajawal(
           fontSize: 22,
           fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         headlineMedium: GoogleFonts.tajawal(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         headlineSmall: GoogleFonts.tajawal(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         titleLarge: GoogleFonts.tajawal(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         titleMedium: GoogleFonts.tajawal(
           fontSize: 15,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         titleSmall: GoogleFonts.tajawal(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         bodyLarge: GoogleFonts.tajawal(
           fontSize: 16,
           fontWeight: FontWeight.w400,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         bodyMedium: GoogleFonts.tajawal(
           fontSize: 14,
           fontWeight: FontWeight.w400,
-          color: AppColors.textSecondary,
+          color: p.textSecondary,
         ),
         bodySmall: GoogleFonts.tajawal(
           fontSize: 12,
           fontWeight: FontWeight.w400,
-          color: AppColors.textTertiary,
+          color: p.textTertiary,
         ),
         labelLarge: GoogleFonts.tajawal(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: p.textPrimary,
         ),
         labelMedium: GoogleFonts.tajawal(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: AppColors.textSecondary,
+          color: p.textSecondary,
         ),
         labelSmall: GoogleFonts.tajawal(
           fontSize: 11,
           fontWeight: FontWeight.w500,
-          color: AppColors.textTertiary,
+          color: p.textTertiary,
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.backgroundWhite,
+        backgroundColor: p.backgroundWhite,
         elevation: 0,
         scrolledUnderElevation: 0.5,
-        shadowColor: AppColors.shadowLight,
-        systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
-          statusBarColor: AppColors.transparent,
-        ),
+        shadowColor: p.shadowLight,
+        systemOverlayStyle: overlayStyleFor(brightness),
         titleTextStyle: GoogleFonts.tajawal(
           fontSize: 18,
           fontWeight: FontWeight.w700,
-          color: AppColors.primary,
+          color: p.primaryContent,
         ),
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
-        actionsIconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: p.textPrimary),
+        actionsIconTheme: IconThemeData(color: p.textPrimary),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: AppColors.navBackground,
-        selectedItemColor: AppColors.navActive,
-        unselectedItemColor: AppColors.navInactive,
+        backgroundColor: p.navBackground,
+        selectedItemColor: p.navActive,
+        unselectedItemColor: p.navInactive,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
@@ -152,8 +158,8 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.accent,
-          side: const BorderSide(color: AppColors.accent, width: 1.5),
+          foregroundColor: p.textLink,
+          side: BorderSide(color: p.textLink, width: 1.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -166,44 +172,70 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.backgroundWhite,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        fillColor: p.backgroundWhite,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.borderStrong),
+          borderSide: BorderSide(color: p.borderStrong),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.borderStrong),
+          borderSide: BorderSide(color: p.borderStrong),
         ),
-        errorStyle: GoogleFonts.tajawal(
-          fontSize: 12,
-          color: AppColors.errorText,
-        ),
+        errorStyle: GoogleFonts.tajawal(fontSize: 12, color: p.errorText),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
-        hintStyle: GoogleFonts.tajawal(
-          fontSize: 14,
-          color: AppColors.textTertiary,
+        hintStyle: GoogleFonts.tajawal(fontSize: 14, color: p.textTertiary),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? p.primarySurface
+                : p.backgroundMuted,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? p.primaryContent
+                : p.textSecondary,
+          ),
+          side: WidgetStatePropertyAll(BorderSide(color: p.border)),
+          textStyle: WidgetStatePropertyAll(
+            GoogleFonts.tajawal(fontSize: 13, fontWeight: FontWeight.w700),
+          ),
+          visualDensity: VisualDensity.compact,
         ),
       ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.borderLight,
+      dividerTheme: DividerThemeData(
+        color: p.borderLight,
         thickness: 1,
         space: 0,
       ),
       cardTheme: CardThemeData(
-        color: AppColors.backgroundWhite,
+        color: p.backgroundWhite,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border, width: 1),
+          side: BorderSide(color: p.border, width: 1),
         ),
         margin: EdgeInsets.zero,
       ),
+    );
+  }
+
+  /// Status bar icons that read on the theme's page: light icons on dark,
+  /// dark icons on light. The bar itself is transparent.
+  static SystemUiOverlayStyle overlayStyleFor(Brightness theme) {
+    final isDark = theme == Brightness.dark;
+    return SystemUiOverlayStyle(
+      statusBarColor: AppColors.transparent,
+      statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+      statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
     );
   }
 }

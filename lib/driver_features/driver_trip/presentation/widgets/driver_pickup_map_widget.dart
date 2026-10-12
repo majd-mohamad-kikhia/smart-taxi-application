@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_map_style.dart';
 
 /// Map for the driver who just accepted the ride: the pickup pin, the
 /// driver's own position and the Google road between them ([route]) once it
@@ -30,15 +30,8 @@ class DriverPickupMapWidget extends StatefulWidget {
   State<DriverPickupMapWidget> createState() => _DriverPickupMapWidgetState();
 }
 
-class _DriverPickupMapWidgetState extends State<DriverPickupMapWidget> {
-  String? _mapStyle;
+class _DriverPickupMapWidgetState extends State<DriverPickupMapWidget> with MapStyleMixin {
   GoogleMapController? _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadMapStyle();
-  }
 
   @override
   void didUpdateWidget(DriverPickupMapWidget oldWidget) {
@@ -91,18 +84,12 @@ class _DriverPickupMapWidgetState extends State<DriverPickupMapWidget> {
     super.dispose();
   }
 
-  Future<void> _loadMapStyle() async {
-    final style = await rootBundle.loadString(
-      'assets/map_styles/dark_map_style.json',
-    );
-    if (mounted) setState(() => _mapStyle = style);
-  }
 
   @override
   Widget build(BuildContext context) {
     final point = LatLng(widget.pickupLat, widget.pickupLng);
     return GoogleMap(
-      style: _mapStyle,
+      style: mapStyle,
       initialCameraPosition: CameraPosition(target: point, zoom: 15),
       onMapCreated: (controller) => _controller = controller,
       myLocationEnabled: false,

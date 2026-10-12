@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 
 /// Vertical pickup → (stops) → drop-off timeline. Each point has its own
 /// glyph and a spoken label ("From", "Stop 1", "To"), so the order never
-/// depends on dot color. Pickup and drop-off use the same yellow and amber as
+/// depends on dot color. Pickup and drop-off use the same green and teal as
 /// the order screen.
 ///
 /// Addresses are capped at [maxLines] on a card; leave it null on the
@@ -40,14 +41,14 @@ class RideRouteWidget extends StatelessWidget {
         details: pickupDetails,
         label: l10n.fromLabel,
         icon: Icons.trip_origin_rounded,
-        color: AppColors.primary,
+        color: context.colors.primaryContent,
       ),
       for (var i = 0; i < stops.length; i++)
         _Point(
           text: stops[i] ?? fallback,
           label: l10n.detailStopLabel(i + 1),
           icon: Icons.circle,
-          color: AppColors.textSecondary,
+          color: context.colors.textSecondary,
           iconSize: 10,
         ),
       _Point(
@@ -124,7 +125,7 @@ class _RoutePointRow extends StatelessWidget {
                   ),
                   if (!isLast)
                     Expanded(
-                      child: Container(width: 1.5, color: AppColors.border),
+                      child: Container(width: 1.5, color: context.colors.border),
                     ),
                 ],
               ),
@@ -150,7 +151,7 @@ class _RoutePointRow extends StatelessWidget {
                         maxLines: maxLines,
                         overflow: maxLines == null ? null : TextOverflow.ellipsis,
                         style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                   ],

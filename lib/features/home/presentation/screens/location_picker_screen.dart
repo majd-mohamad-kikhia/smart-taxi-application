@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
@@ -9,6 +8,8 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/services/current_location_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_map_style.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../data/models/place_suggestion_model.dart';
 import '../../data/repositories/places_repository.dart';
@@ -39,7 +40,7 @@ class LocationPickerScreen extends StatefulWidget {
   State<LocationPickerScreen> createState() => _LocationPickerScreenState();
 }
 
-class _LocationPickerScreenState extends State<LocationPickerScreen> {
+class _LocationPickerScreenState extends State<LocationPickerScreen> with MapStyleMixin {
   static const _defaultCenter = LatLng(
     AppConstants.defaultMapLat,
     AppConstants.defaultMapLng,
@@ -62,7 +63,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   /// A GPS fix that arrived before the map was created.
   LatLng? _pendingTarget;
-  String? _mapStyle;
   String? _pickedAddress;
 
   /// A reverse-geocode for the current pin is in flight.
@@ -106,7 +106,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       // to raw coordinates.
       _reverseGeocodeCenter();
     }
-    _loadMapStyle();
     unawaited(_loadUserLocation());
   }
 
@@ -141,21 +140,15 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     super.dispose();
   }
 
-  Future<void> _loadMapStyle() async {
-    final style = await rootBundle.loadString(
-      'assets/map_styles/dark_map_style.json',
-    );
-    if (mounted) setState(() => _mapStyle = style);
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       body: Stack(
         children: [
           GoogleMap(
-            style: _mapStyle,
+            style: mapStyle,
             initialCameraPosition: CameraPosition(target: _center, zoom: 15),
             myLocationEnabled: false,
             myLocationButtonEnabled: false,
@@ -193,7 +186,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 padding: const EdgeInsets.only(bottom: 36),
                 child: Icon(
                   Icons.location_on_rounded,
-                  color: widget.isPickup ? AppColors.primary : AppColors.accent,
+                  color: widget.isPickup ? context.colors.primaryContent : AppColors.accent,
                   size: 44,
                 ),
               ),
@@ -219,7 +212,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                             vertical: AppConstants.paddingM,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.neutralSurface,
+                            color: context.colors.neutralSurface,
                             borderRadius: BorderRadius.circular(
                               AppConstants.radiusFull,
                             ),
@@ -227,10 +220,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                           child: Text(
                             widget.title,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: context.colors.textPrimary,
                             ),
                           ),
                         ),
@@ -251,7 +244,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       const SizedBox(width: AppConstants.paddingM),
                       _CircularIconButton(
                         icon: Icons.my_location_rounded,
-                        iconColor: AppColors.primary,
+                        iconColor: context.colors.primaryContent,
                         padding: 13,
                         isLoading: _isLocating,
                         onTap: _isLocating ? null : _useCurrentLocation,
@@ -277,9 +270,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 margin: const EdgeInsets.all(AppConstants.paddingL),
                 padding: const EdgeInsets.all(AppConstants.paddingL),
                 decoration: BoxDecoration(
-                  color: AppColors.neutralSurface,
+                  color: context.colors.neutralSurface,
                   borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,9 +280,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.pin_drop_rounded,
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                           size: 18,
                         ),
                         const SizedBox(width: AppConstants.paddingS),
@@ -305,8 +298,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: _pickedAddress != null
-                                  ? AppColors.textPrimary
-                                  : AppColors.textSecondary,
+                                  ? context.colors.textPrimary
+                                  : context.colors.textSecondary,
                             ),
                           ),
                         ),
@@ -499,7 +492,8 @@ class _CircularIconButton extends StatelessWidget {
 
   /// `null` disables the button (e.g. while [isLoading]).
   final VoidCallback? onTap;
-  final Color iconColor;
+  /// Defaults to the theme's primary text color.
+  final Color? iconColor;
   final double padding;
 
   /// Swaps the icon for a small spinner.
@@ -508,7 +502,7 @@ class _CircularIconButton extends StatelessWidget {
   const _CircularIconButton({
     required this.icon,
     required this.onTap,
-    this.iconColor = AppColors.textPrimary,
+    this.iconColor,
     this.padding = 10,
     this.isLoading = false,
   });
@@ -516,7 +510,7 @@ class _CircularIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.neutralSurface,
+      color: context.colors.neutralSurface,
       shape: const BeveledRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
@@ -531,10 +525,10 @@ class _CircularIconButton extends StatelessWidget {
                   height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.2,
-                    color: iconColor,
+                    color: iconColor ?? context.colors.textPrimary,
                   ),
                 )
-              : Icon(icon, color: iconColor, size: 25),
+              : Icon(icon, color: iconColor ?? context.colors.textPrimary, size: 25),
         ),
       ),
     );

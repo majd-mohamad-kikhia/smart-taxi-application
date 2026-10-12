@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../data/models/route_session_model.dart';
 import 'route_duration_format.dart';
 
@@ -36,12 +37,12 @@ class RouteSummaryCardWidget extends StatelessWidget {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundWhite,
+                  color: context.colors.backgroundWhite,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
-                  boxShadow: const [
+                  border: Border.all(color: context.colors.border),
+                  boxShadow: [
                     BoxShadow(
-                      color: AppColors.shadowMedium,
+                      color: context.colors.shadowMedium,
                       blurRadius: 12,
                       offset: Offset(0, 2),
                     ),
@@ -62,10 +63,10 @@ class RouteSummaryCardWidget extends StatelessWidget {
                           const SizedBox(width: 6),
                           Text(
                             l10n.routeSummaryTitle,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              color: context.colors.textPrimary,
                             ),
                           ),
                         ],
@@ -131,7 +132,7 @@ class _SummaryRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: weight,
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
             ),
           ),
           const SizedBox(width: 16),
@@ -140,7 +141,7 @@ class _SummaryRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: weight,
-              color: isHighlighted ? AppColors.success : AppColors.textPrimary,
+              color: isHighlighted ? AppColors.success : context.colors.textPrimary,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),

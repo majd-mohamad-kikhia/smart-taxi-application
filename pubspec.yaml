@@ -1,7 +1,7 @@
 name: mshoar
 description: "Smart Taxi - تطبيق رحلات ذكي"
 publish_to: 'none'
-version: 4.0.0+8
+version: 5.0.0+10
 
 environment:
   sdk: ^3.11.4
@@ -34,7 +34,6 @@ dependencies:
 
   # Local storage
   shared_preferences: ^2.3.3
-  lottie: ^3.6.1
   google_maps_flutter: ^2.18.1
   flutter_dotenv: ^5.2.1
   firebase_core: 4.14.0
@@ -50,6 +49,7 @@ dependencies:
   share_plus: ^13.3.1
   audioplayers: ^6.7.1
   image_picker: ^1.2.4
+  video_player: ^2.11.1
 
 dev_dependencies:
   flutter_test:
@@ -63,13 +63,14 @@ flutter:
   generate: true
 
   assets:
-    - assets/loader/taxi_loader_yellow.json
     - .env
     - assets/icons/app_logo_icons/icon-master-1024.png
     - assets/icons/app_logo_icons/icon-splash-android12.png
     - assets/map_styles/dark_map_style.json
     # New-order alert in the driver app (looped for 10 s).
     - assets/sounds/new_order.wav
+    # The splash screen: shown while the app starts up.
+    - assets/videos/splash.mp4
     # Embedded in the PDF trip bill (Arabic + Latin).
     - assets/fonts/Tajawal-Regular.ttf
     - assets/fonts/Tajawal-Bold.ttf

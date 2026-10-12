@@ -73,12 +73,12 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(toLocation: location, clearQuote: true));
   }
 
-  /// Exchanges pickup and dropoff — a no-op while the points are locked or
-  /// neither is picked yet.
-  void swapLocations() {
+  /// Clears the From and To points (the "create order" tab tapped again, or
+  /// "cancel route"). A no-op while a quote, booking or ride holds them.
+  void resetPoints() {
     if (isClosed || state.arePointsLocked) return;
     if (state.fromLocation == null && state.toLocation == null) return;
-    emit(state.copyWith(swapLocations: true, clearQuote: true));
+    emit(state.copyWith(clearLocations: true, clearQuote: true));
   }
 
   /// Quietly moves the map behind the screen to the customer when their

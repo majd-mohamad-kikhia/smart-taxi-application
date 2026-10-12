@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_date.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../data/models/wallet_transaction_model.dart';
@@ -33,14 +34,14 @@ class WalletTransactionRowWidget extends StatelessWidget {
     final isDebit = transaction.type.isDebit;
 
     final amountColor = isZero
-        ? AppColors.textSecondary
-        : (isDebit ? AppColors.errorText : AppColors.success);
+        ? context.colors.textSecondary
+        : (isDebit ? context.colors.errorText : AppColors.success);
     final iconColor = isZero
-        ? AppColors.textSecondary
+        ? context.colors.textSecondary
         : (isDebit ? AppColors.error : AppColors.success);
     final wash = isZero
-        ? AppColors.backgroundMuted
-        : (isDebit ? AppColors.errorSurface : AppColors.successSurface);
+        ? context.colors.backgroundMuted
+        : (isDebit ? context.colors.errorSurface : context.colors.successSurface);
 
     final amountText = formatSignedPrice(
       l10n,
@@ -67,9 +68,9 @@ class WalletTransactionRowWidget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppConstants.paddingL),
         decoration: BoxDecoration(
-          color: AppColors.backgroundWhite,
+          color: context.colors.backgroundWhite,
           borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +109,7 @@ class WalletTransactionRowWidget extends StatelessWidget {
                   Text(
                     balanceAfter,
                     style: textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.colors.textSecondary,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),

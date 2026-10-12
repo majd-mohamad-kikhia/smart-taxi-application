@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../localization/l10n_context_extension.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// The card shared by the live fee timers (waiting at pickup, trip pause):
 /// a title with the elapsed mm:ss clock, the fee so far as the large
@@ -102,7 +102,7 @@ class _LiveFeeCardWidgetState extends State<LiveFeeCardWidget> {
             decoration: BoxDecoration(
               color: Color.alphaBlend(
                 widget.accent.withValues(alpha: 0.08),
-                AppColors.backgroundWhite,
+                context.colors.backgroundWhite,
               ),
               borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
               border: Border.all(color: widget.accent.withValues(alpha: 0.3)),
@@ -118,7 +118,7 @@ class _LiveFeeCardWidgetState extends State<LiveFeeCardWidget> {
                       child: Text(
                         widget.title,
                         style: textTheme.titleSmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ),
@@ -158,7 +158,7 @@ class _LiveFeeCardWidgetState extends State<LiveFeeCardWidget> {
                     widget.statusText!,
                     style: (hasFee ? textTheme.bodyMedium : textTheme.titleMedium)
                         ?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                       fontWeight: FontWeight.w600,
                       fontFeatures: _tabularFigures,
                     ),
@@ -171,7 +171,7 @@ class _LiveFeeCardWidgetState extends State<LiveFeeCardWidget> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ],

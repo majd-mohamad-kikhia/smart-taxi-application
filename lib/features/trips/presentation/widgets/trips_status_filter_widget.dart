@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../data/models/ride_history_model.dart';
 
 class TripsStatusFilterWidget extends StatelessWidget {
@@ -59,14 +60,14 @@ class _Chip extends StatelessWidget {
         onSelected: (_) => onTap(),
         showCheckmark: false,
         selectedColor: AppColors.primary,
-        backgroundColor: AppColors.backgroundWhite,
+        backgroundColor: context.colors.backgroundWhite,
         side: BorderSide(
-          color: isSelected ? AppColors.primary : AppColors.border,
+          color: isSelected ? AppColors.primary : context.colors.border,
         ),
         labelStyle: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w700,
-          color: isSelected ? AppColors.textOnPrimary : AppColors.textSecondary,
+          color: isSelected ? AppColors.textOnPrimary : context.colors.textSecondary,
         ),
       ),
     );

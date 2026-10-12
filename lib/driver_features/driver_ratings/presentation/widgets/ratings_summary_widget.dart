@@ -3,6 +3,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/ride_rating/presentation/widgets/star_rating_widget.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../data/models/driver_ratings_page_model.dart';
 
 /// The driver's average with its stars and count, and one bar per star
@@ -20,9 +21,9 @@ class RatingsSummaryWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppConstants.paddingL),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -42,7 +43,7 @@ class RatingsSummaryWidget extends StatelessWidget {
               const SizedBox(height: AppConstants.paddingXS),
               Text(
                 l10n.ratingsCount(summary.count),
-                style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                style: textTheme.bodySmall?.copyWith(color: context.colors.textSecondary),
               ),
             ],
           ),
@@ -71,7 +72,7 @@ class _StarBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.bodySmall?.copyWith(
-      color: AppColors.textSecondary,
+      color: context.colors.textSecondary,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
     return Padding(
@@ -79,7 +80,7 @@ class _StarBar extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(width: 14, child: Text('$star', style: style)),
-          const Icon(Icons.star_rounded, size: 12, color: AppColors.accent),
+          const Icon(Icons.star_rounded, size: 12, color: AppColors.star),
           const SizedBox(width: AppConstants.paddingS),
           Expanded(
             child: ClipRRect(
@@ -87,8 +88,8 @@ class _StarBar extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: share,
                 minHeight: 6,
-                backgroundColor: AppColors.borderLight,
-                color: AppColors.accent,
+                backgroundColor: context.colors.borderLight,
+                color: AppColors.star,
               ),
             ),
           ),

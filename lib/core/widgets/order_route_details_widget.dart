@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../localization/l10n_context_extension.dart';
 import '../models/order_offer_model.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'meta_item_widget.dart';
 import 'passengers_fee_meta_widget.dart';
 import 'ride_note_widget.dart';
@@ -42,7 +43,7 @@ class OrderRouteDetailsWidget extends StatelessWidget {
           for (var i = 0; i < stops.length; i++) ...[
             _PointRow(
               icon: Icons.more_vert_rounded,
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
               label: l10n.detailStopLabel(i + 1),
               address: stops[i],
             ),
@@ -112,10 +113,10 @@ class _PointRow extends StatelessWidget {
               children: [
                 Text(
                   shown,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -123,7 +124,7 @@ class _PointRow extends StatelessWidget {
                 if (details != null)
                   Text(
                     details!,
-                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
                   ),
               ],
             ),

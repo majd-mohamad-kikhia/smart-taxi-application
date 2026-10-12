@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../localization/l10n_context_extension.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'app_loader_widget.dart';
+import 'entrance_animation_widget.dart';
 
 /// Generic infinite-scroll list used everywhere the app shows a server-
 /// paginated collection (wallet history, ride history, admin lists, ...).
@@ -21,11 +22,16 @@ class PaginatedListWidget<T> extends StatefulWidget {
   final VoidCallback? onLoadMore;
   final String? errorMessage;
   final VoidCallback? onRetry;
+
   /// Defaults to the localized "No data" text.
   final String? emptyMessage;
   final IconData emptyIcon;
   final EdgeInsetsGeometry padding;
   final Widget separator;
+
+  /// Rows fade and slide in the first time they appear (the first few one
+  /// after another). A row scrolled out of view and back does not play again.
+  final bool animateItems;
 
   /// Pull-to-refresh handler. Omit it on screens with nothing to
   /// re-fetch (e.g. locally-cached data with no backing "get" endpoint)
@@ -46,6 +52,7 @@ class PaginatedListWidget<T> extends StatefulWidget {
     this.emptyIcon = Icons.inbox_outlined,
     this.padding = const EdgeInsets.fromLTRB(16, 14, 16, 8),
     this.separator = const SizedBox(height: 10),
+    this.animateItems = false,
     this.onRefresh,
   });
 
@@ -55,6 +62,10 @@ class PaginatedListWidget<T> extends StatefulWidget {
 
 class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
   final ScrollController _scrollController = ScrollController();
+
+  /// Rows that already played their entrance (by position), so a row built
+  /// again after scrolling away shows at once.
+  final Set<int> _entered = {};
 
   @override
   void initState() {
@@ -98,8 +109,8 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
     Widget body = _buildBody();
     if (widget.onRefresh != null) {
       body = RefreshIndicator(
-        color: AppColors.primary,
-        backgroundColor: AppColors.backgroundWhite,
+        color: context.colors.primaryContent,
+        backgroundColor: context.colors.backgroundWhite,
         onRefresh: widget.onRefresh!,
         child: body,
       );
@@ -109,6 +120,7 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
 
   Widget _buildBody() {
     if (widget.isLoading && widget.items.isEmpty) {
+      _entered.clear();
       return _fillWithScroll(const AppLoaderWidget());
     }
     if (widget.errorMessage != null && widget.items.isEmpty) {
@@ -117,6 +129,7 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
       );
     }
     if (widget.items.isEmpty) {
+      _entered.clear();
       return _fillWithScroll(
         _EmptyState(
           message: widget.emptyMessage ?? context.l10n.noData,
@@ -141,7 +154,13 @@ class _PaginatedListWidgetState<T> extends State<PaginatedListWidget<T>> {
               ? const _LoadMoreSpinner()
               : _LoadMoreError(onRetry: widget.onLoadMore ?? widget.onRetry);
         }
-        return widget.itemBuilder(context, widget.items[index], index);
+        final item = widget.itemBuilder(context, widget.items[index], index);
+        if (!widget.animateItems) return item;
+        return EntranceAnimationWidget(
+          index: index,
+          play: _entered.add(index),
+          child: item,
+        );
       },
     );
   }
@@ -176,7 +195,7 @@ class _LoadMoreSpinner extends StatelessWidget {
           height: 22,
           child: CircularProgressIndicator(
             strokeWidth: 2.2,
-            color: AppColors.primary,
+            color: context.colors.primaryContent,
             semanticsLabel: context.l10n.loading,
           ),
         ),
@@ -202,8 +221,15 @@ class _LoadMoreError extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         spacing: AppConstants.paddingS,
         children: [
-          const Icon(Icons.error_outline_rounded, size: 18, color: AppColors.textSecondary),
-          Text(l10n.loadMoreFailed, style: Theme.of(context).textTheme.bodyMedium),
+          Icon(
+            Icons.error_outline_rounded,
+            size: 18,
+            color: context.colors.textSecondary,
+          ),
+          Text(
+            l10n.loadMoreFailed,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           if (onRetry != null)
             TextButton(onPressed: onRetry, child: Text(l10n.retry)),
         ],
@@ -225,7 +251,9 @@ class _StateView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppConstants.paddingXXL),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.paddingXXL,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -233,11 +261,15 @@ class _StateView extends StatelessWidget {
               child: Container(
                 width: 64,
                 height: 64,
-                decoration: const BoxDecoration(
-                  color: AppColors.backgroundMuted,
+                decoration: BoxDecoration(
+                  color: context.colors.backgroundMuted,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, size: 28, color: AppColors.textSecondary),
+                child: Icon(
+                  icon,
+                  size: 28,
+                  color: context.colors.textSecondary,
+                ),
               ),
             ),
             const SizedBox(height: AppConstants.paddingL),
@@ -245,9 +277,9 @@ class _StateView extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.4,
-                  ),
+                color: context.colors.textSecondary,
+                height: 1.4,
+              ),
             ),
             if (action != null) ...[
               const SizedBox(height: AppConstants.paddingL),
@@ -289,5 +321,6 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState({required this.message, required this.icon});
 
   @override
-  Widget build(BuildContext context) => _StateView(icon: icon, message: message);
+  Widget build(BuildContext context) =>
+      _StateView(icon: icon, message: message);
 }

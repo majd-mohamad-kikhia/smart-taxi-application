@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../network/api_client.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// Renders an image from a `photo_url`-style API path (relative or
 /// absolute, resolved via [ApiClient.resolveMediaUrl]). Shows
@@ -28,26 +28,26 @@ class NetworkPhotoWidget extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: url == null
-          ? _placeholder()
+          ? _placeholder(context)
           : Image.network(
               url,
               width: width,
               height: height,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => _placeholder(),
+              errorBuilder: (context, error, stackTrace) => _placeholder(context),
               loadingBuilder: (context, child, progress) {
                 if (progress == null) return child;
-                return _placeholder(loading: true);
+                return _placeholder(context, loading: true);
               },
             ),
     );
   }
 
-  Widget _placeholder({bool loading = false}) {
+  Widget _placeholder(BuildContext context, {bool loading = false}) {
     return Container(
       width: width,
       height: height,
-      color: AppColors.backgroundGray,
+      color: context.colors.backgroundGray,
       alignment: Alignment.center,
       child: loading
           ? const SizedBox(
@@ -55,7 +55,7 @@ class NetworkPhotoWidget extends StatelessWidget {
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : Icon(placeholderIcon, color: AppColors.textSecondary),
+          : Icon(placeholderIcon, color: context.colors.textSecondary),
     );
   }
 }

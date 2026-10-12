@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 
 /// Shown after a driver's signup: the account exists but waits for a
@@ -21,7 +21,7 @@ class DriverSignupPendingScreen extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColors.backgroundGray,
+        backgroundColor: context.colors.backgroundGray,
         body: SafeArea(
           child: Center(
             child: ConstrainedBox(
@@ -31,7 +31,7 @@ class DriverSignupPendingScreen extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.hourglass_top_rounded, size: 64, color: AppColors.primary),
+                    Icon(Icons.hourglass_top_rounded, size: 64, color: context.colors.primaryContent),
                     const SizedBox(height: AppConstants.paddingXL),
                     Text(
                       l10n.driverPendingTitle,
@@ -43,7 +43,7 @@ class DriverSignupPendingScreen extends StatelessWidget {
                       l10n.driverPendingMessage,
                       textAlign: TextAlign.center,
                       style: textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                         height: 1.5,
                       ),
                     ),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// Small dark pill that floats over the live map, e.g. "Waiting fee:
 /// 1500 SYP" or "Track trip". It is a dark surface with a hairline border
-/// and light text, so it reads on the dark map, and the yellow icon sits on
+/// and light text, so it reads on the dark map, and the green icon sits on
 /// it at full contrast.
 class FeeChipWidget extends StatelessWidget {
   final IconData icon;
@@ -20,12 +20,12 @@ class FeeChipWidget extends StatelessWidget {
         vertical: AppConstants.paddingS,
       ),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite.withValues(alpha: 0.92),
+        color: context.colors.backgroundWhite.withValues(alpha: 0.92),
         borderRadius: BorderRadius.circular(AppConstants.radiusFull),
-        border: Border.all(color: AppColors.border),
-        boxShadow: const [
+        border: Border.all(color: context.colors.border),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.shadowMedium,
+            color: context.colors.shadowMedium,
             blurRadius: 6,
             offset: Offset(0, 2),
           ),
@@ -34,7 +34,7 @@ class FeeChipWidget extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: AppColors.primary, size: 16),
+          Icon(icon, color: context.colors.primaryContent, size: 16),
           const SizedBox(width: AppConstants.paddingXS),
           Flexible(
             child: Text(

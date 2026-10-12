@@ -66,7 +66,7 @@ class DriverOrdersCubit extends Cubit<DriverOrdersState> {
     ];
     if (isClosed) return;
     emit(state.copyWith(orders: orders));
-    if (isNew) _alert.start();
+    if (isNew) _alert.start(order: order);
   }
 
   /// A ride not on the list yet, or one offered again in a later wave (its

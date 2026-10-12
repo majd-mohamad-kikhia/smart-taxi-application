@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mshoar/core/models/order_offer_model.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mshoar/core/services/current_location_service.dart';
 import 'package:mshoar/driver_features/driver_home/data/datasources/driver_socket_service.dart';
@@ -49,9 +50,13 @@ class _FakePresence extends Fake implements DriverPresenceCubit {
 class _CountingAlert implements NewOrderAlert {
   int starts = 0;
   int stops = 0;
+  OrderOfferModel? lastOrder;
 
   @override
-  Future<void> start() async => starts++;
+  Future<void> start({OrderOfferModel? order}) async {
+    starts++;
+    lastOrder = order;
+  }
 
   @override
   Future<void> stop() async => stops++;

@@ -5,6 +5,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../driver_auth/data/models/driver_user_model.dart';
@@ -50,7 +51,7 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBrandBarWidget(),
@@ -107,7 +108,7 @@ class _Figures extends StatelessWidget {
           Expanded(
             child: ProfileFigureTileWidget(
               icon: Icons.star_rounded,
-              iconColor: AppColors.accent,
+              iconColor: AppColors.star,
               label: l10n.profileRating,
               value: rating == null ? '—' : rating.toStringAsFixed(2),
               onTap: () => Navigator.of(context).pushNamed(AppRouter.driverRatings),
@@ -117,7 +118,7 @@ class _Figures extends StatelessWidget {
           Expanded(
             child: ProfileFigureTileWidget(
               icon: Icons.account_balance_wallet_outlined,
-              iconColor: AppColors.primary,
+              iconColor: context.colors.primaryContent,
               label: l10n.profileWalletBalance,
               value: formatSignedPrice(l10n, driver.walletBalance),
             ),
@@ -144,9 +145,9 @@ class _Contact extends StatelessWidget {
         vertical: AppConstants.paddingS,
       ),
       decoration: BoxDecoration(
-        color: AppColors.backgroundWhite,
+        color: context.colors.backgroundWhite,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         children: [

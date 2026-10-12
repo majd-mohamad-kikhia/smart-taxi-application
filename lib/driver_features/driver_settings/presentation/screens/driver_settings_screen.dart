@@ -7,7 +7,7 @@ import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/session/session_cubit.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/account_deletion_notice_dialog_widget.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/complaint_dialog_widget.dart';
 import '../../../../core/widgets/language_dropdown_widget.dart';
+import '../../../../core/widgets/theme_switch_widget.dart';
 import '../../../../core/widgets/logout_footer_widget.dart';
 import '../../../../core/widgets/privacy_policy_dialog_widget.dart';
 import '../../../../core/widgets/settings_row_widget.dart';
@@ -99,7 +100,7 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: context.colors.backgroundGray,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBrandBarWidget(),
@@ -153,6 +154,8 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
                   const SizedBox(height: AppConstants.paddingXXL),
                   SettingsHeadingWidget(title: l10n.settingsSectionPreferences),
                   const LanguageDropdownWidget(),
+                  const SizedBox(height: AppConstants.paddingS),
+                  const ThemeSwitchWidget(),
                   const SizedBox(height: AppConstants.paddingXXL),
                   SettingsSectionWidget(
                     title: l10n.settingsSectionHelp,

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../complaints/complaint_cubit.dart';
 import '../complaints/complaint_state.dart';
 import '../localization/l10n_context_extension.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'app_animated_dialog.dart';
 import 'auth_primary_button_widget.dart';
 
@@ -113,7 +113,7 @@ class _ComplaintFormWidgetState extends State<_ComplaintFormWidget> {
                 const SizedBox(height: 4),
                 Text(
                   state.errorMessage ?? l10n.complaintSendFailed,
-                  style: const TextStyle(fontSize: 13, color: AppColors.errorText),
+                  style: TextStyle(fontSize: 13, color: context.colors.errorText),
                 ),
               ],
               const SizedBox(height: 12),

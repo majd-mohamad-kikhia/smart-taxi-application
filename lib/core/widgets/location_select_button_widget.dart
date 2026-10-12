@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../models/picked_location_model.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// One of the "From" / "To" location-pick cards on the create-request
 /// screen. Styled as a distinct rounded card (icon chip + label + chosen
@@ -33,7 +33,7 @@ class LocationSelectButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.neutralSurface,
+      color: context.colors.neutralSurface,
       borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
       child: InkWell(
         onTap: onTap,
@@ -45,7 +45,7 @@ class LocationSelectButtonWidget extends StatelessWidget {
             border: Border.all(
               color: value != null
                   ? accentColor.withValues(alpha: 0.5)
-                  : AppColors.border,
+                  : context.colors.border,
             ),
           ),
           child: Row(
@@ -66,10 +66,10 @@ class LocationSelectButtonWidget extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -81,8 +81,8 @@ class LocationSelectButtonWidget extends StatelessWidget {
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: value != null
-                            ? AppColors.textPrimary
-                            : AppColors.textTertiary,
+                            ? context.colors.textPrimary
+                            : context.colors.textTertiary,
                       ),
                     ),
                     if (value?.addressDetails != null) ...[
@@ -91,9 +91,9 @@ class LocationSelectButtonWidget extends StatelessWidget {
                         value!.addressDetails!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ],
@@ -101,9 +101,9 @@ class LocationSelectButtonWidget extends StatelessWidget {
                 ),
               ),
               if (onTap != null)
-                const Icon(
+                Icon(
                   Icons.chevron_right_rounded,
-                  color: AppColors.textTertiary,
+                  color: context.colors.textTertiary,
                 ),
             ],
           ),

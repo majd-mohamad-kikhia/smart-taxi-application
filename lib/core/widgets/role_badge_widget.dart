@@ -3,6 +3,7 @@ import '../constants/app_constants.dart';
 import '../enums/user_role.dart';
 import '../localization/l10n_context_extension.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 /// Pill showing the role picked on the role-selection screen, shown at the
 /// top of any sign in / sign up screen. The whole pill is one button (48dp
@@ -27,7 +28,7 @@ class RoleBadgeWidget extends StatelessWidget {
       label: '$roleLabel. ${l10n.change}',
       excludeSemantics: true,
       child: Material(
-        color: AppColors.primarySurface,
+        color: context.colors.primarySurface,
         shape: shape,
         child: InkWell(
           customBorder: shape,
@@ -42,10 +43,10 @@ class RoleBadgeWidget extends StatelessWidget {
                   Icon(
                     role == UserRole.driver ? Icons.local_taxi_rounded : Icons.person_rounded,
                     size: 16,
-                    color: AppColors.primary,
+                    color: context.colors.primaryContent,
                   ),
                   const SizedBox(width: AppConstants.paddingS),
-                  Text(roleLabel, style: labelStyle?.copyWith(color: AppColors.primary)),
+                  Text(roleLabel, style: labelStyle?.copyWith(color: context.colors.primaryContent)),
                   const SizedBox(width: AppConstants.paddingM),
                   const Icon(Icons.swap_horiz_rounded, size: 16, color: AppColors.accent),
                   const SizedBox(width: AppConstants.paddingXS),

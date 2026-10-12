@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../constants/app_constants.dart';
 import '../../../localization/l10n_context_extension.dart';
 import '../../../theme/app_colors.dart';
+import '../../../theme/app_palette.dart';
 import '../../../utils/open_external_url.dart';
 import '../../../widgets/app_snack_bar_widget.dart';
 import '../../data/models/contact_number_model.dart';
@@ -28,18 +29,18 @@ class ContactNumberTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _isWhatsApp ? AppColors.success : AppColors.primary;
+    final color = _isWhatsApp ? AppColors.success : context.colors.primaryContent;
     final surface = _isWhatsApp
-        ? AppColors.successSurface
-        : AppColors.primarySurface;
+        ? context.colors.successSurface
+        : context.colors.primarySurface;
     final radius = BorderRadius.circular(AppConstants.radiusMedium);
     final textTheme = Theme.of(context).textTheme;
 
     return Material(
-      color: AppColors.backgroundWhite,
+      color: context.colors.backgroundWhite,
       shape: RoundedRectangleBorder(
         borderRadius: radius,
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: context.colors.border),
       ),
       child: InkWell(
         borderRadius: radius,
@@ -76,7 +77,7 @@ class ContactNumberTileWidget extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.titleSmall?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: context.colors.textPrimary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -89,7 +90,7 @@ class ContactNumberTileWidget extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ),
@@ -99,7 +100,7 @@ class ContactNumberTileWidget extends StatelessWidget {
               const SizedBox(width: AppConstants.paddingS),
               Icon(
                 _isWhatsApp ? Icons.chat_outlined : Icons.call_outlined,
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
                 size: 20,
               ),
             ],
