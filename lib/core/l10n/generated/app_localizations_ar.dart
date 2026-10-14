@@ -2019,4 +2019,53 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get driverVerified => 'كابتن موثّق';
+
+  @override
+  String get onboardingSkip => 'تخطي';
+
+  @override
+  String get onboardingNext => 'التالي';
+
+  @override
+  String get onboardingGetStarted => 'ابدأ الآن';
+
+  @override
+  String get onboardingBookFastTag => 'احجز بسرعة';
+
+  @override
+  String get onboardingBookFastTitle => 'مشوارك في ثوانٍ';
+
+  @override
+  String get onboardingBookFastSubtitle =>
+      'اختر وجهتك وسيكون أقرب سائق في طريقه إليك.';
+
+  @override
+  String get onboardingTrackingTag => 'تتبع مباشر';
+
+  @override
+  String get onboardingTrackingTitle => 'تابع كل خطوة';
+
+  @override
+  String get onboardingTrackingSubtitle =>
+      'شاهد سيارتك على الخريطة لحظة بلحظة، من الانطلاق حتى الوصول.';
+
+  @override
+  String get onboardingRideOptionsTag => 'خيارات الرحلة';
+
+  @override
+  String get onboardingRideOptionsTitle => 'سيارة تناسب كل مشوار';
+
+  @override
+  String get onboardingRideOptionsSubtitle =>
+      'اقتصادية أو مريحة أو عائلية، اختر السيارة التي تناسبك.';
+
+  @override
+  String get onboardingSafetyTag => 'الأمان والراحة';
+
+  @override
+  String get onboardingSafetyTitle => 'سافر بكل أمان وراحة';
+
+  @override
+  String get onboardingSafetySubtitle =>
+      'سائقون موثّقون، ومشاركة الرحلة، ودعم على مدار الساعة أينما كنت.';
 }

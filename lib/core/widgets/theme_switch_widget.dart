@@ -62,7 +62,15 @@ class ThemeSwitchWidget extends StatelessWidget {
                   label: Text(l10n.themeDark),
                 ),
               ],
-              selected: {mode},
+              // While the theme follows the phone ([ThemeMode.system]) the
+              // segment shown is the one actually in effect.
+              selected: {
+                mode == ThemeMode.system
+                    ? (Theme.of(context).brightness == Brightness.dark
+                          ? ThemeMode.dark
+                          : ThemeMode.light)
+                    : mode,
+              },
               onSelectionChanged: (selection) =>
                   context.read<ThemeCubit>().setMode(selection.first),
             ),

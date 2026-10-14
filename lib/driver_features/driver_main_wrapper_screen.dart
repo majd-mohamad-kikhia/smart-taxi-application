@@ -14,7 +14,7 @@ import 'driver_home/presentation/cubit/driver_presence_cubit.dart';
 import 'driver_home/presentation/screens/driver_home_screen.dart';
 import 'driver_ratings/data/models/driver_ratings_page_model.dart';
 import 'driver_profile/presentation/screens/driver_profile_screen.dart';
-import 'driver_route/presentation/screens/driver_route_screen.dart';
+// import 'driver_route/presentation/screens/driver_route_screen.dart'; // Route tab hidden
 import 'driver_settings/presentation/screens/driver_settings_screen.dart';
 import 'driver_trip/data/repositories/driver_trip_route_repository.dart';
 import 'driver_trip/presentation/cubit/driver_active_ride_cubit.dart';
@@ -86,7 +86,7 @@ class _DriverMainWrapperScreenState extends State<DriverMainWrapperScreen>
 
   static const List<Widget> _tabs = [
     DriverHomeScreen(),
-    DriverRouteScreen(),
+    // DriverRouteScreen(), // Route tab hidden — keep in step with _navItems
     DriverWalletScreen(),
     DriverProfileScreen(),
     DriverSettingsScreen(),
@@ -94,7 +94,7 @@ class _DriverMainWrapperScreenState extends State<DriverMainWrapperScreen>
 
   List<AppNavItem> _navItems(AppLocalizations l10n) => [
     AppNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: l10n.navHome),
-    AppNavItem(icon: Icons.route_outlined, activeIcon: Icons.route_rounded, label: l10n.navRoute),
+    // AppNavItem(icon: Icons.route_outlined, activeIcon: Icons.route_rounded, label: l10n.navRoute), // Route tab hidden — keep in step with _tabs
     AppNavItem(icon: Icons.account_balance_wallet_outlined, activeIcon: Icons.account_balance_wallet_rounded, label: l10n.navWallet),
     AppNavItem(icon: Icons.person_outline, activeIcon: Icons.person_rounded, label: l10n.navProfile),
     AppNavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: l10n.navSettings),

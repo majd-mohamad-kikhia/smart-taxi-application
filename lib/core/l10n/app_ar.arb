@@ -593,5 +593,20 @@
   "callDriver": "اتصل بالكابتن",
   "ridesAvailable": "{count, plural, =1{سيارة واحدة متاحة} =2{سيارتان متاحتان} few{{count} سيارات متاحة} other{{count} سيارة متاحة}}",
   "fareBreakdownTitle": "تفاصيل الأجرة",
-  "driverVerified": "كابتن موثّق"
+  "driverVerified": "كابتن موثّق",
+  "onboardingSkip": "تخطي",
+  "onboardingNext": "التالي",
+  "onboardingGetStarted": "ابدأ الآن",
+  "onboardingBookFastTag": "احجز بسرعة",
+  "onboardingBookFastTitle": "مشوارك في ثوانٍ",
+  "onboardingBookFastSubtitle": "اختر وجهتك وسيكون أقرب سائق في طريقه إليك.",
+  "onboardingTrackingTag": "تتبع مباشر",
+  "onboardingTrackingTitle": "تابع كل خطوة",
+  "onboardingTrackingSubtitle": "شاهد سيارتك على الخريطة لحظة بلحظة، من الانطلاق حتى الوصول.",
+  "onboardingRideOptionsTag": "خيارات الرحلة",
+  "onboardingRideOptionsTitle": "سيارة تناسب كل مشوار",
+  "onboardingRideOptionsSubtitle": "اقتصادية أو مريحة أو عائلية، اختر السيارة التي تناسبك.",
+  "onboardingSafetyTag": "الأمان والراحة",
+  "onboardingSafetyTitle": "سافر بكل أمان وراحة",
+  "onboardingSafetySubtitle": "سائقون موثّقون، ومشاركة الرحلة، ودعم على مدار الساعة أينما كنت."
 }

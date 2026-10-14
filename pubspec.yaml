@@ -1,7 +1,7 @@
 name: mshoar
 description: "Smart Taxi - تطبيق رحلات ذكي"
 publish_to: 'none'
-version: 4.1.0+4
+version: 5.5.0+12
 
 environment:
   sdk: ^3.11.4
@@ -67,6 +67,9 @@ flutter:
     - assets/icons/app_logo_icons/icon-master-1024.png
     - assets/icons/app_logo_icons/icon-splash-android12.png
     - assets/map_styles/dark_map_style.json
+    # First-launch onboarding photos (Unsplash License — free to use, no
+    # attribution required: Priscilla Du Preez, Dan Gold, Jason Grant, why kei).
+    - assets/images/onboarding/
     # New-order alert in the driver app (looped for 10 s).
     - assets/sounds/new_order.wav
     # The splash screen: shown while the app starts up.

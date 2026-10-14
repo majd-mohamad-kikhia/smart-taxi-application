@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'theme_local_data_source.dart';
 
-/// The app's theme: [ThemeMode.light] or [ThemeMode.dark], dark until the
-/// user chooses. The choice is saved on the device.
+/// The app's theme: [ThemeMode.system] (follow the phone's light / dark
+/// setting) until the user picks [ThemeMode.light] or [ThemeMode.dark]. The
+/// choice is saved on the device.
 ///
 /// The whole app follows this cubit's state through `MaterialApp.themeMode`;
 /// both themes are built once (see `AppTheme`), so switching only swaps them.
 class ThemeCubit extends Cubit<ThemeMode> {
   final ThemeLocalDataSource _local;
 
-  ThemeCubit(this._local) : super(ThemeMode.dark);
+  ThemeCubit(this._local) : super(ThemeMode.system);
 
   /// Restores the saved theme. Call once before `runApp` so the first frame is
   /// already in the right theme.

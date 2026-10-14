@@ -231,8 +231,8 @@ void main() {
   });
 
   group('ThemeCubit', () {
-    test('is dark until the user chooses', () {
-      expect(ThemeCubit(const ThemeLocalDataSource()).state, ThemeMode.dark);
+    test('follows the system until the user chooses', () {
+      expect(ThemeCubit(const ThemeLocalDataSource()).state, ThemeMode.system);
     });
 
     test('a chosen theme is saved and restored on the next start', () async {
@@ -249,11 +249,12 @@ void main() {
       SharedPreferences.setMockInitialValues({'app_theme_mode': 'sepia'});
       final cubit = ThemeCubit(const ThemeLocalDataSource());
       await cubit.load();
-      expect(cubit.state, ThemeMode.dark);
+      expect(cubit.state, ThemeMode.system);
     });
 
     test('choosing the same theme, or "system", changes nothing', () async {
       final cubit = ThemeCubit(const ThemeLocalDataSource());
+      await cubit.setMode(ThemeMode.dark);
       final states = <ThemeMode>[];
       final sub = cubit.stream.listen(states.add);
       await cubit.setMode(ThemeMode.dark);

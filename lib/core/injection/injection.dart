@@ -73,6 +73,8 @@ import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
+import '../../features/onboarding/data/datasources/onboarding_local_data_source.dart';
+import '../../features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import '../enums/user_role.dart';
 import '../localization/language_remote_data_source.dart';
 import '../localization/language_repository.dart';
@@ -153,6 +155,12 @@ void setupInjection() {
   );
   sl.registerLazySingleton<ThemeCubit>(
     () => ThemeCubit(const ThemeLocalDataSource()),
+  );
+  sl.registerLazySingleton<OnboardingLocalDataSource>(
+    () => const OnboardingLocalDataSource(),
+  );
+  sl.registerFactory<OnboardingCubit>(
+    () => OnboardingCubit(sl<OnboardingLocalDataSource>()),
   );
   sl.registerLazySingleton<LocaleCubit>(
     () => LocaleCubit(

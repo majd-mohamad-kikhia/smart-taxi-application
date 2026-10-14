@@ -1160,5 +1160,20 @@
     }
   },
   "fareBreakdownTitle": "Fare breakdown",
-  "driverVerified": "Verified driver"
+  "driverVerified": "Verified driver",
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get started",
+  "onboardingBookFastTag": "Book fast",
+  "onboardingBookFastTitle": "Your ride, in seconds",
+  "onboardingBookFastSubtitle": "Pick your destination and a nearby driver is on the way.",
+  "onboardingTrackingTag": "Live tracking",
+  "onboardingTrackingTitle": "Follow every move",
+  "onboardingTrackingSubtitle": "Watch your taxi on the map in real time, from pickup to arrival.",
+  "onboardingRideOptionsTag": "Ride options",
+  "onboardingRideOptionsTitle": "A ride for every trip",
+  "onboardingRideOptionsSubtitle": "Economy, comfort or family size. Pick the car that fits you.",
+  "onboardingSafetyTag": "Safety and comfort",
+  "onboardingSafetyTitle": "Travel with peace of mind",
+  "onboardingSafetySubtitle": "Verified drivers, trip sharing and 24/7 support, wherever you go."
 }

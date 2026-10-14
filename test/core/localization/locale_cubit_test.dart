@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/core/enums/user_role.dart';
 import 'package:mshoar/core/localization/app_locales.dart';
@@ -12,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../helpers/fake_language_repository.dart';
 
 void main() {
+  final binding = TestWidgetsFlutterBinding.ensureInitialized();
   const dataSource = LocaleLocalDataSource();
   const driver = AppUser(
     id: 7,
@@ -31,9 +34,23 @@ void main() {
     session = SessionCubit();
   });
 
-  tearDown(() => AppStrings.update(AppLocales.defaultLocale));
+  tearDown(() {
+    binding.platformDispatcher.clearLocaleTestValue();
+    AppStrings.update(AppLocales.defaultLocale);
+  });
 
-  test('defaults to Arabic when nothing was saved', () async {
+  test('defaults to English when nothing was saved and the phone is not Arabic', () async {
+    binding.platformDispatcher.localeTestValue = const Locale('fr', 'FR');
+    final cubit = newCubit();
+    await cubit.load();
+
+    expect(cubit.state, AppLocales.english);
+    expect(AppStrings.current.retry, 'Retry');
+    await cubit.close();
+  });
+
+  test('defaults to Arabic when nothing was saved and the phone is Arabic', () async {
+    binding.platformDispatcher.localeTestValue = const Locale('ar', 'SA');
     final cubit = newCubit();
     await cubit.load();
 
@@ -63,7 +80,8 @@ void main() {
     await cubit.close();
   });
 
-  test('an unsupported saved code falls back to Arabic', () async {
+  test('an unsupported saved code falls back to the phone language', () async {
+    binding.platformDispatcher.localeTestValue = const Locale('ar', 'SA');
     SharedPreferences.setMockInitialValues({'app_language_code': 'fr'});
 
     final cubit = newCubit();

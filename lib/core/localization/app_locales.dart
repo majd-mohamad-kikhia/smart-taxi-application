@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'dart:ui';
 
 /// The languages the app ships translations for.
 ///
@@ -11,9 +11,12 @@ class AppLocales {
   static const Locale arabic = Locale('ar');
   static const Locale english = Locale('en');
 
-  /// The app was Arabic-only before localization, so it stays the default
-  /// until the user picks something else.
-  static const Locale defaultLocale = arabic;
+  /// What the app speaks until the user picks a language: Arabic when the
+  /// phone itself is set to Arabic, English for every other phone language.
+  static Locale get defaultLocale =>
+      PlatformDispatcher.instance.locale.languageCode == arabic.languageCode
+      ? arabic
+      : english;
 
   static const List<Locale> supported = [arabic, english];
 

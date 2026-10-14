@@ -2036,4 +2036,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get driverVerified => 'Verified driver';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingGetStarted => 'Get started';
+
+  @override
+  String get onboardingBookFastTag => 'Book fast';
+
+  @override
+  String get onboardingBookFastTitle => 'Your ride, in seconds';
+
+  @override
+  String get onboardingBookFastSubtitle =>
+      'Pick your destination and a nearby driver is on the way.';
+
+  @override
+  String get onboardingTrackingTag => 'Live tracking';
+
+  @override
+  String get onboardingTrackingTitle => 'Follow every move';
+
+  @override
+  String get onboardingTrackingSubtitle =>
+      'Watch your taxi on the map in real time, from pickup to arrival.';
+
+  @override
+  String get onboardingRideOptionsTag => 'Ride options';
+
+  @override
+  String get onboardingRideOptionsTitle => 'A ride for every trip';
+
+  @override
+  String get onboardingRideOptionsSubtitle =>
+      'Economy, comfort or family size. Pick the car that fits you.';
+
+  @override
+  String get onboardingSafetyTag => 'Safety and comfort';
+
+  @override
+  String get onboardingSafetyTitle => 'Travel with peace of mind';
+
+  @override
+  String get onboardingSafetySubtitle =>
+      'Verified drivers, trip sharing and 24/7 support, wherever you go.';
 }

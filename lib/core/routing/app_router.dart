@@ -19,6 +19,7 @@ import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/home/presentation/screens/location_picker_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/saved_addresses/presentation/screens/saved_address_form_screen.dart';
 import '../../features/saved_addresses/presentation/screens/saved_addresses_screen.dart';
 import '../../features/settings/presentation/screens/edit_profile_screen.dart';
@@ -89,6 +90,8 @@ class SavedAddressFormRouteArgs {
 class AppRouter {
   AppRouter._();
 
+  /// The first-launch introduction, shown once before [roleSelection].
+  static const String onboarding = '/onboarding';
   static const String roleSelection = '/role-selection';
   static const String signIn = '/sign-in';
   static const String signUp = '/sign-up';
@@ -144,6 +147,8 @@ class AppRouter {
           settings,
           MaintenanceScreen(info: settings.arguments! as AppVersionModel),
         );
+      case onboarding:
+        return _buildRoute(settings, const OnboardingScreen());
       case roleSelection:
         return _buildRoute(settings, const RoleSelectionScreen());
       case signIn:

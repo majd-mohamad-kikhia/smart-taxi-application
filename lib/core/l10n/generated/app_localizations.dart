@@ -3668,6 +3668,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Verified driver'**
   String get driverVerified;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get onboardingGetStarted;
+
+  /// No description provided for @onboardingBookFastTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Book fast'**
+  String get onboardingBookFastTag;
+
+  /// No description provided for @onboardingBookFastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ride, in seconds'**
+  String get onboardingBookFastTitle;
+
+  /// No description provided for @onboardingBookFastSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your destination and a nearby driver is on the way.'**
+  String get onboardingBookFastSubtitle;
+
+  /// No description provided for @onboardingTrackingTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Live tracking'**
+  String get onboardingTrackingTag;
+
+  /// No description provided for @onboardingTrackingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow every move'**
+  String get onboardingTrackingTitle;
+
+  /// No description provided for @onboardingTrackingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch your taxi on the map in real time, from pickup to arrival.'**
+  String get onboardingTrackingSubtitle;
+
+  /// No description provided for @onboardingRideOptionsTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride options'**
+  String get onboardingRideOptionsTag;
+
+  /// No description provided for @onboardingRideOptionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A ride for every trip'**
+  String get onboardingRideOptionsTitle;
+
+  /// No description provided for @onboardingRideOptionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Economy, comfort or family size. Pick the car that fits you.'**
+  String get onboardingRideOptionsSubtitle;
+
+  /// No description provided for @onboardingSafetyTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety and comfort'**
+  String get onboardingSafetyTag;
+
+  /// No description provided for @onboardingSafetyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel with peace of mind'**
+  String get onboardingSafetyTitle;
+
+  /// No description provided for @onboardingSafetySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified drivers, trip sharing and 24/7 support, wherever you go.'**
+  String get onboardingSafetySubtitle;
 }
 
 class _AppLocalizationsDelegate

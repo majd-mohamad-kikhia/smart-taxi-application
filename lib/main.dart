@@ -24,6 +24,7 @@ import 'driver_features/driver_auth/data/repositories/driver_repository.dart';
 import 'driver_features/driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
+import 'features/onboarding/data/datasources/onboarding_local_data_source.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -100,7 +101,13 @@ Future<void> _start(SplashSignal splash) async {
     }
   }
 
-  await _launch(AppRouter.roleSelection, splash);
+  // Nobody is signed in: a first-time visitor gets the onboarding before
+  // choosing a role; everyone after that goes straight to role selection.
+  final onboardingSeen = await sl<OnboardingLocalDataSource>().hasSeen();
+  await _launch(
+    onboardingSeen ? AppRouter.roleSelection : AppRouter.onboarding,
+    splash,
+  );
 }
 
 /// Asks the server whether this version may run — the splash stays up while
