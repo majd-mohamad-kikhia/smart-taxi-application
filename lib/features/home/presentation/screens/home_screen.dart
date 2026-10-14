@@ -12,12 +12,14 @@ import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../cubit/map_pick_cubit.dart';
 import '../cubit/map_pick_state.dart';
+import '../cubit/quote_route_cubit.dart';
 import '../widgets/home_bottom_panel_widget.dart';
 import '../widgets/home_gps_button_widget.dart';
 import '../widgets/home_map_widget.dart';
 import '../widgets/home_search_bar_widget.dart';
 import '../widgets/map_pick_panel_widget.dart';
 import '../widgets/map_pick_top_widget.dart';
+import '../widgets/trip_too_long_dialog_widget.dart';
 import '../widgets/vehicle_type_sheet_widget.dart';
 
 /// Widest the floating controls grow on tablets and desktop windows.
@@ -198,7 +200,14 @@ class _HomeView extends StatelessWidget {
 
   Future<void> _openVehicleSheet(BuildContext context, HomeState state) async {
     final quote = state.quote;
-    if (quote == null) return;
+    final pickup = state.fromLocation;
+    final dropoff = state.toLocation;
+    if (quote == null || pickup == null || dropoff == null) return;
+    // Too far to order from the app: show who to contact instead of prices.
+    if (quote.distanceKm > AppConstants.maxOrderDistanceKm) {
+      await showTripTooLongDialog(context);
+      return;
+    }
     final cubit = context.read<HomeCubit>();
     final options = await showModalBottomSheet<RideBookingOptionsModel>(
       context: context,
@@ -209,10 +218,19 @@ class _HomeView extends StatelessWidget {
           top: Radius.circular(28),
         ),
       ),
-      builder: (_) => VehicleTypeSheetWidget(
-        quote: quote,
-        pickupLabel: state.fromLocation?.displayLabel ?? '',
-        dropoffLabel: state.toLocation?.displayLabel ?? '',
+      builder: (_) => BlocProvider<QuoteRouteCubit>(
+        create: (_) => sl<QuoteRouteCubit>()
+          ..load(
+            fromLat: pickup.latitude,
+            fromLng: pickup.longitude,
+            toLat: dropoff.latitude,
+            toLng: dropoff.longitude,
+          ),
+        child: VehicleTypeSheetWidget(
+          quote: quote,
+          pickup: pickup,
+          dropoff: dropoff,
+        ),
       ),
     );
     if (options != null) await cubit.chooseVehicle(options);

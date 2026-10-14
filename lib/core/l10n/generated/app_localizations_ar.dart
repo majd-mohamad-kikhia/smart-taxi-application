@@ -914,6 +914,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get callCustomer => 'اتصل بالعميل';
+
+  @override
   String get shareRideInfoWhatsApp => 'أرسل معلوماتي عبر واتساب';
 
   @override
@@ -1148,6 +1151,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get useMyLocation => 'استخدم موقعي الحالي';
+
+  @override
+  String get showWholeRoute => 'عرض المسار كاملاً';
 
   @override
   String get mapLocationFallback => 'موقع على الخريطة';
@@ -1675,6 +1681,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get contactCallCenter => 'اتصل بمركز الاتصال';
+
+  @override
+  String get tripTooLongTitle => 'المشوار أطول من المسموح بالتطبيق';
+
+  @override
+  String get tripTooLongMessage =>
+      'للطلبات خارج المدينة يرجى التواصل على ارقام الواتساب, الخدمة متاحة 24/7';
 
   @override
   String locationFeeIncluded(String fee) {

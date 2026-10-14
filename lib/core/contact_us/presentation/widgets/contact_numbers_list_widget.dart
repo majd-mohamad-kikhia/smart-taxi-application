@@ -13,10 +13,21 @@ import 'contact_number_tile_widget.dart';
 /// call or open WhatsApp. Shows nothing while loading, when there are none,
 /// or when they can't be loaded: it is an extra, never a reason for an
 /// error on the screen it sits in.
+///
+/// With [onlyType] only numbers reached that way are listed (for example
+/// WhatsApp only), and [showHeading] false drops the "Call our call center"
+/// line for a caller that already says what the numbers are for.
 class ContactNumbersListWidget extends StatelessWidget {
   final ContactUsApp app;
+  final ContactType? onlyType;
+  final bool showHeading;
 
-  const ContactNumbersListWidget({super.key, required this.app});
+  const ContactNumbersListWidget({
+    super.key,
+    required this.app,
+    this.onlyType,
+    this.showHeading = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,24 +37,29 @@ class ContactNumbersListWidget extends StatelessWidget {
           sl<ContactUsCubit>(instanceName: app.wireValue)..load(lang: lang),
       child: BlocBuilder<ContactUsCubit, ContactUsState>(
         builder: (context, state) {
-          if (state is! ContactUsLoaded || state.numbers.isEmpty) {
-            return const SizedBox.shrink();
-          }
+          if (state is! ContactUsLoaded) return const SizedBox.shrink();
+          final numbers = [
+            for (final number in state.numbers)
+              if (onlyType == null || number.type == onlyType) number,
+          ];
+          if (numbers.isEmpty) return const SizedBox.shrink();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: AppConstants.paddingL),
-              Text(
-                context.l10n.contactCallCenter,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textPrimary,
+              if (showHeading) ...[
+                const SizedBox(height: AppConstants.paddingL),
+                Text(
+                  context.l10n.contactCallCenter,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: context.colors.textPrimary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppConstants.paddingS),
-              for (final number in state.numbers) ...[
+                const SizedBox(height: AppConstants.paddingS),
+              ],
+              for (final number in numbers) ...[
                 ContactNumberTileWidget(number: number),
                 const SizedBox(height: AppConstants.paddingS),
               ],

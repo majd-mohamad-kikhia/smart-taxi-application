@@ -933,6 +933,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get callCustomer => 'Call the customer';
+
+  @override
   String get shareRideInfoWhatsApp => 'Send my details on WhatsApp';
 
   @override
@@ -1168,6 +1171,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get useMyLocation => 'Use my location';
+
+  @override
+  String get showWholeRoute => 'Show the whole route';
 
   @override
   String get mapLocationFallback => 'Location on the map';
@@ -1696,6 +1702,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactCallCenter => 'Call our call center';
+
+  @override
+  String get tripTooLongTitle => 'Trip too long for the app';
+
+  @override
+  String get tripTooLongMessage =>
+      'For orders outside the city, please contact us on the WhatsApp numbers. The service is available 24/7.';
 
   @override
   String locationFeeIncluded(String fee) {

@@ -1,7 +1,7 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '4.0.0';
   static const String logoPath =
       'assets/icons/app_logo_icons/icon-master-1024.png';
 
@@ -13,6 +13,10 @@ class AppConstants {
   static const double defaultMapLat = 35.5317;
   static const double defaultMapLng = 35.7898;
   static const String userAgentPackage = 'com.mshoar.app';
+
+  /// Longest trip (km) that can be ordered from the app; the customer is
+  /// asked to contact us for anything longer.
+  static const double maxOrderDistanceKm = 20;
 
   /// Store pages the app-update buttons fall back to when the server's
   /// version check carries no `store_url`.

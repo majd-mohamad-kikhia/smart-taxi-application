@@ -1784,6 +1784,12 @@ abstract class AppLocalizations {
   /// **'Your Smart Taxi trip bill no. {number}'**
   String billMessage(String number);
 
+  /// No description provided for @callCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Call the customer'**
+  String get callCustomer;
+
   /// No description provided for @shareRideInfoWhatsApp.
   ///
   /// In en, this message translates to:
@@ -2210,6 +2216,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use my location'**
   String get useMyLocation;
+
+  /// No description provided for @showWholeRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the whole route'**
+  String get showWholeRoute;
 
   /// No description provided for @mapLocationFallback.
   ///
@@ -3122,6 +3134,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Call our call center'**
   String get contactCallCenter;
+
+  /// No description provided for @tripTooLongTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip too long for the app'**
+  String get tripTooLongTitle;
+
+  /// No description provided for @tripTooLongMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'For orders outside the city, please contact us on the WhatsApp numbers. The service is available 24/7.'**
+  String get tripTooLongMessage;
 
   /// No description provided for @locationFeeIncluded.
   ///

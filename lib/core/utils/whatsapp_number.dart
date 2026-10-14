@@ -1,3 +1,11 @@
+/// Closing lines of every WhatsApp message the app sends to a customer:
+/// an invitation to get the app, with its download page.
+const String whatsAppGetAppFooter =
+    'حمل التطبيق الان\nhttps://smart-taxi.co/get-app';
+
+/// [message] with [whatsAppGetAppFooter] on its own lines at the end.
+String withGetAppFooter(String message) => '$message\n\n$whatsAppGetAppFooter';
+
 /// Country code added to a local number ("0991234567") for WhatsApp, which
 /// only knows international numbers.
 const String whatsAppDefaultCountryCode = '963';

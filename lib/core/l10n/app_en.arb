@@ -421,6 +421,7 @@
       }
     }
   },
+  "callCustomer": "Call the customer",
   "shareRideInfoWhatsApp": "Send my details on WhatsApp",
   "shareRideInfoMessage": "Hello 👋 I'm your Smart Taxi driver and I'm on my way to you 🚖\n\n👤 Name: {driverName}\n📞 Phone number: {phone}\n🚗 Car model: {brand} {model}\n🎨 Color: {color}\n🔢 Plate number: {plate}",
   "@shareRideInfoMessage": {
@@ -568,6 +569,7 @@
   "confirmLocation": "Confirm location",
   "searchPlaceHint": "Search for a place...",
   "useMyLocation": "Use my location",
+  "showWholeRoute": "Show the whole route",
   "mapLocationFallback": "Location on the map",
   "priceEstimateTag": "(estimated price)",
   "rideAwaitingDriver": "Waiting for a driver to accept",
@@ -886,6 +888,8 @@
   "contactUs": "Contact us",
   "noContactNumbers": "No contact numbers yet.",
   "contactCallCenter": "Call our call center",
+  "tripTooLongTitle": "Trip too long for the app",
+  "tripTooLongMessage": "For orders outside the city, please contact us on the WhatsApp numbers. The service is available 24/7.",
   "locationFeeIncluded": "Includes a location fee of {fee}",
   "@locationFeeIncluded": {
     "placeholders": {

@@ -9,6 +9,7 @@ import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/warning_notice_widget.dart';
 import '../cubit/driver_trip_cubit.dart';
 import '../cubit/driver_trip_state.dart';
+import 'call_customer_button_widget.dart';
 import 'passengers_count_dialog_widget.dart';
 import 'share_ride_info_button_widget.dart';
 
@@ -53,6 +54,8 @@ class DriverTripActionsWidget extends StatelessWidget {
 
     final children = switch (status) {
       DriverTripStatus.accepted => [
+          const CallCustomerButtonWidget(),
+          const SizedBox(height: AppConstants.paddingM),
           const ShareRideInfoButtonWidget(),
           const SizedBox(height: AppConstants.paddingM),
           AuthPrimaryButtonWidget(
@@ -75,6 +78,8 @@ class DriverTripActionsWidget extends StatelessWidget {
           ),
         ],
       DriverTripStatus.arrived => [
+          const CallCustomerButtonWidget(),
+          const SizedBox(height: AppConstants.paddingM),
           AuthPrimaryButtonWidget(
             label: l10n.driverStartedTheTrip,
             isLoading: false,

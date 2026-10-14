@@ -60,10 +60,9 @@ class ShareRideInfoRepository {
         return [message, ?etaLine].join('\n');
       }
 
-      final text = [
-        block(const Locale('ar')),
-        block(const Locale('en')),
-      ].join('\n\n');
+      final text = withGetAppFooter(
+        [block(const Locale('ar')), block(const Locale('en'))].join('\n\n'),
+      );
       final opened = await openExternalUrl(
         'https://wa.me/$number?text=${Uri.encodeComponent(text)}',
       );

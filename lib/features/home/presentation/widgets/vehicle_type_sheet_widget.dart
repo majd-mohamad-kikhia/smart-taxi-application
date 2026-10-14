@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/app_icon_tile_widget.dart';
@@ -10,6 +11,7 @@ import '../../../../core/widgets/entrance_animation_widget.dart';
 import '../../data/models/ride_booking_options_model.dart';
 import '../../data/models/ride_quote_model.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
+import 'quote_route_map_widget.dart';
 import 'vehicle_request_button_widget.dart';
 import 'vehicle_type_tile_widget.dart';
 
@@ -26,14 +28,14 @@ import 'vehicle_type_tile_widget.dart';
 /// never the header, the trip card or the note field.
 class VehicleTypeSheetWidget extends StatefulWidget {
   final RideQuoteModel quote;
-  final String pickupLabel;
-  final String dropoffLabel;
+  final PickedLocationModel pickup;
+  final PickedLocationModel dropoff;
 
   const VehicleTypeSheetWidget({
     super.key,
     required this.quote,
-    required this.pickupLabel,
-    required this.dropoffLabel,
+    required this.pickup,
+    required this.dropoff,
   });
 
   @override
@@ -128,9 +130,19 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
               index: 1,
               startDelay: _headerDelay,
               from: const Offset(0, 16),
+              child: QuoteRouteMapWidget(
+                pickup: widget.pickup,
+                dropoff: widget.dropoff,
+              ),
+            ),
+            const SizedBox(height: AppConstants.paddingM),
+            EntranceAnimationWidget(
+              index: 2,
+              startDelay: _headerDelay,
+              from: const Offset(0, 16),
               child: _TripCard(
-                pickupLabel: widget.pickupLabel,
-                dropoffLabel: widget.dropoffLabel,
+                pickupLabel: widget.pickup.displayLabel,
+                dropoffLabel: widget.dropoff.displayLabel,
               ),
             ),
             const SizedBox(height: AppConstants.paddingM),

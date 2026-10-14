@@ -2,6 +2,7 @@ import 'dart:ui' show Locale, Rect;
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/services/whatsapp_file_sender.dart';
+import '../../../../core/utils/whatsapp_number.dart';
 import '../datasources/ride_bill_pdf_builder.dart';
 import '../models/ride_bill_model.dart';
 
@@ -32,10 +33,12 @@ class RideBillRepository {
         fileName: bill.fileName,
         mimeType: 'application/pdf',
         phone: bill.customerPhone,
-        text: [
-          lookupAppLocalizations(const Locale('ar')).billMessage(number),
-          lookupAppLocalizations(const Locale('en')).billMessage(number),
-        ].join('\n'),
+        text: withGetAppFooter(
+          [
+            lookupAppLocalizations(const Locale('ar')).billMessage(number),
+            lookupAppLocalizations(const Locale('en')).billMessage(number),
+          ].join('\n'),
+        ),
         origin: origin,
       );
     } catch (error, stackTrace) {

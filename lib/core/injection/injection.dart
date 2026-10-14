@@ -52,10 +52,12 @@ import '../../driver_features/driver_trip/data/models/driver_active_ride_model.d
 import '../../driver_features/driver_trip/data/repositories/driver_trip_route_repository.dart';
 import '../../driver_features/driver_trip/data/repositories/driver_trip_repository.dart';
 import '../../driver_features/driver_trip/data/repositories/ride_bill_repository.dart';
+import '../../driver_features/driver_trip/data/repositories/call_customer_repository.dart';
 import '../../driver_features/driver_trip/data/repositories/share_ride_info_repository.dart';
 import '../../driver_features/driver_trip/presentation/cubit/driver_active_ride_cubit.dart';
 import '../../driver_features/driver_trip/presentation/cubit/driver_trip_cubit.dart';
 import '../../driver_features/driver_trip/presentation/cubit/ride_bill_cubit.dart';
+import '../../driver_features/driver_trip/presentation/cubit/call_customer_cubit.dart';
 import '../../driver_features/driver_trip/presentation/cubit/share_ride_info_cubit.dart';
 import '../../driver_features/driver_shared_order/data/datasources/shared_order_remote_data_source.dart';
 import '../../driver_features/driver_shared_order/data/repositories/shared_order_repository.dart';
@@ -108,6 +110,7 @@ import '../../features/home/data/repositories/places_repository.dart';
 import '../../features/home/data/repositories/ride_request_repository.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/home/presentation/cubit/map_pick_cubit.dart';
+import '../../features/home/presentation/cubit/quote_route_cubit.dart';
 import '../../features/notifications/data/datasources/notifications_remote_data_source.dart';
 import '../../features/notifications/data/repositories/notifications_repository.dart';
 import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
@@ -460,6 +463,12 @@ void setupInjection() {
   sl.registerLazySingleton<ShareRideInfoRepository>(
     () => ShareRideInfoRepository(sl<DriverTripRepository>()),
   );
+  sl.registerLazySingleton<CallCustomerRepository>(
+    () => CallCustomerRepository(sl<DriverTripRepository>()),
+  );
+  sl.registerFactory<CallCustomerCubit>(
+    () => CallCustomerCubit(sl<CallCustomerRepository>()),
+  );
   sl.registerFactory<ShareRideInfoCubit>(
     () => ShareRideInfoCubit(sl<ShareRideInfoRepository>(), sl<SessionCubit>()),
   );
@@ -625,6 +634,9 @@ void setupInjection() {
 
   sl.registerFactory<MapPickCubit>(
     () => MapPickCubit(sl<PlacesRepository>(), sl<CurrentLocationService>()),
+  );
+  sl.registerFactory<QuoteRouteCubit>(
+    () => QuoteRouteCubit(sl<PlannedRouteLoader>()),
   );
 
   // ─── Core Saved Addresses ───────────────────────────────────

@@ -8,6 +8,16 @@ class LocalNotificationService {
   static const _androidSound = 'car_honk';
   static const _iosSound = 'car_honk.caf';
 
+  /// The phone's own ringtone: an incoming order rings like a phone call.
+  static const _ringtone = UriAndroidNotificationSound(
+    'content://settings/system/ringtone',
+  );
+
+  /// The "incoming order" channel before it rang with the phone's ringtone.
+  /// Android fixes a channel's sound when it is created, so it is deleted
+  /// and replaced by [_callChannel] under a new id.
+  static const _oldCallChannelId = 'mshoar_incoming_order';
+
   /// Channel used before the honk, deleted so it doesn't linger in the
   /// system settings.
   static const _oldChannelId = 'mshoar_notifications';
@@ -31,16 +41,17 @@ class LocalNotificationService {
     sound: const RawResourceAndroidNotificationSound(_androidSound),
   );
 
-  /// The "incoming order" channel: maximum importance, the honk, and it may
-  /// take over the screen like a call (see [showIncomingOrderCall]).
+  /// The "incoming order" channel: maximum importance, the phone's ringtone,
+  /// and it may take over the screen like a call (see
+  /// [showIncomingOrderCall]).
   AndroidNotificationChannel get _callChannel => AndroidNotificationChannel(
-    'mshoar_incoming_order',
+    'mshoar_incoming_order_call',
     AppStrings.current.incomingOrderChannelName,
     description: AppStrings.current.incomingOrderChannelDescription,
     importance: Importance.max,
     playSound: true,
     enableVibration: true,
-    sound: const RawResourceAndroidNotificationSound(_androidSound),
+    sound: _ringtone,
     audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
   );
 
@@ -70,14 +81,15 @@ class LocalNotificationService {
         >();
     await android?.deleteNotificationChannel(channelId: _oldChannelId);
     await android?.deleteNotificationChannel(channelId: _quietHonkChannelId);
+    await android?.deleteNotificationChannel(channelId: _oldCallChannelId);
     await android?.createNotificationChannel(_channel);
     await android?.createNotificationChannel(_callChannel);
   }
 
   /// A new order while the app is not on screen: shown like an incoming call.
   /// On Android it takes over the screen (even a locked one) with a
-  /// full-screen intent that opens the app, rings with the honk and vibrates
-  /// until it is answered or [timeout] passes (the order's own turn). On iOS
+  /// full-screen intent that opens the app, rings with the phone's ringtone
+  /// and vibrates until it is answered or [timeout] passes (the order's own turn). On iOS
   /// it is a time-sensitive banner: iOS gives no app a call screen without
   /// CallKit.
   Future<void> showIncomingOrderCall({
@@ -106,7 +118,7 @@ class LocalNotificationService {
           autoCancel: true,
           timeoutAfter: timeout.inMilliseconds,
           playSound: true,
-          sound: const RawResourceAndroidNotificationSound(_androidSound),
+          sound: _ringtone,
           audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
           enableVibration: true,
           vibrationPattern: Int64List.fromList([0, 600, 300, 600, 300, 600]),

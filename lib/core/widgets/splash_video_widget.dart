@@ -13,7 +13,7 @@ import 'app_splash_widget.dart';
 /// when it is tapped (skip), or when it cannot play — in which case the
 /// still logo splash stands in, so the app is never held up by a broken video.
 class SplashVideoWidget extends StatefulWidget {
-  static const asset = 'assets/videos/splash.mp4';
+  static const asset = 'assets/videos/smart_taxi_splash_green_5s.mp4';
 
   /// The car in the video sits a little left of its frame's middle (measured:
   /// the headlights' middle is at 48–49% of the width); this nudges it back,
