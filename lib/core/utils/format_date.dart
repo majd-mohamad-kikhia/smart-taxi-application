@@ -27,6 +27,28 @@ String formatUtcDateTime(BuildContext context, String? raw) {
   return formatDateTimeValue(context, parsed.toLocal());
 }
 
+/// Same as [formatUtcDateTime], but in Damascus time (UTC+3 all year, no
+/// daylight saving) whatever zone the phone is set to — for figures the
+/// office also reads, like the wallet's trip lists.
+String formatDamascusDateTime(BuildContext context, String? raw) {
+  if (raw == null || raw.isEmpty) return '—';
+  final parsed = parseUtcDateTime(raw);
+  if (parsed == null) return raw;
+  final damascus = parsed.toUtc().add(const Duration(hours: 3));
+  // Rebuilt as a plain (zone-less) time so it is shown exactly as is.
+  return formatDateTimeValue(
+    context,
+    DateTime(
+      damascus.year,
+      damascus.month,
+      damascus.day,
+      damascus.hour,
+      damascus.minute,
+      damascus.second,
+    ),
+  );
+}
+
 /// Same as [formatDateTime] for a value that is already a [DateTime].
 String formatDateTimeValue(BuildContext context, DateTime value) {
   final l10n = context.l10n;

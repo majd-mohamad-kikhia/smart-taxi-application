@@ -65,10 +65,14 @@ import '../../driver_features/driver_shared_order/presentation/cubit/shared_orde
 import '../deep_links/deep_link_service.dart';
 import '../deep_links/shared_order_link_handler.dart';
 import '../../driver_features/driver_wallet/data/datasources/driver_wallet_remote_data_source.dart';
+import '../../driver_features/driver_wallet/data/models/report_earning_model.dart';
+import '../../driver_features/driver_wallet/data/models/report_reward_model.dart';
+import '../../driver_features/driver_wallet/data/models/report_trip_model.dart';
 import '../../driver_features/driver_wallet/data/models/wallet_transaction_model.dart';
 import '../../driver_features/driver_wallet/data/repositories/driver_wallet_repository.dart';
 import '../../driver_features/driver_wallet/presentation/cubit/driver_financial_report_cubit.dart';
 import '../../driver_features/driver_wallet/presentation/cubit/driver_wallet_cubit.dart';
+import '../../driver_features/driver_wallet/presentation/cubit/month_report_cubit.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
@@ -595,6 +599,15 @@ void setupInjection() {
   );
   sl.registerFactory<DriverFinancialReportCubit>(
     () => DriverFinancialReportCubit(sl<DriverWalletRepository>()),
+  );
+  sl.registerFactory<MonthReportCubit<ReportTripModel, TripsSummaryModel>>(
+    () => MonthReportCubit(sl<DriverWalletRepository>().getTrips),
+  );
+  sl.registerFactory<MonthReportCubit<ReportEarningModel, EarningsSummaryModel>>(
+    () => MonthReportCubit(sl<DriverWalletRepository>().getEarnings),
+  );
+  sl.registerFactory<MonthReportCubit<ReportRewardModel, RewardsSummaryModel>>(
+    () => MonthReportCubit(sl<DriverWalletRepository>().getRewards),
   );
 
   // ─── Driver Profile Feature ─────────────────────────────────

@@ -1003,6 +1003,114 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String reportTripNumber(String id) {
+    return 'رحلة رقم $id';
+  }
+
+  @override
+  String get reportTripsEmpty => 'لا توجد مشاوير مكتملة هذا الشهر';
+
+  @override
+  String get reportEarningsEmpty => 'لا توجد أرباح رحلات هذا الشهر';
+
+  @override
+  String get reportRewardsEmpty => 'لا توجد مكافآت هذا الشهر';
+
+  @override
+  String get reportTotalDistance => 'إجمالي المسافة';
+
+  @override
+  String get reportAvgCommission => 'متوسط العمولة';
+
+  @override
+  String reportAvgCommissionValue(String rate) {
+    return '$rate%';
+  }
+
+  @override
+  String get reportRewardsCount => 'عدد المكافآت';
+
+  @override
+  String get reportTripPrice => 'سعر الرحلة';
+
+  @override
+  String reportCommissionRate(String rate) {
+    return 'العمولة ($rate%)';
+  }
+
+  @override
+  String get reportFixedPrice => 'سعر حدده المكتب';
+
+  @override
+  String get reportFeesTitle => 'مكونات السعر';
+
+  @override
+  String get reportFeeDistance => 'أجرة المسافة';
+
+  @override
+  String get reportFeeStops => 'محطات إضافية';
+
+  @override
+  String get reportFeeLocation => 'رسم موقع';
+
+  @override
+  String get reportFeePassengers => 'ركاب إضافيون';
+
+  @override
+  String get reportFeeNight => 'زيادة ليلية';
+
+  @override
+  String get reportFeeTime => 'رسم الوقت';
+
+  @override
+  String get reportFeeWaiting => 'رسوم الانتظار';
+
+  @override
+  String get reportFeePause => 'رسوم التوقف';
+
+  @override
+  String get reportCustomer => 'العميل';
+
+  @override
+  String get reportVehicleType => 'نوع السيارة';
+
+  @override
+  String get reportRequestedAt => 'وقت الطلب';
+
+  @override
+  String get reportStartedAt => 'بدء الرحلة';
+
+  @override
+  String get reportCompletedAt => 'انتهاء الرحلة';
+
+  @override
+  String get reportDuration => 'المدة';
+
+  @override
+  String get reportOrderSource => 'مصدر الطلب';
+
+  @override
+  String get reportSourceApp => 'تطبيق العميل';
+
+  @override
+  String get reportSourceCall => 'اتصال هاتفي';
+
+  @override
+  String get reportSourceWhatsapp => 'واتساب';
+
+  @override
+  String get reportPayment => 'الدفع';
+
+  @override
+  String get reportPaidAt => 'وقت الدفع';
+
+  @override
+  String get reportBalanceAfter => 'الرصيد بعد المكافأة';
+
+  @override
+  String get reportRewardDefault => 'مكافأة';
+
+  @override
   String get walletMonthlyIncome => 'إجمالي دخل الشهر';
 
   @override
@@ -1032,6 +1140,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get vehicleInfo => 'بيانات المركبة';
+
+  @override
+  String get aboutThisCar => 'عن هذه السيارة';
 
   @override
   String get vehicleType => 'النوع';
