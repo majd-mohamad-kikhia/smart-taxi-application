@@ -3,7 +3,9 @@ package com.ma.smarttaxi
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -12,6 +14,10 @@ import java.io.File
 import java.security.MessageDigest
 
 class MainActivity : FlutterActivity() {
+    private companion object {
+        const val OVERLAY_PERMISSION_REQUEST = 4721
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "smart_taxi/whatsapp")
@@ -30,6 +36,21 @@ class MainActivity : FlutterActivity() {
                 val mimeType = call.argument<String>("mimeType") ?: "application/octet-stream"
                 result.success(sendToWhatsApp(bytes, fileName, mimeType, phone, call.argument("text")))
             }
+        FloatingBubble.init(applicationContext)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "smart_taxi/bubble")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "canDraw" -> result.success(FloatingBubble.canDraw())
+                    "requestPermission" -> requestOverlayPermission(result)
+                    "show" -> result.success(FloatingBubble.show())
+                    "hide" -> {
+                        FloatingBubble.hide()
+                        result.success(null)
+                    }
+                    "isShowing" -> result.success(FloatingBubble.isShowing)
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "smart_taxi/google_api")
             .setMethodCallHandler { call, result ->
                 if (call.method == "identity") {
@@ -38,6 +59,41 @@ class MainActivity : FlutterActivity() {
                     result.notImplemented()
                 }
             }
+    }
+
+    private var pendingOverlayPermission: MethodChannel.Result? = null
+
+    /**
+     * Opens the system's "Display over other apps" screen for this app; the
+     * answer (allowed or not) comes back when the driver returns from it.
+     */
+    private fun requestOverlayPermission(result: MethodChannel.Result) {
+        if (FloatingBubble.canDraw()) {
+            result.success(true)
+            return
+        }
+        pendingOverlayPermission?.success(false)
+        pendingOverlayPermission = result
+        startActivityForResult(
+            Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")),
+            OVERLAY_PERMISSION_REQUEST,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == OVERLAY_PERMISSION_REQUEST) {
+            pendingOverlayPermission?.success(FloatingBubble.canDraw())
+            pendingOverlayPermission = null
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    /** The app was closed for good: its floating bubble must not outlive it. */
+    override fun onDestroy() {
+        if (isFinishing) FloatingBubble.hide()
+        super.onDestroy()
     }
 
     /**

@@ -1,0 +1,2720 @@
+{
+  "lib/core/account_block/account_block_cubit.dart": {
+    "mtime": 1791126413.0668206,
+    "seen": 1792060068.467274,
+    "ast_hash": "15369e03c2489557c50b77facdb07b06",
+    "semantic_hash": "15369e03c2489557c50b77facdb07b06"
+  },
+  "lib/core/account_block/account_block_push.dart": {
+    "mtime": 1791126413.0668206,
+    "seen": 1792060068.4672809,
+    "ast_hash": "f035b603eea3bedb98925a424c354487",
+    "semantic_hash": "f035b603eea3bedb98925a424c354487"
+  },
+  "lib/core/account_block/account_block_remote_data_source.dart": {
+    "mtime": 1791126413.0668206,
+    "seen": 1792060068.4672842,
+    "ast_hash": "d416b02bbf23f96064c5faac9cff950c",
+    "semantic_hash": "d416b02bbf23f96064c5faac9cff950c"
+  },
+  "lib/core/account_block/account_block_repository.dart": {
+    "mtime": 1791126413.0668206,
+    "seen": 1792060068.467286,
+    "ast_hash": "c90fc7538c053c218d4fe4b9cbbb733e",
+    "semantic_hash": "c90fc7538c053c218d4fe4b9cbbb733e"
+  },
+  "lib/core/account_block/account_block_socket_service.dart": {
+    "mtime": 1790855053.6002202,
+    "seen": 1792060068.4672878,
+    "ast_hash": "53d7e487d1a7bb9e93fee312b857cf43",
+    "semantic_hash": "53d7e487d1a7bb9e93fee312b857cf43"
+  },
+  "lib/core/account_block/account_block_state.dart": {
+    "mtime": 1791126413.0668206,
+    "seen": 1792060068.4672894,
+    "ast_hash": "1f079fedfda5c3a1520f377f0f77ebc2",
+    "semantic_hash": "1f079fedfda5c3a1520f377f0f77ebc2"
+  },
+  "lib/core/app_version/data/datasources/app_version_local_datasource.dart": {
+    "mtime": 1790841124.8071303,
+    "seen": 1792060068.467291,
+    "ast_hash": "aa4e710f896483e1ed760a5fdb78ebdd",
+    "semantic_hash": "aa4e710f896483e1ed760a5fdb78ebdd"
+  },
+  "lib/core/app_version/data/datasources/app_version_remote_datasource.dart": {
+    "mtime": 1790841109.3679643,
+    "seen": 1792060068.4672928,
+    "ast_hash": "c6c06db90ca18a089b9c28d78977e51f",
+    "semantic_hash": "c6c06db90ca18a089b9c28d78977e51f"
+  },
+  "lib/core/app_version/data/models/app_version_model.dart": {
+    "mtime": 1790841108.3022025,
+    "seen": 1792060068.4672945,
+    "ast_hash": "591e9517fbefd9a2f08751b3a80dd77d",
+    "semantic_hash": "591e9517fbefd9a2f08751b3a80dd77d"
+  },
+  "lib/core/app_version/data/repositories/app_version_repository.dart": {
+    "mtime": 1790847321.5746398,
+    "seen": 1792060068.467296,
+    "ast_hash": "adf355efc44d6fc55c832b2bb904bae4",
+    "semantic_hash": "adf355efc44d6fc55c832b2bb904bae4"
+  },
+  "lib/core/app_version/presentation/cubit/app_version_cubit.dart": {
+    "mtime": 1790859344.4255743,
+    "seen": 1792060068.4672976,
+    "ast_hash": "440366a3a994d5d08cf7fbdca098b20a",
+    "semantic_hash": "440366a3a994d5d08cf7fbdca098b20a"
+  },
+  "lib/core/app_version/presentation/cubit/app_version_state.dart": {
+    "mtime": 1790841126.8749783,
+    "seen": 1792060068.4672992,
+    "ast_hash": "780ab297c483cccb30d56da6dfcd4b2a",
+    "semantic_hash": "780ab297c483cccb30d56da6dfcd4b2a"
+  },
+  "lib/core/app_version/presentation/screens/force_update_screen.dart": {
+    "mtime": 1790859376.366955,
+    "seen": 1792060068.467301,
+    "ast_hash": "5252980bc68200962f07e422b50cf450",
+    "semantic_hash": "5252980bc68200962f07e422b50cf450"
+  },
+  "lib/core/app_version/presentation/screens/maintenance_screen.dart": {
+    "mtime": 1790859418.7062502,
+    "seen": 1792060068.4673023,
+    "ast_hash": "83d605bcdc72a3bd531ea3dc97dbd35c",
+    "semantic_hash": "83d605bcdc72a3bd531ea3dc97dbd35c"
+  },
+  "lib/core/app_version/presentation/widgets/app_version_blocked_layout_widget.dart": {
+    "mtime": 1791797499.238099,
+    "seen": 1792060068.467304,
+    "ast_hash": "fb8e081a5cfa78d6c9f8ecc5a8adde7c",
+    "semantic_hash": "fb8e081a5cfa78d6c9f8ecc5a8adde7c"
+  },
+  "lib/core/app_version/presentation/widgets/app_version_gate_widget.dart": {
+    "mtime": 1790841266.600167,
+    "seen": 1792060068.4673054,
+    "ast_hash": "4ec10fc3bf3efebaa6981192a12f099b",
+    "semantic_hash": "4ec10fc3bf3efebaa6981192a12f099b"
+  },
+  "lib/core/app_version/presentation/widgets/app_version_retry_button_widget.dart": {
+    "mtime": 1790859415.5882285,
+    "seen": 1792060068.467307,
+    "ast_hash": "1be1e88daa6bfd3479426ceca72f64c7",
+    "semantic_hash": "1be1e88daa6bfd3479426ceca72f64c7"
+  },
+  "lib/core/app_version/presentation/widgets/app_version_update_button_widget.dart": {
+    "mtime": 1790859378.48397,
+    "seen": 1792060068.4673085,
+    "ast_hash": "52b69b0388611d1591e7c8fcc039e701",
+    "semantic_hash": "52b69b0388611d1591e7c8fcc039e701"
+  },
+  "lib/core/app_version/presentation/widgets/maintenance_recheck_button_widget.dart": {
+    "mtime": 1791797499.238099,
+    "seen": 1792060068.4673097,
+    "ast_hash": "2042673f27c6ca4d844bbd67bfae1844",
+    "semantic_hash": "2042673f27c6ca4d844bbd67bfae1844"
+  },
+  "lib/core/app_version/presentation/widgets/optional_update_dialog_widget.dart": {
+    "mtime": 1791797499.238099,
+    "seen": 1792060068.4673116,
+    "ast_hash": "f6cafc6de1089d1610e62cfa88ece805",
+    "semantic_hash": "f6cafc6de1089d1610e62cfa88ece805"
+  },
+  "lib/core/complaints/complaint_cubit.dart": {
+    "mtime": 1790855093.9987178,
+    "seen": 1792060068.467313,
+    "ast_hash": "aacc5eb0547c0a8d1eccfe387d1a0ba7",
+    "semantic_hash": "aacc5eb0547c0a8d1eccfe387d1a0ba7"
+  },
+  "lib/core/complaints/complaint_exception.dart": {
+    "mtime": 1790781115.1216578,
+    "seen": 1792060068.4673147,
+    "ast_hash": "fffa138029a01304585a4bc68c9e40be",
+    "semantic_hash": "fffa138029a01304585a4bc68c9e40be"
+  },
+  "lib/core/complaints/complaint_state.dart": {
+    "mtime": 1790781241.1841505,
+    "seen": 1792060068.4673166,
+    "ast_hash": "fe8c07737898a178b89b0287c27ec8f0",
+    "semantic_hash": "fe8c07737898a178b89b0287c27ec8f0"
+  },
+  "lib/core/constants/app_constants.dart": {
+    "mtime": 1791968588.1781793,
+    "seen": 1792060068.4673183,
+    "ast_hash": "6db3850d056f71c23db5b6b7a23b41c8",
+    "semantic_hash": "6db3850d056f71c23db5b6b7a23b41c8"
+  },
+  "lib/core/contact_us/data/datasources/contact_us_remote_datasource.dart": {
+    "mtime": 1790848141.8541527,
+    "seen": 1792060068.4673197,
+    "ast_hash": "19f09f82ade5442fe010ad64c18b73e8",
+    "semantic_hash": "19f09f82ade5442fe010ad64c18b73e8"
+  },
+  "lib/core/contact_us/data/models/contact_number_model.dart": {
+    "mtime": 1790855054.6352332,
+    "seen": 1792060068.4673214,
+    "ast_hash": "349df7dc5d6b3c5ef6592c9ff04fb73a",
+    "semantic_hash": "349df7dc5d6b3c5ef6592c9ff04fb73a"
+  },
+  "lib/core/contact_us/data/repositories/contact_us_repository.dart": {
+    "mtime": 1790848142.9192154,
+    "seen": 1792060068.467323,
+    "ast_hash": "b9466773bcbcde4f93418109bde37e6a",
+    "semantic_hash": "b9466773bcbcde4f93418109bde37e6a"
+  },
+  "lib/core/contact_us/presentation/cubit/contact_us_cubit.dart": {
+    "mtime": 1790848157.340294,
+    "seen": 1792060068.4673247,
+    "ast_hash": "b189fadda8b3b590c312251c7fb2769b",
+    "semantic_hash": "b189fadda8b3b590c312251c7fb2769b"
+  },
+  "lib/core/contact_us/presentation/cubit/contact_us_state.dart": {
+    "mtime": 1790848156.278728,
+    "seen": 1792060068.4673262,
+    "ast_hash": "d4aac6c0bff97d0fe1272a6d1d79887a",
+    "semantic_hash": "d4aac6c0bff97d0fe1272a6d1d79887a"
+  },
+  "lib/core/contact_us/presentation/screens/contact_us_screen.dart": {
+    "mtime": 1791797499.238099,
+    "seen": 1792060068.4673278,
+    "ast_hash": "009e6b87c1ff201e8285fd622bfeefa2",
+    "semantic_hash": "009e6b87c1ff201e8285fd622bfeefa2"
+  },
+  "lib/core/contact_us/presentation/widgets/contact_number_tile_widget.dart": {
+    "mtime": 1791797499.2385333,
+    "seen": 1792060068.4673293,
+    "ast_hash": "7bbea21b2cb7fd6cee1d7262fb8c0fa5",
+    "semantic_hash": "7bbea21b2cb7fd6cee1d7262fb8c0fa5"
+  },
+  "lib/core/contact_us/presentation/widgets/contact_numbers_list_widget.dart": {
+    "mtime": 1791968588.1781793,
+    "seen": 1792060068.467331,
+    "ast_hash": "59011cbf0316b5f6f972d7679a19cc0e",
+    "semantic_hash": "59011cbf0316b5f6f972d7679a19cc0e"
+  },
+  "lib/core/contact_us/presentation/widgets/contact_us_error_widget.dart": {
+    "mtime": 1791797499.2385333,
+    "seen": 1792060068.4673324,
+    "ast_hash": "58b78b7b2f08fb3d00f79710a73a1e9e",
+    "semantic_hash": "58b78b7b2f08fb3d00f79710a73a1e9e"
+  },
+  "lib/core/deep_links/deep_link_service.dart": {
+    "mtime": 1791126413.0668206,
+    "seen": 1792060068.4673338,
+    "ast_hash": "a7d459cfa837e6c40f96e45e9d7358b4",
+    "semantic_hash": "a7d459cfa837e6c40f96e45e9d7358b4"
+  },
+  "lib/core/deep_links/shared_order_link_handler.dart": {
+    "mtime": 1791126413.067412,
+    "seen": 1792060068.4673355,
+    "ast_hash": "e606dc670798a34874f448e826363fd0",
+    "semantic_hash": "e606dc670798a34874f448e826363fd0"
+  },
+  "lib/core/enums/user_role.dart": {
+    "mtime": 1790855024.8638537,
+    "seen": 1792060068.467337,
+    "ast_hash": "7567f8e05291524c8694741d2e161f4a",
+    "semantic_hash": "7567f8e05291524c8694741d2e161f4a"
+  },
+  "lib/core/injection/injection.dart": {
+    "mtime": 1791978348.8126395,
+    "seen": 1792060068.4673388,
+    "ast_hash": "92f387b35c2749ca0634452d7e87f43b",
+    "semantic_hash": "92f387b35c2749ca0634452d7e87f43b"
+  },
+  "lib/core/l10n/generated/app_localizations.dart": {
+    "mtime": 1791982752.0094523,
+    "seen": 1792060068.4673402,
+    "ast_hash": "3dfc7fa47c98e44f37872b8d58d18177",
+    "semantic_hash": "3dfc7fa47c98e44f37872b8d58d18177"
+  },
+  "lib/core/l10n/generated/app_localizations_ar.dart": {
+    "mtime": 1791982751.9634523,
+    "seen": 1792060068.467342,
+    "ast_hash": "7c8ea2a58fa19391471a54e449372020",
+    "semantic_hash": "7c8ea2a58fa19391471a54e449372020"
+  },
+  "lib/core/l10n/generated/app_localizations_en.dart": {
+    "mtime": 1791982751.9814522,
+    "seen": 1792060068.4673433,
+    "ast_hash": "d95eb3fac00df573817f73f8b728d2e4",
+    "semantic_hash": "d95eb3fac00df573817f73f8b728d2e4"
+  },
+  "lib/core/localization/app_locales.dart": {
+    "mtime": 1791978930.3106072,
+    "seen": 1792060068.4673452,
+    "ast_hash": "46b2c45b6858a72a3825035974d84cbf",
+    "semantic_hash": "46b2c45b6858a72a3825035974d84cbf"
+  },
+  "lib/core/localization/app_strings.dart": {
+    "mtime": 1790677289.0257983,
+    "seen": 1792060068.4673467,
+    "ast_hash": "257065780588359b5291cc1a1041c02e",
+    "semantic_hash": "257065780588359b5291cc1a1041c02e"
+  },
+  "lib/core/localization/l10n_context_extension.dart": {
+    "mtime": 1790781250.642256,
+    "seen": 1792060068.4673483,
+    "ast_hash": "3efd47b8574a1ccd3103ce51fdb2326b",
+    "semantic_hash": "3efd47b8574a1ccd3103ce51fdb2326b"
+  },
+  "lib/core/localization/language_remote_data_source.dart": {
+    "mtime": 1790855059.815298,
+    "seen": 1792060068.4673538,
+    "ast_hash": "4d24fefc41a5b19a96de9f41d66a28d6",
+    "semantic_hash": "4d24fefc41a5b19a96de9f41d66a28d6"
+  },
+  "lib/core/localization/language_repository.dart": {
+    "mtime": 1790781255.851262,
+    "seen": 1792060068.4673555,
+    "ast_hash": "efb623e6ce16ee50b75ec32a75f1a146",
+    "semantic_hash": "efb623e6ce16ee50b75ec32a75f1a146"
+  },
+  "lib/core/localization/locale_cubit.dart": {
+    "mtime": 1790691756.5660026,
+    "seen": 1792060068.467357,
+    "ast_hash": "4400404ec8abf6b55a56224db0c97678",
+    "semantic_hash": "4400404ec8abf6b55a56224db0c97678"
+  },
+  "lib/core/localization/locale_local_data_source.dart": {
+    "mtime": 1790675192.8104594,
+    "seen": 1792060068.4673584,
+    "ast_hash": "39e46725da0ce5c9a69ac90d4432aeff",
+    "semantic_hash": "39e46725da0ce5c9a69ac90d4432aeff"
+  },
+  "lib/core/models/account_block_model.dart": {
+    "mtime": 1791126413.0695868,
+    "seen": 1792060068.46736,
+    "ast_hash": "4d5f301d404b51c5c6f111d12e9fdfa4",
+    "semantic_hash": "4d5f301d404b51c5c6f111d12e9fdfa4"
+  },
+  "lib/core/models/cancel_penalty_model.dart": {
+    "mtime": 1791126413.0695868,
+    "seen": 1792060068.4673615,
+    "ast_hash": "317723f7e8dd2a0289dfc19e96b3813e",
+    "semantic_hash": "317723f7e8dd2a0289dfc19e96b3813e"
+  },
+  "lib/core/models/driving_route_model.dart": {
+    "mtime": 1791302610.312931,
+    "seen": 1792060068.467363,
+    "ast_hash": "a589c2920181cb09306114ee1a5f7ca1",
+    "semantic_hash": "a589c2920181cb09306114ee1a5f7ca1"
+  },
+  "lib/core/models/order_offer_model.dart": {
+    "mtime": 1791624917.010738,
+    "seen": 1792060068.4673645,
+    "ast_hash": "9e16e1530415ab1580148952509974fa",
+    "semantic_hash": "9e16e1530415ab1580148952509974fa"
+  },
+  "lib/core/models/picked_location_model.dart": {
+    "mtime": 1791126413.0696087,
+    "seen": 1792060068.4673662,
+    "ast_hash": "8480e5c39170c6f17fc152b186f5071c",
+    "semantic_hash": "8480e5c39170c6f17fc152b186f5071c"
+  },
+  "lib/core/models/pickup_eta_model.dart": {
+    "mtime": 1791377845.0362244,
+    "seen": 1792060068.4673676,
+    "ast_hash": "9e9e4023446df342a3e9933634d4cba9",
+    "semantic_hash": "9e9e4023446df342a3e9933634d4cba9"
+  },
+  "lib/core/models/privacy_policy_model.dart": {
+    "mtime": 1790787541.5061862,
+    "seen": 1792060068.4673693,
+    "ast_hash": "9c9d0a93ef7179f2f5f075817b69f914",
+    "semantic_hash": "9c9d0a93ef7179f2f5f075817b69f914"
+  },
+  "lib/core/models/ride_fare_breakdown_model.dart": {
+    "mtime": 1791195582.7394135,
+    "seen": 1792060068.4673705,
+    "ast_hash": "a96ffe5e3474a55769c89a14e56344f8",
+    "semantic_hash": "a96ffe5e3474a55769c89a14e56344f8"
+  },
+  "lib/core/models/ride_model.dart": {
+    "mtime": 1791126413.0696087,
+    "seen": 1792060068.467372,
+    "ast_hash": "c64afc129c6739a15b3b41d80f1062ea",
+    "semantic_hash": "c64afc129c6739a15b3b41d80f1062ea"
+  },
+  "lib/core/models/ride_pause_model.dart": {
+    "mtime": 1790774683.973343,
+    "seen": 1792060068.4673736,
+    "ast_hash": "47ade8c679fda6edb0f2feb98fa89451",
+    "semantic_hash": "47ade8c679fda6edb0f2feb98fa89451"
+  },
+  "lib/core/models/ride_waiting_model.dart": {
+    "mtime": 1790772864.9270031,
+    "seen": 1792060068.467375,
+    "ast_hash": "1a7f0944b4ef272116babf4c3d96754e",
+    "semantic_hash": "1a7f0944b4ef272116babf4c3d96754e"
+  },
+  "lib/core/models/route_point_model.dart": {
+    "mtime": 1790687708.9224699,
+    "seen": 1792060068.4673767,
+    "ast_hash": "a29f69d67e298d451b92715cfb6508d1",
+    "semantic_hash": "a29f69d67e298d451b92715cfb6508d1"
+  },
+  "lib/core/models/trip_eta_model.dart": {
+    "mtime": 1791302610.312931,
+    "seen": 1792060068.4673781,
+    "ast_hash": "469dd877377980f93248cb40ffc016b1",
+    "semantic_hash": "469dd877377980f93248cb40ffc016b1"
+  },
+  "lib/core/network/api_client.dart": {
+    "mtime": 1790673601.3791943,
+    "seen": 1792060068.46738,
+    "ast_hash": "579c5f60ebc12441f0ba7a871c9f8624",
+    "semantic_hash": "579c5f60ebc12441f0ba7a871c9f8624"
+  },
+  "lib/core/network/api_endpoints.dart": {
+    "mtime": 1791624917.010855,
+    "seen": 1792060068.4673812,
+    "ast_hash": "7ab0bdaebdd6588de4cc4ed14e297612",
+    "semantic_hash": "7ab0bdaebdd6588de4cc4ed14e297612"
+  },
+  "lib/core/network/api_error_handler.dart": {
+    "mtime": 1791371377.1850498,
+    "seen": 1792060068.4673827,
+    "ast_hash": "2a639980bbd9e79d89a423c995374b52",
+    "semantic_hash": "2a639980bbd9e79d89a423c995374b52"
+  },
+  "lib/core/network/api_error_messages.dart": {
+    "mtime": 1791624917.010855,
+    "seen": 1792060068.4673843,
+    "ast_hash": "65e1335031b7104cc6534d076f351c02",
+    "semantic_hash": "65e1335031b7104cc6534d076f351c02"
+  },
+  "lib/core/network/api_exception.dart": {
+    "mtime": 1791371377.1850498,
+    "seen": 1792060068.4673858,
+    "ast_hash": "010b31504f3f1abfdda0f83a05d894b2",
+    "semantic_hash": "010b31504f3f1abfdda0f83a05d894b2"
+  },
+  "lib/core/network/socket_client.dart": {
+    "mtime": 1791624917.010855,
+    "seen": 1792060068.4673874,
+    "ast_hash": "d4bc529832eca6e98724d48ca90ec9d9",
+    "semantic_hash": "d4bc529832eca6e98724d48ca90ec9d9"
+  },
+  "lib/core/network/status_code.dart": {
+    "mtime": 1790848143.989221,
+    "seen": 1792060068.4673889,
+    "ast_hash": "84a47525c7693eb5f6cc6ac21a5a7855",
+    "semantic_hash": "84a47525c7693eb5f6cc6ac21a5a7855"
+  },
+  "lib/core/network/token_check.dart": {
+    "mtime": 1790779844.3333073,
+    "seen": 1792060068.4673903,
+    "ast_hash": "5fbe651629b873ba1dfea60f4ba62484",
+    "semantic_hash": "5fbe651629b873ba1dfea60f4ba62484"
+  },
+  "lib/core/notifications/unread_notifications_cubit.dart": {
+    "mtime": 1790858917.1156607,
+    "seen": 1792060068.4673917,
+    "ast_hash": "2affec610b49a4e248f74439b186f1ba",
+    "semantic_hash": "2affec610b49a4e248f74439b186f1ba"
+  },
+  "lib/core/privacy_policy/privacy_policy_cubit.dart": {
+    "mtime": 1790855095.0267303,
+    "seen": 1792060068.4673934,
+    "ast_hash": "73cfa50287e860e944d857f046555276",
+    "semantic_hash": "73cfa50287e860e944d857f046555276"
+  },
+  "lib/core/privacy_policy/privacy_policy_remote_data_source.dart": {
+    "mtime": 1790787542.580697,
+    "seen": 1792060068.4673948,
+    "ast_hash": "f3313f4324143786fbc0c217e1b0de98",
+    "semantic_hash": "f3313f4324143786fbc0c217e1b0de98"
+  },
+  "lib/core/privacy_policy/privacy_policy_repository.dart": {
+    "mtime": 1790787543.6366158,
+    "seen": 1792060068.4673963,
+    "ast_hash": "ad2cdf34a0dafc870164892a31c369c3",
+    "semantic_hash": "ad2cdf34a0dafc870164892a31c369c3"
+  },
+  "lib/core/privacy_policy/privacy_policy_state.dart": {
+    "mtime": 1790787544.7192137,
+    "seen": 1792060068.467398,
+    "ast_hash": "bdfd642e7cc68c4db37e9ac3d031de8a",
+    "semantic_hash": "bdfd642e7cc68c4db37e9ac3d031de8a"
+  },
+  "lib/core/ride_rating/data/datasources/ride_rating_remote_data_source.dart": {
+    "mtime": 1791624917.0111222,
+    "seen": 1792060068.4673994,
+    "ast_hash": "88654727f162213dcb0f2aac51c19006",
+    "semantic_hash": "88654727f162213dcb0f2aac51c19006"
+  },
+  "lib/core/ride_rating/data/models/ride_rating_model.dart": {
+    "mtime": 1791624917.0111222,
+    "seen": 1792060068.467401,
+    "ast_hash": "856c4d246d489ceba2caa0decf136551",
+    "semantic_hash": "856c4d246d489ceba2caa0decf136551"
+  },
+  "lib/core/ride_rating/data/repositories/ride_rating_repository.dart": {
+    "mtime": 1791624917.0111222,
+    "seen": 1792060068.4674025,
+    "ast_hash": "e7dc6e33eadc87db166a9890e0fb0b77",
+    "semantic_hash": "e7dc6e33eadc87db166a9890e0fb0b77"
+  },
+  "lib/core/ride_rating/presentation/cubit/ride_rating_cubit.dart": {
+    "mtime": 1791624917.0114217,
+    "seen": 1792060068.4674041,
+    "ast_hash": "74c749bd722da94c29ed1bb92207b684",
+    "semantic_hash": "74c749bd722da94c29ed1bb92207b684"
+  },
+  "lib/core/ride_rating/presentation/cubit/ride_rating_state.dart": {
+    "mtime": 1791624917.0115178,
+    "seen": 1792060068.4674056,
+    "ast_hash": "b701595183c61e4d9693438aba055e67",
+    "semantic_hash": "b701595183c61e4d9693438aba055e67"
+  },
+  "lib/core/ride_rating/presentation/widgets/ride_rating_dialog_widget.dart": {
+    "mtime": 1791803081.5092244,
+    "seen": 1792060068.4674075,
+    "ast_hash": "e36a84e3f860b4dfab16f15f46d73e77",
+    "semantic_hash": "e36a84e3f860b4dfab16f15f46d73e77"
+  },
+  "lib/core/ride_rating/presentation/widgets/star_rating_widget.dart": {
+    "mtime": 1791797499.2409976,
+    "seen": 1792060068.467409,
+    "ast_hash": "45cf57329423323b51b2a779cc386161",
+    "semantic_hash": "45cf57329423323b51b2a779cc386161"
+  },
+  "lib/core/routing/app_router.dart": {
+    "mtime": 1791978351.9399607,
+    "seen": 1792060068.4674103,
+    "ast_hash": "387a2d22736b968d3e270aec1906efe4",
+    "semantic_hash": "387a2d22736b968d3e270aec1906efe4"
+  },
+  "lib/core/routing/main_wrapper_screen.dart": {
+    "mtime": 1791802652.0725398,
+    "seen": 1792060068.467412,
+    "ast_hash": "c2d23f642ce350e4e1b69cb6d6d71d8f",
+    "semantic_hash": "c2d23f642ce350e4e1b69cb6d6d71d8f"
+  },
+  "lib/core/saved_addresses/data/datasources/saved_addresses_remote_data_source.dart": {
+    "mtime": 1791126413.070501,
+    "seen": 1792060068.4674134,
+    "ast_hash": "7a00ab006ad021ce9dd1f7c4b79a1f80",
+    "semantic_hash": "7a00ab006ad021ce9dd1f7c4b79a1f80"
+  },
+  "lib/core/saved_addresses/data/models/saved_address_model.dart": {
+    "mtime": 1791126413.070501,
+    "seen": 1792060068.4674153,
+    "ast_hash": "517689c26bebe0f7a270b8584db62a11",
+    "semantic_hash": "517689c26bebe0f7a270b8584db62a11"
+  },
+  "lib/core/saved_addresses/data/models/saved_place_preset.dart": {
+    "mtime": 1791812234.174024,
+    "seen": 1792060068.4674168,
+    "ast_hash": "ee780d909f8dc2252f563085c426d44f",
+    "semantic_hash": "ee780d909f8dc2252f563085c426d44f"
+  },
+  "lib/core/saved_addresses/data/repositories/saved_addresses_repository.dart": {
+    "mtime": 1791126413.070501,
+    "seen": 1792060068.4674182,
+    "ast_hash": "81eacbe46e1b30f969192ede4c681393",
+    "semantic_hash": "81eacbe46e1b30f969192ede4c681393"
+  },
+  "lib/core/saved_addresses/presentation/cubit/saved_addresses_cubit.dart": {
+    "mtime": 1791126413.0706964,
+    "seen": 1792060068.4674208,
+    "ast_hash": "3c063cfdb242f02093416b8b22aef20a",
+    "semantic_hash": "3c063cfdb242f02093416b8b22aef20a"
+  },
+  "lib/core/saved_addresses/presentation/cubit/saved_addresses_state.dart": {
+    "mtime": 1791126413.0707905,
+    "seen": 1792060068.4674227,
+    "ast_hash": "bbe02dae5f491a37a7cf5daa3f0cba2d",
+    "semantic_hash": "bbe02dae5f491a37a7cf5daa3f0cba2d"
+  },
+  "lib/core/saved_addresses/presentation/saved_address_type_ui.dart": {
+    "mtime": 1791812651.416695,
+    "seen": 1792060068.4674242,
+    "ast_hash": "2cd32e867d4508972d936aec7282dc2f",
+    "semantic_hash": "2cd32e867d4508972d936aec7282dc2f"
+  },
+  "lib/core/saved_addresses/presentation/saved_place_slots.dart": {
+    "mtime": 1791812528.8864558,
+    "seen": 1792060068.4674258,
+    "ast_hash": "665c502a2437174f37ea584d0704319d",
+    "semantic_hash": "665c502a2437174f37ea584d0704319d"
+  },
+  "lib/core/services/current_location_service.dart": {
+    "mtime": 1791377845.051017,
+    "seen": 1792060068.4674273,
+    "ast_hash": "7e6a7982ed8cd692b3dfc227e7902461",
+    "semantic_hash": "7e6a7982ed8cd692b3dfc227e7902461"
+  },
+  "lib/core/services/google_api_credentials_loader.dart": {
+    "mtime": 1791797499.2409976,
+    "seen": 1792060068.467429,
+    "ast_hash": "ca162c83c2311e27c2724614392ca0ff",
+    "semantic_hash": "ca162c83c2311e27c2724614392ca0ff"
+  },
+  "lib/core/services/google_routes_service.dart": {
+    "mtime": 1791797499.2409976,
+    "seen": 1792060068.4674304,
+    "ast_hash": "fcbbe7a3f41627e13a2ab07e28eddb96",
+    "semantic_hash": "fcbbe7a3f41627e13a2ab07e28eddb96"
+  },
+  "lib/core/services/local_notification_service.dart": {
+    "mtime": 1791968588.1811793,
+    "seen": 1792060068.467432,
+    "ast_hash": "2e85e95eb1260473d658b5d746a9bf47",
+    "semantic_hash": "2e85e95eb1260473d658b5d746a9bf47"
+  },
+  "lib/core/services/photo_picker_service.dart": {
+    "mtime": 1791624917.0116718,
+    "seen": 1792060068.4674335,
+    "ast_hash": "63e2d97e7932f54eb8781840383bc35b",
+    "semantic_hash": "63e2d97e7932f54eb8781840383bc35b"
+  },
+  "lib/core/services/planned_route_loader.dart": {
+    "mtime": 1791625312.253736,
+    "seen": 1792060068.4674351,
+    "ast_hash": "8a4aeb3c9c23478db578b9980d54efae",
+    "semantic_hash": "8a4aeb3c9c23478db578b9980d54efae"
+  },
+  "lib/core/services/push_notification_service.dart": {
+    "mtime": 1791126413.0707905,
+    "seen": 1792060068.4674366,
+    "ast_hash": "4dd49e6e1786f9621c8cfc1a05a8b8bd",
+    "semantic_hash": "4dd49e6e1786f9621c8cfc1a05a8b8bd"
+  },
+  "lib/core/services/route_exception.dart": {
+    "mtime": 1791625312.26366,
+    "seen": 1792060068.467438,
+    "ast_hash": "40d2844f7d043b23b3a8627b8fc82266",
+    "semantic_hash": "40d2844f7d043b23b3a8627b8fc82266"
+  },
+  "lib/core/services/trip_route_tracker.dart": {
+    "mtime": 1791625312.253736,
+    "seen": 1792060068.4674397,
+    "ast_hash": "5da5f1d9892cda5a0f45ce6c3af9af19",
+    "semantic_hash": "5da5f1d9892cda5a0f45ce6c3af9af19"
+  },
+  "lib/core/services/whatsapp_file_sender.dart": {
+    "mtime": 1791194648.2532346,
+    "seen": 1792060068.467441,
+    "ast_hash": "cd89788b420c4093c0b7f2b7afa974d2",
+    "semantic_hash": "cd89788b420c4093c0b7f2b7afa974d2"
+  },
+  "lib/core/session/app_user.dart": {
+    "mtime": 1790510199.4080482,
+    "seen": 1792060068.4674428,
+    "ast_hash": "a7b9ff15d3eed44f78ef430aac607b3e",
+    "semantic_hash": "a7b9ff15d3eed44f78ef430aac607b3e"
+  },
+  "lib/core/session/session_cubit.dart": {
+    "mtime": 1790855100.1627922,
+    "seen": 1792060068.4674442,
+    "ast_hash": "5a193fce74adc6a9ae11b6d1f7edf6a5",
+    "semantic_hash": "5a193fce74adc6a9ae11b6d1f7edf6a5"
+  },
+  "lib/core/splash/splash_signal.dart": {
+    "mtime": 1791797499.2409976,
+    "seen": 1792060068.4674459,
+    "ast_hash": "735ed2509f82f8ec2478d91745d870e0",
+    "semantic_hash": "735ed2509f82f8ec2478d91745d870e0"
+  },
+  "lib/core/theme/app_colors.dart": {
+    "mtime": 1791802065.4402144,
+    "seen": 1792060068.4674473,
+    "ast_hash": "a89bebb4af997e7c70193ed03b72600a",
+    "semantic_hash": "a89bebb4af997e7c70193ed03b72600a"
+  },
+  "lib/core/theme/app_map_style.dart": {
+    "mtime": 1791797499.2417998,
+    "seen": 1792060068.467449,
+    "ast_hash": "4d4a9433cce49ef393892401e80474ff",
+    "semantic_hash": "4d4a9433cce49ef393892401e80474ff"
+  },
+  "lib/core/theme/app_palette.dart": {
+    "mtime": 1791798852.7987852,
+    "seen": 1792060068.4674504,
+    "ast_hash": "984d01c2c5747786b2ab55c895144f9c",
+    "semantic_hash": "984d01c2c5747786b2ab55c895144f9c"
+  },
+  "lib/core/theme/app_theme.dart": {
+    "mtime": 1791803640.6536145,
+    "seen": 1792060068.467452,
+    "ast_hash": "442d5b657bc19289c9a8bb4488fac4df",
+    "semantic_hash": "442d5b657bc19289c9a8bb4488fac4df"
+  },
+  "lib/core/theme/place_accent.dart": {
+    "mtime": 1791812648.0356953,
+    "seen": 1792060068.4674535,
+    "ast_hash": "250add2f3270a0ab283651330ddad59d",
+    "semantic_hash": "250add2f3270a0ab283651330ddad59d"
+  },
+  "lib/core/theme/theme_cubit.dart": {
+    "mtime": 1791978672.0006216,
+    "seen": 1792060068.467455,
+    "ast_hash": "1380da745b27fd2fbde315003b166971",
+    "semantic_hash": "1380da745b27fd2fbde315003b166971"
+  },
+  "lib/core/theme/theme_local_data_source.dart": {
+    "mtime": 1791797499.2417998,
+    "seen": 1792060068.4674568,
+    "ast_hash": "3cfbe46a5a563170d018519180fb437f",
+    "semantic_hash": "3cfbe46a5a563170d018519180fb437f"
+  },
+  "lib/core/utils/car_heading_tracker.dart": {
+    "mtime": 1791129640.54881,
+    "seen": 1792060068.4674582,
+    "ast_hash": "c27f7f2760c320b8a4469a4028857dcd",
+    "semantic_hash": "c27f7f2760c320b8a4469a4028857dcd"
+  },
+  "lib/core/utils/format_date.dart": {
+    "mtime": 1791126413.0707905,
+    "seen": 1792060068.46746,
+    "ast_hash": "ef032ab57f12bd7fdd5dc94060491747",
+    "semantic_hash": "ef032ab57f12bd7fdd5dc94060491747"
+  },
+  "lib/core/utils/format_distance.dart": {
+    "mtime": 1791371377.1850498,
+    "seen": 1792060068.4674613,
+    "ast_hash": "9c145ac421feb45aa08a60fd854864a0",
+    "semantic_hash": "9c145ac421feb45aa08a60fd854864a0"
+  },
+  "lib/core/utils/format_price.dart": {
+    "mtime": 1791126413.0707905,
+    "seen": 1792060068.467463,
+    "ast_hash": "290f3ba774cc1c0fc4137783b9a0a79c",
+    "semantic_hash": "290f3ba774cc1c0fc4137783b9a0a79c"
+  },
+  "lib/core/utils/open_external_url.dart": {
+    "mtime": 1790848146.1314828,
+    "seen": 1792060068.4674644,
+    "ast_hash": "5a0bb3bab0e71512831e82f0479dbcb5",
+    "semantic_hash": "5a0bb3bab0e71512831e82f0479dbcb5"
+  },
+  "lib/core/utils/open_store.dart": {
+    "mtime": 1790859379.5619774,
+    "seen": 1792060068.4674659,
+    "ast_hash": "403a74af36ca219f90f3fc306fb9dda7",
+    "semantic_hash": "403a74af36ca219f90f3fc306fb9dda7"
+  },
+  "lib/core/utils/parse_utc_date.dart": {
+    "mtime": 1791126413.0707905,
+    "seen": 1792060068.4674675,
+    "ast_hash": "4b49ea66814fb062138576bedc061c40",
+    "semantic_hash": "4b49ea66814fb062138576bedc061c40"
+  },
+  "lib/core/utils/polyline_decoder.dart": {
+    "mtime": 1791302610.3133261,
+    "seen": 1792060068.467469,
+    "ast_hash": "ecdbc32bd95571b18ae3c41db926b040",
+    "semantic_hash": "ecdbc32bd95571b18ae3c41db926b040"
+  },
+  "lib/core/utils/route_matcher.dart": {
+    "mtime": 1791302610.3134022,
+    "seen": 1792060068.4674706,
+    "ast_hash": "2d095046c64db7c846f64fc418ed8007",
+    "semantic_hash": "2d095046c64db7c846f64fc418ed8007"
+  },
+  "lib/core/utils/taxi_marker_icon.dart": {
+    "mtime": 1791797499.2417998,
+    "seen": 1792060068.467472,
+    "ast_hash": "850a4fe6200b154bbf22aa083bf9164f",
+    "semantic_hash": "850a4fe6200b154bbf22aa083bf9164f"
+  },
+  "lib/core/utils/whatsapp_number.dart": {
+    "mtime": 1791968588.1811793,
+    "seen": 1792060068.4674737,
+    "ast_hash": "f974e0c8c6bcf54c9889342f74670738",
+    "semantic_hash": "f974e0c8c6bcf54c9889342f74670738"
+  },
+  "lib/core/validators/auth_validators.dart": {
+    "mtime": 1790858521.8058794,
+    "seen": 1792060068.4674752,
+    "ast_hash": "5347b400677a39e481f1f06013ebd73e",
+    "semantic_hash": "5347b400677a39e481f1f06013ebd73e"
+  },
+  "lib/core/validators/phone_input_formatter.dart": {
+    "mtime": 1790858536.3779862,
+    "seen": 1792060068.4674768,
+    "ast_hash": "d6e5415567f2df32417076d161dc1546",
+    "semantic_hash": "d6e5415567f2df32417076d161dc1546"
+  },
+  "lib/core/widgets/account_block_gate_widget.dart": {
+    "mtime": 1791624917.0116818,
+    "seen": 1792060068.4674783,
+    "ast_hash": "72b806525b7e8fe5135b480cf5b4e024",
+    "semantic_hash": "72b806525b7e8fe5135b480cf5b4e024"
+  },
+  "lib/core/widgets/account_blocked_widget.dart": {
+    "mtime": 1791797499.2417998,
+    "seen": 1792060068.4674797,
+    "ast_hash": "f1b5749fa0b6fb4ddf219d8b8f1a0427",
+    "semantic_hash": "f1b5749fa0b6fb4ddf219d8b8f1a0427"
+  },
+  "lib/core/widgets/account_deletion_notice_dialog_widget.dart": {
+    "mtime": 1791624917.0116818,
+    "seen": 1792060068.4674814,
+    "ast_hash": "6ce7b0c5648f87a0dd6088ac9f0331b9",
+    "semantic_hash": "6ce7b0c5648f87a0dd6088ac9f0331b9"
+  },
+  "lib/core/widgets/app_animated_dialog.dart": {
+    "mtime": 1791803046.2849424,
+    "seen": 1792060068.4674828,
+    "ast_hash": "95987d13376b7b0c027c894c9a4fd036",
+    "semantic_hash": "95987d13376b7b0c027c894c9a4fd036"
+  },
+  "lib/core/widgets/app_bottom_nav_widget.dart": {
+    "mtime": 1791802652.0682,
+    "seen": 1792060068.4674845,
+    "ast_hash": "f44d12e9332c79d72c8a6612bce9474c",
+    "semantic_hash": "f44d12e9332c79d72c8a6612bce9474c"
+  },
+  "lib/core/widgets/app_brand_bar_widget.dart": {
+    "mtime": 1791805924.985017,
+    "seen": 1792060068.467486,
+    "ast_hash": "673777bf3af92cac44414142ef8b6dc8",
+    "semantic_hash": "673777bf3af92cac44414142ef8b6dc8"
+  },
+  "lib/core/widgets/app_choice_chip_widget.dart": {
+    "mtime": 1791798954.1835122,
+    "seen": 1792060068.4674876,
+    "ast_hash": "851397624f34190c287e27d61b2ff739",
+    "semantic_hash": "851397624f34190c287e27d61b2ff739"
+  },
+  "lib/core/widgets/app_destructive_button_widget.dart": {
+    "mtime": 1791798908.0799494,
+    "seen": 1792060068.4674888,
+    "ast_hash": "bae738cab01f26169588873210fcdc46",
+    "semantic_hash": "bae738cab01f26169588873210fcdc46"
+  },
+  "lib/core/widgets/app_dialog_layout_widget.dart": {
+    "mtime": 1790848867.9394362,
+    "seen": 1792060068.4674907,
+    "ast_hash": "abaa625aeeb08540c02b8dcf1bc267ed",
+    "semantic_hash": "abaa625aeeb08540c02b8dcf1bc267ed"
+  },
+  "lib/core/widgets/app_icon_tile_widget.dart": {
+    "mtime": 1791798927.9384542,
+    "seen": 1792060068.467492,
+    "ast_hash": "fe29a703596c68343fc6d8def55b453b",
+    "semantic_hash": "fe29a703596c68343fc6d8def55b453b"
+  },
+  "lib/core/widgets/app_loader_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.4674935,
+    "ast_hash": "d1aa07b56a7295fc6562828dd99338ac",
+    "semantic_hash": "d1aa07b56a7295fc6562828dd99338ac"
+  },
+  "lib/core/widgets/app_logo_widget.dart": {
+    "mtime": 1790844967.3269987,
+    "seen": 1792060068.4674952,
+    "ast_hash": "42055d10c86973483761137a61b804dd",
+    "semantic_hash": "42055d10c86973483761137a61b804dd"
+  },
+  "lib/core/widgets/app_map_title_pill_widget.dart": {
+    "mtime": 1791803113.0762227,
+    "seen": 1792060068.4674966,
+    "ast_hash": "b11fde6424a10fbecb2a2a6a99de63f0",
+    "semantic_hash": "b11fde6424a10fbecb2a2a6a99de63f0"
+  },
+  "lib/core/widgets/app_neutral_button_widget.dart": {
+    "mtime": 1791798914.424455,
+    "seen": 1792060068.4674983,
+    "ast_hash": "b43634de847ff42fe994a7c97154bf82",
+    "semantic_hash": "b43634de847ff42fe994a7c97154bf82"
+  },
+  "lib/core/widgets/app_section_label_widget.dart": {
+    "mtime": 1791798927.9411154,
+    "seen": 1792060068.4674997,
+    "ast_hash": "58540327e18f152fac17268f1209ac07",
+    "semantic_hash": "58540327e18f152fac17268f1209ac07"
+  },
+  "lib/core/widgets/app_sheet_handle_widget.dart": {
+    "mtime": 1791798927.939454,
+    "seen": 1792060068.4675014,
+    "ast_hash": "c52fad6ab0badb3e042275b27ae530ed",
+    "semantic_hash": "c52fad6ab0badb3e042275b27ae530ed"
+  },
+  "lib/core/widgets/app_snack_bar_widget.dart": {
+    "mtime": 1791798961.7644522,
+    "seen": 1792060068.4675028,
+    "ast_hash": "81cae4729278ca8aa972e0dbb34bf60d",
+    "semantic_hash": "81cae4729278ca8aa972e0dbb34bf60d"
+  },
+  "lib/core/widgets/app_splash_widget.dart": {
+    "mtime": 1791302618.2702594,
+    "seen": 1792060068.4675045,
+    "ast_hash": "1ffe4871c663778b591e2b0765bc539d",
+    "semantic_hash": "1ffe4871c663778b591e2b0765bc539d"
+  },
+  "lib/core/widgets/app_surface_card_widget.dart": {
+    "mtime": 1791798927.9374542,
+    "seen": 1792060068.467506,
+    "ast_hash": "fa5fe26ed3abb66376698355937f1bad",
+    "semantic_hash": "fa5fe26ed3abb66376698355937f1bad"
+  },
+  "lib/core/widgets/auth_brand_header_widget.dart": {
+    "mtime": 1791805613.4500844,
+    "seen": 1792060068.4675074,
+    "ast_hash": "ef869efbbaad852aceeff8e17894e5e7",
+    "semantic_hash": "ef869efbbaad852aceeff8e17894e5e7"
+  },
+  "lib/core/widgets/auth_error_banner_widget.dart": {
+    "mtime": 1791798954.1875157,
+    "seen": 1792060068.4675088,
+    "ast_hash": "ad9390ed5ca6c3cabef07fc42596701c",
+    "semantic_hash": "ad9390ed5ca6c3cabef07fc42596701c"
+  },
+  "lib/core/widgets/auth_footer_link_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.4675102,
+    "ast_hash": "52e6e94169214b455a7d4c453874054c",
+    "semantic_hash": "52e6e94169214b455a7d4c453874054c"
+  },
+  "lib/core/widgets/auth_form_layout_widget.dart": {
+    "mtime": 1791805613.4600844,
+    "seen": 1792060068.467512,
+    "ast_hash": "b6ce216248bbec2d55b983df6db0fefe",
+    "semantic_hash": "b6ce216248bbec2d55b983df6db0fefe"
+  },
+  "lib/core/widgets/auth_header_widget.dart": {
+    "mtime": 1791805057.6015306,
+    "seen": 1792060068.4675133,
+    "ast_hash": "a9c2ce7c7f4193a0bcf662f0ed1adbf9",
+    "semantic_hash": "a9c2ce7c7f4193a0bcf662f0ed1adbf9"
+  },
+  "lib/core/widgets/auth_language_toggle_widget.dart": {
+    "mtime": 1791805057.5985699,
+    "seen": 1792060068.467515,
+    "ast_hash": "07a596c4022851f0223a0dd965d1dfa9",
+    "semantic_hash": "07a596c4022851f0223a0dd965d1dfa9"
+  },
+  "lib/core/widgets/auth_primary_button_widget.dart": {
+    "mtime": 1791806189.6368637,
+    "seen": 1792060068.4675164,
+    "ast_hash": "4c26d338fe5a48052d4e54c3b02c95b8",
+    "semantic_hash": "4c26d338fe5a48052d4e54c3b02c95b8"
+  },
+  "lib/core/widgets/auth_text_field_widget.dart": {
+    "mtime": 1790859039.499593,
+    "seen": 1792060068.4675179,
+    "ast_hash": "489bf2c59647aae02455ec5813895b63",
+    "semantic_hash": "489bf2c59647aae02455ec5813895b63"
+  },
+  "lib/core/widgets/bill_row_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.4675195,
+    "ast_hash": "48c86bf185e1b7b0fc53844579d3ffbe",
+    "semantic_hash": "48c86bf185e1b7b0fc53844579d3ffbe"
+  },
+  "lib/core/widgets/cancel_reason_dialog_widget.dart": {
+    "mtime": 1791126413.071442,
+    "seen": 1792060068.467521,
+    "ast_hash": "70aa8611df201d4909aefa354dbb3b04",
+    "semantic_hash": "70aa8611df201d4909aefa354dbb3b04"
+  },
+  "lib/core/widgets/complaint_dialog_widget.dart": {
+    "mtime": 1791803640.6512384,
+    "seen": 1792060068.4675229,
+    "ast_hash": "8d3fe9ee1be0dbc749adfd1a03fa9c15",
+    "semantic_hash": "8d3fe9ee1be0dbc749adfd1a03fa9c15"
+  },
+  "lib/core/widgets/contact_us_button_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.4675243,
+    "ast_hash": "8ba21fcaa1f482bd690147cd4b34b856",
+    "semantic_hash": "8ba21fcaa1f482bd690147cd4b34b856"
+  },
+  "lib/core/widgets/countdown_text_widget.dart": {
+    "mtime": 1791126413.071442,
+    "seen": 1792060068.467526,
+    "ast_hash": "03e969cf8121647b8d378966d0a7370c",
+    "semantic_hash": "03e969cf8121647b8d378966d0a7370c"
+  },
+  "lib/core/widgets/delete_account_button_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.4675274,
+    "ast_hash": "4492013c22cbebcec3ab2c7f8c0f6e0e",
+    "semantic_hash": "4492013c22cbebcec3ab2c7f8c0f6e0e"
+  },
+  "lib/core/widgets/entrance_animation_widget.dart": {
+    "mtime": 1791806434.4418397,
+    "seen": 1792060068.467529,
+    "ast_hash": "53950e453930944fdf585a1ff892a385",
+    "semantic_hash": "53950e453930944fdf585a1ff892a385"
+  },
+  "lib/core/widgets/fare_breakdown_widget.dart": {
+    "mtime": 1791798941.2134056,
+    "seen": 1792060068.4675305,
+    "ast_hash": "99d5db39569d224f46fea77251a379e2",
+    "semantic_hash": "99d5db39569d224f46fea77251a379e2"
+  },
+  "lib/core/widgets/fee_chip_widget.dart": {
+    "mtime": 1791798954.1800437,
+    "seen": 1792060068.467532,
+    "ast_hash": "11d35f6c7b0e8a67de8e8c042c865f87",
+    "semantic_hash": "11d35f6c7b0e8a67de8e8c042c865f87"
+  },
+  "lib/core/widgets/language_dropdown_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.4675336,
+    "ast_hash": "951087f36cb0b0600858983a95137e18",
+    "semantic_hash": "951087f36cb0b0600858983a95137e18"
+  },
+  "lib/core/widgets/live_fee_card_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.4675348,
+    "ast_hash": "153f48be1712bd7c5e118da30305fc6b",
+    "semantic_hash": "153f48be1712bd7c5e118da30305fc6b"
+  },
+  "lib/core/widgets/live_trip_map_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.4675367,
+    "ast_hash": "115dbf0505d3cc1128cf49386084721b",
+    "semantic_hash": "115dbf0505d3cc1128cf49386084721b"
+  },
+  "lib/core/widgets/location_select_button_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.467538,
+    "ast_hash": "2b437533fb1f8cc8c002eea91753630b",
+    "semantic_hash": "2b437533fb1f8cc8c002eea91753630b"
+  },
+  "lib/core/widgets/logout_footer_widget.dart": {
+    "mtime": 1790859040.5316002,
+    "seen": 1792060068.4675398,
+    "ast_hash": "a754133442a7f99f063b27f100f2efb0",
+    "semantic_hash": "a754133442a7f99f063b27f100f2efb0"
+  },
+  "lib/core/widgets/meta_item_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.4675412,
+    "ast_hash": "ffbc4652aea59ff7d61fab227b239d2a",
+    "semantic_hash": "ffbc4652aea59ff7d61fab227b239d2a"
+  },
+  "lib/core/widgets/network_photo_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.467543,
+    "ast_hash": "e43794a5389972f19b38d9f688f198c8",
+    "semantic_hash": "e43794a5389972f19b38d9f688f198c8"
+  },
+  "lib/core/widgets/number_stepper_widget.dart": {
+    "mtime": 1791797499.2425663,
+    "seen": 1792060068.467544,
+    "ast_hash": "10e108c626fb6d624643c4e2d743a3dc",
+    "semantic_hash": "10e108c626fb6d624643c4e2d743a3dc"
+  },
+  "lib/core/widgets/order_route_details_widget.dart": {
+    "mtime": 1791799315.904512,
+    "seen": 1792060068.4675455,
+    "ast_hash": "28bbe9e5391fc24c4f9a77ef6e3fea24",
+    "semantic_hash": "28bbe9e5391fc24c4f9a77ef6e3fea24"
+  },
+  "lib/core/widgets/page_dots_indicator_widget.dart": {
+    "mtime": 1791978286.9076428,
+    "seen": 1792060068.4675472,
+    "ast_hash": "ece9ec9735088acbd0e1bb6d1e7c1676",
+    "semantic_hash": "ece9ec9735088acbd0e1bb6d1e7c1676"
+  },
+  "lib/core/widgets/paginated_list_widget.dart": {
+    "mtime": 1791806452.7218413,
+    "seen": 1792060068.4675486,
+    "ast_hash": "91c0c2da7e77d4df51f9e81aa40e16f0",
+    "semantic_hash": "91c0c2da7e77d4df51f9e81aa40e16f0"
+  },
+  "lib/core/widgets/passengers_fee_meta_widget.dart": {
+    "mtime": 1791189296.1047897,
+    "seen": 1792060068.4675505,
+    "ast_hash": "4b3a9fcb6c40e479de649672060245db",
+    "semantic_hash": "4b3a9fcb6c40e479de649672060245db"
+  },
+  "lib/core/widgets/price_text_widget.dart": {
+    "mtime": 1791126413.0716088,
+    "seen": 1792060068.4675612,
+    "ast_hash": "2b36e65b84f6d29fb151f6b03554bbfb",
+    "semantic_hash": "2b36e65b84f6d29fb151f6b03554bbfb"
+  },
+  "lib/core/widgets/privacy_policy_dialog_widget.dart": {
+    "mtime": 1791797499.2435331,
+    "seen": 1792060068.467563,
+    "ast_hash": "4668a67740ff6b1edd0c90e20ee49879",
+    "semantic_hash": "4668a67740ff6b1edd0c90e20ee49879"
+  },
+  "lib/core/widgets/privacy_policy_markdown_widget.dart": {
+    "mtime": 1791797499.2435331,
+    "seen": 1792060068.4675648,
+    "ast_hash": "cc6a64a88b2b1648b9ce6f1c1c3c6e94",
+    "semantic_hash": "cc6a64a88b2b1648b9ce6f1c1c3c6e94"
+  },
+  "lib/core/widgets/ride_note_widget.dart": {
+    "mtime": 1791797499.2435331,
+    "seen": 1792060068.467566,
+    "ast_hash": "7d3639388b27588f1f61d21b59e8f65a",
+    "semantic_hash": "7d3639388b27588f1f61d21b59e8f65a"
+  },
+  "lib/core/widgets/ride_pause_timer_widget.dart": {
+    "mtime": 1791797499.2435331,
+    "seen": 1792060068.467568,
+    "ast_hash": "154208352cdabc22f77ee4d4436c7476",
+    "semantic_hash": "154208352cdabc22f77ee4d4436c7476"
+  },
+  "lib/core/widgets/ride_waiting_timer_widget.dart": {
+    "mtime": 1791797499.2435331,
+    "seen": 1792060068.4675694,
+    "ast_hash": "82a0843584dfabd5ba2c769875e68492",
+    "semantic_hash": "82a0843584dfabd5ba2c769875e68492"
+  },
+  "lib/core/widgets/role_badge_widget.dart": {
+    "mtime": 1791798954.181781,
+    "seen": 1792060068.467571,
+    "ast_hash": "259bf2ae65eba8e6421ac916997fbf34",
+    "semantic_hash": "259bf2ae65eba8e6421ac916997fbf34"
+  },
+  "lib/core/widgets/second_ticker_widget.dart": {
+    "mtime": 1790774683.9773428,
+    "seen": 1792060068.4675725,
+    "ast_hash": "475a23a6e5bae4a923f592a5234c886a",
+    "semantic_hash": "475a23a6e5bae4a923f592a5234c886a"
+  },
+  "lib/core/widgets/settings_row_widget.dart": {
+    "mtime": 1791798935.6823559,
+    "seen": 1792060068.4675741,
+    "ast_hash": "e20dc1dfad8614da138dc56b8c7c79c2",
+    "semantic_hash": "e20dc1dfad8614da138dc56b8c7c79c2"
+  },
+  "lib/core/widgets/settings_section_widget.dart": {
+    "mtime": 1791798935.6800728,
+    "seen": 1792060068.4675756,
+    "ast_hash": "90085a9ac20af70679e4ba17b8f6d709",
+    "semantic_hash": "90085a9ac20af70679e4ba17b8f6d709"
+  },
+  "lib/core/widgets/splash_video_widget.dart": {
+    "mtime": 1791968588.1821792,
+    "seen": 1792060068.467577,
+    "ast_hash": "79bdc9f91fef2d6b8f1d7b1cf271dea2",
+    "semantic_hash": "79bdc9f91fef2d6b8f1d7b1cf271dea2"
+  },
+  "lib/core/widgets/theme_switch_widget.dart": {
+    "mtime": 1791978680.263621,
+    "seen": 1792060068.4675784,
+    "ast_hash": "5c93612104a5513375838cc92dd0b327",
+    "semantic_hash": "5c93612104a5513375838cc92dd0b327"
+  },
+  "lib/core/widgets/trip_eta_chip_widget.dart": {
+    "mtime": 1791371377.1860497,
+    "seen": 1792060068.4675798,
+    "ast_hash": "4ef472a6acbe7264d3ce6f506d1d2e67",
+    "semantic_hash": "4ef472a6acbe7264d3ce6f506d1d2e67"
+  },
+  "lib/core/widgets/trip_fees_overlay_widget.dart": {
+    "mtime": 1791624917.0116818,
+    "seen": 1792060068.4675815,
+    "ast_hash": "37fbc15ce5d6d46de24f9c2cdedc6970",
+    "semantic_hash": "37fbc15ce5d6d46de24f9c2cdedc6970"
+  },
+  "lib/core/widgets/vehicle_type_icon_widget.dart": {
+    "mtime": 1791798972.3856442,
+    "seen": 1792060068.467583,
+    "ast_hash": "4c3f9f02db78e75eb468ef351a9249a3",
+    "semantic_hash": "4c3f9f02db78e75eb468ef351a9249a3"
+  },
+  "lib/core/widgets/wallet_too_low_dialog.dart": {
+    "mtime": 1791371377.1860497,
+    "seen": 1792060068.4675846,
+    "ast_hash": "d58c696d42f9520360f975d71cbcaee6",
+    "semantic_hash": "d58c696d42f9520360f975d71cbcaee6"
+  },
+  "lib/core/widgets/warning_notice_widget.dart": {
+    "mtime": 1791798954.1854908,
+    "seen": 1792060068.467586,
+    "ast_hash": "ef6d85fb20127b3f84e0cec225aebfc8",
+    "semantic_hash": "ef6d85fb20127b3f84e0cec225aebfc8"
+  },
+  "lib/driver_features/driver_auth/data/datasources/driver_local_data_source.dart": {
+    "mtime": 1791126413.0716088,
+    "seen": 1792060068.4675875,
+    "ast_hash": "b8359aecc63eb84ee7cc3f88ca16f16f",
+    "semantic_hash": "b8359aecc63eb84ee7cc3f88ca16f16f"
+  },
+  "lib/driver_features/driver_auth/data/datasources/driver_remote_data_source.dart": {
+    "mtime": 1791624917.0116818,
+    "seen": 1792060068.4675891,
+    "ast_hash": "835d51dc7f837c96f975bc60852c12b6",
+    "semantic_hash": "835d51dc7f837c96f975bc60852c12b6"
+  },
+  "lib/driver_features/driver_auth/data/models/driver_signup_request_model.dart": {
+    "mtime": 1791624917.0116818,
+    "seen": 1792060068.4675906,
+    "ast_hash": "b27de4274ac0c1ac3dc0e81b9cde9a52",
+    "semantic_hash": "b27de4274ac0c1ac3dc0e81b9cde9a52"
+  },
+  "lib/driver_features/driver_auth/data/models/driver_status.dart": {
+    "mtime": 1790675544.5587099,
+    "seen": 1792060068.4675925,
+    "ast_hash": "5ed5f12eab1821e418168e6621e657d5",
+    "semantic_hash": "5ed5f12eab1821e418168e6621e657d5"
+  },
+  "lib/driver_features/driver_auth/data/models/driver_user_model.dart": {
+    "mtime": 1791624917.0116818,
+    "seen": 1792060068.467594,
+    "ast_hash": "4e9aad16bfcbe185046884be1bd15f3b",
+    "semantic_hash": "4e9aad16bfcbe185046884be1bd15f3b"
+  },
+  "lib/driver_features/driver_auth/data/models/driver_vehicle_model.dart": {
+    "mtime": 1791126413.0716088,
+    "seen": 1792060068.4675956,
+    "ast_hash": "79925ea04f78fd9bb4e4d5e9c4882fbf",
+    "semantic_hash": "79925ea04f78fd9bb4e4d5e9c4882fbf"
+  },
+  "lib/driver_features/driver_auth/data/repositories/driver_repository.dart": {
+    "mtime": 1791624917.0116818,
+    "seen": 1792060068.467597,
+    "ast_hash": "b7cd7ad01b27bec1a2fa7220db661c18",
+    "semantic_hash": "b7cd7ad01b27bec1a2fa7220db661c18"
+  },
+  "lib/driver_features/driver_auth/presentation/cubit/driver_auth_cubit.dart": {
+    "mtime": 1791624917.0126817,
+    "seen": 1792060068.4675987,
+    "ast_hash": "bd0abfc961ec5b000f561771b67738b5",
+    "semantic_hash": "bd0abfc961ec5b000f561771b67738b5"
+  },
+  "lib/driver_features/driver_auth/presentation/cubit/driver_auth_state.dart": {
+    "mtime": 1791371377.1860497,
+    "seen": 1792060068.4676,
+    "ast_hash": "8731042246c291adeb0aa15f1beb6579",
+    "semantic_hash": "8731042246c291adeb0aa15f1beb6579"
+  },
+  "lib/driver_features/driver_auth/presentation/cubit/driver_signup_cubit.dart": {
+    "mtime": 1791624917.0126817,
+    "seen": 1792060068.4676018,
+    "ast_hash": "99da0e19349e3cf70913f39b73163f0a",
+    "semantic_hash": "99da0e19349e3cf70913f39b73163f0a"
+  },
+  "lib/driver_features/driver_auth/presentation/cubit/driver_signup_state.dart": {
+    "mtime": 1791624917.0126817,
+    "seen": 1792060068.4676032,
+    "ast_hash": "07d347cd30b669b5722e68124a937f75",
+    "semantic_hash": "07d347cd30b669b5722e68124a937f75"
+  },
+  "lib/driver_features/driver_auth/presentation/screens/driver_sign_in_screen.dart": {
+    "mtime": 1791624917.0126817,
+    "seen": 1792060068.4676046,
+    "ast_hash": "982075d53add029a8c51d38743ef3fe0",
+    "semantic_hash": "982075d53add029a8c51d38743ef3fe0"
+  },
+  "lib/driver_features/driver_auth/presentation/screens/driver_sign_up_screen.dart": {
+    "mtime": 1791797499.244533,
+    "seen": 1792060068.4676063,
+    "ast_hash": "651372d69cf3f3b2a2b2a012008faddd",
+    "semantic_hash": "651372d69cf3f3b2a2b2a012008faddd"
+  },
+  "lib/driver_features/driver_auth/presentation/screens/driver_signup_pending_screen.dart": {
+    "mtime": 1791797499.244533,
+    "seen": 1792060068.4676077,
+    "ast_hash": "1b4a49b38b1fc52f5e949a111611039c",
+    "semantic_hash": "1b4a49b38b1fc52f5e949a111611039c"
+  },
+  "lib/driver_features/driver_auth/presentation/widgets/signup_photo_tile_widget.dart": {
+    "mtime": 1791797499.244533,
+    "seen": 1792060068.4676094,
+    "ast_hash": "7fd95f03cde741a94d312b3174f11a29",
+    "semantic_hash": "7fd95f03cde741a94d312b3174f11a29"
+  },
+  "lib/driver_features/driver_gps_guard/data/datasources/gps_status_service.dart": {
+    "mtime": 1790776712.2080226,
+    "seen": 1792060068.4676106,
+    "ast_hash": "449798ac9058e0fd920feec778d2d95b",
+    "semantic_hash": "449798ac9058e0fd920feec778d2d95b"
+  },
+  "lib/driver_features/driver_gps_guard/presentation/cubit/gps_status_cubit.dart": {
+    "mtime": 1790776736.5725727,
+    "seen": 1792060068.4676123,
+    "ast_hash": "18f0d7adb99da012bb40bd14ed600d04",
+    "semantic_hash": "18f0d7adb99da012bb40bd14ed600d04"
+  },
+  "lib/driver_features/driver_gps_guard/presentation/cubit/gps_status_state.dart": {
+    "mtime": 1790776713.248661,
+    "seen": 1792060068.4676137,
+    "ast_hash": "96c89f17fe9218c6a0b331b26b6f8b0f",
+    "semantic_hash": "96c89f17fe9218c6a0b331b26b6f8b0f"
+  },
+  "lib/driver_features/driver_gps_guard/presentation/widgets/driver_gps_guard_widget.dart": {
+    "mtime": 1790859444.899433,
+    "seen": 1792060068.4676151,
+    "ast_hash": "5bf5af94fabcf3151a750784bae16071",
+    "semantic_hash": "5bf5af94fabcf3151a750784bae16071"
+  },
+  "lib/driver_features/driver_gps_guard/presentation/widgets/gps_required_dialog_widget.dart": {
+    "mtime": 1790859442.7994182,
+    "seen": 1792060068.4676168,
+    "ast_hash": "3d3f5f99b267c31c70f2143b27ac3dda",
+    "semantic_hash": "3d3f5f99b267c31c70f2143b27ac3dda"
+  },
+  "lib/driver_features/driver_home/data/datasources/driver_socket_service.dart": {
+    "mtime": 1791624917.0126817,
+    "seen": 1792060068.4676182,
+    "ast_hash": "38ceec3d0a11e58ef1aca250f5714a5f",
+    "semantic_hash": "38ceec3d0a11e58ef1aca250f5714a5f"
+  },
+  "lib/driver_features/driver_home/data/datasources/incoming_order_call_alert.dart": {
+    "mtime": 1791797499.244533,
+    "seen": 1792060068.46762,
+    "ast_hash": "37cbe3f5f8c0ea353ab3a7162ed5ecab",
+    "semantic_hash": "37cbe3f5f8c0ea353ab3a7162ed5ecab"
+  },
+  "lib/driver_features/driver_home/data/datasources/new_order_alert.dart": {
+    "mtime": 1791797499.244533,
+    "seen": 1792060068.4676213,
+    "ast_hash": "a8ac65ca7922c9738109bb9640fada48",
+    "semantic_hash": "a8ac65ca7922c9738109bb9640fada48"
+  },
+  "lib/driver_features/driver_home/data/driver_presence_store.dart": {
+    "mtime": 1791624917.0126817,
+    "seen": 1792060068.467623,
+    "ast_hash": "144865b91c7e8b67e7d0d86d04cd5c09",
+    "semantic_hash": "144865b91c7e8b67e7d0d86d04cd5c09"
+  },
+  "lib/driver_features/driver_home/data/location_ticker.dart": {
+    "mtime": 1791130775.9264865,
+    "seen": 1792060068.4676244,
+    "ast_hash": "ec633ff498e7b153634cb665484c8e1b",
+    "semantic_hash": "ec633ff498e7b153634cb665484c8e1b"
+  },
+  "lib/driver_features/driver_home/data/models/order_accept_result_model.dart": {
+    "mtime": 1791624917.0126817,
+    "seen": 1792060068.467626,
+    "ast_hash": "4feb37b6f81a7d52c22f23656d84f921",
+    "semantic_hash": "4feb37b6f81a7d52c22f23656d84f921"
+  },
+  "lib/driver_features/driver_home/presentation/cubit/driver_orders_cubit.dart": {
+    "mtime": 1791797499.244533,
+    "seen": 1792060068.4676278,
+    "ast_hash": "f383c9b6ae40114e6465259ace0f82f6",
+    "semantic_hash": "f383c9b6ae40114e6465259ace0f82f6"
+  },
+  "lib/driver_features/driver_home/presentation/cubit/driver_orders_state.dart": {
+    "mtime": 1791371377.1870499,
+    "seen": 1792060068.4676292,
+    "ast_hash": "6573f5f087da08c244cb3e24aaca6b2b",
+    "semantic_hash": "6573f5f087da08c244cb3e24aaca6b2b"
+  },
+  "lib/driver_features/driver_home/presentation/cubit/driver_presence_cubit.dart": {
+    "mtime": 1791624917.0136817,
+    "seen": 1792060068.4676309,
+    "ast_hash": "f7592435899e2a6e12b415be6042ac69",
+    "semantic_hash": "f7592435899e2a6e12b415be6042ac69"
+  },
+  "lib/driver_features/driver_home/presentation/cubit/driver_presence_state.dart": {
+    "mtime": 1790588033.8147035,
+    "seen": 1792060068.4676323,
+    "ast_hash": "873a2f12c1ea062716f73b90b02b90de",
+    "semantic_hash": "873a2f12c1ea062716f73b90b02b90de"
+  },
+  "lib/driver_features/driver_home/presentation/screens/driver_home_screen.dart": {
+    "mtime": 1791802663.0358274,
+    "seen": 1792060068.467634,
+    "ast_hash": "deade5e384b64388bed60b20e43ddf62",
+    "semantic_hash": "deade5e384b64388bed60b20e43ddf62"
+  },
+  "lib/driver_features/driver_home/presentation/widgets/driver_low_wallet_notice_widget.dart": {
+    "mtime": 1791371377.1870499,
+    "seen": 1792060068.4676354,
+    "ast_hash": "84f2f627cb76c147be281a358adf9f95",
+    "semantic_hash": "84f2f627cb76c147be281a358adf9f95"
+  },
+  "lib/driver_features/driver_home/presentation/widgets/driver_online_toggle_widget.dart": {
+    "mtime": 1791802161.4393477,
+    "seen": 1792060068.467637,
+    "ast_hash": "f90b8660cdf41bce4cacc607f3b93e7a",
+    "semantic_hash": "f90b8660cdf41bce4cacc607f3b93e7a"
+  },
+  "lib/driver_features/driver_home/presentation/widgets/driver_order_card_widget.dart": {
+    "mtime": 1791801134.158521,
+    "seen": 1792060068.4676385,
+    "ast_hash": "9eb00953627299fad50262d6cfd6add9",
+    "semantic_hash": "9eb00953627299fad50262d6cfd6add9"
+  },
+  "lib/driver_features/driver_home/presentation/widgets/driver_status_card_widget.dart": {
+    "mtime": 1791801113.237577,
+    "seen": 1792060068.4676402,
+    "ast_hash": "a4790f28a29c052031286efe61009990",
+    "semantic_hash": "a4790f28a29c052031286efe61009990"
+  },
+  "lib/driver_features/driver_home/presentation/widgets/order_offer_countdown_widget.dart": {
+    "mtime": 1791801134.159332,
+    "seen": 1792060068.4676416,
+    "ast_hash": "7d8098866c6a533009c5011f08942871",
+    "semantic_hash": "7d8098866c6a533009c5011f08942871"
+  },
+  "lib/driver_features/driver_main_wrapper_screen.dart": {
+    "mtime": 1791969344.3751376,
+    "seen": 1792060068.467643,
+    "ast_hash": "6028c8d8ca719e64748d38f76d5a4890",
+    "semantic_hash": "6028c8d8ca719e64748d38f76d5a4890"
+  },
+  "lib/driver_features/driver_profile/data/datasources/driver_vehicle_remote_data_source.dart": {
+    "mtime": 1790579785.0183752,
+    "seen": 1792060068.4676447,
+    "ast_hash": "da8525bb96481c211f6955196207acbe",
+    "semantic_hash": "da8525bb96481c211f6955196207acbe"
+  },
+  "lib/driver_features/driver_profile/data/repositories/driver_vehicle_repository.dart": {
+    "mtime": 1790781107.7695653,
+    "seen": 1792060068.4676461,
+    "ast_hash": "8f64f13348afac77cd96da11ac069dd0",
+    "semantic_hash": "8f64f13348afac77cd96da11ac069dd0"
+  },
+  "lib/driver_features/driver_profile/presentation/cubit/driver_vehicle_cubit.dart": {
+    "mtime": 1790579800.5907066,
+    "seen": 1792060068.4676478,
+    "ast_hash": "54510070c4c06f226cf5c44fbfdbb9e1",
+    "semantic_hash": "54510070c4c06f226cf5c44fbfdbb9e1"
+  },
+  "lib/driver_features/driver_profile/presentation/cubit/driver_vehicle_state.dart": {
+    "mtime": 1790781138.2769449,
+    "seen": 1792060068.4676495,
+    "ast_hash": "508adc3a82c13ba94250592eb9dc37f4",
+    "semantic_hash": "508adc3a82c13ba94250592eb9dc37f4"
+  },
+  "lib/driver_features/driver_profile/presentation/screens/driver_profile_screen.dart": {
+    "mtime": 1791802663.0445142,
+    "seen": 1792060068.4676511,
+    "ast_hash": "1c5965f61eeb9e76580b49273a810fbc",
+    "semantic_hash": "1c5965f61eeb9e76580b49273a810fbc"
+  },
+  "lib/driver_features/driver_profile/presentation/widgets/driver_vehicle_card_widget.dart": {
+    "mtime": 1791801086.249075,
+    "seen": 1792060068.4676526,
+    "ast_hash": "6acaf8e25a087cf123f127732fd60dcc",
+    "semantic_hash": "6acaf8e25a087cf123f127732fd60dcc"
+  },
+  "lib/driver_features/driver_profile/presentation/widgets/profile_figure_tile_widget.dart": {
+    "mtime": 1791801086.2507038,
+    "seen": 1792060068.4676542,
+    "ast_hash": "0704f80801d4db04ed786e19f5a39017",
+    "semantic_hash": "0704f80801d4db04ed786e19f5a39017"
+  },
+  "lib/driver_features/driver_profile/presentation/widgets/profile_header_widget.dart": {
+    "mtime": 1791801086.2480552,
+    "seen": 1792060068.4676557,
+    "ast_hash": "fc3d2ab7326a109ab360c5e010186a82",
+    "semantic_hash": "fc3d2ab7326a109ab360c5e010186a82"
+  },
+  "lib/driver_features/driver_profile/presentation/widgets/profile_info_row_widget.dart": {
+    "mtime": 1791797499.2455332,
+    "seen": 1792060068.4676573,
+    "ast_hash": "50f00a9b166f4abbcca6bbc1d32b42a1",
+    "semantic_hash": "50f00a9b166f4abbcca6bbc1d32b42a1"
+  },
+  "lib/driver_features/driver_ratings/data/datasources/driver_ratings_remote_data_source.dart": {
+    "mtime": 1791624917.0153608,
+    "seen": 1792060068.4676588,
+    "ast_hash": "5b4b9da6f785ac951333c70aac1d557d",
+    "semantic_hash": "5b4b9da6f785ac951333c70aac1d557d"
+  },
+  "lib/driver_features/driver_ratings/data/models/driver_ratings_page_model.dart": {
+    "mtime": 1791624917.0153608,
+    "seen": 1792060068.4676602,
+    "ast_hash": "cf699c66cfbac9f96f8795ab467e9d9e",
+    "semantic_hash": "cf699c66cfbac9f96f8795ab467e9d9e"
+  },
+  "lib/driver_features/driver_ratings/data/repositories/driver_ratings_repository.dart": {
+    "mtime": 1791624917.0153608,
+    "seen": 1792060068.4676619,
+    "ast_hash": "48329f985a1be5085298887ce80b69d3",
+    "semantic_hash": "48329f985a1be5085298887ce80b69d3"
+  },
+  "lib/driver_features/driver_ratings/presentation/cubit/driver_ratings_cubit.dart": {
+    "mtime": 1791624917.0156324,
+    "seen": 1792060068.4676635,
+    "ast_hash": "f1b9d3df9bc365aced968d13cdd5f044",
+    "semantic_hash": "f1b9d3df9bc365aced968d13cdd5f044"
+  },
+  "lib/driver_features/driver_ratings/presentation/cubit/driver_ratings_state.dart": {
+    "mtime": 1791624917.015695,
+    "seen": 1792060068.4676652,
+    "ast_hash": "825f39c690ef7234f8d6449f03ae0042",
+    "semantic_hash": "825f39c690ef7234f8d6449f03ae0042"
+  },
+  "lib/driver_features/driver_ratings/presentation/screens/driver_ratings_screen.dart": {
+    "mtime": 1791797499.2455332,
+    "seen": 1792060068.4676666,
+    "ast_hash": "3eb85be2f4ca934490f8c57436b3a916",
+    "semantic_hash": "3eb85be2f4ca934490f8c57436b3a916"
+  },
+  "lib/driver_features/driver_ratings/presentation/widgets/rating_tile_widget.dart": {
+    "mtime": 1791801086.2488582,
+    "seen": 1792060068.4676683,
+    "ast_hash": "d98184e65386db3065237f2cbe3bcb73",
+    "semantic_hash": "d98184e65386db3065237f2cbe3bcb73"
+  },
+  "lib/driver_features/driver_ratings/presentation/widgets/ratings_summary_widget.dart": {
+    "mtime": 1791801086.2491846,
+    "seen": 1792060068.4676697,
+    "ast_hash": "8dae3637e110ac51f0573c01542a07b1",
+    "semantic_hash": "8dae3637e110ac51f0573c01542a07b1"
+  },
+  "lib/driver_features/driver_route/data/datasources/route_location_service.dart": {
+    "mtime": 1790775359.5923622,
+    "seen": 1792060068.4676714,
+    "ast_hash": "87a351b0d54667b2fa4e6e1c092edd21",
+    "semantic_hash": "87a351b0d54667b2fa4e6e1c092edd21"
+  },
+  "lib/driver_features/driver_route/data/datasources/route_session_local_data_source.dart": {
+    "mtime": 1790775230.11405,
+    "seen": 1792060068.467673,
+    "ast_hash": "df95f2035d297c3f75c3f3bfed76946e",
+    "semantic_hash": "df95f2035d297c3f75c3f3bfed76946e"
+  },
+  "lib/driver_features/driver_route/data/models/route_session_model.dart": {
+    "mtime": 1790775359.5993621,
+    "seen": 1792060068.4676747,
+    "ast_hash": "489f2c6e3f9500f9b691e27f62a04e34",
+    "semantic_hash": "489f2c6e3f9500f9b691e27f62a04e34"
+  },
+  "lib/driver_features/driver_route/data/repositories/route_session_repository.dart": {
+    "mtime": 1790775231.152778,
+    "seen": 1792060068.4676762,
+    "ast_hash": "5c6eefe3ff8662bce26e972c4d2ec011",
+    "semantic_hash": "5c6eefe3ff8662bce26e972c4d2ec011"
+  },
+  "lib/driver_features/driver_route/presentation/cubit/route_tracker_cubit.dart": {
+    "mtime": 1791797499.2465332,
+    "seen": 1792060068.4676776,
+    "ast_hash": "2d00fb5fc2193e3b3b7c4b773b458bd1",
+    "semantic_hash": "2d00fb5fc2193e3b3b7c4b773b458bd1"
+  },
+  "lib/driver_features/driver_route/presentation/cubit/route_tracker_state.dart": {
+    "mtime": 1790775707.8724449,
+    "seen": 1792060068.4676793,
+    "ast_hash": "13c9899d744b01b1b554c79433dbe4c4",
+    "semantic_hash": "13c9899d744b01b1b554c79433dbe4c4"
+  },
+  "lib/driver_features/driver_route/presentation/screens/driver_route_screen.dart": {
+    "mtime": 1791801089.6733346,
+    "seen": 1792060068.4676807,
+    "ast_hash": "3f023231857b75ac1b03b20e6362264b",
+    "semantic_hash": "3f023231857b75ac1b03b20e6362264b"
+  },
+  "lib/driver_features/driver_route/presentation/widgets/route_actions_widget.dart": {
+    "mtime": 1791803640.64898,
+    "seen": 1792060068.4676824,
+    "ast_hash": "3e1d4080b3cfd0ac889fed3329c12d34",
+    "semantic_hash": "3e1d4080b3cfd0ac889fed3329c12d34"
+  },
+  "lib/driver_features/driver_route/presentation/widgets/route_duration_format.dart": {
+    "mtime": 1790776235.1672432,
+    "seen": 1792060068.4676838,
+    "ast_hash": "8d790ecc038ee2bb68f7681e334dd0b3",
+    "semantic_hash": "8d790ecc038ee2bb68f7681e334dd0b3"
+  },
+  "lib/driver_features/driver_route/presentation/widgets/route_live_timers_widget.dart": {
+    "mtime": 1791797499.2465332,
+    "seen": 1792060068.4676855,
+    "ast_hash": "74aa27bfc2db9348aa6bf7106b5deb4a",
+    "semantic_hash": "74aa27bfc2db9348aa6bf7106b5deb4a"
+  },
+  "lib/driver_features/driver_route/presentation/widgets/route_locate_button_widget.dart": {
+    "mtime": 1791797499.2465332,
+    "seen": 1792060068.467687,
+    "ast_hash": "96eb0369ec0b7036528bb3193b557c58",
+    "semantic_hash": "96eb0369ec0b7036528bb3193b557c58"
+  },
+  "lib/driver_features/driver_route/presentation/widgets/route_map_widget.dart": {
+    "mtime": 1791797499.2465332,
+    "seen": 1792060068.4676886,
+    "ast_hash": "4128f7dec83d5c0ed11bafcc2102531f",
+    "semantic_hash": "4128f7dec83d5c0ed11bafcc2102531f"
+  },
+  "lib/driver_features/driver_route/presentation/widgets/route_summary_card_widget.dart": {
+    "mtime": 1791801096.3956358,
+    "seen": 1792060068.4676902,
+    "ast_hash": "c8e087088efacdd89ec59151fa4ce5e7",
+    "semantic_hash": "c8e087088efacdd89ec59151fa4ce5e7"
+  },
+  "lib/driver_features/driver_route/presentation/widgets/route_timer_card_widget.dart": {
+    "mtime": 1791801089.6773345,
+    "seen": 1792060068.4676917,
+    "ast_hash": "182c12ad3463122b7b7ce0f227c4746f",
+    "semantic_hash": "182c12ad3463122b7b7ce0f227c4746f"
+  },
+  "lib/driver_features/driver_settings/data/datasources/driver_account_deletion_remote_data_source.dart": {
+    "mtime": 1790779279.568531,
+    "seen": 1792060068.4676933,
+    "ast_hash": "090a173250e5c49766044fdbc6e90550",
+    "semantic_hash": "090a173250e5c49766044fdbc6e90550"
+  },
+  "lib/driver_features/driver_settings/data/datasources/driver_complaints_remote_data_source.dart": {
+    "mtime": 1790520119.398407,
+    "seen": 1792060068.4676948,
+    "ast_hash": "bbf34b335788670eb5883bc6f55e8bbd",
+    "semantic_hash": "bbf34b335788670eb5883bc6f55e8bbd"
+  },
+  "lib/driver_features/driver_settings/data/models/driver_deletion_request_model.dart": {
+    "mtime": 1790779278.5226624,
+    "seen": 1792060068.4676964,
+    "ast_hash": "43367c970eb6d2de75567c8325ad22bc",
+    "semantic_hash": "43367c970eb6d2de75567c8325ad22bc"
+  },
+  "lib/driver_features/driver_settings/data/repositories/driver_account_deletion_repository.dart": {
+    "mtime": 1790779280.6205287,
+    "seen": 1792060068.4676979,
+    "ast_hash": "1ae85384d296851bfb278d8a185fcaff",
+    "semantic_hash": "1ae85384d296851bfb278d8a185fcaff"
+  },
+  "lib/driver_features/driver_settings/data/repositories/driver_complaints_repository.dart": {
+    "mtime": 1790675612.7903244,
+    "seen": 1792060068.4676995,
+    "ast_hash": "4047e98aca9ff7ffd694d51b8542c2f7",
+    "semantic_hash": "4047e98aca9ff7ffd694d51b8542c2f7"
+  },
+  "lib/driver_features/driver_settings/presentation/cubit/driver_account_deletion_cubit.dart": {
+    "mtime": 1790859230.023932,
+    "seen": 1792060068.467701,
+    "ast_hash": "e0120e5ab19c556764752b8ea8bd4009",
+    "semantic_hash": "e0120e5ab19c556764752b8ea8bd4009"
+  },
+  "lib/driver_features/driver_settings/presentation/cubit/driver_account_deletion_state.dart": {
+    "mtime": 1790779294.4814954,
+    "seen": 1792060068.4677026,
+    "ast_hash": "fd9e98030f98d3587790db3d4a4e9efb",
+    "semantic_hash": "fd9e98030f98d3587790db3d4a4e9efb"
+  },
+  "lib/driver_features/driver_settings/presentation/cubit/driver_settings_cubit.dart": {
+    "mtime": 1790859159.5124376,
+    "seen": 1792060068.467704,
+    "ast_hash": "4826a614868238389bebce35caff038c",
+    "semantic_hash": "4826a614868238389bebce35caff038c"
+  },
+  "lib/driver_features/driver_settings/presentation/cubit/driver_settings_state.dart": {
+    "mtime": 1790859158.46443,
+    "seen": 1792060068.4677055,
+    "ast_hash": "e0674c3c0b6eab6d2f861b5104f8a8cb",
+    "semantic_hash": "e0674c3c0b6eab6d2f861b5104f8a8cb"
+  },
+  "lib/driver_features/driver_settings/presentation/screens/driver_settings_screen.dart": {
+    "mtime": 1791802663.0507138,
+    "seen": 1792060068.4677072,
+    "ast_hash": "3b52282e2e9d04fae261a300c678780c",
+    "semantic_hash": "3b52282e2e9d04fae261a300c678780c"
+  },
+  "lib/driver_features/driver_settings/presentation/widgets/driver_account_deletion_section_widget.dart": {
+    "mtime": 1791797499.2465332,
+    "seen": 1792060068.4677086,
+    "ast_hash": "b9fbab3f193347f10f9a22175e8da14d",
+    "semantic_hash": "b9fbab3f193347f10f9a22175e8da14d"
+  },
+  "lib/driver_features/driver_settings/presentation/widgets/driver_delete_account_dialog_widget.dart": {
+    "mtime": 1791624917.015899,
+    "seen": 1792060068.4677103,
+    "ast_hash": "732106dbd371c21d859830e9b764898e",
+    "semantic_hash": "732106dbd371c21d859830e9b764898e"
+  },
+  "lib/driver_features/driver_settings/presentation/widgets/driver_deletion_status_card_widget.dart": {
+    "mtime": 1791801165.7354913,
+    "seen": 1792060068.4677117,
+    "ast_hash": "3ed9831b118f8fe7e0b4c352b124194a",
+    "semantic_hash": "3ed9831b118f8fe7e0b4c352b124194a"
+  },
+  "lib/driver_features/driver_settings/presentation/widgets/search_radius_slider_widget.dart": {
+    "mtime": 1791801086.2472057,
+    "seen": 1792060068.4677134,
+    "ast_hash": "7280889c303a7c70cd42f96dad012092",
+    "semantic_hash": "7280889c303a7c70cd42f96dad012092"
+  },
+  "lib/driver_features/driver_shared_order/data/datasources/shared_order_remote_data_source.dart": {
+    "mtime": 1791377949.2604928,
+    "seen": 1792060068.4677148,
+    "ast_hash": "397651d50524f4f296941327f8a75d37",
+    "semantic_hash": "397651d50524f4f296941327f8a75d37"
+  },
+  "lib/driver_features/driver_shared_order/data/models/shared_order_preview_model.dart": {
+    "mtime": 1791189296.109052,
+    "seen": 1792060068.4677165,
+    "ast_hash": "4ce30c75d3eac77f188927d2bef0739d",
+    "semantic_hash": "4ce30c75d3eac77f188927d2bef0739d"
+  },
+  "lib/driver_features/driver_shared_order/data/repositories/shared_order_repository.dart": {
+    "mtime": 1791377949.2637277,
+    "seen": 1792060068.467718,
+    "ast_hash": "e6fa0cd919be93f935a6dc0f22e026f3",
+    "semantic_hash": "e6fa0cd919be93f935a6dc0f22e026f3"
+  },
+  "lib/driver_features/driver_shared_order/presentation/cubit/shared_order_cubit.dart": {
+    "mtime": 1791371377.1880498,
+    "seen": 1792060068.4677193,
+    "ast_hash": "dabcbc7681a2df25bdaca2694de3a4e7",
+    "semantic_hash": "dabcbc7681a2df25bdaca2694de3a4e7"
+  },
+  "lib/driver_features/driver_shared_order/presentation/cubit/shared_order_state.dart": {
+    "mtime": 1791371377.1880498,
+    "seen": 1792060068.467721,
+    "ast_hash": "4466ae1c70184eacc34a16c435a91cad",
+    "semantic_hash": "4466ae1c70184eacc34a16c435a91cad"
+  },
+  "lib/driver_features/driver_shared_order/presentation/screens/shared_order_screen.dart": {
+    "mtime": 1791797499.247533,
+    "seen": 1792060068.4677224,
+    "ast_hash": "a241104dd2a64a594a77b14ba424611a",
+    "semantic_hash": "a241104dd2a64a594a77b14ba424611a"
+  },
+  "lib/driver_features/driver_shared_order/presentation/widgets/shared_order_accept_button_widget.dart": {
+    "mtime": 1791801086.2513347,
+    "seen": 1792060068.467724,
+    "ast_hash": "6511fa6e1c8b9d40878f2c39b746fd73",
+    "semantic_hash": "6511fa6e1c8b9d40878f2c39b746fd73"
+  },
+  "lib/driver_features/driver_shared_order/presentation/widgets/shared_order_details_widget.dart": {
+    "mtime": 1791801086.2476618,
+    "seen": 1792060068.4677255,
+    "ast_hash": "eb257607f55be5ee39a85da4dd76eaa3",
+    "semantic_hash": "eb257607f55be5ee39a85da4dd76eaa3"
+  },
+  "lib/driver_features/driver_shared_order/presentation/widgets/shared_order_map_widget.dart": {
+    "mtime": 1791797499.247533,
+    "seen": 1792060068.4677272,
+    "ast_hash": "6feb6ee6095ba120d0107e583885b751",
+    "semantic_hash": "6feb6ee6095ba120d0107e583885b751"
+  },
+  "lib/driver_features/driver_shared_order/presentation/widgets/shared_order_status_widget.dart": {
+    "mtime": 1791801150.9593086,
+    "seen": 1792060068.4677286,
+    "ast_hash": "a383d39da9e4c759961dd2cf6901dcfc",
+    "semantic_hash": "a383d39da9e4c759961dd2cf6901dcfc"
+  },
+  "lib/driver_features/driver_trip/data/datasources/driver_trip_location_service.dart": {
+    "mtime": 1790774240.0312822,
+    "seen": 1792060068.4677303,
+    "ast_hash": "22358d12d9342f396b76b7b104c68b14",
+    "semantic_hash": "22358d12d9342f396b76b7b104c68b14"
+  },
+  "lib/driver_features/driver_trip/data/datasources/driver_trip_remote_data_source.dart": {
+    "mtime": 1791624917.015899,
+    "seen": 1792060068.4677317,
+    "ast_hash": "b2d880001b97fc325aa84ae14055fc08",
+    "semantic_hash": "b2d880001b97fc325aa84ae14055fc08"
+  },
+  "lib/driver_features/driver_trip/data/datasources/driver_trip_route_local_data_source.dart": {
+    "mtime": 1790774236.902237,
+    "seen": 1792060068.4677331,
+    "ast_hash": "9929acdb7522e1e040f3ee08546d936a",
+    "semantic_hash": "9929acdb7522e1e040f3ee08546d936a"
+  },
+  "lib/driver_features/driver_trip/data/datasources/open_trip_registry.dart": {
+    "mtime": 1791126413.0736554,
+    "seen": 1792060068.4677348,
+    "ast_hash": "c5a5fe60c32c26e547dc6889132c9d2a",
+    "semantic_hash": "c5a5fe60c32c26e547dc6889132c9d2a"
+  },
+  "lib/driver_features/driver_trip/data/datasources/ride_bill_pdf_builder.dart": {
+    "mtime": 1791624917.015899,
+    "seen": 1792060068.4677362,
+    "ast_hash": "63d1bcb724eb0c08145de1de8824490c",
+    "semantic_hash": "63d1bcb724eb0c08145de1de8824490c"
+  },
+  "lib/driver_features/driver_trip/data/models/driver_active_ride_event_model.dart": {
+    "mtime": 1791126413.0736554,
+    "seen": 1792060068.467738,
+    "ast_hash": "2e2501c9348229c36e10279322d8ff63",
+    "semantic_hash": "2e2501c9348229c36e10279322d8ff63"
+  },
+  "lib/driver_features/driver_trip/data/models/driver_active_ride_model.dart": {
+    "mtime": 1791377949.2653944,
+    "seen": 1792060068.4677393,
+    "ast_hash": "e8b4c35e9a127400d933c10f13a51b6b",
+    "semantic_hash": "e8b4c35e9a127400d933c10f13a51b6b"
+  },
+  "lib/driver_features/driver_trip/data/models/driver_ride_finish_model.dart": {
+    "mtime": 1791189296.109052,
+    "seen": 1792060068.467741,
+    "ast_hash": "91ac51d81c9eaa28c355fc7bd38c2f21",
+    "semantic_hash": "91ac51d81c9eaa28c355fc7bd38c2f21"
+  },
+  "lib/driver_features/driver_trip/data/models/driver_ride_start_model.dart": {
+    "mtime": 1791126413.0736554,
+    "seen": 1792060068.4677424,
+    "ast_hash": "b33e986258f0a07edeb4122f18bd79d7",
+    "semantic_hash": "b33e986258f0a07edeb4122f18bd79d7"
+  },
+  "lib/driver_features/driver_trip/data/models/driver_trip_customer_model.dart": {
+    "mtime": 1791189296.109052,
+    "seen": 1792060068.467744,
+    "ast_hash": "e5123a796402497033d86ed5b2967e3d",
+    "semantic_hash": "e5123a796402497033d86ed5b2967e3d"
+  },
+  "lib/driver_features/driver_trip/data/models/driver_trip_fare_model.dart": {
+    "mtime": 1791195601.5582907,
+    "seen": 1792060068.4677455,
+    "ast_hash": "2ddc4ccf4ee644f4ade8aba59cc1bb4d",
+    "semantic_hash": "2ddc4ccf4ee644f4ade8aba59cc1bb4d"
+  },
+  "lib/driver_features/driver_trip/data/models/driver_trip_payment_model.dart": {
+    "mtime": 1790686750.83455,
+    "seen": 1792060068.467747,
+    "ast_hash": "a3edb80dec4e52833fcae474ac5e79cf",
+    "semantic_hash": "a3edb80dec4e52833fcae474ac5e79cf"
+  },
+  "lib/driver_features/driver_trip/data/models/driver_trip_vehicle_model.dart": {
+    "mtime": 1791372284.1632555,
+    "seen": 1792060068.4677486,
+    "ast_hash": "318d7f90aa8cf4e6acc729178a6fcbdc",
+    "semantic_hash": "318d7f90aa8cf4e6acc729178a6fcbdc"
+  },
+  "lib/driver_features/driver_trip/data/models/recorded_route_point_model.dart": {
+    "mtime": 1790691399.6976013,
+    "seen": 1792060068.4677503,
+    "ast_hash": "3d201b1a5af64cb031f4cbfc186a2ce1",
+    "semantic_hash": "3d201b1a5af64cb031f4cbfc186a2ce1"
+  },
+  "lib/driver_features/driver_trip/data/models/ride_bill_model.dart": {
+    "mtime": 1791189296.109052,
+    "seen": 1792060068.467752,
+    "ast_hash": "3ac2e3b18a9027f3ab0b5938dbe51b9b",
+    "semantic_hash": "3ac2e3b18a9027f3ab0b5938dbe51b9b"
+  },
+  "lib/driver_features/driver_trip/data/models/ride_cancellation_model.dart": {
+    "mtime": 1790789279.6593626,
+    "seen": 1792060068.4677534,
+    "ast_hash": "adf7f1c1ed111f05ca044541116360a0",
+    "semantic_hash": "adf7f1c1ed111f05ca044541116360a0"
+  },
+  "lib/driver_features/driver_trip/data/models/ride_order_source.dart": {
+    "mtime": 1791189296.109052,
+    "seen": 1792060068.467755,
+    "ast_hash": "c0d7e0c8e767ec844c7e0d7d91ad7e06",
+    "semantic_hash": "c0d7e0c8e767ec844c7e0d7d91ad7e06"
+  },
+  "lib/driver_features/driver_trip/data/repositories/call_customer_repository.dart": {
+    "mtime": 1791968588.1821792,
+    "seen": 1792060068.4677565,
+    "ast_hash": "af7628e14bf699ad622a3211958b8813",
+    "semantic_hash": "af7628e14bf699ad622a3211958b8813"
+  },
+  "lib/driver_features/driver_trip/data/repositories/driver_trip_repository.dart": {
+    "mtime": 1791624917.015899,
+    "seen": 1792060068.4677582,
+    "ast_hash": "431ffbade54fecf41e1d8bea6c3a4e0a",
+    "semantic_hash": "431ffbade54fecf41e1d8bea6c3a4e0a"
+  },
+  "lib/driver_features/driver_trip/data/repositories/driver_trip_route_repository.dart": {
+    "mtime": 1790774237.939252,
+    "seen": 1792060068.4677596,
+    "ast_hash": "c53875ec069bd2fa9115b0e9356b2a05",
+    "semantic_hash": "c53875ec069bd2fa9115b0e9356b2a05"
+  },
+  "lib/driver_features/driver_trip/data/repositories/ride_bill_repository.dart": {
+    "mtime": 1791968588.1821792,
+    "seen": 1792060068.4677615,
+    "ast_hash": "3583f75c9da8507da025b0f2ba1e5866",
+    "semantic_hash": "3583f75c9da8507da025b0f2ba1e5866"
+  },
+  "lib/driver_features/driver_trip/data/repositories/share_ride_info_repository.dart": {
+    "mtime": 1791968588.1821792,
+    "seen": 1792060068.4677627,
+    "ast_hash": "ccb1bf233f6456b58c6f28506bd5ffd8",
+    "semantic_hash": "ccb1bf233f6456b58c6f28506bd5ffd8"
+  },
+  "lib/driver_features/driver_trip/data/route_distance_calculator.dart": {
+    "mtime": 1790774238.9762669,
+    "seen": 1792060068.4677641,
+    "ast_hash": "bc9ffea162e7e017042e4b45be4e0af7",
+    "semantic_hash": "bc9ffea162e7e017042e4b45be4e0af7"
+  },
+  "lib/driver_features/driver_trip/presentation/cubit/call_customer_cubit.dart": {
+    "mtime": 1791968588.1821792,
+    "seen": 1792060068.4677658,
+    "ast_hash": "9e21a3066a515b513d8163d69ceb3e6c",
+    "semantic_hash": "9e21a3066a515b513d8163d69ceb3e6c"
+  },
+  "lib/driver_features/driver_trip/presentation/cubit/call_customer_state.dart": {
+    "mtime": 1791968588.1821792,
+    "seen": 1792060068.4677672,
+    "ast_hash": "9ee1076f726cbada21da80309fc77ae8",
+    "semantic_hash": "9ee1076f726cbada21da80309fc77ae8"
+  },
+  "lib/driver_features/driver_trip/presentation/cubit/driver_active_ride_cubit.dart": {
+    "mtime": 1791126413.0736554,
+    "seen": 1792060068.4677691,
+    "ast_hash": "b0ac4bac7733f84b1e8eb7496539bd1d",
+    "semantic_hash": "b0ac4bac7733f84b1e8eb7496539bd1d"
+  },
+  "lib/driver_features/driver_trip/presentation/cubit/driver_active_ride_state.dart": {
+    "mtime": 1791126413.0736554,
+    "seen": 1792060068.4677703,
+    "ast_hash": "5013e4e15cde38eacfe9f24ae95d4b47",
+    "semantic_hash": "5013e4e15cde38eacfe9f24ae95d4b47"
+  },
+  "lib/driver_features/driver_trip/presentation/cubit/driver_trip_cubit.dart": {
+    "mtime": 1791625312.253736,
+    "seen": 1792060068.467772,
+    "ast_hash": "8095548f61776b21d3bdfb1c66f887f4",
+    "semantic_hash": "8095548f61776b21d3bdfb1c66f887f4"
+  },
+  "lib/driver_features/driver_trip/presentation/cubit/driver_trip_state.dart": {
+    "mtime": 1791624917.015899,
+    "seen": 1792060068.4677734,
+    "ast_hash": "793e6ea92f0f42a9f1f2baec2a49a747",
+    "semantic_hash": "793e6ea92f0f42a9f1f2baec2a49a747"
+  },
+  "lib/driver_features/driver_trip/presentation/cubit/ride_bill_cubit.dart": {
+    "mtime": 1791371377.1880498,
+    "seen": 1792060068.4677749,
+    "ast_hash": "8bf28794fd6c531baeb18a2c3cac01ee",
+    "semantic_hash": "8bf28794fd6c531baeb18a2c3cac01ee"
+  },
+  "lib/driver_features/driver_trip/presentation/cubit/ride_bill_state.dart": {
+    "mtime": 1791189296.1100519,
+    "seen": 1792060068.4677765,
+    "ast_hash": "16585ad9f56e0d488847049b1eb5bc63",
+    "semantic_hash": "16585ad9f56e0d488847049b1eb5bc63"
+  },
+  "lib/driver_features/driver_trip/presentation/cubit/share_ride_info_cubit.dart": {
+    "mtime": 1791378015.8488066,
+    "seen": 1792060068.467778,
+    "ast_hash": "3fcf1c32613310127b02b7d1dbfd8a5d",
+    "semantic_hash": "3fcf1c32613310127b02b7d1dbfd8a5d"
+  },
+  "lib/driver_features/driver_trip/presentation/cubit/share_ride_info_state.dart": {
+    "mtime": 1791372309.050597,
+    "seen": 1792060068.4677796,
+    "ast_hash": "3da2c9df9c28d40fe388bbf7cb28e2d1",
+    "semantic_hash": "3da2c9df9c28d40fe388bbf7cb28e2d1"
+  },
+  "lib/driver_features/driver_trip/presentation/screens/driver_trip_screen.dart": {
+    "mtime": 1791801089.6764593,
+    "seen": 1792060068.467781,
+    "ast_hash": "63eb4e45146a735f44b9dfc05bedd405",
+    "semantic_hash": "63eb4e45146a735f44b9dfc05bedd405"
+  },
+  "lib/driver_features/driver_trip/presentation/widgets/call_customer_button_widget.dart": {
+    "mtime": 1791968588.1821792,
+    "seen": 1792060068.4677827,
+    "ast_hash": "150fa1e3f14a18625b62193e5f4609a2",
+    "semantic_hash": "150fa1e3f14a18625b62193e5f4609a2"
+  },
+  "lib/driver_features/driver_trip/presentation/widgets/driver_fare_dialog_widget.dart": {
+    "mtime": 1791624917.0171025,
+    "seen": 1792060068.4677842,
+    "ast_hash": "0c9e2485957fa459c2dd0bd475462637",
+    "semantic_hash": "0c9e2485957fa459c2dd0bd475462637"
+  },
+  "lib/driver_features/driver_trip/presentation/widgets/driver_pickup_map_widget.dart": {
+    "mtime": 1791797499.247533,
+    "seen": 1792060068.4677858,
+    "ast_hash": "454e3ff4780247c47dc3cfe026127f53",
+    "semantic_hash": "454e3ff4780247c47dc3cfe026127f53"
+  },
+  "lib/driver_features/driver_trip/presentation/widgets/driver_trip_actions_widget.dart": {
+    "mtime": 1791968588.1821792,
+    "seen": 1792060068.4677873,
+    "ast_hash": "f8c554642ae9df8a274f61822f45072b",
+    "semantic_hash": "f8c554642ae9df8a274f61822f45072b"
+  },
+  "lib/driver_features/driver_trip/presentation/widgets/passengers_count_dialog_widget.dart": {
+    "mtime": 1791126413.0746088,
+    "seen": 1792060068.4677887,
+    "ast_hash": "6bdff4955486499424ff97603f69503e",
+    "semantic_hash": "6bdff4955486499424ff97603f69503e"
+  },
+  "lib/driver_features/driver_trip/presentation/widgets/ride_bill_button_widget.dart": {
+    "mtime": 1791371377.1880498,
+    "seen": 1792060068.4677906,
+    "ast_hash": "1f37a03a9050ccea83e35576b389cb52",
+    "semantic_hash": "1f37a03a9050ccea83e35576b389cb52"
+  },
+  "lib/driver_features/driver_trip/presentation/widgets/share_ride_info_button_widget.dart": {
+    "mtime": 1791378015.8490944,
+    "seen": 1792060068.467792,
+    "ast_hash": "fed50ab8aee13a4c829a873c711b08f3",
+    "semantic_hash": "fed50ab8aee13a4c829a873c711b08f3"
+  },
+  "lib/driver_features/driver_wallet/data/datasources/driver_wallet_remote_data_source.dart": {
+    "mtime": 1790578779.1978507,
+    "seen": 1792060068.4677937,
+    "ast_hash": "9cd175523cc76a9616217a8af7694c57",
+    "semantic_hash": "9cd175523cc76a9616217a8af7694c57"
+  },
+  "lib/driver_features/driver_wallet/data/models/driver_financial_report_model.dart": {
+    "mtime": 1790578732.058351,
+    "seen": 1792060068.4677951,
+    "ast_hash": "fe3179a99e87f677fc1cc52de5736a3a",
+    "semantic_hash": "fe3179a99e87f677fc1cc52de5736a3a"
+  },
+  "lib/driver_features/driver_wallet/data/models/wallet_history_model.dart": {
+    "mtime": 1790523063.2279747,
+    "seen": 1792060068.4677968,
+    "ast_hash": "525221ae3afdfc0d3f25918037ef4f82",
+    "semantic_hash": "525221ae3afdfc0d3f25918037ef4f82"
+  },
+  "lib/driver_features/driver_wallet/data/models/wallet_transaction_model.dart": {
+    "mtime": 1790858673.7919855,
+    "seen": 1792060068.4677982,
+    "ast_hash": "c8309bf0499ed53c27442c161c96982a",
+    "semantic_hash": "c8309bf0499ed53c27442c161c96982a"
+  },
+  "lib/driver_features/driver_wallet/data/repositories/driver_wallet_repository.dart": {
+    "mtime": 1790781105.658338,
+    "seen": 1792060068.4678,
+    "ast_hash": "03989e50b84e41ea46d0898f636ee196",
+    "semantic_hash": "03989e50b84e41ea46d0898f636ee196"
+  },
+  "lib/driver_features/driver_wallet/presentation/cubit/driver_financial_report_cubit.dart": {
+    "mtime": 1790858672.7149777,
+    "seen": 1792060068.4678013,
+    "ast_hash": "9971fdfe552e394714133224d9680929",
+    "semantic_hash": "9971fdfe552e394714133224d9680929"
+  },
+  "lib/driver_features/driver_wallet/presentation/cubit/driver_financial_report_state.dart": {
+    "mtime": 1790858671.6809702,
+    "seen": 1792060068.4678028,
+    "ast_hash": "95fdc564dc52f0ccd5d59d2b93e16b64",
+    "semantic_hash": "95fdc564dc52f0ccd5d59d2b93e16b64"
+  },
+  "lib/driver_features/driver_wallet/presentation/cubit/driver_wallet_cubit.dart": {
+    "mtime": 1790523076.2982259,
+    "seen": 1792060068.4678044,
+    "ast_hash": "f7cbdbf14475bc85d0352b6aacc503df",
+    "semantic_hash": "f7cbdbf14475bc85d0352b6aacc503df"
+  },
+  "lib/driver_features/driver_wallet/presentation/cubit/driver_wallet_state.dart": {
+    "mtime": 1790523072.5171533,
+    "seen": 1792060068.467806,
+    "ast_hash": "b96e2a9795c83f9de71391004f8e5381",
+    "semantic_hash": "b96e2a9795c83f9de71391004f8e5381"
+  },
+  "lib/driver_features/driver_wallet/presentation/screens/driver_wallet_fines_screen.dart": {
+    "mtime": 1791797499.247533,
+    "seen": 1792060068.4678078,
+    "ast_hash": "83624bdb1ed4adec270e86b328ffc6aa",
+    "semantic_hash": "83624bdb1ed4adec270e86b328ffc6aa"
+  },
+  "lib/driver_features/driver_wallet/presentation/screens/driver_wallet_screen.dart": {
+    "mtime": 1791802663.037907,
+    "seen": 1792060068.4678092,
+    "ast_hash": "3d117f8a27c6d55fd697f5a110bd9313",
+    "semantic_hash": "3d117f8a27c6d55fd697f5a110bd9313"
+  },
+  "lib/driver_features/driver_wallet/presentation/widgets/wallet_stat_card_widget.dart": {
+    "mtime": 1791801086.2479374,
+    "seen": 1792060068.4678109,
+    "ast_hash": "864487af67e8dbaa1aa6b6538eeb8464",
+    "semantic_hash": "864487af67e8dbaa1aa6b6538eeb8464"
+  },
+  "lib/driver_features/driver_wallet/presentation/widgets/wallet_statement_summary_card_widget.dart": {
+    "mtime": 1791801134.1623611,
+    "seen": 1792060068.4678123,
+    "ast_hash": "3ffc5ea22b2bd32e923a210056ac83a9",
+    "semantic_hash": "3ffc5ea22b2bd32e923a210056ac83a9"
+  },
+  "lib/driver_features/driver_wallet/presentation/widgets/wallet_transaction_row_widget.dart": {
+    "mtime": 1791801086.247562,
+    "seen": 1792060068.467814,
+    "ast_hash": "c661c697695f70e6d1fb4837c5ce4a4b",
+    "semantic_hash": "c661c697695f70e6d1fb4837c5ce4a4b"
+  },
+  "lib/features/auth/data/datasources/auth_local_data_source.dart": {
+    "mtime": 1790855026.9218802,
+    "seen": 1792060068.4678156,
+    "ast_hash": "d7016072864426011595c274c09565c2",
+    "semantic_hash": "d7016072864426011595c274c09565c2"
+  },
+  "lib/features/auth/data/datasources/auth_remote_data_source.dart": {
+    "mtime": 1790779845.381305,
+    "seen": 1792060068.4678173,
+    "ast_hash": "9780c1800cdcdf071f819eea57f5c200",
+    "semantic_hash": "9780c1800cdcdf071f819eea57f5c200"
+  },
+  "lib/features/auth/data/models/auth_user_model.dart": {
+    "mtime": 1790506911.7441466,
+    "seen": 1792060068.4678187,
+    "ast_hash": "d8318ffc8f531271a6c438f75a8b0d6b",
+    "semantic_hash": "d8318ffc8f531271a6c438f75a8b0d6b"
+  },
+  "lib/features/auth/data/repositories/auth_repository.dart": {
+    "mtime": 1790781101.4724855,
+    "seen": 1792060068.4678204,
+    "ast_hash": "fd324c5e1b29051101658d4c5b861739",
+    "semantic_hash": "fd324c5e1b29051101658d4c5b861739"
+  },
+  "lib/features/auth/data/swagger.json": {
+    "mtime": 1791377366.7304792,
+    "seen": 1792060068.467822,
+    "ast_hash": "3177e08a2653a4a769be208dba0283cf",
+    "semantic_hash": "3177e08a2653a4a769be208dba0283cf"
+  },
+  "lib/features/auth/presentation/cubit/auth_cubit.dart": {
+    "mtime": 1790510236.8842764,
+    "seen": 1792060068.4678235,
+    "ast_hash": "c8ac809cf13773135572e4c974eddf83",
+    "semantic_hash": "c8ac809cf13773135572e4c974eddf83"
+  },
+  "lib/features/auth/presentation/cubit/auth_state.dart": {
+    "mtime": 1790781154.0163622,
+    "seen": 1792060068.4678252,
+    "ast_hash": "eb333e19027904fd7906563d5c71d0c2",
+    "semantic_hash": "eb333e19027904fd7906563d5c71d0c2"
+  },
+  "lib/features/auth/presentation/screens/role_selection_screen.dart": {
+    "mtime": 1791805631.5800834,
+    "seen": 1792060068.46783,
+    "ast_hash": "53b046fcc2c466280b40182ff74f91af",
+    "semantic_hash": "53b046fcc2c466280b40182ff74f91af"
+  },
+  "lib/features/auth/presentation/screens/sign_in_screen.dart": {
+    "mtime": 1791797499.2485332,
+    "seen": 1792060068.4678316,
+    "ast_hash": "eb7be412380410c9165efc2ff9e01c60",
+    "semantic_hash": "eb7be412380410c9165efc2ff9e01c60"
+  },
+  "lib/features/auth/presentation/screens/sign_up_screen.dart": {
+    "mtime": 1791624917.0171025,
+    "seen": 1792060068.4678333,
+    "ast_hash": "540416f5da3569f60f6ce6cf50d2118b",
+    "semantic_hash": "540416f5da3569f60f6ce6cf50d2118b"
+  },
+  "lib/features/auth/presentation/widgets/privacy_policy_checkbox_field_widget.dart": {
+    "mtime": 1791797499.2485332,
+    "seen": 1792060068.467835,
+    "ast_hash": "4151acf814e89a6c469e2ceedf0abab0",
+    "semantic_hash": "4151acf814e89a6c469e2ceedf0abab0"
+  },
+  "lib/features/auth/presentation/widgets/role_option_card_widget.dart": {
+    "mtime": 1791800074.6193907,
+    "seen": 1792060068.4678364,
+    "ast_hash": "42ba3bf278df7a7e6921abb8b687e6c2",
+    "semantic_hash": "42ba3bf278df7a7e6921abb8b687e6c2"
+  },
+  "lib/features/home/data/datasources/google_places_data_source.dart": {
+    "mtime": 1791627317.594549,
+    "seen": 1792060068.4678383,
+    "ast_hash": "119f263af51dacd5c5575446c5464d9e",
+    "semantic_hash": "119f263af51dacd5c5575446c5464d9e"
+  },
+  "lib/features/home/data/datasources/nominatim_reverse_data_source.dart": {
+    "mtime": 1791627631.1585317,
+    "seen": 1792060068.4678397,
+    "ast_hash": "a0080da06bcfdd443ebf11506b55bbe1",
+    "semantic_hash": "a0080da06bcfdd443ebf11506b55bbe1"
+  },
+  "lib/features/home/data/datasources/ride_request_remote_data_source.dart": {
+    "mtime": 1791196301.311614,
+    "seen": 1792060068.4678416,
+    "ast_hash": "56b26d2a732fc32446ec1b177cae02c4",
+    "semantic_hash": "56b26d2a732fc32446ec1b177cae02c4"
+  },
+  "lib/features/home/data/models/place_suggestion_model.dart": {
+    "mtime": 1791625312.253736,
+    "seen": 1792060068.467843,
+    "ast_hash": "fefeff45205e67b2c55f3dd1f5cf2612",
+    "semantic_hash": "fefeff45205e67b2c55f3dd1f5cf2612"
+  },
+  "lib/features/home/data/models/restored_ride_model.dart": {
+    "mtime": 1791127213.8185167,
+    "seen": 1792060068.4678447,
+    "ast_hash": "f79ae9b30c1fbed3ceb0d745b5953221",
+    "semantic_hash": "f79ae9b30c1fbed3ceb0d745b5953221"
+  },
+  "lib/features/home/data/models/ride_booking_options_model.dart": {
+    "mtime": 1791196313.282951,
+    "seen": 1792060068.4678462,
+    "ast_hash": "2b35839df8efc802a1964fcea59d605e",
+    "semantic_hash": "2b35839df8efc802a1964fcea59d605e"
+  },
+  "lib/features/home/data/models/ride_quote_model.dart": {
+    "mtime": 1791624917.0171025,
+    "seen": 1792060068.4678478,
+    "ast_hash": "38d93992a8bdd6b1106f35207cae0069",
+    "semantic_hash": "38d93992a8bdd6b1106f35207cae0069"
+  },
+  "lib/features/home/data/models/vehicle_type_quote_model.dart": {
+    "mtime": 1791624917.0171025,
+    "seen": 1792060068.4678495,
+    "ast_hash": "003a539788533d561cb7b5a0b2e0dd9a",
+    "semantic_hash": "003a539788533d561cb7b5a0b2e0dd9a"
+  },
+  "lib/features/home/data/place_search_ranker.dart": {
+    "mtime": 1791371377.18905,
+    "seen": 1792060068.467851,
+    "ast_hash": "b5801088b81f062e07bc3ff98b676564",
+    "semantic_hash": "b5801088b81f062e07bc3ff98b676564"
+  },
+  "lib/features/home/data/places_exception.dart": {
+    "mtime": 1791625312.26366,
+    "seen": 1792060068.4678526,
+    "ast_hash": "d0e82fc7ebb9f0e6954358fd6ad0b017",
+    "semantic_hash": "d0e82fc7ebb9f0e6954358fd6ad0b017"
+  },
+  "lib/features/home/data/repositories/places_repository.dart": {
+    "mtime": 1791627635.382981,
+    "seen": 1792060068.467854,
+    "ast_hash": "76e9817b1542a9236b0f3329a948d6af",
+    "semantic_hash": "76e9817b1542a9236b0f3329a948d6af"
+  },
+  "lib/features/home/data/repositories/ride_request_repository.dart": {
+    "mtime": 1791196301.313137,
+    "seen": 1792060068.467856,
+    "ast_hash": "3be1733a6ca9f29db1997835af0b5c46",
+    "semantic_hash": "3be1733a6ca9f29db1997835af0b5c46"
+  },
+  "lib/features/home/presentation/cubit/home_cubit.dart": {
+    "mtime": 1791797499.2485332,
+    "seen": 1792060068.4678574,
+    "ast_hash": "744eae0c11b87aeda0f44fae6148caa2",
+    "semantic_hash": "744eae0c11b87aeda0f44fae6148caa2"
+  },
+  "lib/features/home/presentation/cubit/home_state.dart": {
+    "mtime": 1791797499.2485332,
+    "seen": 1792060068.4678593,
+    "ast_hash": "5fc53a5add8f35b044c7272571019713",
+    "semantic_hash": "5fc53a5add8f35b044c7272571019713"
+  },
+  "lib/features/home/presentation/cubit/map_pick_cubit.dart": {
+    "mtime": 1791797499.2485332,
+    "seen": 1792060068.4678607,
+    "ast_hash": "765752b205319d0979cf0f07bf622465",
+    "semantic_hash": "765752b205319d0979cf0f07bf622465"
+  },
+  "lib/features/home/presentation/cubit/map_pick_state.dart": {
+    "mtime": 1791797499.2485332,
+    "seen": 1792060068.4678624,
+    "ast_hash": "702d2063f1dd9f8c775661fd21119c82",
+    "semantic_hash": "702d2063f1dd9f8c775661fd21119c82"
+  },
+  "lib/features/home/presentation/cubit/quote_route_cubit.dart": {
+    "mtime": 1791968588.1821792,
+    "seen": 1792060068.4678638,
+    "ast_hash": "4ad2379723da6361d37c68baee5cb5aa",
+    "semantic_hash": "4ad2379723da6361d37c68baee5cb5aa"
+  },
+  "lib/features/home/presentation/cubit/quote_route_state.dart": {
+    "mtime": 1791968588.1821792,
+    "seen": 1792060068.4678652,
+    "ast_hash": "29fcc4fea75916fe560128600da306ed",
+    "semantic_hash": "29fcc4fea75916fe560128600da306ed"
+  },
+  "lib/features/home/presentation/screens/home_screen.dart": {
+    "mtime": 1791968588.1831794,
+    "seen": 1792060068.467867,
+    "ast_hash": "3e92d96ce53713a8a1438e4dc7b7ec08",
+    "semantic_hash": "3e92d96ce53713a8a1438e4dc7b7ec08"
+  },
+  "lib/features/home/presentation/screens/location_picker_screen.dart": {
+    "mtime": 1791800095.4292984,
+    "seen": 1792060068.4678683,
+    "ast_hash": "d57d2b546a28351ff5bd7af05fb0770f",
+    "semantic_hash": "d57d2b546a28351ff5bd7af05fb0770f"
+  },
+  "lib/features/home/presentation/widgets/active_ride_card_widget.dart": {
+    "mtime": 1791806049.7647414,
+    "seen": 1792060068.4678702,
+    "ast_hash": "a43234f840ea86459d79cc4b072e1831",
+    "semantic_hash": "a43234f840ea86459d79cc4b072e1831"
+  },
+  "lib/features/home/presentation/widgets/address_details_field_widget.dart": {
+    "mtime": 1791797499.2495332,
+    "seen": 1792060068.4678717,
+    "ast_hash": "767e123fb7218dca8dabc5efa37c59e2",
+    "semantic_hash": "767e123fb7218dca8dabc5efa37c59e2"
+  },
+  "lib/features/home/presentation/widgets/home_bottom_panel_widget.dart": {
+    "mtime": 1791806257.4202251,
+    "seen": 1792060068.4678733,
+    "ast_hash": "13a31ba3ff6ff1b37c7df103e7089eea",
+    "semantic_hash": "13a31ba3ff6ff1b37c7df103e7089eea"
+  },
+  "lib/features/home/presentation/widgets/home_gps_button_widget.dart": {
+    "mtime": 1791806049.765054,
+    "seen": 1792060068.467875,
+    "ast_hash": "d6d379a47cdca26a5195b383bd0e6d17",
+    "semantic_hash": "d6d379a47cdca26a5195b383bd0e6d17"
+  },
+  "lib/features/home/presentation/widgets/home_map_widget.dart": {
+    "mtime": 1791797499.2495332,
+    "seen": 1792060068.4678767,
+    "ast_hash": "565e0ea646f62b722eabddc0924efe98",
+    "semantic_hash": "565e0ea646f62b722eabddc0924efe98"
+  },
+  "lib/features/home/presentation/widgets/home_search_bar_widget.dart": {
+    "mtime": 1791806049.7651246,
+    "seen": 1792060068.467878,
+    "ast_hash": "df83339a2c60a4f6f7b178f2ab8ae055",
+    "semantic_hash": "df83339a2c60a4f6f7b178f2ab8ae055"
+  },
+  "lib/features/home/presentation/widgets/map_center_marker_widget.dart": {
+    "mtime": 1791804005.3349926,
+    "seen": 1792060068.4678798,
+    "ast_hash": "139b04170e6a75ba67803f161f0795dc",
+    "semantic_hash": "139b04170e6a75ba67803f161f0795dc"
+  },
+  "lib/features/home/presentation/widgets/map_pick_panel_widget.dart": {
+    "mtime": 1791806049.7651246,
+    "seen": 1792060068.4678814,
+    "ast_hash": "4c4e4f731aaff2560a04230f10902b46",
+    "semantic_hash": "4c4e4f731aaff2560a04230f10902b46"
+  },
+  "lib/features/home/presentation/widgets/map_pick_top_widget.dart": {
+    "mtime": 1791806049.7653058,
+    "seen": 1792060068.4678833,
+    "ast_hash": "2d46e2dc0850bad8b45d183523331350",
+    "semantic_hash": "2d46e2dc0850bad8b45d183523331350"
+  },
+  "lib/features/home/presentation/widgets/place_search_field_widget.dart": {
+    "mtime": 1791806049.7653816,
+    "seen": 1792060068.4678848,
+    "ast_hash": "df8bdf6fbd516849046c893f72b904ed",
+    "semantic_hash": "df8bdf6fbd516849046c893f72b904ed"
+  },
+  "lib/features/home/presentation/widgets/place_suggestions_card_widget.dart": {
+    "mtime": 1791806049.765485,
+    "seen": 1792060068.4678864,
+    "ast_hash": "d6011b433e53302b45a0787657ca880c",
+    "semantic_hash": "d6011b433e53302b45a0787657ca880c"
+  },
+  "lib/features/home/presentation/widgets/quote_route_map_widget.dart": {
+    "mtime": 1791968588.1831794,
+    "seen": 1792060068.4678879,
+    "ast_hash": "808fb2af5608e390dddf90c3b8314304",
+    "semantic_hash": "808fb2af5608e390dddf90c3b8314304"
+  },
+  "lib/features/home/presentation/widgets/route_points_card_widget.dart": {
+    "mtime": 1791806049.7800603,
+    "seen": 1792060068.4678895,
+    "ast_hash": "09aa12ca7c2aba5581f458e8cbcbc6a4",
+    "semantic_hash": "09aa12ca7c2aba5581f458e8cbcbc6a4"
+  },
+  "lib/features/home/presentation/widgets/saved_address_chips_widget.dart": {
+    "mtime": 1791812684.9226933,
+    "seen": 1792060068.4678912,
+    "ast_hash": "7928262075ea32ad68ac8366195ab4b7",
+    "semantic_hash": "7928262075ea32ad68ac8366195ab4b7"
+  },
+  "lib/features/home/presentation/widgets/trip_too_long_dialog_widget.dart": {
+    "mtime": 1791968588.1831794,
+    "seen": 1792060068.4678926,
+    "ast_hash": "62667dde7e63c775357929e72e6d04d1",
+    "semantic_hash": "62667dde7e63c775357929e72e6d04d1"
+  },
+  "lib/features/home/presentation/widgets/vehicle_request_button_widget.dart": {
+    "mtime": 1791800581.2027729,
+    "seen": 1792060068.4678943,
+    "ast_hash": "ca4cadec1b11cd4c2b88e695106e8e4f",
+    "semantic_hash": "ca4cadec1b11cd4c2b88e695106e8e4f"
+  },
+  "lib/features/home/presentation/widgets/vehicle_type_sheet_widget.dart": {
+    "mtime": 1791968588.1831794,
+    "seen": 1792060068.467896,
+    "ast_hash": "18ab23d8dbcacbe6b1c8ae6eb8a036a3",
+    "semantic_hash": "18ab23d8dbcacbe6b1c8ae6eb8a036a3"
+  },
+  "lib/features/home/presentation/widgets/vehicle_type_tile_widget.dart": {
+    "mtime": 1791800581.2006927,
+    "seen": 1792060068.4678977,
+    "ast_hash": "b72ea78f22e8aa994ecf81c6b11fffd1",
+    "semantic_hash": "b72ea78f22e8aa994ecf81c6b11fffd1"
+  },
+  "lib/features/notifications/data/datasources/notifications_remote_data_source.dart": {
+    "mtime": 1790858892.6575532,
+    "seen": 1792060068.467899,
+    "ast_hash": "617cabbaac3cca4e0de2b91a0e5dad51",
+    "semantic_hash": "617cabbaac3cca4e0de2b91a0e5dad51"
+  },
+  "lib/features/notifications/data/models/notification_model.dart": {
+    "mtime": 1791126413.0766087,
+    "seen": 1792060068.4679008,
+    "ast_hash": "582a0e5864be514da94eb4b25f67bf80",
+    "semantic_hash": "582a0e5864be514da94eb4b25f67bf80"
+  },
+  "lib/features/notifications/data/models/notifications_page_model.dart": {
+    "mtime": 1790858894.732568,
+    "seen": 1792060068.4679022,
+    "ast_hash": "7804c8e5f0f3b8ce9a3ac44f10ba6071",
+    "semantic_hash": "7804c8e5f0f3b8ce9a3ac44f10ba6071"
+  },
+  "lib/features/notifications/data/repositories/notifications_repository.dart": {
+    "mtime": 1790858893.6965606,
+    "seen": 1792060068.467904,
+    "ast_hash": "8cee926e29de338f0bfc76e6cac73458",
+    "semantic_hash": "8cee926e29de338f0bfc76e6cac73458"
+  },
+  "lib/features/notifications/presentation/cubit/notifications_cubit.dart": {
+    "mtime": 1790858919.215487,
+    "seen": 1792060068.4679055,
+    "ast_hash": "70bb9621cfbb3a86f890d845bf91c23b",
+    "semantic_hash": "70bb9621cfbb3a86f890d845bf91c23b"
+  },
+  "lib/features/notifications/presentation/cubit/notifications_state.dart": {
+    "mtime": 1790858918.1797404,
+    "seen": 1792060068.4679072,
+    "ast_hash": "f2a0ebb3d6c18be3d6864db8355399b4",
+    "semantic_hash": "f2a0ebb3d6c18be3d6864db8355399b4"
+  },
+  "lib/features/notifications/presentation/screens/notifications_screen.dart": {
+    "mtime": 1791797499.250533,
+    "seen": 1792060068.4679086,
+    "ast_hash": "3e5849c867f162d0186d187150eaa3e2",
+    "semantic_hash": "3e5849c867f162d0186d187150eaa3e2"
+  },
+  "lib/features/notifications/presentation/widgets/notification_card_widget.dart": {
+    "mtime": 1791800074.612469,
+    "seen": 1792060068.46791,
+    "ast_hash": "e165fb453d17c9db77e293a2b3341f3b",
+    "semantic_hash": "e165fb453d17c9db77e293a2b3341f3b"
+  },
+  "lib/features/onboarding/data/datasources/onboarding_local_data_source.dart": {
+    "mtime": 1791978277.5359652,
+    "seen": 1792060068.4679117,
+    "ast_hash": "1d423ddb64320a523b6f7270750ed7d5",
+    "semantic_hash": "1d423ddb64320a523b6f7270750ed7d5"
+  },
+  "lib/features/onboarding/data/models/onboarding_step.dart": {
+    "mtime": 1791978278.600822,
+    "seen": 1792060068.4679134,
+    "ast_hash": "af0774a80b7efc03b7ca9db67f88a1d0",
+    "semantic_hash": "af0774a80b7efc03b7ca9db67f88a1d0"
+  },
+  "lib/features/onboarding/presentation/cubit/onboarding_cubit.dart": {
+    "mtime": 1791978279.6620028,
+    "seen": 1792060068.467915,
+    "ast_hash": "03d05569b994a380ee90f1a1c7bed2b7",
+    "semantic_hash": "03d05569b994a380ee90f1a1c7bed2b7"
+  },
+  "lib/features/onboarding/presentation/screens/onboarding_screen.dart": {
+    "mtime": 1791978336.62164,
+    "seen": 1792060068.4679165,
+    "ast_hash": "4608e01d261c6ae14a96dfc76f232bbb",
+    "semantic_hash": "4608e01d261c6ae14a96dfc76f232bbb"
+  },
+  "lib/features/onboarding/presentation/widgets/onboarding_action_button_widget.dart": {
+    "mtime": 1791978318.681641,
+    "seen": 1792060068.4679182,
+    "ast_hash": "2fd68034a946059849adf033de927adc",
+    "semantic_hash": "2fd68034a946059849adf033de927adc"
+  },
+  "lib/features/onboarding/presentation/widgets/onboarding_page_widget.dart": {
+    "mtime": 1791978319.747764,
+    "seen": 1792060068.4679196,
+    "ast_hash": "94ee393f5467be8827b26357520c31f6",
+    "semantic_hash": "94ee393f5467be8827b26357520c31f6"
+  },
+  "lib/features/onboarding/presentation/widgets/onboarding_tag_widget.dart": {
+    "mtime": 1791978316.557517,
+    "seen": 1792060068.4679213,
+    "ast_hash": "b3b3dc625fe14a80fd9dac860d4b24c0",
+    "semantic_hash": "b3b3dc625fe14a80fd9dac860d4b24c0"
+  },
+  "lib/features/onboarding/presentation/widgets/onboarding_top_bar_widget.dart": {
+    "mtime": 1791978934.599607,
+    "seen": 1792060068.467923,
+    "ast_hash": "6cd341cc5878fce4c67c3ca3ea31753c",
+    "semantic_hash": "6cd341cc5878fce4c67c3ca3ea31753c"
+  },
+  "lib/features/saved_addresses/presentation/cubit/saved_address_form_cubit.dart": {
+    "mtime": 1791126413.0774217,
+    "seen": 1792060068.4679246,
+    "ast_hash": "f93f68bea5d5ee60822d660257e0a88e",
+    "semantic_hash": "f93f68bea5d5ee60822d660257e0a88e"
+  },
+  "lib/features/saved_addresses/presentation/cubit/saved_address_form_state.dart": {
+    "mtime": 1791126413.0775018,
+    "seen": 1792060068.467926,
+    "ast_hash": "8a875e0620b1a7e82ac2f5918ff860d4",
+    "semantic_hash": "8a875e0620b1a7e82ac2f5918ff860d4"
+  },
+  "lib/features/saved_addresses/presentation/screens/saved_address_form_screen.dart": {
+    "mtime": 1791812070.982727,
+    "seen": 1792060068.4679275,
+    "ast_hash": "d5d5d88e209d4485d830993e0e848e51",
+    "semantic_hash": "d5d5d88e209d4485d830993e0e848e51"
+  },
+  "lib/features/saved_addresses/presentation/screens/saved_addresses_screen.dart": {
+    "mtime": 1791812534.0507016,
+    "seen": 1792060068.4679291,
+    "ast_hash": "179fe9ee11c54022810a019ef62f3e09",
+    "semantic_hash": "179fe9ee11c54022810a019ef62f3e09"
+  },
+  "lib/features/saved_addresses/presentation/widgets/saved_address_tile_widget.dart": {
+    "mtime": 1791812685.948693,
+    "seen": 1792060068.4679306,
+    "ast_hash": "b078bfba86efe56ddb5e911ac9548041",
+    "semantic_hash": "b078bfba86efe56ddb5e911ac9548041"
+  },
+  "lib/features/settings/data/datasources/customer_complaints_remote_data_source.dart": {
+    "mtime": 1790673566.4144163,
+    "seen": 1792060068.4679325,
+    "ast_hash": "ff40cb12ace300bd3f066211e28e999d",
+    "semantic_hash": "ff40cb12ace300bd3f066211e28e999d"
+  },
+  "lib/features/settings/data/datasources/profile_remote_data_source.dart": {
+    "mtime": 1790777538.2771976,
+    "seen": 1792060068.467934,
+    "ast_hash": "6f59e88095f340c96b4958e455b85483",
+    "semantic_hash": "6f59e88095f340c96b4958e455b85483"
+  },
+  "lib/features/settings/data/models/customer_profile_model.dart": {
+    "mtime": 1790673576.458666,
+    "seen": 1792060068.4679356,
+    "ast_hash": "17c9570158426191833d66290cb74583",
+    "semantic_hash": "17c9570158426191833d66290cb74583"
+  },
+  "lib/features/settings/data/models/user_profile_model.dart": {
+    "mtime": 1790859075.7358484,
+    "seen": 1792060068.467937,
+    "ast_hash": "8c646a4090c0090abf80ca32278f75ef",
+    "semantic_hash": "8c646a4090c0090abf80ca32278f75ef"
+  },
+  "lib/features/settings/data/repositories/customer_complaints_repository.dart": {
+    "mtime": 1790675616.9343617,
+    "seen": 1792060068.4679387,
+    "ast_hash": "813b4d8c7d5a5478883edbdc7a798cc1",
+    "semantic_hash": "813b4d8c7d5a5478883edbdc7a798cc1"
+  },
+  "lib/features/settings/data/repositories/profile_repository.dart": {
+    "mtime": 1790777539.3218093,
+    "seen": 1792060068.4679403,
+    "ast_hash": "e9c808a94b80428bc0c4df8f40e23463",
+    "semantic_hash": "e9c808a94b80428bc0c4df8f40e23463"
+  },
+  "lib/features/settings/presentation/cubit/delete_account_cubit.dart": {
+    "mtime": 1790777541.4078112,
+    "seen": 1792060068.467942,
+    "ast_hash": "339fbcc3f4559691905f3f95e90fe521",
+    "semantic_hash": "339fbcc3f4559691905f3f95e90fe521"
+  },
+  "lib/features/settings/presentation/cubit/delete_account_state.dart": {
+    "mtime": 1790781149.7950854,
+    "seen": 1792060068.4679437,
+    "ast_hash": "23d03e1ddb300a10016baab835d29428",
+    "semantic_hash": "23d03e1ddb300a10016baab835d29428"
+  },
+  "lib/features/settings/presentation/cubit/edit_profile_cubit.dart": {
+    "mtime": 1790673576.4666665,
+    "seen": 1792060068.467945,
+    "ast_hash": "35b31a43b9cd7decd13c1067de1e7ccd",
+    "semantic_hash": "35b31a43b9cd7decd13c1067de1e7ccd"
+  },
+  "lib/features/settings/presentation/cubit/edit_profile_state.dart": {
+    "mtime": 1790781150.8610983,
+    "seen": 1792060068.4679468,
+    "ast_hash": "c3411fdc8bff8af90620f8c752e22df1",
+    "semantic_hash": "c3411fdc8bff8af90620f8c752e22df1"
+  },
+  "lib/features/settings/presentation/cubit/settings_cubit.dart": {
+    "mtime": 1790859077.806863,
+    "seen": 1792060068.4679484,
+    "ast_hash": "92058f994f36694d8b676fa89f66779e",
+    "semantic_hash": "92058f994f36694d8b676fa89f66779e"
+  },
+  "lib/features/settings/presentation/cubit/settings_state.dart": {
+    "mtime": 1790859076.7718556,
+    "seen": 1792060068.46795,
+    "ast_hash": "6e19a2a627a5e6ecf6b55c0f0041f762",
+    "semantic_hash": "6e19a2a627a5e6ecf6b55c0f0041f762"
+  },
+  "lib/features/settings/presentation/screens/edit_profile_screen.dart": {
+    "mtime": 1791797499.250533,
+    "seen": 1792060068.4679515,
+    "ast_hash": "f10405ab243462fb4c49d4360de454b2",
+    "semantic_hash": "f10405ab243462fb4c49d4360de454b2"
+  },
+  "lib/features/settings/presentation/screens/settings_screen.dart": {
+    "mtime": 1791802663.0323052,
+    "seen": 1792060068.4679532,
+    "ast_hash": "6a011d452c2e696f93333469d112a95d",
+    "semantic_hash": "6a011d452c2e696f93333469d112a95d"
+  },
+  "lib/features/settings/presentation/widgets/delete_account_dialog_widget.dart": {
+    "mtime": 1790859232.0996232,
+    "seen": 1792060068.4679546,
+    "ast_hash": "1c6effe0a80dc78ce80211b1975d4a6f",
+    "semantic_hash": "1c6effe0a80dc78ce80211b1975d4a6f"
+  },
+  "lib/features/settings/presentation/widgets/edit_profile_form_widget.dart": {
+    "mtime": 1790859282.146297,
+    "seen": 1792060068.4679563,
+    "ast_hash": "fa7072d6015f65dbeaecf2ef479037d1",
+    "semantic_hash": "fa7072d6015f65dbeaecf2ef479037d1"
+  },
+  "lib/features/settings/presentation/widgets/profile_card_widget.dart": {
+    "mtime": 1791805072.847766,
+    "seen": 1792060068.4679577,
+    "ast_hash": "209ec9e99ab6d4d9b3cbb317630a766c",
+    "semantic_hash": "209ec9e99ab6d4d9b3cbb317630a766c"
+  },
+  "lib/features/tracking/data/datasources/customer_ride_socket_service.dart": {
+    "mtime": 1791126413.077615,
+    "seen": 1792060068.4679596,
+    "ast_hash": "56eed48385a43425bcef8696659399b2",
+    "semantic_hash": "56eed48385a43425bcef8696659399b2"
+  },
+  "lib/features/tracking/data/models/ride_driver_model.dart": {
+    "mtime": 1790614675.3273659,
+    "seen": 1792060068.467961,
+    "ast_hash": "5f2b20bbca1af9a9ba693433de41057c",
+    "semantic_hash": "5f2b20bbca1af9a9ba693433de41057c"
+  },
+  "lib/features/tracking/data/models/ride_location_model.dart": {
+    "mtime": 1790612299.4456828,
+    "seen": 1792060068.4679627,
+    "ast_hash": "05302891121b7b44e15a8b32eddd5046",
+    "semantic_hash": "05302891121b7b44e15a8b32eddd5046"
+  },
+  "lib/features/tracking/data/models/ride_vehicle_model.dart": {
+    "mtime": 1790614676.3743622,
+    "seen": 1792060068.4679644,
+    "ast_hash": "dc330e3ed0f0dc13aba7386e121f5855",
+    "semantic_hash": "dc330e3ed0f0dc13aba7386e121f5855"
+  },
+  "lib/features/tracking/data/models/tracked_ride_model.dart": {
+    "mtime": 1791624917.0176818,
+    "seen": 1792060068.4679658,
+    "ast_hash": "308f835a75fd982be6906a8dc0ce38f3",
+    "semantic_hash": "308f835a75fd982be6906a8dc0ce38f3"
+  },
+  "lib/features/tracking/presentation/cubit/ride_tracking_cubit.dart": {
+    "mtime": 1791625312.25466,
+    "seen": 1792060068.4679675,
+    "ast_hash": "8a8d76b9e6fa286af9f9fca283dc9b7c",
+    "semantic_hash": "8a8d76b9e6fa286af9f9fca283dc9b7c"
+  },
+  "lib/features/tracking/presentation/cubit/ride_tracking_state.dart": {
+    "mtime": 1791624917.0186818,
+    "seen": 1792060068.467969,
+    "ast_hash": "929fb4a86746bedb1115d1b1251629a9",
+    "semantic_hash": "929fb4a86746bedb1115d1b1251629a9"
+  },
+  "lib/features/tracking/presentation/screens/ride_tracking_screen.dart": {
+    "mtime": 1791803153.411012,
+    "seen": 1792060068.4679706,
+    "ast_hash": "cd161433ab2812f267b804a92dcc98c1",
+    "semantic_hash": "cd161433ab2812f267b804a92dcc98c1"
+  },
+  "lib/features/tracking/presentation/widgets/ride_contact_actions_widget.dart": {
+    "mtime": 1791803153.4062204,
+    "seen": 1792060068.467972,
+    "ast_hash": "b272dc52cfa7a0bc1baf5dc8bc64d75c",
+    "semantic_hash": "b272dc52cfa7a0bc1baf5dc8bc64d75c"
+  },
+  "lib/features/tracking/presentation/widgets/ride_driver_card_widget.dart": {
+    "mtime": 1791803153.402398,
+    "seen": 1792060068.467974,
+    "ast_hash": "fc1b6f7e6c9280c197228030a668202e",
+    "semantic_hash": "fc1b6f7e6c9280c197228030a668202e"
+  },
+  "lib/features/tracking/presentation/widgets/ride_payment_due_dialog_widget.dart": {
+    "mtime": 1791803193.017218,
+    "seen": 1792060068.4679754,
+    "ast_hash": "9b5d230fa4ebd3a0bac3824d25228003",
+    "semantic_hash": "9b5d230fa4ebd3a0bac3824d25228003"
+  },
+  "lib/features/tracking/presentation/widgets/ride_status_banner_widget.dart": {
+    "mtime": 1791802047.8331733,
+    "seen": 1792060068.467977,
+    "ast_hash": "757d938cf37327bdb515b7e4147cbd52",
+    "semantic_hash": "757d938cf37327bdb515b7e4147cbd52"
+  },
+  "lib/features/tracking/presentation/widgets/ride_tracking_map_widget.dart": {
+    "mtime": 1791797499.2515333,
+    "seen": 1792060068.4679785,
+    "ast_hash": "c8229ac377ade929b0b94e602d1e91c0",
+    "semantic_hash": "c8229ac377ade929b0b94e602d1e91c0"
+  },
+  "lib/features/tracking/presentation/widgets/ride_trip_summary_widget.dart": {
+    "mtime": 1791802018.2669363,
+    "seen": 1792060068.4679801,
+    "ast_hash": "2e47bf7159dd825c7fa09cdec2c66e1d",
+    "semantic_hash": "2e47bf7159dd825c7fa09cdec2c66e1d"
+  },
+  "lib/features/trips/data/datasources/trips_remote_data_source.dart": {
+    "mtime": 1791126413.077615,
+    "seen": 1792060068.4679816,
+    "ast_hash": "ba32d5735558e94a606ec56a04f7c029",
+    "semantic_hash": "ba32d5735558e94a606ec56a04f7c029"
+  },
+  "lib/features/trips/data/models/ride_history_model.dart": {
+    "mtime": 1791624917.0186818,
+    "seen": 1792060068.467983,
+    "ast_hash": "2de2a2ad7340c78916733a213e6fd5c8",
+    "semantic_hash": "2de2a2ad7340c78916733a213e6fd5c8"
+  },
+  "lib/features/trips/data/repositories/trips_repository.dart": {
+    "mtime": 1791126413.077615,
+    "seen": 1792060068.467985,
+    "ast_hash": "697e5df716874eae10c79bf102a8ab3a",
+    "semantic_hash": "697e5df716874eae10c79bf102a8ab3a"
+  },
+  "lib/features/trips/presentation/cubit/ride_details_cubit.dart": {
+    "mtime": 1791624917.0186818,
+    "seen": 1792060068.4679863,
+    "ast_hash": "089830a5a375f158827c46f9359263cf",
+    "semantic_hash": "089830a5a375f158827c46f9359263cf"
+  },
+  "lib/features/trips/presentation/cubit/trips_cubit.dart": {
+    "mtime": 1790674479.9903848,
+    "seen": 1792060068.467988,
+    "ast_hash": "4f22413d78080a7c8e42433e33b4f899",
+    "semantic_hash": "4f22413d78080a7c8e42433e33b4f899"
+  },
+  "lib/features/trips/presentation/cubit/trips_state.dart": {
+    "mtime": 1790781221.131924,
+    "seen": 1792060068.4679894,
+    "ast_hash": "fc0aa92eb4a7757492fab3cb02575e00",
+    "semantic_hash": "fc0aa92eb4a7757492fab3cb02575e00"
+  },
+  "lib/features/trips/presentation/screens/ride_details_screen.dart": {
+    "mtime": 1791803231.5600016,
+    "seen": 1792060068.4679914,
+    "ast_hash": "e4a2510193f4b15bd56a049142778e61",
+    "semantic_hash": "e4a2510193f4b15bd56a049142778e61"
+  },
+  "lib/features/trips/presentation/screens/trips_screen.dart": {
+    "mtime": 1791806452.724038,
+    "seen": 1792060068.4679928,
+    "ast_hash": "940239b0b9054dec89ce79320df73de0",
+    "semantic_hash": "940239b0b9054dec89ce79320df73de0"
+  },
+  "lib/features/trips/presentation/widgets/ride_detail_row_widget.dart": {
+    "mtime": 1791797499.2515333,
+    "seen": 1792060068.4679945,
+    "ast_hash": "966513d154c313c288eb3db515317120",
+    "semantic_hash": "966513d154c313c288eb3db515317120"
+  },
+  "lib/features/trips/presentation/widgets/ride_route_map_widget.dart": {
+    "mtime": 1791797499.2515333,
+    "seen": 1792060068.4679961,
+    "ast_hash": "40e77582ab39cab35e159e338bd7eb9d",
+    "semantic_hash": "40e77582ab39cab35e159e338bd7eb9d"
+  },
+  "lib/features/trips/presentation/widgets/ride_route_widget.dart": {
+    "mtime": 1791798985.427451,
+    "seen": 1792060068.4679978,
+    "ast_hash": "d81b051418a9546295643d173d037f9d",
+    "semantic_hash": "d81b051418a9546295643d173d037f9d"
+  },
+  "lib/features/trips/presentation/widgets/ride_status_badge_widget.dart": {
+    "mtime": 1791797499.2515333,
+    "seen": 1792060068.4679992,
+    "ast_hash": "6937a754f05d0b8e04c1ee4223482837",
+    "semantic_hash": "6937a754f05d0b8e04c1ee4223482837"
+  },
+  "lib/features/trips/presentation/widgets/trip_card_widget.dart": {
+    "mtime": 1791800057.6883917,
+    "seen": 1792060068.4680007,
+    "ast_hash": "101f987c04c8e02841d39c67f48e40ac",
+    "semantic_hash": "101f987c04c8e02841d39c67f48e40ac"
+  },
+  "lib/features/trips/presentation/widgets/trips_status_filter_widget.dart": {
+    "mtime": 1791800057.6409814,
+    "seen": 1792060068.4680026,
+    "ast_hash": "d15b1774b8f10aad1ea2dcef1b27c800",
+    "semantic_hash": "d15b1774b8f10aad1ea2dcef1b27c800"
+  },
+  "lib/firebase_options.dart": {
+    "mtime": 1790606517.98364,
+    "seen": 1792060068.468004,
+    "ast_hash": "95c122b783529b02eac3aa51639c4d17",
+    "semantic_hash": "95c122b783529b02eac3aa51639c4d17"
+  },
+  "lib/main.dart": {
+    "mtime": 1791978353.798639,
+    "seen": 1792060068.4680057,
+    "ast_hash": "516f65445e2bbeaf4c1b1092be5a806c",
+    "semantic_hash": "516f65445e2bbeaf4c1b1092be5a806c"
+  }
+}

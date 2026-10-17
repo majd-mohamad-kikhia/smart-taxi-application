@@ -11,7 +11,7 @@ import '../../../../core/widgets/auth_form_layout_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
-import '../../../../core/widgets/auth_footer_link_widget.dart';
+import '../../../../core/widgets/auth_primary_button_widget.dart';
 
 /// Customer sign in — drivers use `driver_features/driver_auth`'s own screen,
 /// since they don't share a sign-up flow or account shape.
@@ -132,10 +132,12 @@ class _SignInScreenState extends State<SignInScreen> {
           submitLabel: l10n.signIn,
           isSubmitting: state.status == AuthStatus.submitting,
           onSubmit: _submit,
-          footer: AuthFooterLinkWidget(
-            text: l10n.noAccount,
-            actionLabel: l10n.signUp,
-            onTap: _goToSignUp,
+          secondaryAction: AuthPrimaryButtonWidget(
+            label: l10n.signUp,
+            isLoading: false,
+            onPressed: state.status == AuthStatus.submitting
+                ? null
+                : _goToSignUp,
           ),
         );
       },

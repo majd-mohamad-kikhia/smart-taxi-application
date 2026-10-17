@@ -83,7 +83,7 @@ class SharedOrderStatusWidget extends StatelessWidget {
       SharedOrderAvailability.available => l10n.sharedOrderAvailable,
       SharedOrderAvailability.scheduled => opensAt == null
           ? l10n.sharedOrderNotOpenYet
-          : l10n.sharedOrderOpensAt(formatDateTimeValue(context, opensAt!.toLocal())),
+          : l10n.sharedOrderOpensAt(formatDateTimeValue(context, opensAt!)),
       SharedOrderAvailability.busy => l10n.sharedOrderBusy,
       SharedOrderAvailability.wrongVehicleType =>
         l10n.sharedOrderWrongVehicle(vehicleTypeName ?? '—'),

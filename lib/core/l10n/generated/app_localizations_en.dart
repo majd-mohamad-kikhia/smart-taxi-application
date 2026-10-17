@@ -1023,6 +1023,114 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String reportTripNumber(String id) {
+    return 'Trip #$id';
+  }
+
+  @override
+  String get reportTripsEmpty => 'No completed trips this month';
+
+  @override
+  String get reportEarningsEmpty => 'No trip earnings this month';
+
+  @override
+  String get reportRewardsEmpty => 'No rewards this month';
+
+  @override
+  String get reportTotalDistance => 'Total distance';
+
+  @override
+  String get reportAvgCommission => 'Average commission';
+
+  @override
+  String reportAvgCommissionValue(String rate) {
+    return '$rate%';
+  }
+
+  @override
+  String get reportRewardsCount => 'Number of rewards';
+
+  @override
+  String get reportTripPrice => 'Trip price';
+
+  @override
+  String reportCommissionRate(String rate) {
+    return 'Commission ($rate%)';
+  }
+
+  @override
+  String get reportFixedPrice => 'Price set by the office';
+
+  @override
+  String get reportFeesTitle => 'What the price is made of';
+
+  @override
+  String get reportFeeDistance => 'Distance fare';
+
+  @override
+  String get reportFeeStops => 'Extra stops';
+
+  @override
+  String get reportFeeLocation => 'Location fee';
+
+  @override
+  String get reportFeePassengers => 'Extra passengers';
+
+  @override
+  String get reportFeeNight => 'Night extra';
+
+  @override
+  String get reportFeeTime => 'Time fee';
+
+  @override
+  String get reportFeeWaiting => 'Waiting fee';
+
+  @override
+  String get reportFeePause => 'Stop fee';
+
+  @override
+  String get reportCustomer => 'Customer';
+
+  @override
+  String get reportVehicleType => 'Car type';
+
+  @override
+  String get reportRequestedAt => 'Requested';
+
+  @override
+  String get reportStartedAt => 'Started';
+
+  @override
+  String get reportCompletedAt => 'Completed';
+
+  @override
+  String get reportDuration => 'Duration';
+
+  @override
+  String get reportOrderSource => 'Ordered via';
+
+  @override
+  String get reportSourceApp => 'Customer app';
+
+  @override
+  String get reportSourceCall => 'Phone call';
+
+  @override
+  String get reportSourceWhatsapp => 'WhatsApp';
+
+  @override
+  String get reportPayment => 'Payment';
+
+  @override
+  String get reportPaidAt => 'Paid at';
+
+  @override
+  String get reportBalanceAfter => 'Balance after';
+
+  @override
+  String get reportRewardDefault => 'Reward';
+
+  @override
   String get walletMonthlyIncome => 'Total income this month';
 
   @override
@@ -1052,6 +1160,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vehicleInfo => 'Vehicle details';
+
+  @override
+  String get aboutThisCar => 'About this car';
 
   @override
   String get vehicleType => 'Type';
@@ -1195,6 +1306,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeDark => 'Dark';
+
+  @override
+  String get floatingBubbleTitle => 'Floating bubble';
+
+  @override
+  String get floatingBubbleSubtitle =>
+      'Shows a bubble over other apps when you leave the app. Tap it to come back.';
+
+  @override
+  String get floatingBubblePermissionNeeded =>
+      'Allow \"Display over other apps\" to use the bubble.';
 
   @override
   String get editPoint => 'Edit';

@@ -4,12 +4,14 @@ import '../../../../core/theme/app_palette.dart';
 
 /// A headline figure on the profile (rating, wallet balance): an icon, the
 /// value as a heavy tabular figure that scales down rather than wrapping,
-/// and its label. Read as one sentence by a screen reader.
+/// an optional [subValue] under it at a size of its own (the same amount in
+/// old pounds), and its label. Read as one sentence by a screen reader.
 class ProfileFigureTileWidget extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String label;
   final String value;
+  final String? subValue;
 
   /// Makes the whole tile a button (e.g. the rating opens "My ratings").
   final VoidCallback? onTap;
@@ -20,6 +22,7 @@ class ProfileFigureTileWidget extends StatelessWidget {
     required this.iconColor,
     required this.label,
     required this.value,
+    this.subValue,
     this.onTap,
   });
 
@@ -29,7 +32,7 @@ class ProfileFigureTileWidget extends StatelessWidget {
     return Semantics(
       container: true,
       excludeSemantics: true,
-      label: '$label: $value',
+      label: [label, value, ?subValue].join(': '),
       button: onTap != null,
       onTap: onTap,
       child: Material(
@@ -61,10 +64,19 @@ class ProfileFigureTileWidget extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (subValue != null)
+                  Text(
+                    subValue!,
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.textSecondary,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
                 const SizedBox(height: AppConstants.paddingXS),
                 Text(
                   label,
-                  style: textTheme.bodySmall?.copyWith(
+                  style: textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: context.colors.textSecondary,
                   ),

@@ -267,7 +267,7 @@ class _Summary extends StatelessWidget {
           const SizedBox(height: AppConstants.paddingM),
           MetaItemWidget(
             icon: Icons.event_rounded,
-            label: l10n.rideScheduledAt(formatUtcDateTime(context, ride.scheduledAt)),
+            label: l10n.rideScheduledAt(formatDateTime(context, ride.scheduledAt)),
           ),
         ],
         if (distance != null || duration != null || passengers != null) ...[

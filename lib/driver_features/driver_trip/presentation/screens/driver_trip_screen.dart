@@ -3,12 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
+import '../../../../core/services/screen_awake_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
+import '../../../../core/widgets/live_trip_map_controller.dart';
 import '../../../../core/widgets/live_trip_map_widget.dart';
+import '../../../../core/widgets/map_controls_widget.dart';
 import '../../../../core/widgets/order_route_details_widget.dart';
 import '../../../../core/widgets/ride_waiting_timer_widget.dart';
 import '../../../../core/widgets/trip_fees_overlay_widget.dart';
@@ -42,8 +45,31 @@ class DriverTripScreen extends StatelessWidget {
   }
 }
 
-class _DriverTripView extends StatelessWidget {
+/// The trip's view. Keeps the screen on for as long as it is open (driving to
+/// the pickup, waiting, the ride itself, the fare dialog) and lets the phone
+/// sleep again as soon as it closes, whether the trip was finished or
+/// cancelled.
+class _DriverTripView extends StatefulWidget {
   const _DriverTripView();
+
+  @override
+  State<_DriverTripView> createState() => _DriverTripViewState();
+}
+
+class _DriverTripViewState extends State<_DriverTripView> {
+  late final ScreenAwakeService _screenAwake;
+
+  @override
+  void initState() {
+    super.initState();
+    _screenAwake = sl<ScreenAwakeService>()..keepOn();
+  }
+
+  @override
+  void dispose() {
+    _screenAwake.allowSleep();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,13 +182,27 @@ Future<void> _showFareAndExit(BuildContext context) async {
   if (context.mounted) Navigator.of(context).pop();
 }
 
-class _InProgressView extends StatelessWidget {
+class _InProgressView extends StatefulWidget {
   final DriverTripState state;
 
   const _InProgressView({required this.state});
 
   @override
+  State<_InProgressView> createState() => _InProgressViewState();
+}
+
+class _InProgressViewState extends State<_InProgressView> {
+  final _mapController = LiveTripMapController();
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = widget.state;
     return Stack(
       children: [
         LiveTripMapWidget(
@@ -172,6 +212,7 @@ class _InProgressView extends StatelessWidget {
           destinationLng: state.order.dropoffLng,
           routePoints: state.routePoints,
           drivenPath: state.drivenPath,
+          controller: _mapController,
         ),
         Align(
           alignment: AlignmentDirectional.topStart,
@@ -188,6 +229,24 @@ class _InProgressView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  ListenableBuilder(
+                    listenable: _mapController,
+                    builder: (context, _) => MapControlsWidget(
+                      onZoomIn: _mapController.zoomIn,
+                      onZoomOut: _mapController.zoomOut,
+                      onNudge: _mapController.nudge,
+                      onZoomInHold: _mapController.zoomInHeld,
+                      onZoomOutHold: _mapController.zoomOutHeld,
+                      onNudgeHold: _mapController.nudgeHeld,
+                      showArrows: _mapController.view == TripMapView.topDown,
+                      view: _mapController.view,
+                      onViewChanged: _mapController.setView,
+                      onRecenter: _mapController.isFollowing
+                          ? null
+                          : _mapController.recenter,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),

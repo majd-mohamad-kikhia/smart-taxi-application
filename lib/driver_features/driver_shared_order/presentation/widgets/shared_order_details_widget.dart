@@ -103,7 +103,7 @@ class _Summary extends StatelessWidget {
             if (preview.scheduledAt != null)
               MetaItemWidget(
                 icon: Icons.event_rounded,
-                label: l10n.rideScheduledAt(formatUtcDateTime(context, preview.scheduledAt)),
+                label: l10n.rideScheduledAt(formatDateTime(context, preview.scheduledAt)),
               ),
           ],
         ),

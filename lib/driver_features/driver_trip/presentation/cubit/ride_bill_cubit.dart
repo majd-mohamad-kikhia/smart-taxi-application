@@ -1,6 +1,7 @@
 import 'dart:ui' show Rect;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/session/session_cubit.dart';
+import '../../../../core/utils/parse_utc_date.dart';
 import '../../data/models/ride_bill_model.dart';
 import '../../data/repositories/ride_bill_repository.dart';
 import 'driver_trip_state.dart';
@@ -33,7 +34,7 @@ class RideBillCubit extends Cubit<RideBillState> {
     if (!trip.canSendBill || fare == null) return null;
     return RideBillModel(
       rideId: trip.order.rideId,
-      issuedAt: (trip.completedAt ?? DateTime.now()).toLocal(),
+      issuedAt: toDamascusTime(trip.completedAt ?? DateTime.now()),
       customerName: trip.customer?.fullName,
       customerPhone: trip.customer?.phoneNumber,
       driverName: _session.state?.fullName,

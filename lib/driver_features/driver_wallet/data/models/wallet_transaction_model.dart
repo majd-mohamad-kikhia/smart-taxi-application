@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/utils/parse_utc_date.dart';
 
 /// Kind of wallet movement — mirrors `WalletTransaction.transaction_type`
 /// in swagger.json.
@@ -69,9 +70,7 @@ class WalletTransactionModel extends Equatable {
       amount: (json['amount'] as num).toDouble(),
       balanceAfter: (json['balance_after'] as num).toDouble(),
       description: json['description'] as String?,
-      createdAt: DateTime.parse(
-        (json['created_at'] as String).replaceFirst(' ', 'T'),
-      ),
+      createdAt: parseUtcDateTime(json['created_at'] as String)!,
     );
   }
 

@@ -26,6 +26,10 @@ import '../app_version/data/datasources/app_version_remote_datasource.dart';
 import '../app_version/data/repositories/app_version_repository.dart';
 import '../app_version/presentation/cubit/app_version_cubit.dart';
 import '../complaints/complaint_cubit.dart';
+import '../floating_bubble/data/floating_bubble_overlay.dart';
+import '../floating_bubble/data/floating_bubble_store.dart';
+import '../floating_bubble/floating_bubble_coordinator.dart';
+import '../floating_bubble/presentation/cubit/floating_bubble_cubit.dart';
 import '../../driver_features/driver_ratings/data/datasources/driver_ratings_remote_data_source.dart';
 import '../../driver_features/driver_ratings/data/repositories/driver_ratings_repository.dart';
 import '../../driver_features/driver_ratings/presentation/cubit/driver_ratings_cubit.dart';
@@ -65,10 +69,14 @@ import '../../driver_features/driver_shared_order/presentation/cubit/shared_orde
 import '../deep_links/deep_link_service.dart';
 import '../deep_links/shared_order_link_handler.dart';
 import '../../driver_features/driver_wallet/data/datasources/driver_wallet_remote_data_source.dart';
+import '../../driver_features/driver_wallet/data/models/report_earning_model.dart';
+import '../../driver_features/driver_wallet/data/models/report_reward_model.dart';
+import '../../driver_features/driver_wallet/data/models/report_trip_model.dart';
 import '../../driver_features/driver_wallet/data/models/wallet_transaction_model.dart';
 import '../../driver_features/driver_wallet/data/repositories/driver_wallet_repository.dart';
 import '../../driver_features/driver_wallet/presentation/cubit/driver_financial_report_cubit.dart';
 import '../../driver_features/driver_wallet/presentation/cubit/driver_wallet_cubit.dart';
+import '../../driver_features/driver_wallet/presentation/cubit/month_report_cubit.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
@@ -91,11 +99,11 @@ import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
 import '../network/api_error_handler.dart';
 import '../../features/home/data/datasources/google_places_data_source.dart';
-import '../../features/home/data/datasources/nominatim_reverse_data_source.dart';
 import '../services/current_location_service.dart';
 import '../theme/theme_cubit.dart';
 import '../theme/theme_local_data_source.dart';
 import '../services/photo_picker_service.dart';
+import '../services/screen_awake_service.dart';
 import '../../driver_features/driver_auth/presentation/cubit/driver_signup_cubit.dart';
 import '../services/google_api_credentials_loader.dart';
 import '../services/google_routes_service.dart';
@@ -207,6 +215,9 @@ void setupInjection() {
   }
 
   sl.registerLazySingleton<PhotoPickerService>(() => PhotoPickerService());
+  sl.registerLazySingleton<ScreenAwakeService>(
+    () => const ScreenAwakeService(),
+  );
   // ─── Core Ride Rating ───────────────────────────────────────
   sl.registerLazySingleton<RideRatingRemoteDataSource>(
     () => RideRatingRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
@@ -406,6 +417,7 @@ void setupInjection() {
     () => DriverAuthCubit(sl<DriverRepository>(), sl<SessionCubit>()),
   );
   sl<SessionCubit>().registerLogoutHandler(UserRole.driver, () async {
+    await sl<FloatingBubbleCoordinator>().stop();
     await sl<DriverPresenceCubit>().goOffline();
     await sl<DriverAuthCubit>().logout();
   });
@@ -432,6 +444,23 @@ void setupInjection() {
       sl<DriverSocketService>(),
       sl<LocationTicker>(),
       sl<DriverPresenceStore>(),
+    ),
+  );
+  // The bubble a driver gets over other apps while the app is in the background.
+  sl.registerLazySingleton<FloatingBubbleOverlay>(
+    () => const FloatingBubbleOverlay(),
+  );
+  sl.registerLazySingleton<FloatingBubbleStore>(() => FloatingBubbleStore());
+  sl.registerLazySingleton<FloatingBubbleCoordinator>(
+    () => FloatingBubbleCoordinator(
+      sl<FloatingBubbleOverlay>(),
+      sl<FloatingBubbleStore>(),
+    ),
+  );
+  sl.registerFactory<FloatingBubbleCubit>(
+    () => FloatingBubbleCubit(
+      sl<FloatingBubbleOverlay>(),
+      sl<FloatingBubbleStore>(),
     ),
   );
   // Singleton for the same reason — order cards must survive tab switches
@@ -604,6 +633,15 @@ void setupInjection() {
   sl.registerFactory<DriverFinancialReportCubit>(
     () => DriverFinancialReportCubit(sl<DriverWalletRepository>()),
   );
+  sl.registerFactory<MonthReportCubit<ReportTripModel, TripsSummaryModel>>(
+    () => MonthReportCubit(sl<DriverWalletRepository>().getTrips),
+  );
+  sl.registerFactory<MonthReportCubit<ReportEarningModel, EarningsSummaryModel>>(
+    () => MonthReportCubit(sl<DriverWalletRepository>().getEarnings),
+  );
+  sl.registerFactory<MonthReportCubit<ReportRewardModel, RewardsSummaryModel>>(
+    () => MonthReportCubit(sl<DriverWalletRepository>().getRewards),
+  );
 
   // ─── Driver Profile Feature ─────────────────────────────────
   sl.registerLazySingleton<DriverVehicleRemoteDataSource>(
@@ -627,7 +665,6 @@ void setupInjection() {
   sl.registerLazySingleton<PlacesRepository>(
     () => PlacesRepository(
       GooglePlacesDataSource(credentials: sl<GoogleApiCredentialsLoader>().load),
-      NominatimReverseDataSource(),
     ),
   );
   sl.registerFactory<HomeCubit>(

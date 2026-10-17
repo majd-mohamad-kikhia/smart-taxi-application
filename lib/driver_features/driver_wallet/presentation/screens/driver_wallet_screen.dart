@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
-import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
@@ -11,33 +10,21 @@ import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../data/models/driver_financial_report_model.dart';
+import '../../data/models/report_month_model.dart';
 import '../cubit/driver_financial_report_cubit.dart';
 import '../cubit/driver_financial_report_state.dart';
+import '../widgets/wallet_month_stepper_widget.dart';
 import '../widgets/wallet_stat_card_widget.dart';
 import '../widgets/wallet_statement_summary_card_widget.dart';
+import 'driver_earnings_report_screen.dart';
+import 'driver_rewards_report_screen.dart';
+import 'driver_trips_report_screen.dart';
 import 'driver_wallet_fines_screen.dart';
-
-List<String> _monthNames(AppLocalizations l10n) => [
-  l10n.monthJan,
-  l10n.monthFeb,
-  l10n.monthMar,
-  l10n.monthApr,
-  l10n.monthMay,
-  l10n.monthJun,
-  l10n.monthJul,
-  l10n.monthAug,
-  l10n.monthSep,
-  l10n.monthOct,
-  l10n.monthNov,
-  l10n.monthDec,
-];
-
-/// The earliest month the financial-report endpoint accepts.
-const int _firstYear = 2020;
 
 /// Driver wallet tab — monthly financial statement, backed entirely by
 /// `GET /api/driver/financial-report`. The fines card drills into the
-/// itemized feed from `/api/driver/wallet`.
+/// itemized feed from `/api/driver/wallet`; the trips, earnings and bonuses
+/// cards open the month's lists under `/api/driver/financial-report/`.
 ///
 /// While a month loads there is a loader, never zeros; another month's
 /// numbers never stay on screen under this month's label; and a failure
@@ -50,7 +37,7 @@ class DriverWalletScreen extends StatefulWidget {
 }
 
 class _DriverWalletScreenState extends State<DriverWalletScreen> {
-  int _monthOffset = 0;
+  ReportMonthModel _month = ReportMonthModel.current();
   late final DriverFinancialReportCubit _reportCubit;
 
   @override
@@ -66,37 +53,16 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
     super.dispose();
   }
 
-  /// The selected (year, month): `DateTime` rolls the year over correctly in
-  /// both directions.
-  (int, int) get _selectedYearMonth {
-    final now = DateTime.now();
-    final selected = DateTime(now.year, now.month + _monthOffset);
-    return (selected.year, selected.month);
-  }
+  Future<void> _loadReport() =>
+      _reportCubit.load(year: _month.year, month: _month.month);
 
-  bool get _canGoBack =>
-      _selectedYearMonth.$1 > _firstYear ||
-      (_selectedYearMonth.$1 == _firstYear && _selectedYearMonth.$2 > 1);
-
-  String _monthLabel(AppLocalizations l10n) {
-    final (year, month) = _selectedYearMonth;
-    return '${_monthNames(l10n)[month - 1]} $year';
-  }
-
-  Future<void> _loadReport() {
-    final (year, month) = _selectedYearMonth;
-    return _reportCubit.load(year: year, month: month);
-  }
-
-  void _changeMonth(int delta) {
-    setState(() => _monthOffset += delta);
+  void _changeMonth(ReportMonthModel month) {
+    setState(() => _month = month);
     _loadReport();
   }
 
-  void _openFines(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const DriverWalletFinesScreen()));
+  void _open(BuildContext context, Widget screen) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
   @override
@@ -110,7 +76,6 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
       body: BlocBuilder<DriverFinancialReportCubit, DriverFinancialReportState>(
         bloc: _reportCubit,
         builder: (context, state) {
-          final l10n = context.l10n;
           final report = state.report;
           return RefreshIndicator(
             color: context.colors.primaryContent,
@@ -125,10 +90,9 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
                 AppConstants.paddingL + MediaQuery.paddingOf(context).bottom,
               ),
               children: [
-                _MonthStepper(
-                  label: _monthLabel(l10n),
-                  onPrevious: _canGoBack ? () => _changeMonth(-1) : null,
-                  onNext: _monthOffset < 0 ? () => _changeMonth(1) : null,
+                WalletMonthStepperWidget(
+                  month: _month,
+                  onChanged: _changeMonth,
                 ),
                 const SizedBox(height: AppConstants.paddingS),
                 if (report == null && state.errorMessage != null)
@@ -151,7 +115,18 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
                   ],
                   _Statement(
                     report: report,
-                    onOpenFines: () => _openFines(context),
+                    onOpenTrips: () =>
+                        _open(context, DriverTripsReportScreen(month: _month)),
+                    onOpenEarnings: () => _open(
+                      context,
+                      DriverEarningsReportScreen(month: _month),
+                    ),
+                    onOpenRewards: () => _open(
+                      context,
+                      DriverRewardsReportScreen(month: _month),
+                    ),
+                    onOpenFines: () =>
+                        _open(context, const DriverWalletFinesScreen()),
                   ),
                 ],
               ],
@@ -163,144 +138,119 @@ class _DriverWalletScreenState extends State<DriverWalletScreen> {
   }
 }
 
-/// Previous / next month around the month's name. The month announces
-/// itself to screen readers when it changes.
-class _MonthStepper extends StatelessWidget {
-  final String label;
-  final VoidCallback? onPrevious;
-  final VoidCallback? onNext;
+/// The hero balance and the month's figures, one card per row (two on wide
+/// screens) so each figure is large enough to read at a glance. Only the
+/// balance is solid green; earnings are green, bonuses amber, fines red, and
+/// the rest neutral. Every figure shows new pounds, with old pounds under it.
+/// The trips, earnings, bonuses and fines cards open their lists.
+class _Statement extends StatelessWidget {
+  /// Wide enough for two columns of cards.
+  static const double _twoColumnsFrom = 600;
 
-  const _MonthStepper({
-    required this.label,
-    required this.onPrevious,
-    required this.onNext,
+  final DriverFinancialReportModel report;
+  final VoidCallback onOpenTrips;
+  final VoidCallback onOpenEarnings;
+  final VoidCallback onOpenRewards;
+  final VoidCallback onOpenFines;
+
+  const _Statement({
+    required this.report,
+    required this.onOpenTrips,
+    required this.onOpenEarnings,
+    required this.onOpenRewards,
+    required this.onOpenFines,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Start side = previous month, end side = next month. These icons
-        // mirror themselves in RTL, so the arrows point the right way in
-        // both languages.
-        IconButton(
-          tooltip: l10n.walletPreviousMonth,
-          icon: const Icon(Icons.chevron_left_rounded),
-          color: context.colors.textSecondary,
-          onPressed: onPrevious,
-        ),
-        Flexible(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 140),
-            child: Semantics(
-              header: true,
-              liveRegion: true,
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-            ),
-          ),
-        ),
-        IconButton(
-          tooltip: l10n.walletNextMonth,
-          icon: const Icon(Icons.chevron_right_rounded),
-          color: context.colors.textSecondary,
-          onPressed: onNext,
-        ),
-      ],
-    );
-  }
-}
+    final colors = context.colors;
 
-/// The hero balance and the grid of the month's figures. Only the balance
-/// is green; earnings are green, bonuses amber, fines red, and the rest
-/// neutral. Every money figure carries its currency.
-class _Statement extends StatelessWidget {
-  final DriverFinancialReportModel report;
-  final VoidCallback onOpenFines;
-
-  const _Statement({required this.report, required this.onOpenFines});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    String money(double amount) => formatSyp(l10n, amount);
+    final cards = [
+      WalletStatCardWidget(
+        label: l10n.walletEarnings,
+        value: formatNewSyp(l10n, report.driverEarnings),
+        subValue: formatOldSyp(l10n, report.driverEarnings),
+        icon: Icons.trending_up_rounded,
+        iconColor: AppColors.success,
+        iconBackground: colors.successSurface,
+        onTap: onOpenEarnings,
+      ),
+      WalletStatCardWidget(
+        label: l10n.walletCompletedTrips,
+        value: l10n.walletTripsCount('${report.ordersCount}'),
+        icon: Icons.local_taxi_rounded,
+        iconColor: colors.primaryContent,
+        iconBackground: colors.primarySurface,
+        onTap: onOpenTrips,
+      ),
+      WalletStatCardWidget(
+        label: l10n.walletBonuses,
+        value: formatNewSyp(l10n, report.rewardsTotal),
+        subValue: formatOldSyp(l10n, report.rewardsTotal),
+        icon: Icons.card_giftcard_rounded,
+        iconColor: AppColors.warning,
+        iconBackground: colors.warningSurface,
+        onTap: onOpenRewards,
+      ),
+      WalletStatCardWidget(
+        label: l10n.walletTotalCommissions,
+        value: formatNewSyp(l10n, report.managerEarnings),
+        subValue: formatOldSyp(l10n, report.managerEarnings),
+        icon: Icons.percent_rounded,
+        iconColor: colors.textSecondary,
+        iconBackground: colors.backgroundMuted,
+      ),
+      WalletStatCardWidget(
+        label: l10n.walletFines,
+        value: formatNewSyp(l10n, report.finesTotal),
+        subValue: formatOldSyp(l10n, report.finesTotal),
+        icon: Icons.warning_amber_rounded,
+        iconColor: AppColors.error,
+        iconBackground: colors.errorSurface,
+        onTap: onOpenFines,
+      ),
+      WalletStatCardWidget(
+        label: l10n.walletMonthlyIncome,
+        value: formatNewSyp(l10n, report.netIncome),
+        subValue: formatOldSyp(l10n, report.netIncome),
+        icon: Icons.payments_rounded,
+        iconColor: colors.textSecondary,
+        iconBackground: colors.backgroundMuted,
+      ),
+    ];
 
     return Column(
       children: [
         WalletStatementSummaryCardWidget(balance: report.walletBalance),
         const SizedBox(height: AppConstants.paddingL),
-        Row(
-          children: [
-            Expanded(
-              child: WalletStatCardWidget(
-                label: l10n.walletEarnings,
-                value: money(report.driverEarnings),
-                icon: Icons.trending_up_rounded,
-                iconColor: AppColors.success,
-                iconBackground: context.colors.successSurface,
-              ),
-            ),
-            const SizedBox(width: AppConstants.paddingM),
-            Expanded(
-              child: WalletStatCardWidget(
-                label: l10n.walletCompletedTrips,
-                value: l10n.walletTripsCount('${report.ordersCount}'),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppConstants.paddingM),
-        Row(
-          children: [
-            Expanded(
-              child: WalletStatCardWidget(
-                label: l10n.walletBonuses,
-                value: money(report.rewardsTotal),
-                icon: Icons.card_giftcard_rounded,
-                iconColor: AppColors.warning,
-                iconBackground: context.colors.warningSurface,
-              ),
-            ),
-            const SizedBox(width: AppConstants.paddingM),
-            Expanded(
-              child: WalletStatCardWidget(
-                label: l10n.walletTotalCommissions,
-                value: money(report.managerEarnings),
-                icon: Icons.percent_rounded,
-                iconColor: context.colors.textSecondary,
-                iconBackground: context.colors.backgroundMuted,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppConstants.paddingM),
-        Row(
-          children: [
-            Expanded(
-              child: WalletStatCardWidget(
-                label: l10n.walletFines,
-                value: money(report.finesTotal),
-                icon: Icons.warning_amber_rounded,
-                iconColor: AppColors.error,
-                iconBackground: context.colors.errorSurface,
-                onTap: onOpenFines,
-              ),
-            ),
-            const SizedBox(width: AppConstants.paddingM),
-            Expanded(
-              child: WalletStatCardWidget(
-                label: l10n.walletMonthlyIncome,
-                value: formatSignedPrice(l10n, report.netIncome),
-              ),
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = constraints.maxWidth >= _twoColumnsFrom ? 2 : 1;
+            return Column(
+              children: [
+                for (var i = 0; i < cards.length; i += columns) ...[
+                  if (i > 0) const SizedBox(height: AppConstants.paddingM),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var c = 0; c < columns; c++) ...[
+                          if (c > 0)
+                            const SizedBox(width: AppConstants.paddingM),
+                          Expanded(
+                            child: i + c < cards.length
+                                ? cards[i + c]
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            );
+          },
         ),
       ],
     );

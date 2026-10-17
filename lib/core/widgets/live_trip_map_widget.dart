@@ -6,6 +6,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_map_style.dart';
 import '../utils/car_heading_tracker.dart';
 import '../utils/taxi_marker_icon.dart';
+import 'live_trip_map_controller.dart';
 
 /// Full-bleed map for a trip that is underway: the moving taxi, the
 /// destination pin, and two lines: the planned road route ([routePoints],
@@ -23,6 +24,10 @@ class LiveTripMapWidget extends StatefulWidget {
   final List<RoutePointModel> routePoints;
   final List<RoutePointModel> drivenPath;
 
+  /// Lets the screen zoom and move the view with its own buttons. The
+  /// caller owns and disposes it; without one the map just follows the car.
+  final LiveTripMapController? controller;
+
   const LiveTripMapWidget({
     super.key,
     this.carLat,
@@ -31,13 +36,15 @@ class LiveTripMapWidget extends StatefulWidget {
     required this.destinationLng,
     this.routePoints = const [],
     this.drivenPath = const [],
+    this.controller,
   });
 
   @override
   State<LiveTripMapWidget> createState() => _LiveTripMapWidgetState();
 }
 
-class _LiveTripMapWidgetState extends State<LiveTripMapWidget> with MapStyleMixin {
+class _LiveTripMapWidgetState extends State<LiveTripMapWidget>
+    with MapStyleMixin {
   GoogleMapController? _mapController;
   BitmapDescriptor? _taxiIcon;
   final _heading = CarHeadingTracker();
@@ -48,7 +55,8 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> with MapStyleMixi
   List<RoutePointModel>? _plannedSource;
   Polyline? _plannedLine;
 
-  LatLng get _destination => LatLng(widget.destinationLat, widget.destinationLng);
+  LatLng get _destination =>
+      LatLng(widget.destinationLat, widget.destinationLng);
 
   LatLng? get _car {
     final lat = widget.carLat;
@@ -62,8 +70,8 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> with MapStyleMixi
     _loadTaxiIcon();
     final car = _car;
     if (car != null) _heading.update(car);
+    widget.controller?.updateCar(car, _heading.bearing);
   }
-
 
   Future<void> _loadTaxiIcon() async {
     final icon = await TaxiMarkerIcon.load();
@@ -73,9 +81,11 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> with MapStyleMixi
   @override
   void didUpdateWidget(covariant LiveTripMapWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.carLat != widget.carLat || oldWidget.carLng != widget.carLng) {
+    if (oldWidget.carLat != widget.carLat ||
+        oldWidget.carLng != widget.carLng) {
       final car = _car;
       if (car != null) _heading.update(car);
+      widget.controller?.updateCar(car, _heading.bearing);
       _moveCamera();
     }
   }
@@ -87,16 +97,26 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> with MapStyleMixi
 
     if (!_hasFitted) {
       _hasFitted = true;
-      controller.animateCamera(CameraUpdate.newLatLngBounds(_boundsOf(car, _destination), 80));
-    } else {
+      controller.animateCamera(
+        CameraUpdate.newLatLngBounds(_boundsOf(car, _destination), 80),
+      );
+    } else if (widget.controller == null) {
       controller.animateCamera(CameraUpdate.newLatLng(car));
+    } else if (widget.controller!.isFollowing) {
+      widget.controller!.follow();
     }
   }
 
   LatLngBounds _boundsOf(LatLng a, LatLng b) {
     return LatLngBounds(
-      southwest: LatLng(math.min(a.latitude, b.latitude), math.min(a.longitude, b.longitude)),
-      northeast: LatLng(math.max(a.latitude, b.latitude), math.max(a.longitude, b.longitude)),
+      southwest: LatLng(
+        math.min(a.latitude, b.latitude),
+        math.min(a.longitude, b.longitude),
+      ),
+      northeast: LatLng(
+        math.max(a.latitude, b.latitude),
+        math.max(a.longitude, b.longitude),
+      ),
     );
   }
 
@@ -105,12 +125,22 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> with MapStyleMixi
     if (points.length < 2) return null;
     if (!identical(points, _plannedSource)) {
       _plannedSource = points;
-      _plannedLine = _line('planned_route', points, AppColors.mapRoutePlanned, 1);
+      _plannedLine = _line(
+        'planned_route',
+        points,
+        AppColors.mapRoutePlanned,
+        1,
+      );
     }
     return _plannedLine;
   }
 
-  Polyline _line(String id, List<RoutePointModel> points, Color color, int zIndex) {
+  Polyline _line(
+    String id,
+    List<RoutePointModel> points,
+    Color color,
+    int zIndex,
+  ) {
     return Polyline(
       polylineId: PolylineId(id),
       points: [for (final p in points) LatLng(p.lat, p.lng)],
@@ -128,15 +158,47 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget> with MapStyleMixi
     final car = _car;
     final taxiIcon = _taxiIcon;
     final plannedLine = _plannedPolyline();
+    final controller = widget.controller;
+    if (controller == null) {
+      return _buildMap(car, taxiIcon, plannedLine, locked: false);
+    }
+    // The angled view is locked on the car and shows no 3D buildings.
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => _buildMap(
+        car,
+        taxiIcon,
+        plannedLine,
+        locked: controller.view == TripMapView.angled,
+      ),
+    );
+  }
+
+  Widget _buildMap(
+    LatLng? car,
+    BitmapDescriptor? taxiIcon,
+    Polyline? plannedLine, {
+    required bool locked,
+  }) {
     return GoogleMap(
       style: mapStyle,
-      initialCameraPosition: CameraPosition(target: car ?? _destination, zoom: 15),
+      buildingsEnabled: !locked,
+      scrollGesturesEnabled: !locked,
+      zoomGesturesEnabled: !locked,
+      rotateGesturesEnabled: !locked,
+      tiltGesturesEnabled: !locked,
+      initialCameraPosition: CameraPosition(
+        target: car ?? _destination,
+        zoom: 15,
+      ),
       myLocationEnabled: false,
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
       mapToolbarEnabled: false,
+      onCameraMove: widget.controller?.cameraMoved,
       onMapCreated: (controller) {
         _mapController = controller;
+        widget.controller?.attach(controller);
         _moveCamera();
       },
       polylines: {

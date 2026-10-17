@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../core/floating_bubble/floating_bubble_coordinator.dart';
 import '../core/injection/injection.dart';
 import '../core/l10n/generated/app_localizations.dart';
 import '../core/localization/l10n_context_extension.dart';
@@ -69,6 +70,7 @@ class _DriverMainWrapperScreenState extends State<DriverMainWrapperScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    sl<FloatingBubbleCoordinator>().onLifecycleChanged(state);
     // The socket may have died while the app was in the background.
     if (state == AppLifecycleState.resumed) {
       // The driver is back in the app: the call outside it stops ringing.
@@ -80,6 +82,7 @@ class _DriverMainWrapperScreenState extends State<DriverMainWrapperScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    sl<FloatingBubbleCoordinator>().stop();
     _ratingSubscription.cancel();
     super.dispose();
   }

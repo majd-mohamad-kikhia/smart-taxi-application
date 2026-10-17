@@ -5,6 +5,7 @@ import '../localization/l10n_context_extension.dart';
 import '../models/account_block_model.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
+import '../utils/parse_utc_date.dart';
 import '../contact_us/data/models/contact_number_model.dart';
 import '../contact_us/presentation/widgets/contact_numbers_list_widget.dart';
 import 'countdown_text_widget.dart';
@@ -128,6 +129,6 @@ class AccountBlockedWidget extends StatelessWidget {
     final local = block.blockedUntilLocal;
     if (local != null) return local;
     final locale = Localizations.localeOf(context).toString();
-    return DateFormat.yMMMd(locale).add_jm().format(until.toLocal());
+    return DateFormat.yMMMd(locale).add_jm().format(toDamascusTime(until));
   }
 }

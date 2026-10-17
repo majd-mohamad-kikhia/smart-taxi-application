@@ -495,6 +495,61 @@
       }
     }
   },
+  "reportTripNumber": "Trip #{id}",
+  "@reportTripNumber": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "reportTripsEmpty": "No completed trips this month",
+  "reportEarningsEmpty": "No trip earnings this month",
+  "reportRewardsEmpty": "No rewards this month",
+  "reportTotalDistance": "Total distance",
+  "reportAvgCommission": "Average commission",
+  "reportAvgCommissionValue": "{rate}%",
+  "@reportAvgCommissionValue": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "reportRewardsCount": "Number of rewards",
+  "reportTripPrice": "Trip price",
+  "reportCommissionRate": "Commission ({rate}%)",
+  "@reportCommissionRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "reportFixedPrice": "Price set by the office",
+  "reportFeesTitle": "What the price is made of",
+  "reportFeeDistance": "Distance fare",
+  "reportFeeStops": "Extra stops",
+  "reportFeeLocation": "Location fee",
+  "reportFeePassengers": "Extra passengers",
+  "reportFeeNight": "Night extra",
+  "reportFeeTime": "Time fee",
+  "reportFeeWaiting": "Waiting fee",
+  "reportFeePause": "Stop fee",
+  "reportCustomer": "Customer",
+  "reportVehicleType": "Car type",
+  "reportRequestedAt": "Requested",
+  "reportStartedAt": "Started",
+  "reportCompletedAt": "Completed",
+  "reportDuration": "Duration",
+  "reportOrderSource": "Ordered via",
+  "reportSourceApp": "Customer app",
+  "reportSourceCall": "Phone call",
+  "reportSourceWhatsapp": "WhatsApp",
+  "reportPayment": "Payment",
+  "reportPaidAt": "Paid at",
+  "reportBalanceAfter": "Balance after",
+  "reportRewardDefault": "Reward",
   "walletMonthlyIncome": "Total income this month",
   "txTopup": "Top-up",
   "txCommission": "Commission",
@@ -505,6 +560,7 @@
   "profileNoVehicle": "No vehicle is registered to your account yet",
   "profileWalletBalance": "Wallet balance",
   "vehicleInfo": "Vehicle details",
+  "aboutThisCar": "About this car",
   "vehicleType": "Type",
   "vehicleModel": "Model",
   "vehicleColor": "Color",
@@ -577,6 +633,9 @@
   "appearance": "Appearance",
   "themeLight": "Light",
   "themeDark": "Dark",
+  "floatingBubbleTitle": "Floating bubble",
+  "floatingBubbleSubtitle": "Shows a bubble over other apps when you leave the app. Tap it to come back.",
+  "floatingBubblePermissionNeeded": "Allow \"Display over other apps\" to use the bubble.",
   "editPoint": "Edit",
   "cancelRoute": "Cancel route",
   "rideAccepted": "Your request was accepted",

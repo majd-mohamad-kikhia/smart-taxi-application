@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/core/splash/splash_signal.dart';
@@ -59,7 +61,15 @@ void main() {
     });
 
     test('the video is a declared asset', () {
-      expect(SplashVideoWidget.asset, 'assets/videos/splash.mp4');
+      expect(
+        SplashVideoWidget.asset,
+        'assets/videos/smart_taxi_splash_green_5s.mp4',
+      );
+      expect(
+        File('pubspec.yaml').readAsStringSync(),
+        contains(SplashVideoWidget.asset),
+      );
+      expect(File(SplashVideoWidget.asset).existsSync(), isTrue);
     });
   });
 }

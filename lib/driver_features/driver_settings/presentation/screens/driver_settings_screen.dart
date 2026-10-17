@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/complaints/complaint_cubit.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/enums/user_role.dart';
+import '../../../../core/floating_bubble/presentation/widgets/floating_bubble_switch_widget.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
@@ -161,6 +162,7 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
                   const LanguageDropdownWidget(),
                   const SizedBox(height: AppConstants.paddingS),
                   const ThemeSwitchWidget(),
+                  const FloatingBubbleSwitchWidget(),
                   const SizedBox(height: AppConstants.paddingXXL),
                   SettingsSectionWidget(
                     title: l10n.settingsSectionHelp,

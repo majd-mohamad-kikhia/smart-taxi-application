@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/features/home/data/datasources/google_places_data_source.dart';
-import 'package:mshoar/features/home/data/datasources/nominatim_reverse_data_source.dart';
 import 'package:mshoar/features/home/data/models/place_suggestion_model.dart';
 import 'package:mshoar/features/home/data/repositories/places_repository.dart';
 
@@ -28,13 +27,6 @@ class _FakeGoogle extends Fake implements GooglePlacesDataSource {
   }
 }
 
-class _FakeNominatim extends Fake implements NominatimReverseDataSource {
-  String? name;
-
-  @override
-  Future<String?> reverseGeocode(double latitude, double longitude) async => name;
-}
-
 PlaceSuggestionModel _mosque(String city, double lat, double lng) =>
     PlaceSuggestionModel(description: 'جامع الروضة، $city', latitude: lat, longitude: lng);
 
@@ -49,7 +41,7 @@ void main() {
       _mosque('دمشق', 33.52, 36.28),
     ]);
 
-    final results = await PlacesRepository(google, _FakeNominatim()).search(
+    final results = await PlacesRepository(google).search(
       'جامع الروضة',
       nearLatitude: _lat,
       nearLongitude: _lng,
@@ -65,7 +57,7 @@ void main() {
       _mosque('اللاذقية', 35.52, 35.79),
     ]);
 
-    final results = await PlacesRepository(google, _FakeNominatim()).search(
+    final results = await PlacesRepository(google).search(
       'جامع الروضة',
       nearLatitude: _lat,
       nearLongitude: _lng,
@@ -80,7 +72,7 @@ void main() {
       _mosque('حمص', 34.73, 36.71),
     ]);
 
-    final results = await PlacesRepository(google, _FakeNominatim()).search('جامع الروضة');
+    final results = await PlacesRepository(google).search('جامع الروضة');
 
     expect([for (final r in results) r.description], ['جامع الروضة، دمشق', 'جامع الروضة، حمص']);
     expect(results.first.distanceMeters, isNull);
@@ -89,37 +81,26 @@ void main() {
   test('a blank query asks nothing', () async {
     final google = _FakeGoogle([]);
 
-    expect(await PlacesRepository(google, _FakeNominatim()).search('  ', nearLatitude: _lat, nearLongitude: _lng), isEmpty);
+    expect(await PlacesRepository(google).search('  ', nearLatitude: _lat, nearLongitude: _lng), isEmpty);
     expect(google.queries, isEmpty);
   });
 
   test('Google failing is a PlacesException for the search', () async {
     final google = _FakeGoogle([])..fail = true;
 
-    await expectLater(PlacesRepository(google, _FakeNominatim()).search('x'), throwsA(isA<PlacesException>()));
+    await expectLater(PlacesRepository(google).search('x'), throwsA(isA<PlacesException>()));
   });
 
-  test('naming a pin: Nominatim\'s full name first, Google is not asked', () async {
+  test('naming a pin: Google answers', () async {
     final google = _FakeGoogle([]);
-    final nominatim = _FakeNominatim()..name = 'محطة بغداد، شارع الجمهورية، الدباغة';
-    final repository = PlacesRepository(google, nominatim);
 
-    expect(await repository.addressFor(_lat, _lng), 'محطة بغداد، شارع الجمهورية، الدباغة');
-    expect(google.reverseCalls, 0);
-  });
-
-  test('naming a pin: Nominatim has nothing, so Google answers', () async {
-    final google = _FakeGoogle([]);
-    final repository = PlacesRepository(google, _FakeNominatim());
-
-    expect(await repository.addressFor(_lat, _lng), 'شارع الثورة');
+    expect(await PlacesRepository(google).addressFor(_lat, _lng), 'شارع الثورة');
     expect(google.reverseCalls, 1);
   });
 
-  test('naming a pin: both failing is null, not an error', () async {
+  test('naming a pin: Google failing is null, not an error', () async {
     final google = _FakeGoogle([])..fail = true;
-    final repository = PlacesRepository(google, _FakeNominatim());
 
-    expect(await repository.addressFor(_lat, _lng), isNull);
+    expect(await PlacesRepository(google).addressFor(_lat, _lng), isNull);
   });
 }

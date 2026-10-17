@@ -62,4 +62,8 @@ class AppColors {
 
   static const Color mapRoutePlanned = primaryBright;
   static const Color mapRouteDriven = Color(0xFF8FB5A0);
+
+  /// Fill of the round helper buttons over a map: a green that is almost
+  /// white, with [primary] icons, the same in light and dark themes.
+  static const Color mapControlFill = Color(0xFFEFF9F2);
 }

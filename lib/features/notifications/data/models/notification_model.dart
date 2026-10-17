@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../../core/utils/parse_utc_date.dart';
 
 /// Category of a notification, driving its icon and color.
 enum NotificationType {
@@ -42,7 +43,7 @@ class NotificationModel extends Equatable {
       title: json['title'] as String,
       message: json['body'] as String? ?? '',
       type: NotificationType.fromKey(json['notification_type'] as String),
-      sentAt: DateTime.parse(json['sent_at'] as String),
+      sentAt: parseUtcDateTime(json['sent_at'] as String)!,
       isRead: json['is_read'] as bool? ?? false,
       relatedRideId: (json['related_ride_id'] as num?)?.toInt(),
     );

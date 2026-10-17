@@ -1935,6 +1935,210 @@ abstract class AppLocalizations {
   /// **'{count} trips'**
   String walletTripsCount(String count);
 
+  /// No description provided for @reportTripNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip #{id}'**
+  String reportTripNumber(String id);
+
+  /// No description provided for @reportTripsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed trips this month'**
+  String get reportTripsEmpty;
+
+  /// No description provided for @reportEarningsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No trip earnings this month'**
+  String get reportEarningsEmpty;
+
+  /// No description provided for @reportRewardsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No rewards this month'**
+  String get reportRewardsEmpty;
+
+  /// No description provided for @reportTotalDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Total distance'**
+  String get reportTotalDistance;
+
+  /// No description provided for @reportAvgCommission.
+  ///
+  /// In en, this message translates to:
+  /// **'Average commission'**
+  String get reportAvgCommission;
+
+  /// No description provided for @reportAvgCommissionValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate}%'**
+  String reportAvgCommissionValue(String rate);
+
+  /// No description provided for @reportRewardsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of rewards'**
+  String get reportRewardsCount;
+
+  /// No description provided for @reportTripPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip price'**
+  String get reportTripPrice;
+
+  /// No description provided for @reportCommissionRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission ({rate}%)'**
+  String reportCommissionRate(String rate);
+
+  /// No description provided for @reportFixedPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price set by the office'**
+  String get reportFixedPrice;
+
+  /// No description provided for @reportFeesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What the price is made of'**
+  String get reportFeesTitle;
+
+  /// No description provided for @reportFeeDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance fare'**
+  String get reportFeeDistance;
+
+  /// No description provided for @reportFeeStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra stops'**
+  String get reportFeeStops;
+
+  /// No description provided for @reportFeeLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location fee'**
+  String get reportFeeLocation;
+
+  /// No description provided for @reportFeePassengers.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra passengers'**
+  String get reportFeePassengers;
+
+  /// No description provided for @reportFeeNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night extra'**
+  String get reportFeeNight;
+
+  /// No description provided for @reportFeeTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time fee'**
+  String get reportFeeTime;
+
+  /// No description provided for @reportFeeWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting fee'**
+  String get reportFeeWaiting;
+
+  /// No description provided for @reportFeePause.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop fee'**
+  String get reportFeePause;
+
+  /// No description provided for @reportCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get reportCustomer;
+
+  /// No description provided for @reportVehicleType.
+  ///
+  /// In en, this message translates to:
+  /// **'Car type'**
+  String get reportVehicleType;
+
+  /// No description provided for @reportRequestedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested'**
+  String get reportRequestedAt;
+
+  /// No description provided for @reportStartedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get reportStartedAt;
+
+  /// No description provided for @reportCompletedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get reportCompletedAt;
+
+  /// No description provided for @reportDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get reportDuration;
+
+  /// No description provided for @reportOrderSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered via'**
+  String get reportOrderSource;
+
+  /// No description provided for @reportSourceApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer app'**
+  String get reportSourceApp;
+
+  /// No description provided for @reportSourceCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone call'**
+  String get reportSourceCall;
+
+  /// No description provided for @reportSourceWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get reportSourceWhatsapp;
+
+  /// No description provided for @reportPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get reportPayment;
+
+  /// No description provided for @reportPaidAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid at'**
+  String get reportPaidAt;
+
+  /// No description provided for @reportBalanceAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance after'**
+  String get reportBalanceAfter;
+
+  /// No description provided for @reportRewardDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward'**
+  String get reportRewardDefault;
+
   /// No description provided for @walletMonthlyIncome.
   ///
   /// In en, this message translates to:
@@ -1994,6 +2198,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Vehicle details'**
   String get vehicleInfo;
+
+  /// No description provided for @aboutThisCar.
+  ///
+  /// In en, this message translates to:
+  /// **'About this car'**
+  String get aboutThisCar;
 
   /// No description provided for @vehicleType.
   ///
@@ -2264,6 +2474,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark'**
   String get themeDark;
+
+  /// No description provided for @floatingBubbleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Floating bubble'**
+  String get floatingBubbleTitle;
+
+  /// No description provided for @floatingBubbleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows a bubble over other apps when you leave the app. Tap it to come back.'**
+  String get floatingBubbleSubtitle;
+
+  /// No description provided for @floatingBubblePermissionNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow \"Display over other apps\" to use the bubble.'**
+  String get floatingBubblePermissionNeeded;
 
   /// No description provided for @editPoint.
   ///

@@ -23,7 +23,7 @@ class MaintenanceScreen extends StatelessWidget {
     final l10n = context.l10n;
     final raw = info.maintenanceEndsAt;
     if (raw == null || raw.isEmpty) return null;
-    final parsed = DateTime.tryParse(raw);
+    final parsed = parseUtcDateTime(raw);
     if (parsed != null && parsed.isBefore(DateTime.now())) {
       return l10n.appMaintenanceAnyMinute;
     }

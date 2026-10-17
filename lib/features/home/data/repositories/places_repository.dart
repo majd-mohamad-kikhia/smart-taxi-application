@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import '../datasources/google_places_data_source.dart';
-import '../datasources/nominatim_reverse_data_source.dart';
 import '../models/place_suggestion_model.dart';
 import '../place_search_ranker.dart';
 import '../places_exception.dart';
@@ -8,17 +7,13 @@ import '../places_exception.dart';
 export '../places_exception.dart';
 
 /// Google Places search for the location picker (search-as-you-type);
-/// Nominatim, then Google Geocoding, for naming the dropped pin.
+/// Google Geocoding for naming the dropped pin.
 class PlacesRepository {
   static const int _maxSuggestions = 8;
 
   final GooglePlacesDataSource _google;
 
-  /// Names a dropped pin first (free, and it knows the place's own name);
-  /// Google's geocoding answers when it has nothing.
-  final NominatimReverseDataSource _nominatim;
-
-  const PlacesRepository(this._google, this._nominatim);
+  const PlacesRepository(this._google);
 
   /// Places for [query]: Latakia's first, then the rest of Syria, then the
   /// others; inside each group, those that match what was typed come before
@@ -54,8 +49,6 @@ class PlacesRepository {
   /// surfacing an error; `PickedLocationModel.displayLabel` already
   /// falls back to raw coordinates when the address is null.
   Future<String?> addressFor(double latitude, double longitude) async {
-    final named = await _nominatim.reverseGeocode(latitude, longitude);
-    if (named != null) return named;
     try {
       return await _google.reverseGeocode(latitude, longitude);
     } on PlacesException catch (e) {

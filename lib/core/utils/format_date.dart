@@ -8,37 +8,31 @@ export 'parse_utc_date.dart';
 /// A server time as a person would say it: "Today, 1:00 PM", "Yesterday,
 /// 1:00 PM", otherwise "27 Sep 2026, 1:00 PM", in the active language.
 ///
-/// The server sends its own local time as `YYYY-MM-DD HH:mm:ss`, shown as it
-/// is (no zone conversion). A missing value is "—", and anything that does
-/// not parse is shown unchanged.
+/// The server sends UTC (`YYYY-MM-DD HH:mm:ss`, with no zone suffix, or
+/// with one). It is shown in Damascus time (UTC+3) whatever zone the phone
+/// is set to. A missing value is "—", and anything that does not parse is
+/// shown unchanged.
 String formatDateTime(BuildContext context, String? raw) {
   if (raw == null || raw.isEmpty) return '—';
-  final parsed = DateTime.tryParse(raw);
+  final parsed = parseUtcDateTime(raw);
   if (parsed == null) return raw;
   return formatDateTimeValue(context, parsed);
 }
 
-/// Same as [formatDateTime] for a UTC server time (`YYYY-MM-DD HH:mm:ss`,
-/// e.g. a ride's `scheduled_at`), shown in the phone's local time.
-String formatUtcDateTime(BuildContext context, String? raw) {
-  if (raw == null || raw.isEmpty) return '—';
-  final parsed = parseUtcDateTime(raw);
-  if (parsed == null) return raw;
-  return formatDateTimeValue(context, parsed.toLocal());
-}
-
-/// Same as [formatDateTime] for a value that is already a [DateTime].
+/// Same as [formatDateTime] for a moment in time that is already a
+/// [DateTime] (it must be a real instant, e.g. read with [parseUtcDateTime]).
 String formatDateTimeValue(BuildContext context, DateTime value) {
   final l10n = context.l10n;
   final locale = Localizations.localeOf(context).toString();
-  final now = DateTime.now();
+  final now = toDamascusTime(DateTime.now());
+  final time = toDamascusTime(value);
   final today = DateTime(now.year, now.month, now.day);
-  final day = DateTime(value.year, value.month, value.day);
+  final day = DateTime(time.year, time.month, time.day);
   final daysAgo = today.difference(day).inDays;
 
-  if (daysAgo == 0) return l10n.dateToday(DateFormat.jm(locale).format(value));
+  if (daysAgo == 0) return l10n.dateToday(DateFormat.jm(locale).format(time));
   if (daysAgo == 1) {
-    return l10n.dateYesterday(DateFormat.jm(locale).format(value));
+    return l10n.dateYesterday(DateFormat.jm(locale).format(time));
   }
-  return DateFormat.yMMMd(locale).add_jm().format(value);
+  return DateFormat.yMMMd(locale).add_jm().format(time);
 }

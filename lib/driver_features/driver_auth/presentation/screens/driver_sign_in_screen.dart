@@ -9,7 +9,7 @@ import '../../../../core/validators/auth_validators.dart';
 import '../../../../core/validators/phone_input_formatter.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
-import '../../../../core/widgets/auth_footer_link_widget.dart';
+import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../cubit/driver_auth_cubit.dart';
 import '../cubit/driver_auth_state.dart';
 
@@ -105,13 +105,17 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
           submitLabel: l10n.signIn,
           isSubmitting: state.status == DriverAuthStatus.submitting,
           onSubmit: _submit,
-          footer: AuthFooterLinkWidget(
-            text: l10n.noAccount,
-            actionLabel: l10n.signUp,
-            onTap: () {
-              _cubit.resetStatus();
-              Navigator.of(context).pushReplacementNamed(AppRouter.driverSignUp);
-            },
+          secondaryAction: AuthPrimaryButtonWidget(
+            label: l10n.signUp,
+            isLoading: false,
+            onPressed: state.status == DriverAuthStatus.submitting
+                ? null
+                : () {
+                    _cubit.resetStatus();
+                    Navigator.of(context).pushReplacementNamed(
+                      AppRouter.driverSignUp,
+                    );
+                  },
           ),
         );
       },

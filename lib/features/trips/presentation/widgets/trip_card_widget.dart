@@ -35,7 +35,7 @@ class TripCardWidget extends StatelessWidget {
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final date = ride.isScheduled && ride.scheduledAt != null
-        ? l10n.rideScheduledAt(formatUtcDateTime(context, ride.scheduledAt))
+        ? l10n.rideScheduledAt(formatDateTime(context, ride.scheduledAt))
         : formatDateTime(context, ride.requestedAt);
     final price = ride.shownPrice;
     final priceText = price == null ? null : formatSyp(l10n, price);

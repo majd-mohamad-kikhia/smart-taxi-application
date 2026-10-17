@@ -15,6 +15,9 @@
     <!-- A new order shows like an incoming call: a full-screen notification
          that opens the app over the lock screen (Android 14+ asks once). -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <!-- The floating bubble a driver gets over other apps (driver settings →
+         Floating bubble); the driver allows it once in the system settings. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <application
         android:label="Smart Taxi"
         android:name="${applicationName}"

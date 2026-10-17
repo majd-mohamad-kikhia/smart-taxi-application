@@ -12,7 +12,8 @@ import 'role_badge_widget.dart';
 
 /// Shared scaffold for any sign in / sign up screen (customer or driver):
 /// header, optional role badge, the screen's own fields, an optional
-/// error banner, the submit button, and an optional footer link.
+/// error banner, the submit button, an optional second button right under it
+/// in the same card ([secondaryAction]), and an optional footer link.
 ///
 /// Every auth screen in the app is otherwise an identical wrapper around
 /// this layout, so this is the one place their shared spacing/structure
@@ -28,6 +29,7 @@ class AuthFormLayoutWidget extends StatelessWidget {
   final String submitLabel;
   final bool isSubmitting;
   final VoidCallback onSubmit;
+  final Widget? secondaryAction;
   final Widget? footer;
 
   const AuthFormLayoutWidget({
@@ -42,6 +44,7 @@ class AuthFormLayoutWidget extends StatelessWidget {
     required this.submitLabel,
     required this.isSubmitting,
     required this.onSubmit,
+    this.secondaryAction,
     this.footer,
   });
 
@@ -114,6 +117,10 @@ class AuthFormLayoutWidget extends StatelessWidget {
                                     isLoading: isSubmitting,
                                     onPressed: onSubmit,
                                   ),
+                                  if (secondaryAction != null) ...[
+                                    const SizedBox(height: AppConstants.paddingM),
+                                    secondaryAction!,
+                                  ],
                                 ],
                               ),
                             ),
