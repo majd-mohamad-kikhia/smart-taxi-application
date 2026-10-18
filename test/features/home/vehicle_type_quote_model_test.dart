@@ -19,6 +19,7 @@ Map<String, dynamic> _type({
 };
 
 void main() {
+  imageUrlTests();
   test('VIP 8.7 km shows the server price 500, not 500 x distance', () {
     final type = VehicleTypeQuoteModel.fromJson(_type(estimatedPrice: 500));
     expect(type.price, 500);
@@ -63,5 +64,33 @@ void main() {
   test('still reads an older response that names the field price', () {
     final json = _type()..['price'] = 350;
     expect(VehicleTypeQuoteModel.fromJson(json).price, 350);
+  });
+}
+
+void imageUrlTests() {
+  group('VehicleTypeQuoteModel image_url', () {
+    Map<String, dynamic> json(Object? image) => {
+      'vehicle_type_id': 9,
+      'name': 'economy',
+      'available': true,
+      'estimated_price': 100,
+      'image_url': image,
+    };
+
+    test('reads the path as it came', () {
+      expect(
+        VehicleTypeQuoteModel.fromJson(
+          json('/uploads/vehicle-types/economy.webp'),
+        ).imageUrl,
+        '/uploads/vehicle-types/economy.webp',
+      );
+    });
+
+    test('null, blank or missing means no picture', () {
+      expect(VehicleTypeQuoteModel.fromJson(json(null)).imageUrl, isNull);
+      expect(VehicleTypeQuoteModel.fromJson(json('  ')).imageUrl, isNull);
+      final without = json(null)..remove('image_url');
+      expect(VehicleTypeQuoteModel.fromJson(without).imageUrl, isNull);
+    });
   });
 }

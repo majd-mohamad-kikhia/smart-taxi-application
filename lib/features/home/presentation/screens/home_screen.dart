@@ -41,7 +41,7 @@ class HomeScreen extends StatelessWidget {
         BlocProvider<HomeCubit>(create: (_) => sl<HomeCubit>()
             ..initialize()
             ..restoreActiveRide()
-            ..centerOnUser(),
+            ..setDefaultPickup(),
         ),
         BlocProvider<MapPickCubit>(create: (_) => sl<MapPickCubit>()),
         BlocProvider<SavedAddressesCubit>.value(value: sl<SavedAddressesCubit>()),

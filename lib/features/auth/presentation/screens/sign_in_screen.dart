@@ -8,6 +8,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/validators/auth_validators.dart';
 import '../../../../core/validators/phone_input_formatter.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
+import '../../../../core/widgets/remember_me_checkbox_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -27,6 +28,9 @@ class _SignInScreenState extends State<SignInScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  /// "Remember me" starts on: signing in faster is what most want.
+  bool _rememberMe = true;
+
   AuthCubit get _cubit => sl<AuthCubit>();
 
   @override
@@ -38,6 +42,19 @@ class _SignInScreenState extends State<SignInScreen> {
         Navigator.of(context).pushReplacementNamed(AppRouter.roleSelection);
       }
     });
+    _fillRememberedLogin();
+  }
+
+  /// Fills the form with what was remembered at the last sign in, so signing
+  /// in again is one tap.
+  Future<void> _fillRememberedLogin() async {
+    final saved = await _cubit.rememberedLogin();
+    if (!mounted || saved == null) return;
+    // What the customer has already typed is not overwritten.
+    if (_phoneController.text.isEmpty) _phoneController.text = saved.phone;
+    if (_passwordController.text.isEmpty) {
+      _passwordController.text = saved.password;
+    }
   }
 
   @override
@@ -52,6 +69,7 @@ class _SignInScreenState extends State<SignInScreen> {
     _cubit.signIn(
       phone: _phoneController.text.trim(),
       password: _passwordController.text,
+      rememberMe: _rememberMe,
     );
   }
 
@@ -108,6 +126,12 @@ class _SignInScreenState extends State<SignInScreen> {
               autofillHints: const [AutofillHints.password],
               forceLtr: true,
               validator: AuthValidators.loginPassword,
+            ),
+            RememberMeCheckboxWidget(
+              value: _rememberMe,
+              onChanged: state.status == AuthStatus.submitting
+                  ? null
+                  : (value) => setState(() => _rememberMe = value),
             ),
             // No reset endpoint exists for customers, so a forgotten
             // password is handled by support.

@@ -4,7 +4,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/price_text_widget.dart';
-import '../../../../core/widgets/vehicle_type_icon_widget.dart';
+import '../../../../core/widgets/vehicle_type_photo_widget.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
 import 'vehicle_type_info_sheet_widget.dart';
 
@@ -16,8 +16,8 @@ import 'vehicle_type_info_sheet_widget.dart';
 /// text with an icon, not by dimming the whole card.
 class VehicleTypeTileWidget extends StatelessWidget {
   static const _radius = AppConstants.radiusLarge;
-  static const _thumbWidth = 64.0;
-  static const _thumbHeight = 52.0;
+  static const _thumbWidth = 72.0;
+  static const _thumbHeight = 56.0;
 
   final VehicleTypeQuoteModel vehicleType;
 
@@ -76,6 +76,7 @@ class VehicleTypeTileWidget extends StatelessWidget {
                     opacity: isChoosable ? 1 : 0.5,
                     child: _ThumbnailWidget(
                       name: vehicleType.name,
+                      imageUrl: vehicleType.imageUrl,
                       selected: selected,
                       width: _thumbWidth,
                       height: _thumbHeight,
@@ -193,16 +194,19 @@ class VehicleTypeTileWidget extends StatelessWidget {
   }
 }
 
-/// The rounded picture slot at the start of a card. The API carries no car
-/// photo, so it holds the icon that fits the type's name, on a soft wash.
+/// The rounded picture slot at the start of a card: the car's picture, or —
+/// when the type has none, or it can't be loaded — the icon that fits the
+/// type's name, on a soft wash.
 class _ThumbnailWidget extends StatelessWidget {
   final String name;
+  final String? imageUrl;
   final bool selected;
   final double width;
   final double height;
 
   const _ThumbnailWidget({
     required this.name,
+    required this.imageUrl,
     required this.selected,
     required this.width,
     required this.height,
@@ -211,21 +215,13 @@ class _ThumbnailWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return ExcludeSemantics(
-      child: Container(
-        width: width,
-        height: height,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected ? colors.backgroundWhite : colors.backgroundMuted,
-          borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-        ),
-        child: Icon(
-          VehicleTypeIconWidget.iconFor(name),
-          size: 30,
-          color: colors.primaryContent,
-        ),
-      ),
+    return VehicleTypePhotoWidget(
+      name: name,
+      imageUrl: imageUrl,
+      width: width,
+      height: height,
+      borderRadius: AppConstants.radiusMedium,
+      background: selected ? colors.backgroundWhite : colors.backgroundMuted,
     );
   }
 }

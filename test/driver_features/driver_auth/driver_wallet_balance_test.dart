@@ -10,16 +10,18 @@ import 'package:mshoar/driver_features/driver_auth/presentation/cubit/driver_aut
 import 'package:mshoar/driver_features/driver_auth/presentation/cubit/driver_auth_state.dart';
 import 'package:mshoar/driver_features/driver_home/presentation/widgets/driver_low_wallet_notice_widget.dart';
 
+import '../../helpers/fake_remembered_login_store.dart';
+
 DriverUserModel _driver({double wallet = 5000}) => DriverUserModel(
-      id: 1,
-      fullName: 'Ali Omar',
-      phone: '0911111111',
-      status: DriverStatus.active,
-      walletBalance: wallet,
-      isOnline: false,
-      accessToken: 'a',
-      refreshToken: 'r',
-    );
+  id: 1,
+  fullName: 'Ali Omar',
+  phone: '0911111111',
+  status: DriverStatus.active,
+  walletBalance: wallet,
+  isOnline: false,
+  accessToken: 'a',
+  refreshToken: 'r',
+);
 
 class _FakeRepository extends Fake implements DriverRepository {
   DriverUserModel loginDriver = _driver();
@@ -28,8 +30,10 @@ class _FakeRepository extends Fake implements DriverRepository {
   int balanceCalls = 0;
 
   @override
-  Future<DriverUserModel> login({required String phone, required String password}) async =>
-      loginDriver;
+  Future<DriverUserModel> login({
+    required String phone,
+    required String password,
+  }) async => loginDriver;
 
   @override
   Future<double> walletBalance() async {
@@ -57,19 +61,26 @@ void main() {
 
     setUp(() {
       repository = _FakeRepository();
-      cubit = DriverAuthCubit(repository, SessionCubit());
+      cubit = DriverAuthCubit(
+        repository,
+        SessionCubit(),
+        FakeRememberedLoginStore(),
+      );
     });
 
     tearDown(() => cubit.close());
 
-    test('signing in starts from the balance the login just returned', () async {
-      repository.loginDriver = _driver(wallet: 150);
+    test(
+      'signing in starts from the balance the login just returned',
+      () async {
+        repository.loginDriver = _driver(wallet: 150);
 
-      await cubit.signIn(phone: '0911111111', password: 'x');
+        await cubit.signIn(phone: '0911111111', password: 'x');
 
-      expect(cubit.state.walletBalance, 150);
-      expect(cubit.state.isWalletLow, isTrue);
-    });
+        expect(cubit.state.walletBalance, 150);
+        expect(cubit.state.isWalletLow, isTrue);
+      },
+    );
 
     test('a restored session does not trust its days-old saved balance', () {
       cubit.hydrate(_driver(wallet: 50));
@@ -115,7 +126,11 @@ void main() {
     setUp(() async {
       await sl.reset();
       repository = _FakeRepository();
-      cubit = DriverAuthCubit(repository, SessionCubit())..hydrate(_driver());
+      cubit = DriverAuthCubit(
+        repository,
+        SessionCubit(),
+        FakeRememberedLoginStore(),
+      )..hydrate(_driver());
       sl.registerSingleton<DriverAuthCubit>(cubit);
     });
 
@@ -136,7 +151,9 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('a low wallet shows the notice with the balance', (tester) async {
+    testWidgets('a low wallet shows the notice with the balance', (
+      tester,
+    ) async {
       repository.balance = 150;
       await pump(tester);
 
@@ -158,13 +175,17 @@ void main() {
       expect(find.byType(Text), findsNothing);
     });
 
-    testWidgets('it asks the server when it appears, not only at sign in', (tester) async {
+    testWidgets('it asks the server when it appears, not only at sign in', (
+      tester,
+    ) async {
       await pump(tester);
 
       expect(repository.balanceCalls, 1);
     });
 
-    testWidgets('coming back to the app notices a top-up made meanwhile', (tester) async {
+    testWidgets('coming back to the app notices a top-up made meanwhile', (
+      tester,
+    ) async {
       repository.balance = 150;
       await pump(tester);
       expect(find.textContaining('Your wallet balance is low'), findsOneWidget);

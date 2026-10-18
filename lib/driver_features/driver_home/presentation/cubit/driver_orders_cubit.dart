@@ -65,8 +65,20 @@ class DriverOrdersCubit extends Cubit<DriverOrdersState> {
       order,
     ];
     if (isClosed) return;
-    emit(state.copyWith(orders: orders));
+    // A fresh offer is the one to look at: it is on the map at once.
+    emit(state.copyWith(
+      orders: orders,
+      selectedRideId: isNew ? order.rideId : null,
+    ));
     if (isNew) _alert.start(order: order);
+  }
+
+  /// Looks at another offer: its card is shown and its route is drawn on the
+  /// home map. Ignored for an offer that is not on the list.
+  void selectOrder(int rideId) {
+    if (isClosed || state.selectedOrder?.rideId == rideId) return;
+    if (!state.orders.any((o) => o.rideId == rideId)) return;
+    emit(state.copyWith(selectedRideId: rideId));
   }
 
   /// A ride not on the list yet, or one offered again in a later wave (its

@@ -26,13 +26,17 @@ class _FakeLocation extends CurrentLocationService {
 
   @override
   Future<Position?> getPositionIfAllowed() async => known;
+
+  @override
+  Future<Position?> getPositionAskingOnce() async => known;
 }
 
 class _FakePlaces extends Fake implements PlacesRepository {
   String? address = 'شارع الأمير سلطان';
 
   @override
-  Future<String?> addressFor(double latitude, double longitude) async => address;
+  Future<String?> addressFor(double latitude, double longitude) async =>
+      address;
 }
 
 final _position = Position(
@@ -139,22 +143,32 @@ void main() {
       expect(cubit.state.errorMessage, AppStrings.current.errLocationDenied);
     });
 
-    testWidgets('a GPS message clears itself after a few seconds', (tester) async {
+    testWidgets('a GPS message clears itself after a few seconds', (
+      tester,
+    ) async {
       location.failure = const LocationPermissionDeniedException(
         LocationFailureReason.serviceDisabled,
       );
 
       await cubit.locateMe();
-      expect(cubit.state.errorMessage, AppStrings.current.errLocationServiceOff);
+      expect(
+        cubit.state.errorMessage,
+        AppStrings.current.errLocationServiceOff,
+      );
 
       await tester.pump(const Duration(seconds: 3));
-      expect(cubit.state.errorMessage, AppStrings.current.errLocationServiceOff);
+      expect(
+        cubit.state.errorMessage,
+        AppStrings.current.errLocationServiceOff,
+      );
 
       await tester.pump(const Duration(seconds: 2));
       expect(cubit.state.errorMessage, isNull);
     });
 
-    testWidgets('asking again shows the message afresh, for a full 4 seconds', (tester) async {
+    testWidgets('asking again shows the message afresh, for a full 4 seconds', (
+      tester,
+    ) async {
       location.failure = const LocationPermissionDeniedException(
         LocationFailureReason.serviceDisabled,
       );
@@ -163,28 +177,99 @@ void main() {
 
       await cubit.locateMe();
       await tester.pump(const Duration(seconds: 3));
-      expect(cubit.state.errorMessage, AppStrings.current.errLocationServiceOff);
+      expect(
+        cubit.state.errorMessage,
+        AppStrings.current.errLocationServiceOff,
+      );
 
       await tester.pump(const Duration(seconds: 2));
       expect(cubit.state.errorMessage, isNull);
     });
   });
 
-  group('centerOnUser', () {
-    test('moves the map without touching the pickup', () async {
-      await cubit.centerOnUser();
+  group('setDefaultPickup', () {
+    test(
+      'moves the map and makes the customer\'s position the pickup',
+      () async {
+        await cubit.setDefaultPickup();
 
-      expect(cubit.state.locateCount, 1);
-      expect(cubit.state.fromLocation, isNull);
+        expect(cubit.state.locateCount, 1);
+        expect(cubit.state.fromLocation?.latitude, 35.52);
+        expect(cubit.state.fromLocation?.address, 'شارع الأمير سلطان');
+        expect(cubit.state.errorMessage, isNull);
+      },
+    );
+
+    test('keeps a pickup the customer already has', () async {
+      cubit.setFromLocation(_home);
+
+      await cubit.setDefaultPickup();
+
+      expect(cubit.state.fromLocation, _home);
+      expect(cubit.state.locateCount, 0);
     });
+
+    test(
+      'does not overwrite a pickup chosen while the address loads',
+      () async {
+        final pending = cubit.setDefaultPickup();
+        cubit.setFromLocation(_home);
+        await pending;
+
+        expect(cubit.state.fromLocation, _home);
+      },
+    );
 
     test('stays quiet when the position is unknown', () async {
       location.known = null;
 
-      await cubit.centerOnUser();
+      await cubit.setDefaultPickup();
 
       expect(cubit.state.locateCount, 0);
+      expect(cubit.state.fromLocation, isNull);
       expect(cubit.state.errorMessage, isNull);
     });
+
+    test('moves the map but stays quiet when no address is found', () async {
+      places.address = null;
+
+      await cubit.setDefaultPickup();
+
+      expect(cubit.state.locateCount, 1);
+      expect(cubit.state.fromLocation, isNull);
+      expect(cubit.state.errorMessage, isNull);
+    });
+
+    test(
+      'puts the customer back as the pickup after the points are cleared',
+      () async {
+        cubit
+          ..setFromLocation(_home)
+          ..setToLocation(_work)
+          ..resetPoints();
+        expect(cubit.state.fromLocation, isNull);
+        expect(cubit.state.toLocation, isNull);
+
+        await pumpEventQueue();
+
+        expect(cubit.state.fromLocation?.latitude, 35.52);
+        expect(cubit.state.toLocation, isNull);
+      },
+    );
+
+    test(
+      'puts the customer back as the pickup after a ride has ended',
+      () async {
+        cubit
+          ..setFromLocation(_home)
+          ..setToLocation(_work)
+          ..resetAfterRideEnded();
+
+        await pumpEventQueue();
+
+        expect(cubit.state.fromLocation?.latitude, 35.52);
+        expect(cubit.state.toLocation, isNull);
+      },
+    );
   });
 }

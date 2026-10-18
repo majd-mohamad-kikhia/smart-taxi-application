@@ -11,6 +11,10 @@ class VehicleTypeQuoteModel extends Equatable {
   final int vehicleTypeId;
   final String name;
   final String? description;
+
+  /// The car's picture as a path on the server (`image_url`, for example
+  /// `/uploads/vehicle-types/economy.webp`); null when none is set.
+  final String? imageUrl;
   final bool available;
 
   /// The server's `estimated_price` for this trip; null when the type is not
@@ -26,6 +30,7 @@ class VehicleTypeQuoteModel extends Equatable {
     required this.vehicleTypeId,
     required this.name,
     this.description,
+    this.imageUrl,
     required this.available,
     this.price,
     required this.stopsFeeTotal,
@@ -38,6 +43,7 @@ class VehicleTypeQuoteModel extends Equatable {
       vehicleTypeId: json['vehicle_type_id'] as int,
       name: json['name'] as String,
       description: json['description'] as String?,
+      imageUrl: _textOrNull(json['image_url']),
       available: available,
       price: available
           ? ((json['estimated_price'] ?? json['price']) as num?)?.toDouble()
@@ -52,9 +58,16 @@ class VehicleTypeQuoteModel extends Equatable {
     vehicleTypeId,
     name,
     description,
+    imageUrl,
     available,
     price,
     stopsFeeTotal,
     locationFee,
   ];
+
+  static String? _textOrNull(Object? value) {
+    if (value is! String) return null;
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
 }

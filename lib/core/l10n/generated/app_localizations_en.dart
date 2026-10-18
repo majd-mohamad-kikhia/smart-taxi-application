@@ -788,6 +788,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverGoOnlineHint => 'Go online to see trip requests';
 
   @override
+  String get driverMapRecenter => 'Back to my location';
+
+  @override
+  String driverOrderPosition(String current, String total) {
+    return 'Order $current of $total';
+  }
+
+  @override
   String get driverWaitingForOrders => 'Waiting for new trip requests...';
 
   @override
@@ -1830,6 +1838,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactUs => 'Contact us';
 
   @override
+  String get rememberMe => 'Remember me';
+
+  @override
+  String get rememberMeHint =>
+      'Keep my phone and password safely on this phone to sign in faster next time';
+
+  @override
   String get noContactNumbers => 'No contact numbers yet.';
 
   @override
@@ -2209,12 +2224,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Economy, comfort or family size. Pick the car that fits you.';
 
   @override
-  String get onboardingSafetyTag => 'Safety and comfort';
+  String get onboardingCallCenterTag => 'Call center';
 
   @override
-  String get onboardingSafetyTitle => 'Travel with peace of mind';
+  String get onboardingCallCenterTitle =>
+      'The best call center, at your service';
 
   @override
-  String get onboardingSafetySubtitle =>
-      'Verified drivers, trip sharing and 24/7 support, wherever you go.';
+  String get onboardingCallCenterSubtitle =>
+      'Our team is here 24/7 to book your ride by phone or WhatsApp and answer anything you ask.';
 }

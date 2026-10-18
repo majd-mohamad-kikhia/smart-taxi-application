@@ -368,6 +368,18 @@
   },
   "driverAcceptTripFailed": "Couldn't accept the trip",
   "driverGoOnlineHint": "Go online to see trip requests",
+  "driverMapRecenter": "Back to my location",
+  "driverOrderPosition": "Order {current} of {total}",
+  "@driverOrderPosition": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "driverWaitingForOrders": "Waiting for new trip requests...",
   "openSettings": "Open settings",
   "driverAvailabilityPaused": "Going online is disabled until your account is activated",
@@ -948,6 +960,8 @@
     }
   },
   "contactUs": "Contact us",
+  "rememberMe": "Remember me",
+  "rememberMeHint": "Keep my phone and password safely on this phone to sign in faster next time",
   "noContactNumbers": "No contact numbers yet.",
   "contactCallCenter": "Call our call center",
   "tripTooLongTitle": "Trip too long for the app",
@@ -1235,7 +1249,7 @@
   "onboardingRideOptionsTag": "Ride options",
   "onboardingRideOptionsTitle": "A ride for every trip",
   "onboardingRideOptionsSubtitle": "Economy, comfort or family size. Pick the car that fits you.",
-  "onboardingSafetyTag": "Safety and comfort",
-  "onboardingSafetyTitle": "Travel with peace of mind",
-  "onboardingSafetySubtitle": "Verified drivers, trip sharing and 24/7 support, wherever you go."
+  "onboardingCallCenterTag": "Call center",
+  "onboardingCallCenterTitle": "The best call center, at your service",
+  "onboardingCallCenterSubtitle": "Our team is here 24/7 to book your ride by phone or WhatsApp and answer anything you ask."
 }

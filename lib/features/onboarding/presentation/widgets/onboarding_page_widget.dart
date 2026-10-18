@@ -3,6 +3,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../data/models/onboarding_step.dart';
+import 'onboarding_photo_fallback_widget.dart';
 import 'onboarding_tag_widget.dart';
 
 /// One onboarding page: the photo filling the room above, then the tag,
@@ -12,6 +13,13 @@ class OnboardingPageWidget extends StatelessWidget {
   final OnboardingStep step;
 
   const OnboardingPageWidget({super.key, required this.step});
+
+  /// Which part of the photo stays in view when the card crops it. The call
+  /// center photo has the agent's face in its upper right.
+  Alignment get _photoFocus => switch (step) {
+    OnboardingStep.callCenter => const Alignment(0.55, -0.3),
+    _ => Alignment.center,
+  };
 
   ({String tag, String title, String subtitle}) _copy(AppLocalizations l10n) =>
       switch (step) {
@@ -30,10 +38,10 @@ class OnboardingPageWidget extends StatelessWidget {
           title: l10n.onboardingRideOptionsTitle,
           subtitle: l10n.onboardingRideOptionsSubtitle,
         ),
-        OnboardingStep.safetyComfort => (
-          tag: l10n.onboardingSafetyTag,
-          title: l10n.onboardingSafetyTitle,
-          subtitle: l10n.onboardingSafetySubtitle,
+        OnboardingStep.callCenter => (
+          tag: l10n.onboardingCallCenterTag,
+          title: l10n.onboardingCallCenterTitle,
+          subtitle: l10n.onboardingCallCenterSubtitle,
         ),
       };
 
@@ -53,8 +61,13 @@ class OnboardingPageWidget extends StatelessWidget {
                 child: Image.asset(
                   step.imageAsset,
                   fit: BoxFit.cover,
+                  alignment: _photoFocus,
                   // A decoration: the title below says what the page is about.
                   excludeFromSemantics: true,
+                  // A photo that is missing or can't be read never leaves a
+                  // hole in the page.
+                  errorBuilder: (_, _, _) =>
+                      OnboardingPhotoFallbackWidget(step: step),
                 ),
               ),
             ),
