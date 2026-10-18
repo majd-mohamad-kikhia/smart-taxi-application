@@ -37,6 +37,16 @@ class LocationTicker {
   StreamSubscription<Position>? _positionSub;
   Timer? _heartbeat;
   Position? _lastPosition;
+  final StreamController<Position> _positions =
+      StreamController<Position>.broadcast();
+
+  /// Every new fix the phone reports while the ticker runs, for the home map
+  /// to show where the driver is. Not throttled the way the socket emit is.
+  Stream<Position> get positions => _positions.stream;
+
+  /// The newest fix of this online session; null before the first one and
+  /// after [stop].
+  Position? get lastPosition => _lastPosition;
   void Function(Position position)? _onPosition;
 
   /// Bumped on every [start]/[stop] so a slow first fix from an earlier run
@@ -55,7 +65,7 @@ class LocationTicker {
       locationSettings: _locationSettings(),
     ).listen(
       (position) {
-        _lastPosition = position;
+        _publish(position);
         onPosition(position);
       },
       onError: (Object error) => debugPrint('LocationTicker: position stream error: $error'),
@@ -67,6 +77,11 @@ class LocationTicker {
     });
 
     unawaited(_seedFirstFix(run));
+  }
+
+  void _publish(Position position) {
+    _lastPosition = position;
+    if (!_positions.isClosed) _positions.add(position);
   }
 
   /// Sends the latest known position again right now. Called when the socket
@@ -84,7 +99,7 @@ class LocationTicker {
     try {
       final known = await Geolocator.getLastKnownPosition();
       if (known != null && run == _run && _lastPosition == null) {
-        _lastPosition = known;
+        _publish(known);
         _onPosition?.call(known);
       }
       final current = await Geolocator.getCurrentPosition(
@@ -94,7 +109,7 @@ class LocationTicker {
         ),
       );
       if (run != _run) return;
-      _lastPosition = current;
+      _publish(current);
       _onPosition?.call(current);
     } catch (e) {
       debugPrint('LocationTicker: could not get a first fix: $e');

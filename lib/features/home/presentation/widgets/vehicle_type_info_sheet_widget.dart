@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/app_sheet_handle_widget.dart';
 import '../../../../core/widgets/entrance_animation_widget.dart';
 import '../../../../core/widgets/vehicle_type_icon_widget.dart';
+import '../../../../core/widgets/vehicle_type_photo_widget.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
 
 /// Opens the "about this car" sheet for [vehicleType] over the price sheet.
@@ -27,7 +28,7 @@ Future<void> showVehicleTypeInfoSheet(
   );
 }
 
-/// What a car type is about: its icon, its name, the line the manager wrote
+/// What a car type is about: its picture (or its icon), its name, the line the manager wrote
 /// for it (its description, in full — a price card cuts it to one line) in a
 /// soft quote card, and the brand's slogan with the logo at the foot. A type
 /// with no description shows just the name and the slogan.
@@ -64,7 +65,17 @@ class VehicleTypeInfoSheetWidget extends StatelessWidget {
                 EntranceAnimationWidget(
                   from: const Offset(0, 12),
                   fromScale: 0.85,
-                  child: Center(child: _IconBadge(name: vehicleType.name)),
+                  child: vehicleType.imageUrl == null
+                      ? Center(child: _IconBadge(name: vehicleType.name))
+                      : VehicleTypePhotoWidget(
+                          name: vehicleType.name,
+                          imageUrl: vehicleType.imageUrl,
+                          width: double.infinity,
+                          height: 180,
+                          borderRadius: AppConstants.radiusLarge,
+                          iconSize: 72,
+                          background: context.colors.primarySurface,
+                        ),
                 ),
                 const SizedBox(height: AppConstants.paddingL),
                 EntranceAnimationWidget(

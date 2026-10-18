@@ -50,12 +50,14 @@ class HomeCubit extends Cubit<HomeState> {
     try {
       final restored = await _repository.fetchActiveRide();
       if (isClosed || restored == null || state.hasActiveRide) return;
-      emit(state.copyWith(
-        activeRide: restored.ride,
-        fromLocation: restored.pickup,
-        toLocation: restored.dropoff,
-        clearQuote: true,
-      ));
+      emit(
+        state.copyWith(
+          activeRide: restored.ride,
+          fromLocation: restored.pickup,
+          toLocation: restored.dropoff,
+          clearQuote: true,
+        ),
+      );
     } on RideRequestException catch (e) {
       if (isClosed) return;
       emit(state.copyWith(errorMessage: e.message));
@@ -74,26 +76,57 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   /// Clears the From and To points (the "create order" tab tapped again, or
-  /// "cancel route"). A no-op while a quote, booking or ride holds them.
+  /// "cancel route"), then puts the customer's own position back as the
+  /// pickup. A no-op while a quote, booking or ride holds them.
   void resetPoints() {
     if (isClosed || state.arePointsLocked) return;
     if (state.fromLocation == null && state.toLocation == null) return;
     emit(state.copyWith(clearLocations: true, clearQuote: true));
+    unawaited(setDefaultPickup());
   }
 
-  /// Quietly moves the map behind the screen to the customer when their
-  /// position is already known. Never asks for permission and never touches
-  /// the pickup — that is the GPS button's job ([locateMe]).
-  Future<void> centerOnUser() async {
-    final position = await _location.getPositionIfAllowed();
+  /// Makes the customer's own position the pickup, so a trip only needs a
+  /// destination. It moves the map to them, then sets the pickup once its
+  /// address is found. Quiet: a location that is off, a permission that was
+  /// refused or an address that can't be found just leave the pickup empty
+  /// (the GPS button is the one that explains why). It never replaces a
+  /// pickup the customer already has or chose meanwhile, and never changes
+  /// the points while they are locked by a quote, a booking or a ride.
+  Future<void> setDefaultPickup() async {
+    if (isClosed || state.fromLocation != null || state.arePointsLocked) return;
+    final position = await _location.getPositionAskingOnce();
     if (isClosed || position == null) return;
-    emit(state.copyWith(
-      userLocation: PickedLocationModel(
-        latitude: position.latitude,
-        longitude: position.longitude,
+    emit(
+      state.copyWith(
+        userLocation: PickedLocationModel(
+          latitude: position.latitude,
+          longitude: position.longitude,
+        ),
+        locateCount: state.locateCount + 1,
       ),
-      locateCount: state.locateCount + 1,
-    ));
+    );
+    if (state.fromLocation != null || state.arePointsLocked) return;
+
+    final address = await _places.addressFor(
+      position.latitude,
+      position.longitude,
+    );
+    if (isClosed ||
+        address == null ||
+        state.fromLocation != null ||
+        state.arePointsLocked) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        fromLocation: PickedLocationModel(
+          latitude: position.latitude,
+          longitude: position.longitude,
+          address: address,
+        ),
+        clearQuote: true,
+      ),
+    );
   }
 
   /// The GPS button: moves the map to the customer and, while the points can
@@ -107,13 +140,15 @@ class HomeCubit extends Cubit<HomeState> {
       final position = await _location.getCurrentLocation();
       if (isClosed) return;
       // The map moves at once; the address follows.
-      emit(state.copyWith(
-        userLocation: PickedLocationModel(
-          latitude: position.latitude,
-          longitude: position.longitude,
+      emit(
+        state.copyWith(
+          userLocation: PickedLocationModel(
+            latitude: position.latitude,
+            longitude: position.longitude,
+          ),
+          locateCount: state.locateCount + 1,
         ),
-        locateCount: state.locateCount + 1,
-      ));
+      );
       if (!setPickup || state.arePointsLocked) {
         emit(state.copyWith(isLocating: false));
         return;
@@ -132,15 +167,17 @@ class HomeCubit extends Cubit<HomeState> {
         }
         return;
       }
-      emit(state.copyWith(
-        isLocating: false,
-        fromLocation: PickedLocationModel(
-          latitude: position.latitude,
-          longitude: position.longitude,
-          address: address,
+      emit(
+        state.copyWith(
+          isLocating: false,
+          fromLocation: PickedLocationModel(
+            latitude: position.latitude,
+            longitude: position.longitude,
+            address: address,
+          ),
+          clearQuote: true,
         ),
-        clearQuote: true,
-      ));
+      );
     } on LocationPermissionDeniedException catch (e) {
       if (isClosed) return;
       final strings = AppStrings.current;
@@ -219,7 +256,14 @@ class HomeCubit extends Cubit<HomeState> {
   /// server-side via the tracking screen's socket events.
   void resetAfterRideEnded() {
     if (isClosed) return;
-    emit(state.copyWith(clearActiveRide: true, clearQuote: true, clearLocations: true));
+    emit(
+      state.copyWith(
+        clearActiveRide: true,
+        clearQuote: true,
+        clearLocations: true,
+      ),
+    );
+    unawaited(setDefaultPickup());
   }
 
   Future<void> cancelRide({String? reason}) async {
@@ -235,11 +279,13 @@ class HomeCubit extends Cubit<HomeState> {
       final penalty = cancelled.cancelPenalty;
       if (penalty != null) _accountBlock.applyCancelPenalty(penalty);
       if (isClosed) return;
-      emit(state.copyWith(
-        isCancelling: false,
-        clearActiveRide: true,
-        clearQuote: true,
-      ));
+      emit(
+        state.copyWith(
+          isCancelling: false,
+          clearActiveRide: true,
+          clearQuote: true,
+        ),
+      );
     } on RideRequestException catch (e) {
       if (isClosed) return;
       emit(state.copyWith(isCancelling: false, errorMessage: e.message));

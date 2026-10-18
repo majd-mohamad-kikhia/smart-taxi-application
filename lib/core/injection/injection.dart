@@ -11,6 +11,7 @@ import '../../driver_features/driver_home/data/datasources/incoming_order_call_a
 import '../../driver_features/driver_home/data/datasources/new_order_alert.dart';
 import '../../driver_features/driver_home/data/driver_presence_store.dart';
 import '../../driver_features/driver_home/data/location_ticker.dart';
+import '../../driver_features/driver_home/presentation/cubit/driver_home_map_cubit.dart';
 import '../../driver_features/driver_home/presentation/cubit/driver_orders_cubit.dart';
 import '../../driver_features/driver_home/presentation/cubit/driver_presence_cubit.dart';
 import '../../driver_features/driver_profile/data/datasources/driver_vehicle_remote_data_source.dart';
@@ -114,6 +115,7 @@ import '../services/trip_route_tracker.dart';
 import '../models/order_offer_model.dart';
 import '../notifications/unread_notifications_cubit.dart';
 import '../services/whatsapp_file_sender.dart';
+import '../session/remembered_login_store.dart';
 import '../session/session_cubit.dart';
 import '../../features/home/data/datasources/ride_request_remote_data_source.dart';
 import '../../features/home/data/repositories/places_repository.dart';
@@ -337,13 +339,22 @@ void setupInjection() {
       sl<PushNotificationService>(),
     ),
   );
+  // "Remember me": the sign-in kept in the phone's secure storage, shared by
+  // the customer and the driver sign-in.
+  sl.registerLazySingleton<RememberedLoginStore>(
+    () => const RememberedLoginStore(),
+  );
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepository(sl<AuthRemoteDataSource>(), sl<AuthLocalDataSource>()),
   );
   // Singleton (not a factory) so the selected role and submit state
   // survive navigation across role-selection → sign in / sign up.
   sl.registerLazySingleton<AuthCubit>(
-    () => AuthCubit(sl<AuthRepository>(), sl<SessionCubit>()),
+    () => AuthCubit(
+      sl<AuthRepository>(),
+      sl<SessionCubit>(),
+      sl<RememberedLoginStore>(),
+    ),
   );
   // Other features trigger logout through SessionCubit instead of
   // importing AuthCubit directly (no cross-feature imports).
@@ -414,7 +425,11 @@ void setupInjection() {
     () => DriverSignupCubit(sl<DriverRepository>(), sl<PhotoPickerService>()),
   );
   sl.registerLazySingleton<DriverAuthCubit>(
-    () => DriverAuthCubit(sl<DriverRepository>(), sl<SessionCubit>()),
+    () => DriverAuthCubit(
+      sl<DriverRepository>(),
+      sl<SessionCubit>(),
+      sl<RememberedLoginStore>(),
+    ),
   );
   sl<SessionCubit>().registerLogoutHandler(UserRole.driver, () async {
     await sl<FloatingBubbleCoordinator>().stop();
@@ -426,7 +441,9 @@ void setupInjection() {
   // Singleton so `DriverPresenceCubit` and `DriverOrdersCubit` share one
   // Socket.IO connection instead of opening two.
   sl.registerLazySingleton<DriverSocketService>(() => DriverSocketService());
-  sl.registerFactory<LocationTicker>(() => LocationTicker());
+  // Singleton: the online control starts it and the home map listens to its
+  // fixes, so both must hold the same one.
+  sl.registerLazySingleton<LocationTicker>(() => LocationTicker());
   sl.registerLazySingleton<DriverPresenceStore>(() => DriverPresenceStore());
   sl.registerLazySingleton<IncomingOrderCallAlert>(
     () => IncomingOrderCallAlert(sl<LocalNotificationService>()),
@@ -471,6 +488,15 @@ void setupInjection() {
       sl<CurrentLocationService>(),
       sl<DriverPresenceCubit>(),
       sl<NewOrderAlert>(),
+    ),
+  );
+  // One per home screen: follows the driver and draws the offer in view.
+  sl.registerFactory<DriverHomeMapCubit>(
+    () => DriverHomeMapCubit(
+      sl<LocationTicker>(),
+      sl<CurrentLocationService>(),
+      sl<DriverOrdersCubit>(),
+      sl<GoogleRoutesService>(),
     ),
   );
 

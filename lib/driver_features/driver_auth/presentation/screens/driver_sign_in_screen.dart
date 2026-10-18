@@ -8,6 +8,7 @@ import '../../../../core/routing/app_router.dart';
 import '../../../../core/validators/auth_validators.dart';
 import '../../../../core/validators/phone_input_formatter.dart';
 import '../../../../core/widgets/auth_form_layout_widget.dart';
+import '../../../../core/widgets/remember_me_checkbox_widget.dart';
 import '../../../../core/widgets/auth_text_field_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../cubit/driver_auth_cubit.dart';
@@ -27,7 +28,28 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  /// "Remember me" starts on: signing in faster is what most want.
+  bool _rememberMe = true;
+
   DriverAuthCubit get _cubit => sl<DriverAuthCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    _fillRememberedLogin();
+  }
+
+  /// Fills the form with what was remembered at the last sign in, so signing
+  /// in again is one tap.
+  Future<void> _fillRememberedLogin() async {
+    final saved = await _cubit.rememberedLogin();
+    if (!mounted || saved == null) return;
+    // What the driver has already typed is not overwritten.
+    if (_phoneController.text.isEmpty) _phoneController.text = saved.phone;
+    if (_passwordController.text.isEmpty) {
+      _passwordController.text = saved.password;
+    }
+  }
 
   @override
   void dispose() {
@@ -41,6 +63,7 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
     _cubit.signIn(
       phone: _phoneController.text.trim(),
       password: _passwordController.text,
+      rememberMe: _rememberMe,
     );
   }
 
@@ -97,6 +120,12 @@ class _DriverSignInScreenState extends State<DriverSignInScreen> {
               autofillHints: const [AutofillHints.password],
               forceLtr: true,
               validator: AuthValidators.loginPassword,
+            ),
+            RememberMeCheckboxWidget(
+              value: _rememberMe,
+              onChanged: state.status == DriverAuthStatus.submitting
+                  ? null
+                  : (value) => setState(() => _rememberMe = value),
             ),
           ],
           errorMessage: state.status == DriverAuthStatus.failure

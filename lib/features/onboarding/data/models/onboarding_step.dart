@@ -4,7 +4,7 @@ enum OnboardingStep {
   bookFast('assets/images/onboarding/onboarding_book_fast.jpg'),
   liveTracking('assets/images/onboarding/onboarding_live_tracking.jpg'),
   rideOptions('assets/images/onboarding/onboarding_ride_options.jpg'),
-  safetyComfort('assets/images/onboarding/onboarding_safety_comfort.jpg');
+  callCenter('assets/images/onboarding/onboarding_call_center.jpg');
 
   final String imageAsset;
 

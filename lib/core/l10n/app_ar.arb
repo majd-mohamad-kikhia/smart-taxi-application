@@ -235,6 +235,8 @@
   "orderOfferSecondsLeft": "متبقّي {seconds} ث",
   "driverAcceptTripFailed": "تعذر قبول الرحلة",
   "driverGoOnlineHint": "فعّل الظهور كمتاح لعرض طلبات الرحلات",
+  "driverMapRecenter": "العودة إلى موقعي",
+  "driverOrderPosition": "الطلب {current} من {total}",
   "driverWaitingForOrders": "بانتظار طلبات رحلات جديدة...",
   "openSettings": "فتح الإعدادات",
   "driverAvailabilityPaused": "الظهور كمتاح متوقف حتى تفعيل الحساب",
@@ -521,6 +523,8 @@
   "accountBlockedDriverMessage": "لن تصلك عروض رحلات جديدة أثناء الحظر. الرحلة الجارية حاليًا لا تتأثر.",
   "accountBlockedUntil": "محظور حتى {date}",
   "accountBlockedReason": "السبب: {reason}",
+  "rememberMe": "تذكرني",
+  "rememberMeHint": "احفظ رقم هاتفي وكلمة المرور بأمان على هذا الهاتف لتسجيل الدخول أسرع في المرة القادمة",
   "contactUs": "تواصل معنا",
   "noContactNumbers": "لا توجد أرقام تواصل بعد.",
   "contactCallCenter": "اتصل بمركز الاتصال",
@@ -644,7 +648,7 @@
   "onboardingRideOptionsTag": "خيارات الرحلة",
   "onboardingRideOptionsTitle": "سيارة تناسب كل مشوار",
   "onboardingRideOptionsSubtitle": "اقتصادية أو مريحة أو عائلية، اختر السيارة التي تناسبك.",
-  "onboardingSafetyTag": "الأمان والراحة",
-  "onboardingSafetyTitle": "سافر بكل أمان وراحة",
-  "onboardingSafetySubtitle": "سائقون موثّقون، ومشاركة الرحلة، ودعم على مدار الساعة أينما كنت."
+  "onboardingCallCenterTag": "مركز الاتصال",
+  "onboardingCallCenterTitle": "أفضل مركز اتصال في خدمتك",
+  "onboardingCallCenterSubtitle": "فريقنا متاح على مدار الساعة لطلب مشوارك عبر الهاتف أو الواتساب والإجابة عن كل استفساراتك."
 }

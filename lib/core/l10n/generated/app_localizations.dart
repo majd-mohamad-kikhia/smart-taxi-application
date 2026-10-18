@@ -1508,6 +1508,18 @@ abstract class AppLocalizations {
   /// **'Go online to see trip requests'**
   String get driverGoOnlineHint;
 
+  /// No description provided for @driverMapRecenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to my location'**
+  String get driverMapRecenter;
+
+  /// No description provided for @driverOrderPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {current} of {total}'**
+  String driverOrderPosition(String current, String total);
+
   /// No description provided for @driverWaitingForOrders.
   ///
   /// In en, this message translates to:
@@ -3351,6 +3363,18 @@ abstract class AppLocalizations {
   /// **'Contact us'**
   String get contactUs;
 
+  /// No description provided for @rememberMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember me'**
+  String get rememberMe;
+
+  /// No description provided for @rememberMeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my phone and password safely on this phone to sign in faster next time'**
+  String get rememberMeHint;
+
   /// No description provided for @noContactNumbers.
   ///
   /// In en, this message translates to:
@@ -3969,23 +3993,23 @@ abstract class AppLocalizations {
   /// **'Economy, comfort or family size. Pick the car that fits you.'**
   String get onboardingRideOptionsSubtitle;
 
-  /// No description provided for @onboardingSafetyTag.
+  /// No description provided for @onboardingCallCenterTag.
   ///
   /// In en, this message translates to:
-  /// **'Safety and comfort'**
-  String get onboardingSafetyTag;
+  /// **'Call center'**
+  String get onboardingCallCenterTag;
 
-  /// No description provided for @onboardingSafetyTitle.
+  /// No description provided for @onboardingCallCenterTitle.
   ///
   /// In en, this message translates to:
-  /// **'Travel with peace of mind'**
-  String get onboardingSafetyTitle;
+  /// **'The best call center, at your service'**
+  String get onboardingCallCenterTitle;
 
-  /// No description provided for @onboardingSafetySubtitle.
+  /// No description provided for @onboardingCallCenterSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Verified drivers, trip sharing and 24/7 support, wherever you go.'**
-  String get onboardingSafetySubtitle;
+  /// **'Our team is here 24/7 to book your ride by phone or WhatsApp and answer anything you ask.'**
+  String get onboardingCallCenterSubtitle;
 }
 
 class _AppLocalizationsDelegate

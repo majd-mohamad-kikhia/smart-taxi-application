@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/session/app_user.dart';
+import '../../../../core/session/remembered_login.dart';
+import '../../../../core/session/remembered_login_store.dart';
 import '../../../../core/session/session_cubit.dart';
 import '../../data/models/auth_user_model.dart';
 import '../../data/repositories/auth_repository.dart';
@@ -14,8 +16,10 @@ import 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _repository;
   final SessionCubit _sessionCubit;
+  final RememberedLoginStore _remembered;
 
-  AuthCubit(this._repository, this._sessionCubit) : super(AuthState.initial());
+  AuthCubit(this._repository, this._sessionCubit, this._remembered)
+    : super(AuthState.initial());
 
   void selectRole(UserRole role) {
     emit(state.copyWith(selectedRole: role));
@@ -33,9 +37,18 @@ class AuthCubit extends Cubit<AuthState> {
     ));
   }
 
+  /// What the customer asked to be remembered at the last sign in, to fill
+  /// the form; null when nothing was.
+  Future<RememberedLogin?> rememberedLogin() =>
+      _remembered.load(UserRole.customer);
+
+  /// With [rememberMe] the phone and password are kept (in secure storage)
+  /// once the server has accepted them, to fill the form next time; without
+  /// it anything kept before is forgotten. Wrong details are never kept.
   Future<void> signIn({
     required String phone,
     required String password,
+    bool rememberMe = false,
   }) async {
     final role = state.selectedRole;
     if (role == null || isClosed) return;
@@ -47,6 +60,10 @@ class AuthCubit extends Cubit<AuthState> {
         password: password,
         role: role,
       );
+      if (isClosed) return;
+      await (rememberMe
+          ? _remembered.save(role, phone: phone, password: password)
+          : _remembered.clear(role));
       if (isClosed) return;
       _sessionCubit.setUser(_toAppUser(user));
       emit(state.copyWith(status: AuthStatus.success, user: user));

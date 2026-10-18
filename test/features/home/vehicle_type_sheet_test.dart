@@ -99,16 +99,8 @@ void main() {
                       create: (_) => QuoteRouteCubit(_NoRouteLoader()),
                       child: VehicleTypeSheetWidget(
                         quote: quote,
-                        pickup: const PickedLocationModel(
-                          latitude: 35.5,
-                          longitude: 35.78,
-                          address: 'Pickup street',
-                        ),
-                        dropoff: const PickedLocationModel(
-                          latitude: 35.52,
-                          longitude: 35.8,
-                          address: 'Drop-off street',
-                        ),
+                        pickup: _pickup,
+                        dropoff: _dropoff,
                       ),
                     ),
                   );
@@ -202,6 +194,27 @@ void main() {
       size: const Size(640, 1400),
       locale: const Locale('ar'),
     );
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.byIcon(Icons.info_outline_rounded).first);
+    await tester.pumpAndSettle();
+    expect(find.text('Smart Taxi ... Smart Life'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a car with a picture address still shows its icon until the '
+      'picture loads', (tester) async {
+    const withPhoto = VehicleTypeQuoteModel(
+      vehicleTypeId: 9,
+      name: 'economy',
+      imageUrl: '/uploads/vehicle-types/economy.webp',
+      available: true,
+      price: 100,
+      stopsFeeTotal: 0,
+    );
+    await open(tester, _quote([withPhoto, _van]));
+    // Tests have no network, so the picture can't load and the icon stands in.
+    expect(find.byIcon(Icons.directions_car_rounded), findsWidgets);
     expect(tester.takeException(), isNull);
 
     await tester.tap(find.byIcon(Icons.info_outline_rounded).first);

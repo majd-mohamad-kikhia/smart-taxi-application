@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/enums/user_role.dart';
 import '../../../../core/session/app_user.dart';
+import '../../../../core/session/remembered_login.dart';
+import '../../../../core/session/remembered_login_store.dart';
 import '../../../../core/session/session_cubit.dart';
 import '../../data/models/driver_user_model.dart';
 import '../../data/repositories/driver_repository.dart';
@@ -15,9 +17,10 @@ import 'driver_auth_state.dart';
 class DriverAuthCubit extends Cubit<DriverAuthState> {
   final DriverRepository _repository;
   final SessionCubit _sessionCubit;
+  final RememberedLoginStore _remembered;
 
-  DriverAuthCubit(this._repository, this._sessionCubit)
-      : super(DriverAuthState.initial());
+  DriverAuthCubit(this._repository, this._sessionCubit, this._remembered)
+    : super(DriverAuthState.initial());
 
   /// Primes the state from a session [DriverRepository.restoreSession]
   /// already found locally, so the driver shell sees a signed-in driver
@@ -27,14 +30,27 @@ class DriverAuthCubit extends Cubit<DriverAuthState> {
     emit(state.copyWith(status: DriverAuthStatus.success, driver: driver));
   }
 
+  /// What the driver asked to be remembered at the last sign in, to fill the
+  /// form; null when nothing was.
+  Future<RememberedLogin?> rememberedLogin() =>
+      _remembered.load(UserRole.driver);
+
+  /// With [rememberMe] the phone and password are kept (in secure storage)
+  /// once the server has accepted them, to fill the form next time; without
+  /// it anything kept before is forgotten. Wrong details are never kept.
   Future<void> signIn({
     required String phone,
     required String password,
+    bool rememberMe = false,
   }) async {
     if (isClosed) return;
     emit(state.copyWith(status: DriverAuthStatus.submitting, clearError: true));
     try {
       final driver = await _repository.login(phone: phone, password: password);
+      if (isClosed) return;
+      await (rememberMe
+          ? _remembered.save(UserRole.driver, phone: phone, password: password)
+          : _remembered.clear(UserRole.driver));
       if (isClosed) return;
       _sessionCubit.setUser(_toAppUser(driver));
       emit(state.copyWith(

@@ -771,6 +771,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverGoOnlineHint => 'فعّل الظهور كمتاح لعرض طلبات الرحلات';
 
   @override
+  String get driverMapRecenter => 'العودة إلى موقعي';
+
+  @override
+  String driverOrderPosition(String current, String total) {
+    return 'الطلب $current من $total';
+  }
+
+  @override
   String get driverWaitingForOrders => 'بانتظار طلبات رحلات جديدة...';
 
   @override
@@ -1799,6 +1807,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get contactUs => 'تواصل معنا';
 
   @override
+  String get rememberMe => 'تذكرني';
+
+  @override
+  String get rememberMeHint =>
+      'احفظ رقم هاتفي وكلمة المرور بأمان على هذا الهاتف لتسجيل الدخول أسرع في المرة القادمة';
+
+  @override
   String get noContactNumbers => 'لا توجد أرقام تواصل بعد.';
 
   @override
@@ -2182,12 +2197,12 @@ class AppLocalizationsAr extends AppLocalizations {
       'اقتصادية أو مريحة أو عائلية، اختر السيارة التي تناسبك.';
 
   @override
-  String get onboardingSafetyTag => 'الأمان والراحة';
+  String get onboardingCallCenterTag => 'مركز الاتصال';
 
   @override
-  String get onboardingSafetyTitle => 'سافر بكل أمان وراحة';
+  String get onboardingCallCenterTitle => 'أفضل مركز اتصال في خدمتك';
 
   @override
-  String get onboardingSafetySubtitle =>
-      'سائقون موثّقون، ومشاركة الرحلة، ودعم على مدار الساعة أينما كنت.';
+  String get onboardingCallCenterSubtitle =>
+      'فريقنا متاح على مدار الساعة لطلب مشوارك عبر الهاتف أو الواتساب والإجابة عن كل استفساراتك.';
 }

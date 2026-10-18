@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Why [CurrentLocationService.getCurrentLocation] couldn't get a GPS fix.
 ///
@@ -50,6 +51,28 @@ class CurrentLocationService {
     );
   }
 
+  static const _askedOnHomeKey = 'location_asked_on_home';
+
+  /// The phone's position for the order screen's default pickup. The very
+  /// first time it asks for the location permission (the customer is about
+  /// to order, so it makes sense then); after that it never asks again and
+  /// behaves like [getPositionIfAllowed], so a customer who said no is not
+  /// nagged on every visit. Null when location is off or not granted.
+  Future<Position?> getPositionAskingOnce() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!(prefs.getBool(_askedOnHomeKey) ?? false)) {
+        await prefs.setBool(_askedOnHomeKey, true);
+        return await getCurrentLocation();
+      }
+    } on LocationPermissionDeniedException {
+      return null;
+    } on Exception {
+      // A failing preferences store or GPS read only means no default.
+    }
+    return getPositionIfAllowed();
+  }
+
   /// A fix this old is no longer "where the customer is".
   static const Duration _maxLastKnownAge = Duration(minutes: 15);
 
@@ -87,7 +110,9 @@ class CurrentLocationService {
   /// (a driver accepting a ride): a fresh fix for at most [limit], else the
   /// last known one. Null when location is off or not granted (permission
   /// is never asked for here) or nothing is known.
-  Future<Position?> quickPosition({Duration limit = const Duration(seconds: 2)}) async {
+  Future<Position?> quickPosition({
+    Duration limit = const Duration(seconds: 2),
+  }) async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
       final permission = await Geolocator.checkPermission();
@@ -97,7 +122,10 @@ class CurrentLocationService {
       }
       try {
         return await Geolocator.getCurrentPosition(
-          locationSettings: LocationSettings(accuracy: LocationAccuracy.medium, timeLimit: limit),
+          locationSettings: LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            timeLimit: limit,
+          ),
         );
       } on TimeoutException {
         return await Geolocator.getLastKnownPosition();
