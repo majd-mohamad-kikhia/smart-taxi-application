@@ -3,9 +3,11 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/services/photo_picker_service.dart';
 import '../../../../core/widgets/network_photo_widget.dart';
 import '../../../driver_auth/data/models/driver_status.dart';
 import '../../../driver_auth/data/models/driver_user_model.dart';
+import 'editable_photo_widget.dart';
 
 /// The top of the profile: photo, name and account status. The status is an
 /// icon and a word on its wash, and a status that needs the driver to do
@@ -13,8 +15,15 @@ import '../../../driver_auth/data/models/driver_user_model.dart';
 /// below, so it is never a mystery why trips aren't coming.
 class ProfileHeaderWidget extends StatelessWidget {
   final DriverUserModel driver;
+  final bool isUploadingPhoto;
+  final ValueChanged<PhotoSource> onPickPhoto;
 
-  const ProfileHeaderWidget({super.key, required this.driver});
+  const ProfileHeaderWidget({
+    super.key,
+    required this.driver,
+    required this.isUploadingPhoto,
+    required this.onPickPhoto,
+  });
 
   IconData get _icon => switch (driver.status) {
     DriverStatus.active => Icons.check_circle_rounded,
@@ -64,12 +73,18 @@ class ProfileHeaderWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              NetworkPhotoWidget(
-                imagePath: driver.photoUrl,
-                width: 72,
-                height: 72,
+              EditablePhotoWidget(
+                isUploading: isUploadingPhoto,
                 borderRadius: 36,
-                placeholderIcon: Icons.person_rounded,
+                semanticLabel: l10n.profileChangePhoto,
+                onPick: onPickPhoto,
+                child: NetworkPhotoWidget(
+                  imagePath: driver.photoUrl,
+                  width: 72,
+                  height: 72,
+                  borderRadius: 36,
+                  placeholderIcon: Icons.person_rounded,
+                ),
               ),
               const SizedBox(width: AppConstants.paddingL),
               Expanded(

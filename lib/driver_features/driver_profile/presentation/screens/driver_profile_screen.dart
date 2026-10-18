@@ -8,9 +8,12 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../driver_auth/data/models/driver_user_model.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_cubit.dart';
 import '../../../driver_auth/presentation/cubit/driver_auth_state.dart';
+import '../cubit/driver_photo_cubit.dart';
+import '../cubit/driver_photo_state.dart';
 import '../cubit/driver_vehicle_cubit.dart';
 import '../cubit/driver_vehicle_state.dart';
 import '../widgets/driver_vehicle_card_widget.dart';
@@ -18,8 +21,9 @@ import '../widgets/profile_figure_tile_widget.dart';
 import '../widgets/profile_header_widget.dart';
 import '../widgets/profile_info_row_widget.dart';
 
-/// Read-only driver profile — no edit-profile endpoint is documented yet,
-/// so the driver's own info only displays what login already returned.
+/// Driver profile. The driver can change his own photo and the car's photo
+/// (tap either); everything else — phone, address and the other car data —
+/// is read-only here and changed by the manager.
 /// The vehicle card is fetched live from `GET /api/driver/vehicle` so it
 /// stays current even if the vehicle changes after login.
 ///
@@ -35,16 +39,19 @@ class DriverProfileScreen extends StatefulWidget {
 
 class _DriverProfileScreenState extends State<DriverProfileScreen> {
   late final DriverVehicleCubit _vehicleCubit;
+  late final DriverPhotoCubit _photoCubit;
 
   @override
   void initState() {
     super.initState();
     _vehicleCubit = sl<DriverVehicleCubit>()..load();
+    _photoCubit = sl<DriverPhotoCubit>();
   }
 
   @override
   void dispose() {
     _vehicleCubit.close();
+    _photoCubit.close();
     super.dispose();
   }
 
@@ -56,40 +63,84 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
         preferredSize: Size.fromHeight(60),
         child: AppBrandBarWidget(),
       ),
-      body: BlocBuilder<DriverAuthCubit, DriverAuthState>(
-        bloc: sl<DriverAuthCubit>(),
-        builder: (context, state) {
-          final driver = state.driver;
-          if (driver == null) return const SizedBox.shrink();
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                AppConstants.paddingL,
-                AppConstants.paddingL,
-                AppConstants.paddingL,
-                AppConstants.paddingL + MediaQuery.paddingOf(context).bottom,
-              ),
-                children: [
-                  ProfileHeaderWidget(driver: driver),
-                  const SizedBox(height: AppConstants.paddingM),
-                  _Figures(driver: driver),
-                  const SizedBox(height: AppConstants.paddingM),
-                  _Contact(driver: driver),
-                  const SizedBox(height: AppConstants.paddingM),
-                  BlocBuilder<DriverVehicleCubit, DriverVehicleState>(
-                    bloc: _vehicleCubit,
-                    builder: (context, vehicleState) => DriverVehicleCardWidget(
-                      state: vehicleState,
-                      onRetry: _vehicleCubit.load,
+      body: BlocListener<DriverPhotoCubit, DriverPhotoState>(
+        bloc: _photoCubit,
+        listenWhen: (previous, current) =>
+            current.errorMessage != null &&
+            current.errorMessage != previous.errorMessage,
+        listener: (context, state) => showAppSnackBar(
+          context,
+          state.errorMessage!,
+          type: AppSnackBarType.error,
+        ),
+        // A new car photo comes back with the whole car: the card shows it.
+        child: BlocListener<DriverAuthCubit, DriverAuthState>(
+          bloc: sl<DriverAuthCubit>(),
+          listenWhen: (previous, current) =>
+              current.driver?.vehicle != null &&
+              current.driver?.vehicle != previous.driver?.vehicle,
+          listener: (context, state) =>
+              _vehicleCubit.replace(state.driver!.vehicle!),
+          child: BlocBuilder<DriverAuthCubit, DriverAuthState>(
+            bloc: sl<DriverAuthCubit>(),
+            builder: (context, state) {
+              final driver = state.driver;
+              if (driver == null) return const SizedBox.shrink();
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      AppConstants.paddingL,
+                      AppConstants.paddingL,
+                      AppConstants.paddingL,
+                      AppConstants.paddingL +
+                          MediaQuery.paddingOf(context).bottom,
                     ),
+                    children: [
+                      BlocSelector<DriverPhotoCubit, DriverPhotoState, bool>(
+                        bloc: _photoCubit,
+                        selector: (photoState) =>
+                            photoState.uploading == DriverPhotoTarget.personal,
+                        builder: (context, isUploading) => ProfileHeaderWidget(
+                          driver: driver,
+                          isUploadingPhoto: isUploading,
+                          onPickPhoto: _photoCubit.changePersonal,
+                        ),
+                      ),
+                      const SizedBox(height: AppConstants.paddingM),
+                      _Figures(driver: driver),
+                      const SizedBox(height: AppConstants.paddingM),
+                      _Contact(driver: driver),
+                      const SizedBox(height: AppConstants.paddingM),
+                      BlocBuilder<DriverVehicleCubit, DriverVehicleState>(
+                        bloc: _vehicleCubit,
+                        builder: (context, vehicleState) =>
+                            BlocSelector<
+                              DriverPhotoCubit,
+                              DriverPhotoState,
+                              bool
+                            >(
+                              bloc: _photoCubit,
+                              selector: (photoState) =>
+                                  photoState.uploading ==
+                                  DriverPhotoTarget.vehicle,
+                              builder: (context, isUploading) =>
+                                  DriverVehicleCardWidget(
+                                    state: vehicleState,
+                                    onRetry: _vehicleCubit.load,
+                                    isUploadingPhoto: isUploading,
+                                    onPickPhoto: _photoCubit.changeVehicle,
+                                  ),
+                            ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          );
-        },
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -116,7 +167,8 @@ class _Figures extends StatelessWidget {
               iconColor: AppColors.star,
               label: l10n.profileRating,
               value: rating == null ? '—' : rating.toStringAsFixed(2),
-              onTap: () => Navigator.of(context).pushNamed(AppRouter.driverRatings),
+              onTap: () =>
+                  Navigator.of(context).pushNamed(AppRouter.driverRatings),
             ),
           ),
           const SizedBox(width: AppConstants.paddingM),

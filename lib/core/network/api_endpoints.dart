@@ -99,4 +99,5 @@ class ApiEndpoints {
 
   // ─── Driver Profile ────────────────────────────────────────
   String get driverVehicle => '/api/driver/vehicle';
+  String get driverProfile => '/api/driver/profile';
 }

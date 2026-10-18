@@ -2199,6 +2199,24 @@ abstract class AppLocalizations {
   /// **'Vehicle details'**
   String get vehicleInfo;
 
+  /// No description provided for @profileChangePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change profile photo'**
+  String get profileChangePhoto;
+
+  /// No description provided for @profileChangeVehiclePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change car photo'**
+  String get profileChangeVehiclePhoto;
+
+  /// No description provided for @profileVehicleReadOnlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To change the other car details, contact the office'**
+  String get profileVehicleReadOnlyHint;
+
   /// No description provided for @aboutThisCar.
   ///
   /// In en, this message translates to:

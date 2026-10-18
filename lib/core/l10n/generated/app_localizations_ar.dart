@@ -1142,6 +1142,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vehicleInfo => 'بيانات المركبة';
 
   @override
+  String get profileChangePhoto => 'تغيير الصورة الشخصية';
+
+  @override
+  String get profileChangeVehiclePhoto => 'تغيير صورة السيارة';
+
+  @override
+  String get profileVehicleReadOnlyHint =>
+      'لتغيير بقية بيانات السيارة، تواصل مع المكتب';
+
+  @override
   String get aboutThisCar => 'عن هذه السيارة';
 
   @override

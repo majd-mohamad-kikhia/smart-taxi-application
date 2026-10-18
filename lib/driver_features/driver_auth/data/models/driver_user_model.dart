@@ -60,18 +60,23 @@ class DriverUserModel extends Equatable {
     );
   }
 
-  DriverUserModel copyWith({double? searchRadiusKm, double? rating}) {
+  DriverUserModel copyWith({
+    double? searchRadiusKm,
+    double? rating,
+    String? photoUrl,
+    DriverVehicleModel? vehicle,
+  }) {
     return DriverUserModel(
       id: id,
       fullName: fullName,
       phone: phone,
-      photoUrl: photoUrl,
+      photoUrl: photoUrl ?? this.photoUrl,
       address: address,
       status: status,
       walletBalance: walletBalance,
       rating: rating ?? this.rating,
       isOnline: isOnline,
-      vehicle: vehicle,
+      vehicle: vehicle ?? this.vehicle,
       searchRadiusKm: searchRadiusKm ?? this.searchRadiusKm,
       accessToken: accessToken,
       refreshToken: refreshToken,

@@ -15,6 +15,7 @@ import '../../driver_features/driver_home/presentation/cubit/driver_orders_cubit
 import '../../driver_features/driver_home/presentation/cubit/driver_presence_cubit.dart';
 import '../../driver_features/driver_profile/data/datasources/driver_vehicle_remote_data_source.dart';
 import '../../driver_features/driver_profile/data/repositories/driver_vehicle_repository.dart';
+import '../../driver_features/driver_profile/presentation/cubit/driver_photo_cubit.dart';
 import '../../driver_features/driver_profile/presentation/cubit/driver_vehicle_cubit.dart';
 import '../../driver_features/driver_settings/data/datasources/driver_account_deletion_remote_data_source.dart';
 import '../../driver_features/driver_settings/data/datasources/driver_complaints_remote_data_source.dart';
@@ -653,6 +654,9 @@ void setupInjection() {
   );
   sl.registerFactory<DriverVehicleCubit>(
     () => DriverVehicleCubit(sl<DriverVehicleRepository>()),
+  );
+  sl.registerFactory<DriverPhotoCubit>(
+    () => DriverPhotoCubit(sl<DriverAuthCubit>(), sl<PhotoPickerService>()),
   );
 
   // ─── Home Feature ───────────────────────────────────────────

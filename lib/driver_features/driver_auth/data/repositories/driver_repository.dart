@@ -8,6 +8,7 @@ import '../../../../core/localization/app_strings.dart';
 import '../datasources/driver_remote_data_source.dart';
 import '../models/driver_signup_request_model.dart';
 import '../models/driver_user_model.dart';
+import '../models/driver_vehicle_model.dart';
 
 class DriverAuthException implements Exception {
   final String message;
@@ -148,6 +149,39 @@ class DriverRepository {
       return updated;
     } on DioException catch (e) {
       throw _mapDioException(e);
+    }
+  }
+
+  /// Uploads the driver's new personal photo and/or car photo, then keeps
+  /// the locally-cached session in sync. A refusal of an image itself (422:
+  /// bad type, too big) says so with the server's `photo` / `vehicle_photo`
+  /// line; 409 (no car registered) uses the server's message.
+  Future<({String? photoUrl, DriverVehicleModel? vehicle})> updatePhotos({
+    String? photoPath,
+    String? vehiclePhotoPath,
+  }) async {
+    try {
+      final updated = await _remoteDataSource.updatePhotos(
+        photoPath: photoPath,
+        vehiclePhotoPath: vehiclePhotoPath,
+      );
+      final session = await _localDataSource.loadSession();
+      if (session != null) {
+        await _localDataSource.saveSession(
+          session.copyWith(photoUrl: updated.photoUrl, vehicle: updated.vehicle),
+        );
+      }
+      return updated;
+    } on DioException catch (e) {
+      final error = e.error;
+      if (error is ApiException) {
+        throw DriverAuthException(
+          error.fieldErrors?['photo'] ?? error.fieldErrors?['vehicle_photo'] ?? error.message,
+        );
+      }
+      throw DriverAuthException(AppStrings.current.errServerUnreachable);
+    } on FileSystemException {
+      throw DriverAuthException(AppStrings.current.driverSignupPhotoUnreadable);
     }
   }
 

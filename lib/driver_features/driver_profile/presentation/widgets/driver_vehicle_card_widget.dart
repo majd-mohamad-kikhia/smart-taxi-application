@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/services/photo_picker_service.dart';
 import '../../../../core/widgets/app_loader_widget.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
 import '../../../../core/widgets/network_photo_widget.dart';
 import '../../../driver_auth/data/models/driver_vehicle_model.dart';
 import '../cubit/driver_vehicle_state.dart';
+import 'editable_photo_widget.dart';
 import 'profile_info_row_widget.dart';
 
 /// The vehicle section of the profile, with every state spoken: loading, a
@@ -14,11 +16,15 @@ import 'profile_info_row_widget.dart';
 class DriverVehicleCardWidget extends StatelessWidget {
   final DriverVehicleState state;
   final VoidCallback onRetry;
+  final bool isUploadingPhoto;
+  final ValueChanged<PhotoSource> onPickPhoto;
 
   const DriverVehicleCardWidget({
     super.key,
     required this.state,
     required this.onRetry,
+    required this.isUploadingPhoto,
+    required this.onPickPhoto,
   });
 
   @override
@@ -44,10 +50,11 @@ class DriverVehicleCardWidget extends StatelessWidget {
           ),
           const SizedBox(height: AppConstants.paddingM),
           if (vehicle != null) ...[
-            Semantics(
-              image: true,
-              label: '${vehicle.brand} ${vehicle.model}',
-              excludeSemantics: true,
+            EditablePhotoWidget(
+              isUploading: isUploadingPhoto,
+              borderRadius: 12,
+              semanticLabel: l10n.profileChangeVehiclePhoto,
+              onPick: onPickPhoto,
               child: NetworkPhotoWidget(
                 imagePath: vehicle.photoUrl,
                 width: double.infinity,
@@ -85,6 +92,13 @@ class DriverVehicleCardWidget extends StatelessWidget {
                 VehicleOwnership.company => l10n.vehicleOwnershipCompany,
                 null => l10n.vehicleOwnershipUnknown,
               },
+            ),
+            const SizedBox(height: AppConstants.paddingS),
+            Text(
+              l10n.profileVehicleReadOnlyHint,
+              style: textTheme.bodySmall?.copyWith(
+                color: context.colors.textSecondary,
+              ),
             ),
           ] else if (state.isLoading)
             const AppLoaderWidget(size: 100)

@@ -76,6 +76,21 @@ class DriverAuthCubit extends Cubit<DriverAuthState> {
     }
   }
 
+  /// Uploads a new personal photo and/or car photo and reflects them in
+  /// [state.driver] and the session once the server confirms. Throws
+  /// [DriverAuthException] on failure — callers decide how to surface it.
+  Future<void> updatePhotos({String? photoPath, String? vehiclePhotoPath}) async {
+    final result = await _repository.updatePhotos(
+      photoPath: photoPath,
+      vehiclePhotoPath: vehiclePhotoPath,
+    );
+    final driver = state.driver;
+    if (isClosed || driver == null) return;
+    final updated = driver.copyWith(photoUrl: result.photoUrl, vehicle: result.vehicle);
+    _sessionCubit.setUser(_toAppUser(updated));
+    emit(state.copyWith(driver: updated));
+  }
+
   /// A customer just rated the driver: the profile shows the server's new
   /// average from now on.
   void applyRating(double average) {

@@ -3,6 +3,7 @@ import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/services/push_notification_service.dart';
 import '../models/driver_signup_request_model.dart';
 import '../models/driver_user_model.dart';
+import '../models/driver_vehicle_model.dart';
 
 /// Remote data source for the Driver feature. Talks to the Driver Auth
 /// endpoints via [Dio] — see `lib/features/auth/data/swagger.json` for
@@ -83,6 +84,30 @@ class DriverRemoteDataSource {
     return _dio.post(
       _endpoints.driverLogout,
       data: {'refresh_token': refreshToken},
+    );
+  }
+
+  /// `PUT /api/driver/profile` (multipart) with only the photos given: the
+  /// personal photo at [photoPath] and/or the car photo at
+  /// [vehiclePhotoPath]. Returns the new personal `photo_url` and the car as
+  /// the server now has it (null when the driver has none). Everything else
+  /// stays as it is.
+  Future<({String? photoUrl, DriverVehicleModel? vehicle})> updatePhotos({
+    String? photoPath,
+    String? vehiclePhotoPath,
+  }) async {
+    final form = FormData.fromMap({
+      if (photoPath != null)
+        'photo': await MultipartFile.fromFile(photoPath, filename: 'photo.jpg'),
+      if (vehiclePhotoPath != null)
+        'vehicle_photo': await MultipartFile.fromFile(vehiclePhotoPath, filename: 'car.jpg'),
+    });
+    final response = await _dio.put(_endpoints.driverProfile, data: form);
+    final data = response.data['data'] as Map<String, dynamic>;
+    final vehicleJson = data['vehicle'] as Map<String, dynamic>?;
+    return (
+      photoUrl: data['photo_url'] as String?,
+      vehicle: vehicleJson == null ? null : DriverVehicleModel.fromJson(vehicleJson),
     );
   }
 

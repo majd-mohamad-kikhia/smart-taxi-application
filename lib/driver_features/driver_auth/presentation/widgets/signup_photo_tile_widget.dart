@@ -5,6 +5,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/services/photo_picker_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/widgets/photo_source_sheet.dart';
 
 /// One photo of the signup form: shows the chosen image (or a prompt) and,
 /// on tap, offers the camera or the gallery. [error] is shown under it.
@@ -25,27 +26,7 @@ class SignupPhotoTileWidget extends StatelessWidget {
   });
 
   Future<void> _choose(BuildContext context) async {
-    final l10n = context.l10n;
-    final source = await showModalBottomSheet<PhotoSource>(
-      context: context,
-      builder: (sheet) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_camera_outlined),
-              title: Text(l10n.driverSignupPhotoCamera),
-              onTap: () => Navigator.of(sheet).pop(PhotoSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: Text(l10n.driverSignupPhotoGallery),
-              onTap: () => Navigator.of(sheet).pop(PhotoSource.gallery),
-            ),
-          ],
-        ),
-      ),
-    );
+    final source = await showPhotoSourceSheet(context);
     if (source != null) onPick(source);
   }
 

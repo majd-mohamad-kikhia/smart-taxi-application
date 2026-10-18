@@ -1162,6 +1162,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vehicleInfo => 'Vehicle details';
 
   @override
+  String get profileChangePhoto => 'Change profile photo';
+
+  @override
+  String get profileChangeVehiclePhoto => 'Change car photo';
+
+  @override
+  String get profileVehicleReadOnlyHint =>
+      'To change the other car details, contact the office';
+
+  @override
   String get aboutThisCar => 'About this car';
 
   @override
