@@ -2185,6 +2185,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get driverVerified => 'Verified driver';
 
   @override
+  String get driverCardName => 'Name';
+
+  @override
+  String get driverCardRating => 'Rating';
+
+  @override
+  String get driverCardCar => 'Car';
+
+  @override
+  String get driverCardPlate => 'Car plate';
+
+  @override
   String get onboardingSkip => 'Skip';
 
   @override

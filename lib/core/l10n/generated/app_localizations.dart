@@ -3939,6 +3939,30 @@ abstract class AppLocalizations {
   /// **'Verified driver'**
   String get driverVerified;
 
+  /// No description provided for @driverCardName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get driverCardName;
+
+  /// No description provided for @driverCardRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get driverCardRating;
+
+  /// No description provided for @driverCardCar.
+  ///
+  /// In en, this message translates to:
+  /// **'Car'**
+  String get driverCardCar;
+
+  /// No description provided for @driverCardPlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Car plate'**
+  String get driverCardPlate;
+
   /// No description provided for @onboardingSkip.
   ///
   /// In en, this message translates to:

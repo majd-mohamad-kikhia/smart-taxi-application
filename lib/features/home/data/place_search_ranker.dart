@@ -37,7 +37,7 @@ class PlaceSearchRanker {
     final queryWords = _words(query);
     final entries = <_Entry>[];
     for (final place in places) {
-      if (entries.any((e) => _isSamePlace(e.place, place))) continue;
+      if (entries.any((e) => isSamePlace(e.place, place))) continue;
       entries.add(_Entry(
         place: place.withDistance(Geolocator.distanceBetween(
           fromLatitude,
@@ -60,7 +60,14 @@ class PlaceSearchRanker {
     return [for (final e in entries.take(limit)) e.place];
   }
 
-  static bool _isSamePlace(PlaceSuggestionModel a, PlaceSuggestionModel b) {
+  /// Whether [place] is what [query] asks for (see the class comment).
+  static bool matches(String query, PlaceSuggestionModel place) {
+    return _matches(_words(query), _words(place.description));
+  }
+
+  /// Whether [a] and [b] are the same place (same description, almost the
+  /// same spot).
+  static bool isSamePlace(PlaceSuggestionModel a, PlaceSuggestionModel b) {
     return a.description == b.description &&
         (a.latitude - b.latitude).abs() < _samePlaceDegrees &&
         (a.longitude - b.longitude).abs() < _samePlaceDegrees;

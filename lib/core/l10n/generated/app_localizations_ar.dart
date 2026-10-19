@@ -2168,6 +2168,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get driverVerified => 'كابتن موثّق';
 
   @override
+  String get driverCardName => 'الاسم';
+
+  @override
+  String get driverCardRating => 'التقييم';
+
+  @override
+  String get driverCardCar => 'السيارة';
+
+  @override
+  String get driverCardPlate => 'لوحة السيارة';
+
+  @override
   String get onboardingSkip => 'تخطي';
 
   @override

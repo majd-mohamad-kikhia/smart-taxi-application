@@ -237,6 +237,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
                           controller: _searchController,
                           isSearching: _isSearching,
                           onChanged: _onSearchChanged,
+                          onTap: _onSearchFieldTap,
                           onClear: _clearSearch,
                         ),
                       ),
@@ -347,14 +348,33 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
   void _onSearchChanged(String value) {
     _debounce?.cancel();
     setState(() => _searchError = null);
+    unawaited(_showRecent(value));
     if (value.trim().isEmpty) {
-      setState(() {
-        _suggestions = [];
-        _isSearching = false;
-      });
+      setState(() => _isSearching = false);
       return;
     }
     _debounce = Timer(_searchDebounce, () => _search(value));
+  }
+
+  /// Lists the places the customer picked before for [query] (the last few
+  /// when it's empty). While typing, nothing is replaced when none match, so
+  /// the previous results stay until the search answers.
+  Future<void> _showRecent(String query) async {
+    final near = _userLocation ?? _center;
+    final recent = await sl<PlacesRepository>().recentPlaces(
+      query: query,
+      nearLatitude: near.latitude,
+      nearLongitude: near.longitude,
+    );
+    // The customer typed on while the places loaded.
+    if (!mounted || query != _searchController.text) return;
+    if (recent.isEmpty && query.trim().isNotEmpty) return;
+    setState(() => _suggestions = recent);
+  }
+
+  /// Tapping the empty box lists the places picked before.
+  void _onSearchFieldTap() {
+    if (_searchController.text.trim().isEmpty) unawaited(_showRecent(''));
   }
 
   Future<void> _search(String query) async {
@@ -377,10 +397,16 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
         _isSearching = false;
       });
     } on PlacesException catch (e) {
+      // Google is down, but the places picked before still answer.
+      final recent = await sl<PlacesRepository>().recentPlaces(
+        query: query,
+        nearLatitude: near.latitude,
+        nearLongitude: near.longitude,
+      );
       if (!mounted || query != _searchController.text) return;
       setState(() {
         _searchError = e.message;
-        _suggestions = [];
+        _suggestions = recent;
         _isSearching = false;
       });
     }
@@ -390,14 +416,15 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
     _debounce?.cancel();
     _searchController.clear();
     setState(() {
-      _suggestions = [];
       _searchError = null;
       _isSearching = false;
     });
+    unawaited(_showRecent(''));
   }
 
   void _selectSuggestion(PlaceSuggestionModel suggestion) {
     FocusScope.of(context).unfocus();
+    unawaited(sl<PlacesRepository>().remember(suggestion));
     final target = LatLng(suggestion.latitude, suggestion.longitude);
     _controller?.animateCamera(CameraUpdate.newLatLngZoom(target, 17));
     setState(() {

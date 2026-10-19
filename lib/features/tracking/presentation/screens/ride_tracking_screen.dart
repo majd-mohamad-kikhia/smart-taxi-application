@@ -197,17 +197,12 @@ class _RideTrackingView extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 46,
-                  child: Stack(
-                    children: [
-                      RideTrackingMapWidget(
-                        pickup: state.pickup,
-                        dropoff: state.dropoff,
-                        driverLocation: state.driverLocation,
-                        routePoints: state.routePoints,
-                        plannedRoute: state.plannedRoute,
-                      ),
-                      const _ScreenHeader(),
-                    ],
+                  child: RideTrackingMapWidget(
+                    pickup: state.pickup,
+                    dropoff: state.dropoff,
+                    driverLocation: state.driverLocation,
+                    routePoints: state.routePoints,
+                    plannedRoute: state.plannedRoute,
                   ),
                 ),
                 Expanded(flex: 54, child: _TrackingSheet(state: state)),
@@ -220,26 +215,21 @@ class _RideTrackingView extends StatelessWidget {
   }
 }
 
-class _ScreenHeader extends StatelessWidget {
-  const _ScreenHeader();
+/// "Track trip" and the driver's arrival time, at the top of the sheet.
+class _SheetHeader extends StatelessWidget {
+  const _SheetHeader();
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              AppMapTitlePillWidget(title: context.l10n.trackTrip),
-              const _TripEtaChip(towardsPickup: true),
-            ],
-          ),
-        ),
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          AppMapTitlePillWidget(title: context.l10n.trackTrip),
+          const _TripEtaChip(towardsPickup: true),
+        ],
       ),
     );
   }
@@ -294,6 +284,8 @@ class _TrackingSheet extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
               child: Column(
                 children: [
+                  const _SheetHeader(),
+                  const SizedBox(height: 14),
                   RideStatusBannerWidget(ride: state.ride, connectionStatus: state.connectionStatus),
                   const SizedBox(height: 14),
                   if (state.isAccepted) ...[

@@ -42,11 +42,7 @@ class MapPickCubit extends Cubit<MapPickState> {
 
   /// Starts picking [target]. [initial] is the point already chosen for it:
   /// the map moves there. Without one, the pin starts where the map is.
-  void enter(
-    PickTarget target, {
-    PickedLocationModel? initial,
-    bool autofocusSearch = false,
-  }) {
+  void enter(PickTarget target, {PickedLocationModel? initial}) {
     if (isClosed) return;
     _query = '';
     _anchor = initial?.address == null
@@ -54,7 +50,6 @@ class MapPickCubit extends Cubit<MapPickState> {
         : (lat: initial!.latitude, lng: initial.longitude, address: initial.address!);
     emit(MapPickState(
       target: target,
-      autofocusSearch: autofocusSearch,
       address: initial?.address,
       moveTarget: state.moveTarget,
       moveCount: state.moveCount,
@@ -119,19 +114,20 @@ class MapPickCubit extends Cubit<MapPickState> {
     _resolveCenter();
   }
 
+  /// Searches for [query]. The places the customer picked before show at
+  /// once (the last few while the box is empty, the matching ones while
+  /// typing); Google's answer follows after the debounce, recents first.
   void search(String query) {
     _debounce?.cancel();
     _query = query;
     if (isClosed) return;
     if (query.trim().isEmpty) {
-      emit(state.copyWith(
-        suggestions: const [],
-        isSearching: false,
-        clearSearchError: true,
-      ));
+      emit(state.copyWith(isSearching: false, clearSearchError: true));
+      unawaited(_showRecent(query));
       return;
     }
     emit(state.copyWith(clearSearchError: true));
+    unawaited(_showRecent(query));
     _debounce = Timer(_searchDebounce, () => _runSearch(query));
   }
 
@@ -148,6 +144,7 @@ class MapPickCubit extends Cubit<MapPickState> {
   void selectSuggestion(PlaceSuggestionModel suggestion) {
     if (isClosed) return;
     _debounce?.cancel();
+    unawaited(_places.remember(suggestion));
     _anchor = (
       lat: suggestion.latitude,
       lng: suggestion.longitude,
@@ -209,6 +206,22 @@ class MapPickCubit extends Cubit<MapPickState> {
     }
   }
 
+  /// Lists the places the customer picked before for [query] (the last few
+  /// when it's empty). While typing, nothing is replaced when none match, so
+  /// the previous results stay until the search answers.
+  Future<void> _showRecent(String query) async {
+    final near = _userPosition ?? (lat: _centerLat, lng: _centerLng);
+    final recent = await _places.recentPlaces(
+      query: query,
+      nearLatitude: near.lat,
+      nearLongitude: near.lng,
+    );
+    // The customer typed on while the places loaded.
+    if (isClosed || query != _query) return;
+    if (recent.isEmpty && query.trim().isNotEmpty) return;
+    emit(state.copyWith(suggestions: recent));
+  }
+
   Future<void> _runSearch(String query) async {
     if (isClosed) return;
     emit(state.copyWith(isSearching: true));
@@ -224,9 +237,15 @@ class MapPickCubit extends Cubit<MapPickState> {
       if (isClosed || query != _query) return;
       emit(state.copyWith(suggestions: results, isSearching: false));
     } on PlacesException catch (e) {
+      // Google is down, but the places picked before still answer.
+      final recent = await _places.recentPlaces(
+        query: query,
+        nearLatitude: near.lat,
+        nearLongitude: near.lng,
+      );
       if (isClosed || query != _query) return;
       emit(state.copyWith(
-        suggestions: const [],
+        suggestions: recent,
         isSearching: false,
         searchError: e.message,
       ));

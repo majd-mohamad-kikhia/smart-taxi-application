@@ -8,6 +8,32 @@ import 'package:mshoar/features/home/presentation/cubit/map_pick_state.dart';
 
 class _FakePlaces extends Fake implements PlacesRepository {
   int lookups = 0;
+  final List<PlaceSuggestionModel> remembered = [];
+  List<PlaceSuggestionModel> recent = const [];
+
+  @override
+  Future<void> remember(PlaceSuggestionModel place) async => remembered.add(place);
+
+  @override
+  Future<List<PlaceSuggestionModel>> recentPlaces({
+    String query = '',
+    double? nearLatitude,
+    double? nearLongitude,
+  }) async => recent;
+
+  PlacesException? searchFailure;
+  List<PlaceSuggestionModel> found = const [];
+
+  @override
+  Future<List<PlaceSuggestionModel>> search(
+    String query, {
+    double? nearLatitude,
+    double? nearLongitude,
+  }) async {
+    final failure = searchFailure;
+    if (failure != null) throw failure;
+    return [...recent, ...found];
+  }
 
   @override
   Future<String?> addressFor(double latitude, double longitude) async {
@@ -81,6 +107,63 @@ void main() {
   test('outside the pin mode a moving map hides nothing', () {
     cubit.onCameraMoveStarted();
     expect(cubit.state.isDragging, isFalse);
+  });
+
+  test('choosing a search result remembers it', () async {
+    cubit.enter(PickTarget.from);
+
+    cubit.selectSuggestion(_place);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(places.remembered, [_place]);
+  });
+
+  test('an empty search box lists the recent places', () async {
+    places.recent = [_place.asRecent()];
+    cubit.enter(PickTarget.from);
+
+    cubit.search('');
+    await Future<void>.delayed(Duration.zero);
+
+    expect(cubit.state.suggestions, [_place.asRecent()]);
+    expect(cubit.state.isSearching, isFalse);
+  });
+
+  test('typing lists the matching recent places before Google answers', () async {
+    places.recent = [_place.asRecent()];
+    cubit.enter(PickTarget.from);
+
+    cubit.search('بروستد');
+    await Future<void>.delayed(Duration.zero);
+
+    expect(cubit.state.suggestions, [_place.asRecent()]);
+  });
+
+  test('typing something no recent place matches keeps the list as it was', () async {
+    cubit.enter(PickTarget.from);
+    places.recent = [_place.asRecent()];
+    cubit.search('');
+    await Future<void>.delayed(Duration.zero);
+    places.recent = const [];
+
+    cubit.search('xyz');
+    await Future<void>.delayed(Duration.zero);
+
+    expect(cubit.state.suggestions, [_place.asRecent()]);
+  });
+
+  test('Google failing still leaves the recent places and the error', () async {
+    places
+      ..recent = [_place.asRecent()]
+      ..searchFailure = const PlacesException('down');
+    cubit.enter(PickTarget.from);
+
+    cubit.search('بروستد');
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+
+    expect(cubit.state.suggestions, [_place.asRecent()]);
+    expect(cubit.state.searchError, 'down');
+    expect(cubit.state.isSearching, isFalse);
   });
 
   test(

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/contact_us/data/models/contact_number_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
-import '../../../../core/widgets/account_block_gate_widget.dart';
 import '../../../../core/widgets/app_destructive_button_widget.dart';
 import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
@@ -69,16 +67,12 @@ class HomeBottomPanelWidget extends StatelessWidget {
                 onPressed: () => _confirmCancel(context),
               )
             else
-              // A block only stops new orders — a ride in progress (the
-              // cancel button above) is unaffected.
-              AccountBlockGateWidget(
-                blockedMessage: l10n.accountBlockedCustomerMessage,
-                contactApp: ContactUsApp.customer,
-                child: AuthPrimaryButtonWidget(
-                  label: l10n.search,
-                  isLoading: state.isSearching || state.isBooking,
-                  onPressed: state.canSearch ? cubit.searchRide : null,
-                ),
+              // While ordering is blocked the home screen shows the blocked
+              // panel instead of this whole widget.
+              AuthPrimaryButtonWidget(
+                label: l10n.search,
+                isLoading: state.isSearching || state.isBooking,
+                onPressed: state.canSearch ? cubit.searchRide : null,
               ),
           ],
         );

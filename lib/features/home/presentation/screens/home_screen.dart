@@ -1,11 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/account_block/account_block_cubit.dart';
+import '../../../../core/account_block/account_block_state.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/contact_us/data/models/contact_number_model.dart';
 import '../../../../core/injection/injection.dart';
+import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/models/account_block_model.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_cubit.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/widgets/account_blocked_widget.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
 import '../../data/models/ride_booking_options_model.dart';
 import '../cubit/home_cubit.dart';
@@ -14,11 +20,9 @@ import '../cubit/map_pick_cubit.dart';
 import '../cubit/map_pick_state.dart';
 import '../cubit/quote_route_cubit.dart';
 import '../widgets/home_bottom_panel_widget.dart';
-import '../widgets/home_gps_button_widget.dart';
 import '../widgets/home_map_widget.dart';
-import '../widgets/home_search_bar_widget.dart';
 import '../widgets/map_pick_panel_widget.dart';
-import '../widgets/map_pick_top_widget.dart';
+import '../widgets/map_pick_search_widget.dart';
 import '../widgets/trip_too_long_dialog_widget.dart';
 import '../widgets/vehicle_type_sheet_widget.dart';
 
@@ -71,6 +75,29 @@ class _HideWhileDragging extends StatelessWidget {
           child: child,
         ),
       ),
+    );
+  }
+}
+
+/// Hands [builder] the account's block while it stops the customer ordering,
+/// and null otherwise. A ride already in progress is unaffected by a block,
+/// so with one the block is not passed on. Rebuilds only when that changes.
+class _OrderingBlockSelector extends StatelessWidget {
+  final Widget Function(BuildContext context, AccountBlockModel? block) builder;
+
+  const _OrderingBlockSelector({required this.builder});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<HomeCubit, HomeState, bool>(
+      selector: (state) => state.hasActiveRide,
+      builder: (context, hasActiveRide) =>
+          BlocSelector<AccountBlockCubit, AccountBlockState, AccountBlockModel>(
+            bloc: sl<AccountBlockCubit>(),
+            selector: (state) => state.block,
+            builder: (context, block) =>
+                builder(context, block.isBlocked && !hasActiveRide ? block : null),
+          ),
     );
   }
 }
@@ -145,6 +172,13 @@ class _HomeView extends StatelessWidget {
                 !previous.arePointsLocked && current.arePointsLocked,
             listener: (context, state) => context.read<MapPickCubit>().cancel(),
           ),
+          // A block that lands while a point is being placed ends the pick.
+          BlocListener<AccountBlockCubit, AccountBlockState>(
+            bloc: sl<AccountBlockCubit>(),
+            listenWhen: (previous, current) =>
+                !previous.isBlocked && current.isBlocked,
+            listener: (context, state) => context.read<MapPickCubit>().cancel(),
+          ),
         ],
         child: BlocSelector<MapPickCubit, MapPickState, bool>(
           selector: (state) => state.isPicking,
@@ -156,14 +190,22 @@ class _HomeView extends StatelessWidget {
             },
             child: Stack(
               children: [
-                const Positioned.fill(child: HomeMapWidget()),
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: _maxContentWidth),
-                    child: isPicking
-                        ? const _HideWhileDragging(child: _PickTop())
-                        : const _SearchRow(),
+                Positioned.fill(
+                  child: _OrderingBlockSelector(
+                    builder: (context, block) => IgnorePointer(
+                      ignoring: block != null,
+                      child: Stack(
+                        children: [
+                          const Positioned.fill(child: HomeMapWidget()),
+                          if (block != null)
+                            Positioned.fill(
+                              child: ColoredBox(
+                                color: context.colors.backgroundGray.withValues(alpha: 0.6),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 Align(
@@ -181,12 +223,22 @@ class _HomeView extends StatelessWidget {
                         AppConstants.paddingL,
                         AppConstants.paddingL + MediaQuery.paddingOf(context).bottom,
                       ),
-                      child: isPicking
-                          ? const _HideWhileDragging(child: _PickPanel())
-                          : HomeBottomPanelWidget(
-                              onPickFrom: () => _enterPick(context, PickTarget.from),
-                              onPickTo: () => _enterPick(context, PickTarget.to),
-                            ),
+                      // While ordering is blocked there are no From / To
+                      // controls at all: the blocked panel stands in for them.
+                      child: _OrderingBlockSelector(
+                        builder: (context, block) => block != null
+                            ? AccountBlockedWidget(
+                                block: block,
+                                message: context.l10n.accountBlockedCustomerMessage,
+                                contactApp: ContactUsApp.customer,
+                              )
+                            : isPicking
+                            ? const _HideWhileDragging(child: _PickPanel())
+                            : HomeBottomPanelWidget(
+                                onPickFrom: () => _enterPick(context, PickTarget.from),
+                                onPickTo: () => _enterPick(context, PickTarget.to),
+                              ),
+                      ),
                     ),
                   ),
                 ),
@@ -252,61 +304,17 @@ class _HomeView extends StatelessWidget {
 }
 
 /// Starts placing [target] on the home map, from where it already is if it
-/// was picked before. [autofocusSearch] opens the search with the keyboard.
-void _enterPick(
-  BuildContext context,
-  PickTarget target, {
-  bool autofocusSearch = false,
-}) {
+/// was picked before.
+void _enterPick(BuildContext context, PickTarget target) {
   final home = context.read<HomeCubit>().state;
   context.read<MapPickCubit>().enter(
     target,
     initial: target == PickTarget.from ? home.fromLocation : home.toLocation,
-    autofocusSearch: autofocusSearch,
   );
 }
 
-/// The search pill and GPS button on top of the map in its normal state.
-class _SearchRow extends StatelessWidget {
-  const _SearchRow();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(AppConstants.paddingL),
-      child: Row(
-        children: [
-          Expanded(
-            child: BlocSelector<HomeCubit, HomeState, bool>(
-              selector: (state) => state.arePointsLocked,
-              builder: (context, isLocked) => HomeSearchBarWidget(
-                onTap: isLocked
-                    ? null
-                    : () => _enterPick(
-                        context,
-                        PickTarget.to,
-                        autofocusSearch: true,
-                      ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Back / title / search / GPS while a point is being placed.
-class _PickTop extends StatelessWidget {
-  const _PickTop();
-
-  @override
-  Widget build(BuildContext context) {
-    return MapPickTopWidget(onBack: context.read<MapPickCubit>().cancel);
-  }
-}
-
-/// Address under the pin and the confirm button.
+/// Place search with the GPS button, the address under the pin and the
+/// confirm button.
 class _PickPanel extends StatelessWidget {
   const _PickPanel();
 
@@ -319,17 +327,13 @@ class _PickPanel extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // "Use my location", above the confirm box at its right end. It only
-        // moves the map: the pin decides the point, not the GPS.
-        Align(
-          alignment: Alignment.centerRight,
-          child: BlocSelector<HomeCubit, HomeState, bool>(
-            selector: (state) => state.isLocating,
-            builder: (context, isLocating) => HomeGpsButtonWidget(
-              isLoading: isLocating,
-              size: 64,
-              onTap: () => context.read<HomeCubit>().locateMe(setPickup: false),
-            ),
+        // The GPS button only moves the map: the pin decides the point, not
+        // the GPS.
+        BlocSelector<HomeCubit, HomeState, bool>(
+          selector: (state) => state.isLocating,
+          builder: (context, isLocating) => MapPickSearchWidget(
+            isLocating: isLocating,
+            onLocate: () => context.read<HomeCubit>().locateMe(setPickup: false),
           ),
         ),
         const SizedBox(height: AppConstants.paddingS),

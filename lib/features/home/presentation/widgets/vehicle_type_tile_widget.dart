@@ -15,9 +15,9 @@ import 'vehicle_type_info_sheet_widget.dart';
 /// states why — "Currently unavailable" or "Price unavailable" — in readable
 /// text with an icon, not by dimming the whole card.
 class VehicleTypeTileWidget extends StatelessWidget {
-  static const _radius = AppConstants.radiusLarge;
-  static const _thumbWidth = 72.0;
-  static const _thumbHeight = 56.0;
+  static const _radius = AppConstants.radiusMedium;
+  static const _thumbWidth = 56.0;
+  static const _thumbHeight = 42.0;
 
   final VehicleTypeQuoteModel vehicleType;
 
@@ -69,7 +69,10 @@ class VehicleTypeTileWidget extends StatelessWidget {
             onTap: onTap,
             borderRadius: radius,
             child: Padding(
-              padding: const EdgeInsets.all(AppConstants.paddingM),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.paddingM,
+                vertical: AppConstants.paddingS,
+              ),
               child: Row(
                 children: [
                   Opacity(
@@ -94,7 +97,7 @@ class VehicleTypeTileWidget extends StatelessWidget {
                                 vehicleType.name,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: textTheme.titleMedium?.copyWith(
+                                style: textTheme.titleSmall?.copyWith(
                                   fontWeight: FontWeight.w800,
                                   color: isChoosable
                                       ? colors.textPrimary
@@ -106,12 +109,12 @@ class VehicleTypeTileWidget extends StatelessWidget {
                             IconButton(
                               tooltip: l10n.aboutThisCar,
                               icon: const Icon(Icons.info_outline_rounded),
-                              iconSize: 20,
+                              iconSize: 18,
                               color: colors.primaryContent,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(
-                                minWidth: 36,
-                                minHeight: 36,
+                                minWidth: 32,
+                                minHeight: 32,
                               ),
                               onPressed: () => showVehicleTypeInfoSheet(
                                 context,
@@ -175,7 +178,7 @@ class VehicleTypeTileWidget extends StatelessWidget {
                     const SizedBox(width: AppConstants.paddingS),
                     PriceTextWidget(
                       price: price!,
-                      style: textTheme.titleLarge?.copyWith(
+                      style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: isChoosable
                             ? colors.textPrimary

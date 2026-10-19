@@ -118,6 +118,7 @@ import '../notifications/unread_notifications_cubit.dart';
 import '../services/whatsapp_file_sender.dart';
 import '../session/remembered_login_store.dart';
 import '../session/session_cubit.dart';
+import '../../features/home/data/datasources/recent_places_local_data_source.dart';
 import '../../features/home/data/datasources/ride_request_remote_data_source.dart';
 import '../../features/home/data/repositories/places_repository.dart';
 import '../../features/home/data/repositories/ride_request_repository.dart';
@@ -359,10 +360,11 @@ void setupInjection() {
   );
   // Other features trigger logout through SessionCubit instead of
   // importing AuthCubit directly (no cross-feature imports).
-  sl<SessionCubit>().registerLogoutHandler(
-    UserRole.customer,
-    () => sl<AuthCubit>().logout(),
-  );
+  sl<SessionCubit>().registerLogoutHandler(UserRole.customer, () async {
+    // The next account on this phone must not see this customer's places.
+    await sl<PlacesRepository>().clearRecent();
+    await sl<AuthCubit>().logout();
+  });
   // Role picked on the role-selection screen, before anyone is signed in:
   // the app version check is asked for that role (see AppVersionCubit).
   sl<AuthCubit>().stream
@@ -695,6 +697,7 @@ void setupInjection() {
   sl.registerLazySingleton<PlacesRepository>(
     () => PlacesRepository(
       GooglePlacesDataSource(credentials: sl<GoogleApiCredentialsLoader>().load),
+      const RecentPlacesLocalDataSource(),
     ),
   );
   sl.registerFactory<HomeCubit>(

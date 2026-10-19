@@ -4,9 +4,7 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_price.dart';
-import '../../../../core/widgets/app_icon_tile_widget.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
-import '../../../../core/widgets/app_surface_card_widget.dart';
 import '../../../../core/widgets/entrance_animation_widget.dart';
 import '../../data/models/ride_booking_options_model.dart';
 import '../../data/models/ride_quote_model.dart';
@@ -136,16 +134,6 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
               ),
             ),
             const SizedBox(height: AppConstants.paddingM),
-            EntranceAnimationWidget(
-              index: 2,
-              startDelay: _headerDelay,
-              from: const Offset(0, 16),
-              child: _TripCard(
-                pickupLabel: widget.pickup.displayLabel,
-                dropoffLabel: widget.dropoff.displayLabel,
-              ),
-            ),
-            const SizedBox(height: AppConstants.paddingM),
             Flexible(
               child: hasChoice
                   ? ListView(
@@ -158,7 +146,7 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
                               for (var i = 0; i < types.length; i++)
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                    bottom: AppConstants.paddingM,
+                                    bottom: AppConstants.paddingS,
                                   ),
                                   // After the sheet has slid up, the cars
                                   // slide in one by one.
@@ -311,95 +299,6 @@ class _Header extends StatelessWidget {
             ),
           ),
         ],
-      ],
-    );
-  }
-}
-
-/// The trip these prices are for — pickup and drop-off, joined by a dotted
-/// line — so the customer never compares prices for a trip they can no longer
-/// see.
-class _TripCard extends StatelessWidget {
-  final String pickupLabel;
-  final String dropoffLabel;
-
-  const _TripCard({required this.pickupLabel, required this.dropoffLabel});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return SizedBox(
-      width: double.infinity,
-      child: AppSurfaceCardWidget(
-        color: colors.backgroundMuted,
-        bordered: false,
-        padding: const EdgeInsets.all(AppConstants.paddingM),
-        child: Column(
-          children: [
-            _AddressRow(
-              icon: Icons.trip_origin_rounded,
-              color: colors.primaryContent,
-              label: pickupLabel,
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.only(
-                start: _tileSize / 2 - 1,
-              ),
-              child: SizedBox(
-                height: 12,
-                child: VerticalDivider(
-                  width: 2,
-                  thickness: 2,
-                  color: colors.border,
-                ),
-              ),
-            ),
-            _AddressRow(
-              icon: Icons.location_on_rounded,
-              color: colors.accentContent,
-              label: dropoffLabel,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  static const _tileSize = 32.0;
-}
-
-class _AddressRow extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-
-  const _AddressRow({
-    required this.icon,
-    required this.color,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        AppIconTileWidget(
-          icon: icon,
-          size: _TripCard._tileSize,
-          background: context.colors.backgroundWhite,
-          foreground: color,
-        ),
-        const SizedBox(width: AppConstants.paddingM),
-        Expanded(
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-          ),
-        ),
       ],
     );
   }

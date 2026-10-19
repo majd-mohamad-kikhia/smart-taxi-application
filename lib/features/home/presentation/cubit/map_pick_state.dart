@@ -11,9 +11,6 @@ enum PickTarget { from, to }
 class MapPickState extends Equatable {
   final PickTarget? target;
 
-  /// Open the search field with the keyboard up (entered from the search bar).
-  final bool autofocusSearch;
-
   /// The address under the pin; null while the map moves or it is looked up.
   final String? address;
   final bool isResolving;
@@ -30,7 +27,6 @@ class MapPickState extends Equatable {
 
   const MapPickState({
     this.target,
-    this.autofocusSearch = false,
     this.address,
     this.isResolving = false,
     this.suggestions = const [],
@@ -68,7 +64,6 @@ class MapPickState extends Equatable {
   }) {
     return MapPickState(
       target: target ?? this.target,
-      autofocusSearch: autofocusSearch,
       address: clearAddress ? null : (address ?? this.address),
       isResolving: isResolving ?? this.isResolving,
       suggestions: suggestions ?? this.suggestions,
@@ -84,7 +79,6 @@ class MapPickState extends Equatable {
   @override
   List<Object?> get props => [
         target,
-        autofocusSearch,
         address,
         isResolving,
         suggestions,

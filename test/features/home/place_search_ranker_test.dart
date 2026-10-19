@@ -25,6 +25,19 @@ void main() {
   final aleppo = _place('جامع الروضة، حلب', 36.2, 37.1);
   final damascus = _place('جامع الروضة، بلدية المهاجرين، دمشق', 33.52, 36.28);
 
+  test('matches: every typed word starts a word of the place, spelling variants alike', () {
+    expect(PlaceSearchRanker.matches('جا الروض', damascus), isTrue);
+    expect(PlaceSearchRanker.matches('جامع الروضه', damascus), isTrue);
+    expect(PlaceSearchRanker.matches('مشفى', damascus), isFalse);
+    expect(PlaceSearchRanker.matches('  ', damascus), isFalse);
+  });
+
+  test('isSamePlace: same description, almost the same spot', () {
+    expect(PlaceSearchRanker.isSamePlace(damascus, _place(damascus.description, 33.5201, 36.2801)), isTrue);
+    expect(PlaceSearchRanker.isSamePlace(damascus, _place(damascus.description, 34.0, 36.28)), isFalse);
+    expect(PlaceSearchRanker.isSamePlace(damascus, aleppo), isFalse);
+  });
+
   test('the nearest match comes first, whatever order the service gave', () {
     expect(_rank('جامع الروضة', [idlib, aleppo, damascus]), [
       damascus.description,

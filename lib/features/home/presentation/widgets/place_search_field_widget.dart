@@ -12,12 +12,16 @@ class PlaceSearchFieldWidget extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final VoidCallback onClear;
 
+  /// The field was tapped (e.g. to bring the recent places back).
+  final VoidCallback? onTap;
+
   const PlaceSearchFieldWidget({
     super.key,
     required this.controller,
     required this.isSearching,
     required this.onChanged,
     required this.onClear,
+    this.onTap,
     this.autofocus = false,
   });
 
@@ -33,6 +37,7 @@ class PlaceSearchFieldWidget extends StatelessWidget {
         controller: controller,
         autofocus: autofocus,
         onChanged: onChanged,
+        onTap: onTap,
         style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
         decoration: InputDecoration(
           hintText: context.l10n.searchPlaceHint,
