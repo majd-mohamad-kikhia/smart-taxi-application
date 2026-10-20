@@ -27,6 +27,11 @@ class AppConstants {
   /// once the app has an App Store listing. Empty means "no fallback".
   static const String iosStoreUrl = '';
 
+  /// OpenStreetMap's Nominatim, the stand-in for Google when it fails to
+  /// find a place or name a spot. Its usage policy allows one request a second
+  /// and asks that the app identify itself.
+  static const String osmNominatimBaseUrl = 'https://nominatim.openstreetmap.org';
+
   /// Google Routes API (`computeRoutes`) — the customer's live map road
   /// line, distance and arrival time. The key and app identity come from
   /// `GoogleApiCredentialsLoader`; the key needs the Routes API enabled.

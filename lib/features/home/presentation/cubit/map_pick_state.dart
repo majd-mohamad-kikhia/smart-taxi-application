@@ -11,9 +11,17 @@ enum PickTarget { from, to }
 class MapPickState extends Equatable {
   final PickTarget? target;
 
+  /// Open the search field with the keyboard up (entered from the search bar).
+  final bool autofocusSearch;
+
   /// The address under the pin; null while the map moves or it is looked up.
   final String? address;
   final bool isResolving;
+
+  /// The pin has no address yet on purpose: the customer came in through the
+  /// search box, so the spot under the pin is only named if they move the
+  /// map or confirm it. Confirming is allowed meanwhile, and names it then.
+  final bool addressDeferred;
 
   final List<PlaceSuggestionModel> suggestions;
   final bool isSearching;
@@ -27,8 +35,10 @@ class MapPickState extends Equatable {
 
   const MapPickState({
     this.target,
+    this.autofocusSearch = false,
     this.address,
     this.isResolving = false,
+    this.addressDeferred = false,
     this.suggestions = const [],
     this.isSearching = false,
     this.searchError,
@@ -45,13 +55,16 @@ class MapPickState extends Equatable {
   bool get isPicking => target != null;
 
   /// Confirming needs a real, resolved address — never a bare coordinate
-  /// pair, and never one left over from a previous pin position.
-  bool get canConfirm => isPicking && address != null && !isResolving;
+  /// pair, and never one left over from a previous pin position. A pin whose
+  /// naming was put off ([addressDeferred]) is named when it is confirmed.
+  bool get canConfirm =>
+      isPicking && !isResolving && (address != null || addressDeferred);
 
   MapPickState copyWith({
     PickTarget? target,
     String? address,
     bool? isResolving,
+    bool? addressDeferred,
     List<PlaceSuggestionModel>? suggestions,
     bool? isSearching,
     String? searchError,
@@ -64,8 +77,10 @@ class MapPickState extends Equatable {
   }) {
     return MapPickState(
       target: target ?? this.target,
+      autofocusSearch: autofocusSearch,
       address: clearAddress ? null : (address ?? this.address),
       isResolving: isResolving ?? this.isResolving,
+      addressDeferred: addressDeferred ?? this.addressDeferred,
       suggestions: suggestions ?? this.suggestions,
       isSearching: isSearching ?? this.isSearching,
       searchError: clearSearchError ? null : (searchError ?? this.searchError),
@@ -79,8 +94,10 @@ class MapPickState extends Equatable {
   @override
   List<Object?> get props => [
         target,
+        autofocusSearch,
         address,
         isResolving,
+        addressDeferred,
         suggestions,
         isSearching,
         searchError,

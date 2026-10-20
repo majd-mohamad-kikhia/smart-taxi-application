@@ -44,7 +44,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
     AppConstants.defaultMapLat,
     AppConstants.defaultMapLng,
   );
-  static const _searchDebounce = Duration(milliseconds: 400);
   static const _maxDetailsLength = 255;
 
   final TextEditingController _searchController = TextEditingController();
@@ -78,7 +77,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
   /// from a previous pin position.
   bool get _canConfirm => _pickedAddress != null && !_isResolvingAddress;
 
-  Timer? _debounce;
+  /// The query last submitted: an answer for any other is out of date.
+  String _submittedQuery = '';
   List<PlaceSuggestionModel> _suggestions = [];
   bool _isSearching = false;
   String? _searchError;
@@ -130,7 +130,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
 
   @override
   void dispose() {
-    _debounce?.cancel();
+    sl<PlacesRepository>().cancelSearch();
     _searchController.dispose();
     _detailsController.dispose();
     // Drop the reference so no late async callback can reach a controller
@@ -238,6 +238,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
                           isSearching: _isSearching,
                           onChanged: _onSearchChanged,
                           onTap: _onSearchFieldTap,
+                          onSubmitted: _submitSearch,
                           onClear: _clearSearch,
                         ),
                       ),
@@ -345,15 +346,18 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
     );
   }
 
+  /// The text changed. Google is not asked while typing — Geocoding answers
+  /// a whole address, not a few letters — that search runs on
+  /// [_submitSearch]. Meanwhile the places picked before (read from the
+  /// device, so free) are listed; emptying the box also drops a search still
+  /// on its way.
   void _onSearchChanged(String value) {
-    _debounce?.cancel();
-    setState(() => _searchError = null);
-    unawaited(_showRecent(value));
+    if (_searchError != null) setState(() => _searchError = null);
     if (value.trim().isEmpty) {
+      sl<PlacesRepository>().cancelSearch();
       setState(() => _isSearching = false);
-      return;
     }
-    _debounce = Timer(_searchDebounce, () => _search(value));
+    unawaited(_showRecent(value));
   }
 
   /// Lists the places the customer picked before for [query] (the last few
@@ -377,33 +381,60 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
     if (_searchController.text.trim().isEmpty) unawaited(_showRecent(''));
   }
 
-  Future<void> _search(String query) async {
-    setState(() => _isSearching = true);
+  /// The customer submitted the text (the keyboard's search key, or the
+  /// search icon). Too short a text asks Google nothing and says so.
+  Future<void> _submitSearch(String value) async {
+    final places = sl<PlacesRepository>();
+    if (!PlacesRepository.isSearchable(value)) {
+      places.cancelSearch();
+      setState(() {
+        _suggestions = [];
+        _isSearching = false;
+        _searchError = context.l10n.searchMinChars;
+      });
+      return;
+    }
+    // The same text again while its answer is on screen or on its way.
+    final query = PlacesRepository.normalizeQuery(value);
+    if (query == _submittedQuery && (_isSearching || _suggestions.isNotEmpty)) {
+      return;
+    }
+    _submittedQuery = query;
+    setState(() {
+      _isSearching = true;
+      _searchError = null;
+    });
     // Nearest to the customer; the map's center only when their position
     // isn't known.
     final near = _userLocation ?? _center;
     try {
-      final results = await sl<PlacesRepository>().search(
+      final results = await places.search(
         query,
         nearLatitude: near.latitude,
         nearLongitude: near.longitude,
+        reason: 'submit from the picker',
       );
-      // The customer typed on (or cleared the box) while this ran: a
+      // Another search was submitted (or the box cleared) while this ran: a
       // newer search owns the list now, and an older answer must not
       // replace it.
-      if (!mounted || query != _searchController.text) return;
+      if (!mounted || query != _submittedQuery) return;
       setState(() {
         _suggestions = results;
         _isSearching = false;
+        // An empty answer says so, instead of leaving the screen unchanged.
+        _searchError = results.isEmpty ? context.l10n.placesNoResults : null;
       });
+    } on PlacesCancelledException {
+      // Replaced by a newer search, which reports for itself.
+      return;
     } on PlacesException catch (e) {
       // Google is down, but the places picked before still answer.
-      final recent = await sl<PlacesRepository>().recentPlaces(
+      final recent = await places.recentPlaces(
         query: query,
         nearLatitude: near.latitude,
         nearLongitude: near.longitude,
       );
-      if (!mounted || query != _searchController.text) return;
+      if (!mounted || query != _submittedQuery) return;
       setState(() {
         _searchError = e.message;
         _suggestions = recent;
@@ -413,7 +444,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
   }
 
   void _clearSearch() {
-    _debounce?.cancel();
+    sl<PlacesRepository>().cancelSearch();
+    _submittedQuery = '';
     _searchController.clear();
     setState(() {
       _searchError = null;
@@ -455,6 +487,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
     final address = await sl<PlacesRepository>().addressFor(
       target.latitude,
       target.longitude,
+      reason: 'picker pin',
     );
     // The pin moved on while this lookup ran; the newer lookup owns the
     // state now.

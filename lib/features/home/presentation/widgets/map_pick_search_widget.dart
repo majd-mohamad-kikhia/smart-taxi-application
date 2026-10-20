@@ -41,7 +41,7 @@ class _MapPickSearchWidgetState extends State<MapPickSearchWidget> {
   /// Tapping the empty box lists the places picked before.
   void _onFieldTap() {
     if (_searchController.text.trim().isEmpty) {
-      context.read<MapPickCubit>().search('');
+      context.read<MapPickCubit>().queryChanged('');
     }
   }
 
@@ -87,7 +87,9 @@ class _MapPickSearchWidgetState extends State<MapPickSearchWidget> {
                 builder: (context, isSearching) => PlaceSearchFieldWidget(
                   controller: _searchController,
                   isSearching: isSearching,
-                  onChanged: cubit.search,
+                  autofocus: cubit.state.autofocusSearch,
+                  onChanged: cubit.queryChanged,
+                  onSubmitted: cubit.submitSearch,
                   onTap: _onFieldTap,
                   onClear: _clear,
                 ),

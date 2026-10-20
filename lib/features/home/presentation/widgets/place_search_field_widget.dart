@@ -4,12 +4,15 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_palette.dart';
 
 /// Rounded "search for a place" text field with a spinner while searching and
-/// a clear button once something is typed.
+/// a clear button once something is typed. Nothing is searched while typing:
+/// the keyboard's search key, or the search icon, hands the text to
+/// [onSubmitted].
 class PlaceSearchFieldWidget extends StatelessWidget {
   final TextEditingController controller;
   final bool isSearching;
   final bool autofocus;
   final ValueChanged<String> onChanged;
+  final ValueChanged<String> onSubmitted;
   final VoidCallback onClear;
 
   /// The field was tapped (e.g. to bring the recent places back).
@@ -20,6 +23,7 @@ class PlaceSearchFieldWidget extends StatelessWidget {
     required this.controller,
     required this.isSearching,
     required this.onChanged,
+    required this.onSubmitted,
     required this.onClear,
     this.onTap,
     this.autofocus = false,
@@ -38,6 +42,8 @@ class PlaceSearchFieldWidget extends StatelessWidget {
         autofocus: autofocus,
         onChanged: onChanged,
         onTap: onTap,
+        onSubmitted: onSubmitted,
+        textInputAction: TextInputAction.search,
         style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
         decoration: InputDecoration(
           hintText: context.l10n.searchPlaceHint,
@@ -45,9 +51,13 @@ class PlaceSearchFieldWidget extends StatelessWidget {
             color: context.colors.textTertiary,
             fontSize: 14,
           ),
-          prefixIcon: Icon(
-            Icons.search_rounded,
-            color: context.colors.textSecondary,
+          prefixIcon: IconButton(
+            tooltip: context.l10n.search,
+            icon: Icon(
+              Icons.search_rounded,
+              color: context.colors.textSecondary,
+            ),
+            onPressed: () => onSubmitted(controller.text),
           ),
           suffixIcon: isSearching
               ? Padding(

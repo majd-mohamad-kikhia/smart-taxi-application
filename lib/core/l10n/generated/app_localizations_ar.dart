@@ -1544,6 +1544,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errPlacesSearch => 'تعذر البحث حالياً، حاول مرة أخرى';
 
   @override
+  String get placesNoResults =>
+      'لم نجد أماكن مطابقة. جرّب اسم الشارع أو المنطقة، أو حرّك الدبوس على الخريطة.';
+
+  @override
+  String get searchMinChars => 'اكتب 3 أحرف على الأقل ثم اضغط بحث';
+
+  @override
+  String get locationAtPin => 'المكان تحت الدبوس';
+
+  @override
   String get locationResolving => 'جارٍ تحديد العنوان...';
 
   @override

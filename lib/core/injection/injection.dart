@@ -100,7 +100,9 @@ import '../localization/locale_local_data_source.dart';
 import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
 import '../network/api_error_handler.dart';
+import '../../features/home/data/datasources/fallback_geocoding_source.dart';
 import '../../features/home/data/datasources/google_places_data_source.dart';
+import '../../features/home/data/datasources/nominatim_data_source.dart';
 import '../services/current_location_service.dart';
 import '../theme/theme_cubit.dart';
 import '../theme/theme_local_data_source.dart';
@@ -694,9 +696,15 @@ void setupInjection() {
   sl.registerLazySingleton<RideRequestRepository>(
     () => RideRequestRepository(sl<RideRequestRemoteDataSource>()),
   );
+  // Google first; OpenStreetMap answers when Google fails.
   sl.registerLazySingleton<PlacesRepository>(
     () => PlacesRepository(
-      GooglePlacesDataSource(credentials: sl<GoogleApiCredentialsLoader>().load),
+      FallbackGeocodingSource(
+        primary: GooglePlacesDataSource(
+          credentials: sl<GoogleApiCredentialsLoader>().load,
+        ),
+        fallback: NominatimDataSource(),
+      ),
       const RecentPlacesLocalDataSource(),
     ),
   );

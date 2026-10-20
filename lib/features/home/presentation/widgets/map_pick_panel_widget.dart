@@ -118,7 +118,8 @@ class _AddressRowWidget extends StatelessWidget {
     return BlocBuilder<MapPickCubit, MapPickState>(
       buildWhen: (previous, current) =>
           previous.address != current.address ||
-          previous.isResolving != current.isResolving,
+          previous.isResolving != current.isResolving ||
+          previous.addressDeferred != current.addressDeferred,
       builder: (context, state) {
         final address = state.address;
         return Row(
@@ -134,6 +135,8 @@ class _AddressRowWidget extends StatelessWidget {
                 address ??
                     (state.isResolving
                         ? l10n.locationResolving
+                        : state.addressDeferred
+                        ? l10n.locationAtPin
                         : l10n.locationUnresolved),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -146,7 +149,7 @@ class _AddressRowWidget extends StatelessWidget {
                 ),
               ),
             ),
-            if (address == null && !state.isResolving)
+            if (address == null && !state.isResolving && !state.addressDeferred)
               TextButton(
                 onPressed: context.read<MapPickCubit>().retryResolve,
                 child: Text(l10n.retry),
