@@ -1556,6 +1556,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Search is unavailable right now, please try again';
 
   @override
+  String get placesNoResults =>
+      'No places found. Try the street or area name, or move the pin on the map.';
+
+  @override
+  String get searchMinChars => 'Type at least 3 letters, then tap search';
+
+  @override
+  String get locationAtPin => 'The spot under the pin';
+
+  @override
   String get locationResolving => 'Finding the address...';
 
   @override

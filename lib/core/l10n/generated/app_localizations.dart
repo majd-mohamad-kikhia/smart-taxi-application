@@ -2919,6 +2919,24 @@ abstract class AppLocalizations {
   /// **'Search is unavailable right now, please try again'**
   String get errPlacesSearch;
 
+  /// No description provided for @placesNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No places found. Try the street or area name, or move the pin on the map.'**
+  String get placesNoResults;
+
+  /// No description provided for @searchMinChars.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least 3 letters, then tap search'**
+  String get searchMinChars;
+
+  /// No description provided for @locationAtPin.
+  ///
+  /// In en, this message translates to:
+  /// **'The spot under the pin'**
+  String get locationAtPin;
+
   /// No description provided for @locationResolving.
   ///
   /// In en, this message translates to:

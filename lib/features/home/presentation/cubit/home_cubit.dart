@@ -110,6 +110,7 @@ class HomeCubit extends Cubit<HomeState> {
     final address = await _places.addressFor(
       position.latitude,
       position.longitude,
+      reason: 'default pickup',
     );
     if (isClosed ||
         address == null ||
@@ -157,6 +158,7 @@ class HomeCubit extends Cubit<HomeState> {
       final address = await _places.addressFor(
         position.latitude,
         position.longitude,
+        reason: 'GPS button',
       );
       if (isClosed) return;
       if (address == null || state.arePointsLocked) {

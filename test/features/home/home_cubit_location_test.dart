@@ -35,8 +35,11 @@ class _FakePlaces extends Fake implements PlacesRepository {
   String? address = 'شارع الأمير سلطان';
 
   @override
-  Future<String?> addressFor(double latitude, double longitude) async =>
-      address;
+  Future<String?> addressFor(
+    double latitude,
+    double longitude, {
+    String reason = 'unspecified',
+  }) async => address;
 }
 
 final _position = Position(

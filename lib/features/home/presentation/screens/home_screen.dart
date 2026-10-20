@@ -345,12 +345,13 @@ class _PickPanel extends StatelessWidget {
     );
   }
 
-  void _confirm(BuildContext context, String details) {
+  Future<void> _confirm(BuildContext context, String details) async {
     FocusScope.of(context).unfocus();
     final pick = context.read<MapPickCubit>();
     final home = context.read<HomeCubit>();
     final target = pick.state.target;
-    final picked = pick.confirm(details: details);
+    // A pin whose naming was put off is named here, so this may take a moment.
+    final picked = await pick.confirm(details: details);
     if (picked == null || target == null) return;
     if (target == PickTarget.from) {
       home.setFromLocation(picked);

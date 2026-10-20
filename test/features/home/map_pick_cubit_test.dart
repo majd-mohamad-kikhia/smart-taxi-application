@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mshoar/core/localization/app_strings.dart';
 import 'package:mshoar/core/services/current_location_service.dart';
 import 'package:mshoar/features/home/data/models/place_suggestion_model.dart';
 import 'package:mshoar/features/home/data/repositories/places_repository.dart';
@@ -8,12 +11,43 @@ import 'package:mshoar/features/home/presentation/cubit/map_pick_state.dart';
 
 class _FakePlaces extends Fake implements PlacesRepository {
   int lookups = 0;
+  final List<String> lookupReasons = [];
+  String? label = 'شارع القدس، الدباغة';
+
+  final List<String> searched = [];
+  List<PlaceSuggestionModel> found = const [];
+  Object? searchFailure;
+  Completer<List<PlaceSuggestionModel>>? searchGate;
+  int cancels = 0;
 
   @override
-  Future<String?> addressFor(double latitude, double longitude) async {
+  Future<String?> addressFor(
+    double latitude,
+    double longitude, {
+    String reason = 'unspecified',
+  }) async {
     lookups++;
-    return 'شارع القدس، الدباغة';
+    lookupReasons.add(reason);
+    return label;
   }
+
+  @override
+  Future<List<PlaceSuggestionModel>> search(
+    String query, {
+    double? nearLatitude,
+    double? nearLongitude,
+    String reason = 'submit',
+  }) async {
+    searched.add(query);
+    final gate = searchGate;
+    if (gate != null) return gate.future;
+    final failure = searchFailure;
+    if (failure != null) throw failure;
+    return found;
+  }
+
+  @override
+  void cancelSearch() => cancels++;
 }
 
 class _FakeLocation extends CurrentLocationService {
@@ -100,4 +134,233 @@ void main() {
       expect(places.lookups, 1);
     },
   );
+
+  group('searching', () {
+    test('nothing is searched while the customer types', () async {
+      cubit.enter(PickTarget.to);
+      cubit.queryChanged('م');
+      cubit.queryChanged('مط');
+      cubit.queryChanged('مطا');
+      cubit.queryChanged('مطار');
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+
+      expect(places.searched, isEmpty);
+      expect(cubit.state.isSearching, isFalse);
+    });
+
+    test('submitting runs one search, with the query normalized', () async {
+      places.found = [_place];
+      cubit.enter(PickTarget.to);
+
+      await cubit.submitSearch('  Airport   ROAD ');
+
+      expect(places.searched, ['airport road']);
+      expect(cubit.state.suggestions, [_place]);
+      expect(cubit.state.isSearching, isFalse);
+      expect(cubit.state.searchError, isNull);
+    });
+
+    test(
+      'an answer with no places says so instead of staying silent',
+      () async {
+        places.found = const [];
+        cubit.enter(PickTarget.to);
+
+        await cubit.submitSearch('مطار');
+
+        expect(cubit.state.suggestions, isEmpty);
+        expect(cubit.state.searchError, AppStrings.current.placesNoResults);
+        expect(cubit.state.isSearching, isFalse);
+
+        // A later answer with places clears the message.
+        places.found = [_place];
+        await cubit.submitSearch('مطار الدولي');
+        expect(cubit.state.searchError, isNull);
+        expect(cubit.state.suggestions, [_place]);
+      },
+    );
+
+    test('under 3 letters asks nothing and says to type more', () async {
+      places.found = [_place];
+      cubit.enter(PickTarget.to);
+      await cubit.submitSearch('مطار');
+      expect(cubit.state.suggestions, isNotEmpty);
+
+      await cubit.submitSearch('مط');
+
+      expect(places.searched, ['مطار']);
+      expect(cubit.state.suggestions, isEmpty);
+      expect(cubit.state.searchError, AppStrings.current.searchMinChars);
+    });
+
+    test(
+      'submitting the same query again while its answer is shown asks nothing',
+      () async {
+        places.found = [_place];
+        cubit.enter(PickTarget.to);
+
+        await cubit.submitSearch('مطار');
+        await cubit.submitSearch(' مطار ');
+
+        expect(places.searched, ['مطار']);
+      },
+    );
+
+    test(
+      'after a failure or an empty answer the same query is tried again',
+      () async {
+        cubit.enter(PickTarget.to);
+        places.searchFailure = const PlacesException('down');
+        await cubit.submitSearch('مطار');
+        expect(cubit.state.searchError, 'down');
+
+        places.searchFailure = null;
+        places.found = [_place];
+        await cubit.submitSearch('مطار');
+
+        expect(places.searched, ['مطار', 'مطار']);
+        expect(cubit.state.suggestions, [_place]);
+        expect(cubit.state.searchError, isNull);
+      },
+    );
+
+    test('an answer for an older query never replaces the newer one', () async {
+      cubit.enter(PickTarget.to);
+      final slow = places.searchGate = Completer<List<PlaceSuggestionModel>>();
+      final first = cubit.submitSearch('مطار');
+      await Future<void>.delayed(Duration.zero);
+
+      places.searchGate = null;
+      places.found = const [];
+      await cubit.submitSearch('محطة');
+      slow.complete([_place]);
+      await first;
+
+      expect(cubit.state.suggestions, isEmpty);
+      expect(cubit.state.isSearching, isFalse);
+    });
+
+    test('a search replaced by a newer one is not an error', () async {
+      cubit.enter(PickTarget.to);
+      places.searchFailure = const PlacesCancelledException();
+
+      await cubit.submitSearch('مطار');
+
+      expect(cubit.state.searchError, isNull);
+    });
+
+    test(
+      'emptying the box clears the results and drops a search on its way',
+      () async {
+        places.found = [_place];
+        cubit.enter(PickTarget.to);
+        await cubit.submitSearch('مطار');
+        places.cancels = 0;
+
+        cubit.queryChanged('');
+
+        expect(cubit.state.suggestions, isEmpty);
+        expect(places.cancels, 1);
+      },
+    );
+  });
+
+  group('coming in through the search box', () {
+    test('the map\'s center is not named at once', () async {
+      cubit.enter(PickTarget.to, autofocusSearch: true);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(places.lookups, 0);
+      expect(cubit.state.address, isNull);
+      expect(cubit.state.isResolving, isFalse);
+      expect(cubit.state.addressDeferred, isTrue);
+      expect(cubit.state.canConfirm, isTrue);
+    });
+
+    test(
+      'without the search box the center is named at once, as before',
+      () async {
+        cubit.enter(PickTarget.to);
+        await Future<void>.delayed(Duration.zero);
+
+        expect(places.lookups, 1);
+        expect(places.lookupReasons, ['pick mode opened']);
+        expect(cubit.state.addressDeferred, isFalse);
+      },
+    );
+
+    test(
+      'the map settling by itself (keyboard, resize) names nothing',
+      () async {
+        cubit.enter(PickTarget.to, autofocusSearch: true);
+
+        cubit.onCameraIdle(35.5, 35.78);
+        await Future<void>.delayed(Duration.zero);
+
+        expect(places.lookups, 0);
+        expect(cubit.state.addressDeferred, isTrue);
+      },
+    );
+
+    test('dragging the map names the spot it settles on', () async {
+      cubit.enter(PickTarget.to, autofocusSearch: true);
+
+      cubit.onCameraMoveStarted();
+      cubit.onCameraMove(35.51, 35.79);
+      cubit.onCameraIdle(35.51, 35.79);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(places.lookups, 1);
+      expect(places.lookupReasons, ['camera idle']);
+      expect(cubit.state.address, 'شارع القدس، الدباغة');
+      expect(cubit.state.addressDeferred, isFalse);
+    });
+
+    test('confirming names the spot first, then hands it back', () async {
+      cubit.enter(PickTarget.to, autofocusSearch: true);
+      cubit.onCameraIdle(35.5, 35.78);
+
+      final picked = await cubit.confirm();
+
+      expect(places.lookups, 1);
+      expect(places.lookupReasons, ['confirm']);
+      expect(picked?.address, 'شارع القدس، الدباغة');
+      expect(picked?.latitude, 35.5);
+      expect(cubit.state.isPicking, isFalse);
+    });
+
+    test(
+      'confirming when nothing is found stays in the mode, with a retry',
+      () async {
+        places.label = null;
+        cubit.enter(PickTarget.to, autofocusSearch: true);
+
+        final picked = await cubit.confirm();
+
+        expect(picked, isNull);
+        expect(cubit.state.isPicking, isTrue);
+        expect(cubit.state.addressDeferred, isFalse);
+        expect(cubit.state.canConfirm, isFalse);
+
+        places.label = 'شارع القدس';
+        cubit.retryResolve();
+        await Future<void>.delayed(Duration.zero);
+        expect(cubit.state.address, 'شارع القدس');
+      },
+    );
+
+    test('choosing a search result names the pin without any lookup', () async {
+      cubit.enter(PickTarget.to, autofocusSearch: true);
+
+      cubit.selectSuggestion(_place);
+      cubit.onCameraMoveStarted();
+      cubit.onCameraIdle(_place.latitude, _place.longitude);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(places.lookups, 0);
+      expect(cubit.state.address, _place.description);
+      expect(cubit.state.addressDeferred, isFalse);
+      expect(cubit.state.canConfirm, isTrue);
+    });
+  });
 }
