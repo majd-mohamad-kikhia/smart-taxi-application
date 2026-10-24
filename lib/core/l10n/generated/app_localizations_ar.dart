@@ -1322,6 +1322,17 @@ class AppLocalizationsAr extends AppLocalizations {
       'اسمح بـ«الظهور فوق التطبيقات الأخرى» لاستخدام الفقاعة.';
 
   @override
+  String get screenTakeoverTitle => 'فتح التطبيق عند وصول طلب';
+
+  @override
+  String get screenTakeoverSubtitle =>
+      'عند وصول طلب جديد والتطبيق في الخلفية أو الشاشة مقفلة، يُفتح التطبيق تلقائياً.';
+
+  @override
+  String get screenTakeoverPermissionNeeded =>
+      'اسمح بالإشعارات والتنبيهات بملء الشاشة و«الظهور فوق التطبيقات الأخرى» ليُفتح التطبيق عند وصول طلب.';
+
+  @override
   String get editPoint => 'تعديل';
 
   @override

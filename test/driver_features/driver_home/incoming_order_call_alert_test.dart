@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/core/models/order_offer_model.dart';
+import 'package:mshoar/core/screen_takeover/data/screen_takeover_platform.dart';
+import 'package:mshoar/core/screen_takeover/data/screen_takeover_store.dart';
 import 'package:mshoar/core/services/local_notification_service.dart';
 import 'package:mshoar/driver_features/driver_home/data/datasources/incoming_order_call_alert.dart';
 import 'package:mshoar/driver_features/driver_home/data/datasources/new_order_alert.dart';
@@ -7,7 +9,14 @@ import 'package:mshoar/driver_features/driver_home/data/datasources/new_order_al
 class _FakeNotifications extends Fake implements LocalNotificationService {
   final shown =
       <
-        ({int id, String title, String body, String? payload, Duration timeout})
+        ({
+          int id,
+          String title,
+          String body,
+          String? payload,
+          Duration timeout,
+          bool fullScreenIntent,
+        })
       >[];
   final cancelled = <int>[];
   bool failShow = false;
@@ -19,6 +28,7 @@ class _FakeNotifications extends Fake implements LocalNotificationService {
     required String body,
     String? payload,
     Duration timeout = const Duration(seconds: 10),
+    bool fullScreenIntent = true,
   }) async {
     if (failShow) throw StateError('no notification permission');
     shown.add((
@@ -27,11 +37,26 @@ class _FakeNotifications extends Fake implements LocalNotificationService {
       body: body,
       payload: payload,
       timeout: timeout,
+      fullScreenIntent: fullScreenIntent,
     ));
   }
 
   @override
   Future<void> cancel(int id) async => cancelled.add(id);
+}
+
+class _FakeTakeoverStore extends Fake implements ScreenTakeoverStore {
+  bool enabled = true;
+
+  @override
+  Future<bool> isEnabled() async => enabled;
+}
+
+class _FakeTakeover extends Fake implements ScreenTakeoverPlatform {
+  int broughtToFront = 0;
+
+  @override
+  Future<void> bringToFront() async => broughtToFront++;
 }
 
 class _Recording implements NewOrderAlert {
@@ -65,16 +90,45 @@ final _order = OrderOfferModel.fromJson({
 
 void main() {
   late _FakeNotifications notifications;
+  late _FakeTakeoverStore takeoverStore;
+  late _FakeTakeover takeover;
   var foreground = false;
   late IncomingOrderCallAlert alert;
 
   setUp(() {
     notifications = _FakeNotifications();
+    takeoverStore = _FakeTakeoverStore();
+    takeover = _FakeTakeover();
     foreground = false;
     alert = IncomingOrderCallAlert(
       notifications,
+      takeoverStore,
+      takeover,
       isForeground: () => foreground,
     );
+  });
+
+  test('with the switch on the call takes over the screen and the app '
+      'is brought to the front', () async {
+    await alert.start(order: _order);
+
+    expect(notifications.shown.single.fullScreenIntent, isTrue);
+    expect(takeover.broughtToFront, 1);
+  });
+
+  test('with the switch off the call only rings: no screen takeover, '
+      'the app stays where it is', () async {
+    takeoverStore.enabled = false;
+    await alert.start(order: _order);
+
+    expect(notifications.shown.single.fullScreenIntent, isFalse);
+    expect(takeover.broughtToFront, 0);
+  });
+
+  test('with the app on screen it is not brought to the front', () async {
+    foreground = true;
+    await alert.start(order: _order);
+    expect(takeover.broughtToFront, 0);
   });
 
   test(

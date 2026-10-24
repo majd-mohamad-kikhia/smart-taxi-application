@@ -3,6 +3,7 @@ import 'package:app_links/app_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../driver_features/driver_auth/data/datasources/driver_local_data_source.dart';
 import '../../driver_features/driver_auth/data/datasources/driver_remote_data_source.dart';
 import '../../driver_features/driver_auth/data/repositories/driver_repository.dart';
@@ -33,6 +34,9 @@ import '../floating_bubble/data/floating_bubble_overlay.dart';
 import '../floating_bubble/data/floating_bubble_store.dart';
 import '../floating_bubble/floating_bubble_coordinator.dart';
 import '../floating_bubble/presentation/cubit/floating_bubble_cubit.dart';
+import '../screen_takeover/data/screen_takeover_platform.dart';
+import '../screen_takeover/data/screen_takeover_store.dart';
+import '../screen_takeover/presentation/cubit/screen_takeover_cubit.dart';
 import '../../driver_features/driver_ratings/data/datasources/driver_ratings_remote_data_source.dart';
 import '../../driver_features/driver_ratings/data/repositories/driver_ratings_repository.dart';
 import '../../driver_features/driver_ratings/presentation/cubit/driver_ratings_cubit.dart';
@@ -451,7 +455,11 @@ void setupInjection() {
   sl.registerLazySingleton<LocationTicker>(() => LocationTicker());
   sl.registerLazySingleton<DriverPresenceStore>(() => DriverPresenceStore());
   sl.registerLazySingleton<IncomingOrderCallAlert>(
-    () => IncomingOrderCallAlert(sl<LocalNotificationService>()),
+    () => IncomingOrderCallAlert(
+      sl<LocalNotificationService>(),
+      sl<ScreenTakeoverStore>(),
+      sl<ScreenTakeoverPlatform>(),
+    ),
   );
   sl.registerLazySingleton<NewOrderAlert>(
     () => CompositeNewOrderAlert([
@@ -483,6 +491,26 @@ void setupInjection() {
     () => FloatingBubbleCubit(
       sl<FloatingBubbleOverlay>(),
       sl<FloatingBubbleStore>(),
+    ),
+  );
+  // "Open the app for new orders": the permissions it needs and the switch.
+  // The cubit is a singleton — the driver shell's check and the settings
+  // switch share one answer.
+  sl.registerLazySingleton<ScreenTakeoverStore>(() => ScreenTakeoverStore());
+  sl.registerLazySingleton<ScreenTakeoverPlatform>(
+    () => ScreenTakeoverPlatform(
+      sl<LocalNotificationService>(),
+      sl<FloatingBubbleOverlay>(),
+    ),
+  );
+  sl.registerLazySingleton<ScreenTakeoverCubit>(
+    () => ScreenTakeoverCubit(
+      sl<ScreenTakeoverPlatform>(),
+      sl<ScreenTakeoverStore>(),
+      () async {
+        final info = await PackageInfo.fromPlatform();
+        return '${info.version}+${info.buildNumber}';
+      },
     ),
   );
   // Singleton for the same reason — order cards must survive tab switches

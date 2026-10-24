@@ -1,5 +1,6 @@
 package com.ma.smarttaxi
 
+import android.app.NotificationManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -51,6 +52,14 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "smart_taxi/takeover")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "canFullScreenIntent" -> result.success(canUseFullScreenIntent())
+                    "bringToFront" -> result.success(bringToFront())
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "smart_taxi/google_api")
             .setMethodCallHandler { call, result ->
                 if (call.method == "identity") {
@@ -59,6 +68,25 @@ class MainActivity : FlutterActivity() {
                     result.notImplemented()
                 }
             }
+    }
+
+    /** Android 14+ can take the right to use full-screen notifications away; before it, it is always there. */
+    private fun canUseFullScreenIntent(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return true
+        val manager = getSystemService(NotificationManager::class.java)
+        return manager.canUseFullScreenIntent()
+    }
+
+    /**
+     * Brings the running app in front of whatever is on screen for a new
+     * order. The system blocks it unless "Display over other apps" is
+     * allowed; a block is not an error, the full-screen notification still
+     * rings.
+     */
+    private fun bringToFront(): Boolean = try {
+        FloatingBubble.bringAppToFront()
+    } catch (_: RuntimeException) {
+        false
     }
 
     private var pendingOverlayPermission: MethodChannel.Result? = null

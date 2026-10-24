@@ -7,6 +7,7 @@ import '../../../../core/floating_bubble/presentation/widgets/floating_bubble_sw
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/routing/app_router.dart';
+import '../../../../core/screen_takeover/presentation/widgets/screen_takeover_switch_widget.dart';
 import '../../../../core/session/session_cubit.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/account_deletion_notice_dialog_widget.dart';
@@ -163,6 +164,7 @@ class _DriverSettingsScreenState extends State<DriverSettingsScreen> {
                   const SizedBox(height: AppConstants.paddingS),
                   const ThemeSwitchWidget(),
                   const FloatingBubbleSwitchWidget(),
+                  const ScreenTakeoverSwitchWidget(),
                   const SizedBox(height: AppConstants.paddingXXL),
                   SettingsSectionWidget(
                     title: l10n.settingsSectionHelp,

@@ -88,16 +88,18 @@ class LocalNotificationService {
 
   /// A new order while the app is not on screen: shown like an incoming call.
   /// On Android it takes over the screen (even a locked one) with a
-  /// full-screen intent that opens the app, rings with the phone's ringtone
-  /// and vibrates until it is answered or [timeout] passes (the order's own turn). On iOS
-  /// it is a time-sensitive banner: iOS gives no app a call screen without
-  /// CallKit.
+  /// full-screen intent that opens the app (unless [fullScreenIntent] is
+  /// false: then it is a heads-up notification only), rings with the phone's
+  /// ringtone and vibrates until it is answered or [timeout] passes (the
+  /// order's own turn). On iOS it is a time-sensitive banner: iOS gives no
+  /// app a call screen without CallKit.
   Future<void> showIncomingOrderCall({
     required int id,
     required String title,
     required String body,
     String? payload,
     Duration timeout = const Duration(seconds: 10),
+    bool fullScreenIntent = true,
   }) async {
     await initialize();
     await _plugin.show(
@@ -113,7 +115,7 @@ class LocalNotificationService {
           importance: Importance.max,
           priority: Priority.max,
           category: AndroidNotificationCategory.call,
-          fullScreenIntent: true,
+          fullScreenIntent: fullScreenIntent,
           ongoing: true,
           autoCancel: true,
           timeoutAfter: timeout.inMilliseconds,
@@ -151,6 +153,27 @@ class LocalNotificationService {
           AndroidFlutterLocalNotificationsPlugin
         >();
     return await android?.requestFullScreenIntentPermission() ?? true;
+  }
+
+  /// Whether notifications may be shown (Android 13+ asks; true before it).
+  Future<bool> areNotificationsEnabled() async {
+    await initialize();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    return await android?.areNotificationsEnabled() ?? true;
+  }
+
+  /// Android 13+: shows the system's notification permission dialog. True
+  /// when allowed (also where nothing has to be asked).
+  Future<bool> requestNotificationsPermission() async {
+    await initialize();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    return await android?.requestNotificationsPermission() ?? true;
   }
 
   Future<void> show({

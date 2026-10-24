@@ -1342,6 +1342,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Allow \"Display over other apps\" to use the bubble.';
 
   @override
+  String get screenTakeoverTitle => 'Open the app for new orders';
+
+  @override
+  String get screenTakeoverSubtitle =>
+      'When a new order arrives while the app is in the background or the screen is locked, the app opens by itself.';
+
+  @override
+  String get screenTakeoverPermissionNeeded =>
+      'Allow notifications, full-screen alerts and \"Display over other apps\" so the app can open for new orders.';
+
+  @override
   String get editPoint => 'Edit';
 
   @override

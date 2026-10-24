@@ -2529,6 +2529,24 @@ abstract class AppLocalizations {
   /// **'Allow \"Display over other apps\" to use the bubble.'**
   String get floatingBubblePermissionNeeded;
 
+  /// No description provided for @screenTakeoverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the app for new orders'**
+  String get screenTakeoverTitle;
+
+  /// No description provided for @screenTakeoverSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When a new order arrives while the app is in the background or the screen is locked, the app opens by itself.'**
+  String get screenTakeoverSubtitle;
+
+  /// No description provided for @screenTakeoverPermissionNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications, full-screen alerts and \"Display over other apps\" so the app can open for new orders.'**
+  String get screenTakeoverPermissionNeeded;
+
   /// No description provided for @editPoint.
   ///
   /// In en, this message translates to:

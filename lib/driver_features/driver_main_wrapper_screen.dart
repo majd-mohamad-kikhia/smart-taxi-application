@@ -6,6 +6,7 @@ import '../core/injection/injection.dart';
 import '../core/l10n/generated/app_localizations.dart';
 import '../core/localization/l10n_context_extension.dart';
 import '../core/routing/app_router.dart';
+import '../core/screen_takeover/presentation/cubit/screen_takeover_cubit.dart';
 import '../core/widgets/app_bottom_nav_widget.dart';
 import '../core/widgets/app_snack_bar_widget.dart';
 import 'driver_auth/presentation/cubit/driver_auth_cubit.dart';
@@ -45,7 +46,9 @@ class _DriverMainWrapperScreenState extends State<DriverMainWrapperScreen>
     // Online before the app was closed: connect again without waiting for
     // the toggle.
     sl<DriverPresenceCubit>().resumeIfWasOnline();
-    sl<IncomingOrderCallAlert>().askForScreenTakeoverOnce();
+    // First launch of this app version: asks for whatever opening the app
+    // for a new order still needs.
+    sl<ScreenTakeoverCubit>().checkAfterUpdate();
     _ratingSubscription = sl<DriverSocketService>().ratingReceived.listen(
       _onRatingReceived,
     );
