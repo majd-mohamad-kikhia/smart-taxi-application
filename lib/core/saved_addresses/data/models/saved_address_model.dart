@@ -11,8 +11,11 @@ enum SavedAddressType {
 
   const SavedAddressType(this.wireValue);
 
-  static SavedAddressType fromWire(String? value) => SavedAddressType.values
-      .firstWhere((t) => t.wireValue == value, orElse: () => SavedAddressType.other);
+  static SavedAddressType fromWire(String? value) =>
+      SavedAddressType.values.firstWhere(
+        (t) => t.wireValue == value,
+        orElse: () => SavedAddressType.other,
+      );
 }
 
 /// A place the customer saved to order faster — swagger `SavedAddress`.
@@ -50,16 +53,25 @@ class SavedAddressModel extends Equatable {
     );
   }
 
-  /// Fills a pickup / drop-off point of an order.
+  /// Fills a pickup / drop-off point of an order. The stored [address] text is
+  /// left out on purpose: it may be Google's (older versions saved it), so the
+  /// name of the spot is looked up again, free when it was named within 25 m.
   PickedLocationModel toPickedLocation() => PickedLocationModel(
-        latitude: lat,
-        longitude: lng,
-        address: address,
-        addressDetails: addressDetails,
-      );
+    latitude: lat,
+    longitude: lng,
+    addressDetails: addressDetails,
+  );
 
   @override
-  List<Object?> get props => [id, type, label, address, addressDetails, lat, lng];
+  List<Object?> get props => [
+    id,
+    type,
+    label,
+    address,
+    addressDetails,
+    lat,
+    lng,
+  ];
 }
 
 /// `POST` result: the address, and whether it replaced the old home / work.

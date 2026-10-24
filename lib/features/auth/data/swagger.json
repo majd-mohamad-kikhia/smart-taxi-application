@@ -20,6 +20,9 @@
   ],
   "tags": [
     {
+      "name": "Geo v2"
+    },
+    {
       "name": "Health",
       "description": "Service availability checks"
     },
@@ -142,6 +145,252 @@
       }
     },
     "schemas": {
+      "GeoSuggestion": {
+        "type": "object",
+        "properties": {
+          "alias_id": {
+            "type": "integer",
+            "example": 12
+          },
+          "text": {
+            "type": "string",
+            "example": "مشروع ياسين"
+          },
+          "lat": {
+            "type": "number",
+            "nullable": true
+          },
+          "lng": {
+            "type": "number",
+            "nullable": true
+          },
+          "has_coords": {
+            "type": "boolean",
+            "description": "false = coordinates expired: call /resolve with alias_id"
+          }
+        }
+      },
+      "GeoResolveRequest": {
+        "type": "object",
+        "required": [
+          "q"
+        ],
+        "properties": {
+          "q": {
+            "type": "string",
+            "example": "مشروع ياسين"
+          },
+          "region": {
+            "type": "integer",
+            "default": 1
+          },
+          "alias_id": {
+            "type": "integer",
+            "description": "Only when a suggestion was tapped"
+          },
+          "force_google": {
+            "type": "boolean",
+            "default": false,
+            "description": "After the user answered \"no\" to did_you_mean"
+          }
+        }
+      },
+      "GeoResolveOk": {
+        "type": "object",
+        "required": [
+          "status",
+          "alias_id",
+          "text",
+          "lat",
+          "lng"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          },
+          "alias_id": {
+            "type": "integer"
+          },
+          "text": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "address": {
+            "type": "string",
+            "description": "Google text: show it, NEVER save it"
+          },
+          "corrected_to": {
+            "type": "string"
+          }
+        }
+      },
+      "GeoResolveDidYouMean": {
+        "type": "object",
+        "required": [
+          "status",
+          "alias_id",
+          "text"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "did_you_mean"
+            ]
+          },
+          "alias_id": {
+            "type": "integer"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "GeoResolveNotFound": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "not_found"
+            ]
+          }
+        }
+      },
+      "GeoReverseResponse": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "area": {
+            "type": "string",
+            "nullable": true
+          },
+          "label": {
+            "type": "string",
+            "nullable": true,
+            "example": "شارع المتنبي، الزراعة"
+          }
+        }
+      },
+      "GeoFare": {
+        "type": "object",
+        "properties": {
+          "vehicle_type_id": {
+            "type": "integer"
+          },
+          "fare": {
+            "type": "number"
+          }
+        }
+      },
+      "GeoEstimateResponse": {
+        "type": "object",
+        "properties": {
+          "distance_est_m": {
+            "type": "integer"
+          },
+          "fare_est": {
+            "type": "number"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "estimate"
+            ]
+          },
+          "fares": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeoFare"
+            }
+          }
+        }
+      },
+      "GeoRouteQuoteResponse": {
+        "type": "object",
+        "properties": {
+          "fare": {
+            "type": "number"
+          },
+          "fares": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeoFare"
+            }
+          },
+          "distance_m": {
+            "type": "integer",
+            "description": "Pass-through, do not save"
+          },
+          "duration_s": {
+            "type": "integer",
+            "description": "Pass-through, do not save"
+          },
+          "distance_est_m": {
+            "type": "integer",
+            "description": "Only when method = estimate"
+          },
+          "polyline": {
+            "type": "string",
+            "description": "Encoded polyline, only with include_polyline and method = routes. Draw it, do not save it"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "routes",
+              "estimate"
+            ]
+          },
+          "fare_method": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "description": "1 routes, 2 estimate"
+          },
+          "needs_reconfirm": {
+            "type": "boolean"
+          },
+          "replayed": {
+            "type": "boolean",
+            "description": "A retry with the same key: only the fare is returned"
+          }
+        }
+      },
+      "GeoError": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "object"
+          },
+          "code": {
+            "type": "string",
+            "example": "GOOGLE_DAILY_CAP"
+          }
+        }
+      },
       "Customer": {
         "type": "object",
         "description": "Public customer profile (never includes password_hash)",
@@ -1085,6 +1334,20 @@
           "dropoff_lng"
         ],
         "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64,
+            "description": "Optional (new app version). The key of the /api/v2/geo/route-quote the customer just confirmed: the order then uses the quoted fare and Google is not called again."
+          },
+          "pickup_alias_id": {
+            "type": "integer",
+            "description": "Optional. alias_id returned by /api/v2/geo/resolve for the pickup, only when it came from a resolved search"
+          },
+          "dropoff_alias_id": {
+            "type": "integer",
+            "description": "Optional. alias_id returned by /api/v2/geo/resolve for the drop-off, only when it came from a resolved search"
+          },
           "vehicle_type_id": {
             "type": "integer",
             "example": 1,
@@ -4614,6 +4877,480 @@
     }
   },
   "paths": {
+    "/api/v2/geo/suggest": {
+      "get": {
+        "tags": [
+          "Geo v2"
+        ],
+        "operationId": "geoSuggest",
+        "summary": "Typing suggestions (never calls Google)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Fewer than 2 characters → empty list"
+          },
+          {
+            "in": "query",
+            "name": "region",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "maxItems": 5,
+                  "items": {
+                    "$ref": "#/components/schemas/GeoSuggestion"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No / bad token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/geo/resolve": {
+      "post": {
+        "tags": [
+          "Geo v2"
+        ],
+        "operationId": "geoResolve",
+        "summary": "Text → point (submit, or a suggestion tap)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeoResolveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "status = ok | did_you_mean | not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/GeoResolveOk"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GeoResolveDidYouMean"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GeoResolveNotFound"
+                    }
+                  ],
+                  "discriminator": {
+                    "propertyName": "status"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "code GOOGLE_DAILY_CAP or USER_RATE_LIMIT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Google error (code GOOGLE_*)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "code GOOGLE_NOT_CONFIGURED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/geo/resolve/feedback": {
+      "post": {
+        "tags": [
+          "Geo v2"
+        ],
+        "operationId": "geoResolveFeedback",
+        "summary": "The user confirmed (≤150 m) or rejected (>300 m / \"not this place\") the point",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "alias_id",
+                  "accepted"
+                ],
+                "properties": {
+                  "alias_id": {
+                    "type": "integer"
+                  },
+                  "accepted": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "outcome": {
+                      "type": "string",
+                      "enum": [
+                        "recorded",
+                        "promoted",
+                        "unlinked"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown alias",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/geo/reverse": {
+      "post": {
+        "tags": [
+          "Geo v2"
+        ],
+        "operationId": "geoReverse",
+        "summary": "Pin label (Google Geocoding; nothing is stored)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "1 per 2 s, 60 per hour, 300 per day per user. On a cap or Google error the answer is `label: null` (HTTP 200).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "lat",
+                  "lng"
+                ],
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "format": "double",
+                    "example": 35.52
+                  },
+                  "lng": {
+                    "type": "number",
+                    "format": "double",
+                    "example": 35.79
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoReverseResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "code USER_RATE_LIMIT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/geo/estimate": {
+      "post": {
+        "tags": [
+          "Geo v2"
+        ],
+        "operationId": "geoEstimate",
+        "summary": "Distance and fare while choosing a car (never calls Google)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "origin",
+                  "destination"
+                ],
+                "properties": {
+                  "origin": {
+                    "type": "object",
+                    "required": [
+                      "lat",
+                      "lng"
+                    ],
+                    "properties": {
+                      "lat": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 35.52
+                      },
+                      "lng": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 35.79
+                      }
+                    }
+                  },
+                  "destination": {
+                    "type": "object",
+                    "required": [
+                      "lat",
+                      "lng"
+                    ],
+                    "properties": {
+                      "lat": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 35.52
+                      },
+                      "lng": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 35.79
+                      }
+                    }
+                  },
+                  "vehicle_type_id": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoEstimateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation / no vehicle type for this distance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/geo/route-quote": {
+      "post": {
+        "tags": [
+          "Geo v2"
+        ],
+        "operationId": "geoRouteQuote",
+        "summary": "The fare of the route, once, when the user presses Request / Confirm",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Falls back to the estimate when the daily cap is reached or Google fails (`method: estimate`, `fare_method: 2`): never blocks a ride. The same `idempotency_key` within 10 minutes returns the same fare without a second Google call.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "origin",
+                  "destination",
+                  "idempotency_key"
+                ],
+                "properties": {
+                  "origin": {
+                    "type": "object",
+                    "required": [
+                      "lat",
+                      "lng"
+                    ],
+                    "properties": {
+                      "lat": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 35.52
+                      },
+                      "lng": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 35.79
+                      }
+                    }
+                  },
+                  "destination": {
+                    "type": "object",
+                    "required": [
+                      "lat",
+                      "lng"
+                    ],
+                    "properties": {
+                      "lat": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 35.52
+                      },
+                      "lng": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 35.79
+                      }
+                    }
+                  },
+                  "idempotency_key": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 64
+                  },
+                  "vehicle_type_id": {
+                    "type": "integer"
+                  },
+                  "fare_est": {
+                    "type": "number",
+                    "description": "The fare shown before: needs_reconfirm is true when the final fare differs by more than 15 %"
+                  },
+                  "include_polyline": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Also return the encoded route line (same billing tier). Draw it, never save it."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoRouteQuoteResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [

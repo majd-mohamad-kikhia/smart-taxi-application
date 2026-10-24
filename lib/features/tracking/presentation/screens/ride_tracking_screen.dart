@@ -7,6 +7,7 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/account_block_model.dart';
 import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/models/route_point_model.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/models/trip_eta_model.dart';
@@ -47,18 +48,27 @@ class RideTrackingScreen extends StatelessWidget {
   final PickedLocationModel pickup;
   final PickedLocationModel dropoff;
 
+  /// The road line of the order, when the route fare gave one.
+  final List<RoutePointModel> plannedRoute;
+
   const RideTrackingScreen({
     super.key,
     required this.initialRide,
     required this.pickup,
     required this.dropoff,
+    this.plannedRoute = const [],
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<RideTrackingCubit>(
       create: (_) => sl<RideTrackingCubit>(
-        param1: (initialRide: initialRide, pickup: pickup, dropoff: dropoff),
+        param1: (
+          initialRide: initialRide,
+          pickup: pickup,
+          dropoff: dropoff,
+          plannedRoute: plannedRoute,
+        ),
       )..connect(),
       child: const _RideTrackingView(),
     );
@@ -67,7 +77,11 @@ class RideTrackingScreen extends StatelessWidget {
 
 /// Blocking "pay the driver" dialog — no buttons and no back; the exit
 /// listener closes it once the driver confirms the payment.
-void _showPaymentDue(BuildContext context, double? amount, RideFareBreakdownModel? fare) {
+void _showPaymentDue(
+  BuildContext context,
+  double? amount,
+  RideFareBreakdownModel? fare,
+) {
   showDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -113,19 +127,32 @@ class _RideTrackingView extends StatelessWidget {
         backgroundColor: context.colors.backgroundWhite,
         body: BlocConsumer<RideTrackingCubit, RideTrackingState>(
           listenWhen: (previous, current) =>
-              (previous.exitReason != current.exitReason && current.exitReason != null) ||
+              (previous.exitReason != current.exitReason &&
+                  current.exitReason != null) ||
               (!previous.isAwaitingPayment && current.isAwaitingPayment) ||
-              (previous.cancelError != current.cancelError && current.cancelError != null),
+              (previous.cancelError != current.cancelError &&
+                  current.cancelError != null),
           listener: (context, state) {
-            if (state.cancelError != null && state.exitReason == null && !state.isAwaitingPayment) {
-              showAppSnackBar(context, state.cancelError!, type: AppSnackBarType.error);
+            if (state.cancelError != null &&
+                state.exitReason == null &&
+                !state.isAwaitingPayment) {
+              showAppSnackBar(
+                context,
+                state.cancelError!,
+                type: AppSnackBarType.error,
+              );
               return;
             }
             if (state.exitReason == null) {
-              _showPaymentDue(context, state.finalPrice ?? state.ride.price, state.fare);
+              _showPaymentDue(
+                context,
+                state.finalPrice ?? state.ride.price,
+                state.fare,
+              );
               return;
             }
-            final isSuccess = state.exitReason == RideTrackingExitReason.completed;
+            final isSuccess =
+                state.exitReason == RideTrackingExitReason.completed;
             final navigator = Navigator.of(context);
             // The payment dialog sits above this screen; close it first so
             // the pop below leaves the screen itself.
@@ -144,8 +171,8 @@ class _RideTrackingView extends StatelessWidget {
                         vehicle: vehicle == null
                             ? null
                             : [vehicle.brand, vehicle.model, vehicle.color]
-                                .where((part) => part.trim().isNotEmpty)
-                                .join(' • '),
+                                  .where((part) => part.trim().isNotEmpty)
+                                  .join(' • '),
                       ),
               );
               return;
@@ -286,15 +313,27 @@ class _TrackingSheet extends StatelessWidget {
                 children: [
                   const _SheetHeader(),
                   const SizedBox(height: 14),
-                  RideStatusBannerWidget(ride: state.ride, connectionStatus: state.connectionStatus),
+                  RideStatusBannerWidget(
+                    ride: state.ride,
+                    connectionStatus: state.connectionStatus,
+                  ),
                   const SizedBox(height: 14),
                   if (state.isAccepted) ...[
-                    RideDriverCardWidget(driver: state.driver!, vehicle: state.vehicle!),
+                    RideDriverCardWidget(
+                      driver: state.driver!,
+                      vehicle: state.vehicle!,
+                    ),
                     const SizedBox(height: 14),
-                    RideContactActionsWidget(driverPhone: state.driver!.phoneNumber),
+                    RideContactActionsWidget(
+                      driverPhone: state.driver!.phoneNumber,
+                    ),
                     const SizedBox(height: 14),
                   ],
-                  RideTripSummaryWidget(pickup: state.pickup, dropoff: state.dropoff, ride: state.ride),
+                  RideTripSummaryWidget(
+                    pickup: state.pickup,
+                    dropoff: state.dropoff,
+                    ride: state.ride,
+                  ),
                   const SizedBox(height: 14),
                   _CancelTripButton(
                     isCancelling: state.isCancelling,
@@ -315,11 +354,15 @@ class _TrackingSheet extends StatelessWidget {
   Future<void> _showCancelDialog(BuildContext context) async {
     final cubit = context.read<RideTrackingCubit>();
     final warning = cubit.state.isAccepted
-        ? _cancelStrikeWarning(context.l10n, sl<AccountBlockCubit>().state.block)
+        ? _cancelStrikeWarning(
+            context.l10n,
+            sl<AccountBlockCubit>().state.block,
+          )
         : null;
     final reason = await showDialog<String>(
       context: context,
-      builder: (_) => CancelReasonDialogWidget(warning: warning, showCancelLimit: false),
+      builder: (_) =>
+          CancelReasonDialogWidget(warning: warning, showCancelLimit: false),
     );
     if (reason != null) cubit.submitCancellation(reason);
   }
@@ -332,7 +375,10 @@ class _CancelTripButton extends StatelessWidget {
   final bool isCancelling;
   final VoidCallback onPressed;
 
-  const _CancelTripButton({required this.isCancelling, required this.onPressed});
+  const _CancelTripButton({
+    required this.isCancelling,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -356,9 +402,9 @@ class _CancelTripButton extends StatelessWidget {
                 label: Text(label),
                 style: TextButton.styleFrom(
                   foregroundColor: context.colors.errorText,
-                  textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  textStyle: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
       ),
@@ -370,7 +416,15 @@ String _cancelStrikeWarning(AppLocalizations l10n, AccountBlockModel block) {
   final hours = block.blockHours > 0 ? block.blockHours : 24;
   if (block.strikeLimit <= 0) return l10n.cancelStrikeWarningUnknown(hours);
   if (block.nextCancelBlocks) {
-    return l10n.cancelStrikeWarningLast(block.cancelStrikes, block.strikeLimit, hours);
+    return l10n.cancelStrikeWarningLast(
+      block.cancelStrikes,
+      block.strikeLimit,
+      hours,
+    );
   }
-  return l10n.cancelStrikeWarning(block.cancelStrikes, block.strikeLimit, hours);
+  return l10n.cancelStrikeWarning(
+    block.cancelStrikes,
+    block.strikeLimit,
+    hours,
+  );
 }

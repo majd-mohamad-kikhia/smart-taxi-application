@@ -9,6 +9,7 @@ import '../../../../core/widgets/entrance_animation_widget.dart';
 import '../../data/models/ride_booking_options_model.dart';
 import '../../data/models/ride_quote_model.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
+import 'offer_congrats_dialog_widget.dart';
 import 'quote_route_map_widget.dart';
 import 'vehicle_request_button_widget.dart';
 import 'vehicle_type_tile_widget.dart';
@@ -66,6 +67,12 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
     if (choosable.length == 1) {
       _selectedId.value = choosable.first.vehicleTypeId;
     }
+    // The manager has the offer on: congratulate as the prices open.
+    if (widget.quote.hasOffer) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) showOfferCongratsDialog(context);
+      });
+    }
   }
 
   @override
@@ -98,7 +105,8 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final quote = widget.quote;
-    final types = quote.vehicleTypes;
+    // A car that is not available now is not listed at all.
+    final types = quote.vehicleTypes.where((t) => t.available).toList();
     final hasChoice = types.any(_isChoosable);
 
     return SafeArea(
@@ -199,7 +207,7 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
                           ? l10n.pickVehicleType
                           : l10n.requestVehicle(
                               selected.name,
-                              formatSyp(l10n, price),
+                              formatPlainSypAndOld(l10n, price),
                             ),
                       onPressed: selected == null
                           ? null

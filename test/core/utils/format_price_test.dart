@@ -22,8 +22,24 @@ void main() {
 
   test('a signed price carries its sign on both amounts', () {
     expect(_plain(formatSignedPrice(en, -50)), '−50 new SYP (−5,000 old)');
-    expect(_plain(formatSignedPrice(en, 50, showPlus: true)), '+50 new SYP (+5,000 old)');
+    expect(
+      _plain(formatSignedPrice(en, 50, showPlus: true)),
+      '+50 new SYP (+5,000 old)',
+    );
     expect(_plain(formatOldSyp(en, -50)), '−5,000 old SYP');
     expect(formatSignedPrice(en, 0, showPlus: true), '0 new SYP (0 old)');
+  });
+
+  test('the plain price is the figure and the currency, never "new"', () {
+    expect(formatPlainSyp(en, 300), '300 SYP');
+    expect(formatPlainSyp(ar, 300), '300 ل.س');
+    expect(formatPlainSyp(ar, 2500.4), '2,500 ل.س');
+    expect(formatPlainSyp(ar, 300), isNot(contains('جديدة')));
+    expect(_plain(formatPlainSyp(en, -50)), '−50 SYP');
+  });
+
+  test('the plain price with the old pounds after it', () {
+    expect(formatPlainSypAndOld(en, 300), '300 SYP (30,000 old)');
+    expect(formatPlainSypAndOld(ar, 300), '300 ل.س (30,000 قديمة)');
   });
 }

@@ -37,33 +37,33 @@ class RouteActionsWidget extends StatelessWidget {
 
     final children = switch (phase) {
       RoutePhase.idle => [
-          AuthPrimaryButtonWidget(
-            label: l10n.routeStartRecording,
-            isLoading: false,
-            onPressed: isStarting ? null : cubit.startTrip,
-          ),
-          const SizedBox(height: AppConstants.paddingM),
-          AppNeutralButtonWidget(
-            label: l10n.driverReportArrival,
-            icon: Icons.place_rounded,
-            onPressed: isStarting ? null : cubit.markArrived,
-          ),
-        ],
+        AuthPrimaryButtonWidget(
+          label: l10n.routeStartRecording,
+          isLoading: false,
+          onPressed: isStarting ? null : cubit.startTrip,
+        ),
+        const SizedBox(height: AppConstants.paddingM),
+        AppNeutralButtonWidget(
+          label: l10n.driverReportArrival,
+          icon: Icons.place_rounded,
+          onPressed: isStarting ? null : cubit.markArrived,
+        ),
+      ],
       RoutePhase.waiting => [
-          AuthPrimaryButtonWidget(
-            label: l10n.routeStartRecording,
-            isLoading: false,
-            onPressed: isStarting ? null : cubit.startTrip,
-          ),
-        ],
+        AuthPrimaryButtonWidget(
+          label: l10n.routeStartRecording,
+          isLoading: false,
+          onPressed: isStarting ? null : cubit.startTrip,
+        ),
+      ],
       RoutePhase.inProgress => [_inProgressRow(context, cubit)],
       RoutePhase.finished => [
-          AppNeutralButtonWidget(
-            label: l10n.routeStartNew,
-            icon: Icons.restart_alt_rounded,
-            onPressed: () => _confirmStartNew(context, cubit),
-          ),
-        ],
+        AppNeutralButtonWidget(
+          label: l10n.routeStartNew,
+          icon: Icons.restart_alt_rounded,
+          onPressed: () => _confirmStartNew(context, cubit),
+        ),
+      ],
     };
 
     return Column(
@@ -98,16 +98,12 @@ class RouteActionsWidget extends StatelessWidget {
             onPressed: () => _confirmFinish(context, cubit),
           )
         : AuthPrimaryButtonWidget(
-            // Shares the row with another button: no room for the arrow.
-            showArrow: false,
             label: l10n.routeFinish,
             isLoading: false,
             onPressed: () => _confirmFinish(context, cubit),
           );
     final pauseOrResume = isPaused
         ? AuthPrimaryButtonWidget(
-            // Shares the row with another button: no room for the arrow.
-            showArrow: false,
             label: l10n.routeResume,
             isLoading: false,
             onPressed: cubit.resumeTrip,

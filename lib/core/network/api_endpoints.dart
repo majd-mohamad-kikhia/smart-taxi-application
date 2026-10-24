@@ -18,6 +18,13 @@ class ApiEndpoints {
   // ─── App version (public) ──────────────────────────────────
   String get appVersionCheck => '/api/app/version-check';
 
+  // ─── Geo v2 (Google Maps behind our server) ───────────────
+  String get geoSuggest => '/api/v2/geo/suggest';
+  String get geoResolve => '/api/v2/geo/resolve';
+  String get geoResolveFeedback => '/api/v2/geo/resolve/feedback';
+  String get geoReverse => '/api/v2/geo/reverse';
+  String get geoRouteQuote => '/api/v2/geo/route-quote';
+
   // ─── Customer Auth ─────────────────────────────────────────
   String get customerSignup => '/api/customer/auth/signup';
   String get customerLogin => '/api/customer/auth/login';

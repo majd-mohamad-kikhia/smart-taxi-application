@@ -43,6 +43,7 @@ class RideRequestRemoteDataSource {
     required RideBookingOptionsModel options,
     required PickedLocationModel pickup,
     required PickedLocationModel dropoff,
+    String? idempotencyKey,
   }) async {
     final note = options.note?.trim();
     final response = await _dio.post(
@@ -51,6 +52,10 @@ class RideRequestRemoteDataSource {
         'vehicle_type_id': options.vehicleTypeId,
         ..._locationsBody(pickup: pickup, dropoff: dropoff),
         if (note != null && note.isNotEmpty) 'note': note,
+        // The route-quote the customer just confirmed: the order uses its fare.
+        'idempotency_key': ?idempotencyKey,
+        'pickup_alias_id': ?pickup.aliasId,
+        'dropoff_alias_id': ?dropoff.aliasId,
       },
     );
     return RideModel.fromJson(response.data['data'] as Map<String, dynamic>);

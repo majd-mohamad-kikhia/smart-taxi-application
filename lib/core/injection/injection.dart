@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -100,9 +101,6 @@ import '../localization/locale_local_data_source.dart';
 import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
 import '../network/api_error_handler.dart';
-import '../../features/home/data/datasources/fallback_geocoding_source.dart';
-import '../../features/home/data/datasources/google_places_data_source.dart';
-import '../../features/home/data/datasources/nominatim_data_source.dart';
 import '../services/current_location_service.dart';
 import '../theme/theme_cubit.dart';
 import '../theme/theme_local_data_source.dart';
@@ -120,9 +118,11 @@ import '../notifications/unread_notifications_cubit.dart';
 import '../services/whatsapp_file_sender.dart';
 import '../session/remembered_login_store.dart';
 import '../session/session_cubit.dart';
-import '../../features/home/data/datasources/recent_places_local_data_source.dart';
 import '../../features/home/data/datasources/ride_request_remote_data_source.dart';
+import '../../features/home/data/pin_label_resolver.dart';
 import '../../features/home/data/repositories/places_repository.dart';
+import '../geo/geo_remote_data_source.dart';
+import '../geo/saved_places_cleanup.dart';
 import '../../features/home/data/repositories/ride_request_repository.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/home/presentation/cubit/map_pick_cubit.dart';
@@ -213,9 +213,8 @@ void setupInjection() {
       instanceName: app.wireValue,
     );
     sl.registerFactory<ContactUsCubit>(
-      () => ContactUsCubit(
-        sl<ContactUsRepository>(instanceName: app.wireValue),
-      ),
+      () =>
+          ContactUsCubit(sl<ContactUsRepository>(instanceName: app.wireValue)),
       instanceName: app.wireValue,
     );
   }
@@ -314,7 +313,8 @@ void setupInjection() {
     ),
   );
   sl.registerLazySingleton<GoogleRoutesService>(
-    () => GoogleRoutesService(credentials: sl<GoogleApiCredentialsLoader>().load),
+    () =>
+        GoogleRoutesService(credentials: sl<GoogleApiCredentialsLoader>().load),
   );
   sl.registerFactory<TripRouteTracker>(
     () => TripRouteTracker(sl<GoogleRoutesService>()),
@@ -363,18 +363,18 @@ void setupInjection() {
   // Other features trigger logout through SessionCubit instead of
   // importing AuthCubit directly (no cross-feature imports).
   sl<SessionCubit>().registerLogoutHandler(UserRole.customer, () async {
-    // The next account on this phone must not see this customer's places.
-    await sl<PlacesRepository>().clearRecent();
     await sl<AuthCubit>().logout();
   });
+  // The app keeps no searched place on the device any more: delete what older
+  // versions saved.
+  unawaited(deleteSavedPlacesFromDevice());
   // Role picked on the role-selection screen, before anyone is signed in:
   // the app version check is asked for that role (see AppVersionCubit).
-  sl<AuthCubit>().stream
-      .map((state) => state.selectedRole)
-      .distinct()
-      .listen((role) {
-        if (role != null) sl<AppVersionCubit>().onRoleChosen(role);
-      });
+  sl<AuthCubit>().stream.map((state) => state.selectedRole).distinct().listen((
+    role,
+  ) {
+    if (role != null) sl<AppVersionCubit>().onRoleChosen(role);
+  });
   // The bell's unread count follows the signed-in customer: asked for when
   // a customer signs in or is restored, cleared on logout.
   sl<SessionCubit>().stream.listen((user) {
@@ -540,7 +540,11 @@ void setupInjection() {
   sl.registerFactory<ShareRideInfoCubit>(
     () => ShareRideInfoCubit(sl<ShareRideInfoRepository>(), sl<SessionCubit>()),
   );
-  sl.registerFactoryParam<DriverTripCubit, OrderOfferModel, DriverActiveRideModel?>(
+  sl.registerFactoryParam<
+    DriverTripCubit,
+    OrderOfferModel,
+    DriverActiveRideModel?
+  >(
     (order, resume) => DriverTripCubit(
       sl<DriverTripRepository>(),
       sl<DriverTripLocationService>(),
@@ -637,7 +641,8 @@ void setupInjection() {
 
   // ─── Driver Ratings Feature ─────────────────────────────────
   sl.registerLazySingleton<DriverRatingsRemoteDataSource>(
-    () => DriverRatingsRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+    () =>
+        DriverRatingsRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
   );
   sl.registerLazySingleton<DriverRatingsRepository>(
     () => DriverRatingsRepository(sl<DriverRatingsRemoteDataSource>()),
@@ -667,9 +672,9 @@ void setupInjection() {
   sl.registerFactory<MonthReportCubit<ReportTripModel, TripsSummaryModel>>(
     () => MonthReportCubit(sl<DriverWalletRepository>().getTrips),
   );
-  sl.registerFactory<MonthReportCubit<ReportEarningModel, EarningsSummaryModel>>(
-    () => MonthReportCubit(sl<DriverWalletRepository>().getEarnings),
-  );
+  sl.registerFactory<
+    MonthReportCubit<ReportEarningModel, EarningsSummaryModel>
+  >(() => MonthReportCubit(sl<DriverWalletRepository>().getEarnings));
   sl.registerFactory<MonthReportCubit<ReportRewardModel, RewardsSummaryModel>>(
     () => MonthReportCubit(sl<DriverWalletRepository>().getRewards),
   );
@@ -694,19 +699,21 @@ void setupInjection() {
     () => RideRequestRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
   );
   sl.registerLazySingleton<RideRequestRepository>(
-    () => RideRequestRepository(sl<RideRequestRemoteDataSource>()),
-  );
-  // Google first; OpenStreetMap answers when Google fails.
-  sl.registerLazySingleton<PlacesRepository>(
-    () => PlacesRepository(
-      FallbackGeocodingSource(
-        primary: GooglePlacesDataSource(
-          credentials: sl<GoogleApiCredentialsLoader>().load,
-        ),
-        fallback: NominatimDataSource(),
-      ),
-      const RecentPlacesLocalDataSource(),
+    () => RideRequestRepository(
+      sl<RideRequestRemoteDataSource>(),
+      sl<GeoRemoteDataSource>(),
     ),
+  );
+  // Every place search, pin label and route fare goes through our server
+  // (Geo v2); the app never calls Google's web services for them.
+  sl.registerLazySingleton<GeoRemoteDataSource>(
+    () => GeoRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+  );
+  sl.registerLazySingleton<PinLabelResolver>(
+    () => PinLabelResolver(sl<GeoRemoteDataSource>().reverse),
+  );
+  sl.registerLazySingleton<PlacesRepository>(
+    () => PlacesRepository(sl<GeoRemoteDataSource>(), sl<PinLabelResolver>()),
   );
   sl.registerFactory<HomeCubit>(
     () => HomeCubit(
@@ -721,9 +728,7 @@ void setupInjection() {
   sl.registerFactory<MapPickCubit>(
     () => MapPickCubit(sl<PlacesRepository>(), sl<CurrentLocationService>()),
   );
-  sl.registerFactory<QuoteRouteCubit>(
-    () => QuoteRouteCubit(sl<PlannedRouteLoader>()),
-  );
+  sl.registerFactory<QuoteRouteCubit>(() => QuoteRouteCubit());
 
   // ─── Core Saved Addresses ───────────────────────────────────
   // Singleton cubit: the order screen's chips and the "Saved places" screen
@@ -736,7 +741,11 @@ void setupInjection() {
   sl.registerLazySingleton<SavedAddressesCubit>(
     () => SavedAddressesCubit(sl<SavedAddressesRepository>()),
   );
-  sl.registerFactoryParam<SavedAddressFormCubit, SavedAddressType, SavedAddressModel?>(
+  sl.registerFactoryParam<
+    SavedAddressFormCubit,
+    SavedAddressType,
+    SavedAddressModel?
+  >(
     (type, existing) => SavedAddressFormCubit(
       sl<SavedAddressesRepository>(),
       sl<SavedAddressesCubit>(),
@@ -756,10 +765,10 @@ void setupInjection() {
       sl<CustomerRideSocketService>(),
       sl<TripRouteTracker>(),
       sl<AccountBlockCubit>(),
-      plannedRoutes: sl<GoogleRoutesService>(),
       initialRide: args.initialRide,
       pickup: args.pickup,
       dropoff: args.dropoff,
+      plannedRoute: args.plannedRoute,
     ),
   );
 
@@ -806,7 +815,8 @@ void setupInjection() {
 
   // ─── Notifications Feature ──────────────────────────────────
   sl.registerLazySingleton<NotificationsRemoteDataSource>(
-    () => NotificationsRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+    () =>
+        NotificationsRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
   );
   sl.registerLazySingleton<NotificationsRepository>(
     () => NotificationsRepository(sl<NotificationsRemoteDataSource>()),

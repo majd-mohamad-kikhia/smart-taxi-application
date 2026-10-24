@@ -3,6 +3,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/marquee_text_widget.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/vehicle_type_photo_widget.dart';
 import '../../data/models/vehicle_type_quote_model.dart';
@@ -90,22 +91,32 @@ class VehicleTypeTileWidget extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // A long name slides to show the rest of itself.
+                        MarqueeTextWidget(
+                          text: vehicleType.name,
+                          style: textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: isChoosable
+                                ? colors.textPrimary
+                                : colors.textSecondary,
+                          ),
+                        ),
+                        // The description, and beside it the way to read about
+                        // the car without choosing it.
                         Row(
                           children: [
-                            Flexible(
-                              child: Text(
-                                vehicleType.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: isChoosable
-                                      ? colors.textPrimary
-                                      : colors.textSecondary,
-                                ),
-                              ),
+                            Expanded(
+                              child: vehicleType.description == null
+                                  ? const SizedBox.shrink()
+                                  : Text(
+                                      vehicleType.description!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: textTheme.bodySmall?.copyWith(
+                                        color: colors.textSecondary,
+                                      ),
+                                    ),
                             ),
-                            // Reads about the car without choosing it.
                             IconButton(
                               tooltip: l10n.aboutThisCar,
                               icon: const Icon(Icons.info_outline_rounded),
@@ -123,17 +134,6 @@ class VehicleTypeTileWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                        if (vehicleType.description != null) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            vehicleType.description!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colors.textSecondary,
-                            ),
-                          ),
-                        ],
                         if (vehicleType.locationFee > 0 &&
                             statusText == null) ...[
                           const SizedBox(height: AppConstants.paddingXS),
@@ -141,10 +141,16 @@ class VehicleTypeTileWidget extends StatelessWidget {
                             selected: selected,
                             text: locationFeeName == null
                                 ? l10n.locationFeeIncluded(
-                                    formatNewSyp(l10n, vehicleType.locationFee),
+                                    formatPlainSyp(
+                                      l10n,
+                                      vehicleType.locationFee,
+                                    ),
                                   )
                                 : l10n.locationFeeIncludedFor(
-                                    formatNewSyp(l10n, vehicleType.locationFee),
+                                    formatPlainSyp(
+                                      l10n,
+                                      vehicleType.locationFee,
+                                    ),
                                     locationFeeName!,
                                   ),
                           ),
@@ -178,6 +184,7 @@ class VehicleTypeTileWidget extends StatelessWidget {
                     const SizedBox(width: AppConstants.paddingS),
                     PriceTextWidget(
                       price: price!,
+                      plain: true,
                       style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: isChoosable

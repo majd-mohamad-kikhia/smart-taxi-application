@@ -17,17 +17,17 @@ class SavedAddressesRepository {
     String? label,
     required double lat,
     required double lng,
-    String? address,
     String? addressDetails,
   }) {
-    return _guard(() => _remote.create({
-          'type': type.wireValue,
-          'label': ?label,
-          'lat': lat,
-          'lng': lng,
-          'address': ?address,
-          'address_details': ?addressDetails,
-        }));
+    return _guard(
+      () => _remote.create({
+        'type': type.wireValue,
+        'label': ?label,
+        'lat': lat,
+        'lng': lng,
+        'address_details': ?addressDetails,
+      }),
+    );
   }
 
   Future<SavedAddressModel> update(int id, Map<String, dynamic> changes) =>

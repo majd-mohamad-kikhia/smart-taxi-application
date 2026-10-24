@@ -10,11 +10,12 @@ import '../../../../core/services/current_location_service.dart';
 import '../../../../core/theme/app_map_style.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
-import '../../data/models/place_suggestion_model.dart';
+import '../../../../core/geo/geo_exception.dart';
+import '../../data/pin_label_resolver.dart';
 import '../../data/repositories/places_repository.dart';
 import '../widgets/address_details_field_widget.dart';
 import '../widgets/place_search_field_widget.dart';
-import '../widgets/place_suggestions_card_widget.dart';
+import '../widgets/place_search_message_widget.dart';
 
 /// Full-screen map picker, pushed directly by the order screen and through
 /// `AppRouter.locationPicker` by other features. Returns a
@@ -39,7 +40,8 @@ class LocationPickerScreen extends StatefulWidget {
   State<LocationPickerScreen> createState() => _LocationPickerScreenState();
 }
 
-class _LocationPickerScreenState extends State<LocationPickerScreen> with MapStyleMixin {
+class _LocationPickerScreenState extends State<LocationPickerScreen>
+    with MapStyleMixin {
   static const _defaultCenter = LatLng(
     AppConstants.defaultMapLat,
     AppConstants.defaultMapLng,
@@ -66,10 +68,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
   /// A reverse-geocode for the current pin is in flight.
   bool _isResolvingAddress = false;
 
-  /// The place last chosen from the search list. It already is a real
-  /// address, so it stands in if the reverse lookup for that same spot
-  /// fails.
-  PlaceSuggestionModel? _selectedSuggestion;
+  /// The place last chosen from the search list. It already is a name, so it
+  /// stands in while the pin stays on that spot.
+  ({double lat, double lng, String address})? _selectedAnchor;
   bool _isLocating = false;
 
   /// Confirming is only allowed once the pin has a real, resolved address
@@ -77,9 +78,14 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
   /// from a previous pin position.
   bool get _canConfirm => _pickedAddress != null && !_isResolvingAddress;
 
+  /// The point being edited came with an `alias_id`.
+  ({int aliasId, double lat, double lng})? _initialAlias;
+
   /// The query last submitted: an answer for any other is out of date.
   String _submittedQuery = '';
-  List<PlaceSuggestionModel> _suggestions = [];
+
+  /// The point the server resolved a search to, until the pin is confirmed.
+  ({int aliasId, double lat, double lng})? _resolved;
   bool _isSearching = false;
   String? _searchError;
 
@@ -91,6 +97,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
         ? LatLng(initial.latitude, initial.longitude)
         : _defaultCenter;
     _pickedAddress = initial?.address;
+    if (initial?.aliasId != null) {
+      _initialAlias = (
+        aliasId: initial!.aliasId!,
+        lat: initial.latitude,
+        lng: initial.longitude,
+      );
+    }
     if (_pickedAddress != null) {
       _searchController.text = _pickedAddress!;
     } else if (widget.isPickup) {
@@ -139,7 +152,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -175,7 +187,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
             },
             onTap: (_) {
               FocusScope.of(context).unfocus();
-              setState(() => _suggestions = []);
+              setState(() => _searchError = null);
             },
           ),
           IgnorePointer(
@@ -185,7 +197,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
                 padding: const EdgeInsets.only(bottom: 36),
                 child: Icon(
                   Icons.location_on_rounded,
-                  color: widget.isPickup ? context.colors.primaryContent : context.colors.accentContent,
+                  color: widget.isPickup
+                      ? context.colors.primaryContent
+                      : context.colors.accentContent,
                   size: 44,
                 ),
               ),
@@ -237,7 +251,6 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
                           controller: _searchController,
                           isSearching: _isSearching,
                           onChanged: _onSearchChanged,
-                          onTap: _onSearchFieldTap,
                           onSubmitted: _submitSearch,
                           onClear: _clearSearch,
                         ),
@@ -252,13 +265,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
                       ),
                     ],
                   ),
-                  if (_suggestions.isNotEmpty || _searchError != null) ...[
+                  if (_searchError != null) ...[
                     const SizedBox(height: AppConstants.paddingS),
-                    PlaceSuggestionsCardWidget(
-                      suggestions: _suggestions,
-                      errorMessage: _searchError,
-                      onSuggestionTap: _selectSuggestion,
-                    ),
+                    PlaceSearchMessageWidget(message: _searchError!),
                   ],
                 ],
               ),
@@ -342,105 +351,64 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
         longitude: _center.longitude,
         address: _pickedAddress,
         addressDetails: details.isEmpty ? null : details,
+        aliasId: _confirmedAliasId(),
       ),
     );
   }
 
-  /// The text changed. Google is not asked while typing — Geocoding answers
-  /// a whole address, not a few letters — that search runs on
-  /// [_submitSearch]. Meanwhile the places picked before (read from the
-  /// device, so free) are listed; emptying the box also drops a search still
-  /// on its way.
+  /// What the order carries as the point's `alias_id`: the resolved place's
+  /// when the confirmed pin stayed on it (the server also hears whether it
+  /// did), otherwise that of the point being edited if the pin is still there.
+  int? _confirmedAliasId() {
+    final resolved = _resolved;
+    _resolved = null;
+    if (resolved != null) {
+      final stayed = sl<PlacesRepository>().reportConfirmed(
+        aliasId: resolved.aliasId,
+        resolvedLatitude: resolved.lat,
+        resolvedLongitude: resolved.lng,
+        pinLatitude: _center.latitude,
+        pinLongitude: _center.longitude,
+      );
+      return stayed ? resolved.aliasId : null;
+    }
+    final initial = _initialAlias;
+    if (initial == null) return null;
+    final meters = PinLabelResolver.distanceMeters(
+      initial.lat,
+      initial.lng,
+      _center.latitude,
+      _center.longitude,
+    );
+    return meters <= PlacesRepository.acceptedMeters ? initial.aliasId : null;
+  }
+
+  /// The text changed. Nothing is searched or sent while typing: only the
+  /// keyboard's search key (or the search icon) does, through
+  /// [_submitSearch]. Emptying the box drops a search still on its way.
   void _onSearchChanged(String value) {
     if (_searchError != null) setState(() => _searchError = null);
     if (value.trim().isEmpty) {
       sl<PlacesRepository>().cancelSearch();
       setState(() => _isSearching = false);
     }
-    unawaited(_showRecent(value));
-  }
-
-  /// Lists the places the customer picked before for [query] (the last few
-  /// when it's empty). While typing, nothing is replaced when none match, so
-  /// the previous results stay until the search answers.
-  Future<void> _showRecent(String query) async {
-    final near = _userLocation ?? _center;
-    final recent = await sl<PlacesRepository>().recentPlaces(
-      query: query,
-      nearLatitude: near.latitude,
-      nearLongitude: near.longitude,
-    );
-    // The customer typed on while the places loaded.
-    if (!mounted || query != _searchController.text) return;
-    if (recent.isEmpty && query.trim().isNotEmpty) return;
-    setState(() => _suggestions = recent);
-  }
-
-  /// Tapping the empty box lists the places picked before.
-  void _onSearchFieldTap() {
-    if (_searchController.text.trim().isEmpty) unawaited(_showRecent(''));
   }
 
   /// The customer submitted the text (the keyboard's search key, or the
-  /// search icon). Too short a text asks Google nothing and says so.
+  /// search icon): the server turns it into a point.
   Future<void> _submitSearch(String value) async {
-    final places = sl<PlacesRepository>();
     if (!PlacesRepository.isSearchable(value)) {
-      places.cancelSearch();
+      sl<PlacesRepository>().cancelSearch();
       setState(() {
-        _suggestions = [];
         _isSearching = false;
         _searchError = context.l10n.searchMinChars;
       });
       return;
     }
-    // The same text again while its answer is on screen or on its way.
     final query = PlacesRepository.normalizeQuery(value);
-    if (query == _submittedQuery && (_isSearching || _suggestions.isNotEmpty)) {
-      return;
-    }
+    if (query == _submittedQuery && _isSearching) return;
     _submittedQuery = query;
-    setState(() {
-      _isSearching = true;
-      _searchError = null;
-    });
-    // Nearest to the customer; the map's center only when their position
-    // isn't known.
-    final near = _userLocation ?? _center;
-    try {
-      final results = await places.search(
-        query,
-        nearLatitude: near.latitude,
-        nearLongitude: near.longitude,
-        reason: 'submit from the picker',
-      );
-      // Another search was submitted (or the box cleared) while this ran: a
-      // newer search owns the list now, and an older answer must not
-      // replace it.
-      if (!mounted || query != _submittedQuery) return;
-      setState(() {
-        _suggestions = results;
-        _isSearching = false;
-        // An empty answer says so, instead of leaving the screen unchanged.
-        _searchError = results.isEmpty ? context.l10n.placesNoResults : null;
-      });
-    } on PlacesCancelledException {
-      // Replaced by a newer search, which reports for itself.
-      return;
-    } on PlacesException catch (e) {
-      // Google is down, but the places picked before still answer.
-      final recent = await places.recentPlaces(
-        query: query,
-        nearLatitude: near.latitude,
-        nearLongitude: near.longitude,
-      );
-      if (!mounted || query != _submittedQuery) return;
-      setState(() {
-        _searchError = e.message;
-        _suggestions = recent;
-        _isSearching = false;
-      });
-    }
+    await _resolve(() => sl<PlacesRepository>().submit(value), value);
   }
 
   void _clearSearch() {
@@ -451,21 +419,92 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
       _searchError = null;
       _isSearching = false;
     });
-    unawaited(_showRecent(''));
   }
 
-  void _selectSuggestion(PlaceSuggestionModel suggestion) {
-    FocusScope.of(context).unfocus();
-    unawaited(sl<PlacesRepository>().remember(suggestion));
-    final target = LatLng(suggestion.latitude, suggestion.longitude);
-    _controller?.animateCamera(CameraUpdate.newLatLngZoom(target, 17));
+  /// Runs [ask] and shows what it came to: a point (the pin moves there), a
+  /// "did you mean …?", or nothing found (the customer places the pin).
+  Future<void> _resolve(
+    Future<PlaceOutcome> Function() ask,
+    String query,
+  ) async {
+    sl<PlacesRepository>().cancelSearch();
     setState(() {
-      _selectedSuggestion = suggestion;
-      _center = target;
-      _pickedAddress = suggestion.description;
-      _suggestions = [];
-      _searchController.text = suggestion.description;
+      _isSearching = true;
+      _searchError = null;
     });
+    try {
+      final outcome = await ask();
+      if (!mounted) return;
+      switch (outcome) {
+        case PlaceFound():
+          _showFound(outcome);
+        case PlaceDidYouMean():
+          setState(() => _isSearching = false);
+          await _askDidYouMean(outcome, query);
+        case PlaceNotFound():
+          setState(() {
+            _isSearching = false;
+            _searchError = context.l10n.placesNotFoundMovePin;
+          });
+      }
+    } on GeoException {
+      // Replaced by a newer search, which reports for itself.
+    }
+  }
+
+  void _showFound(PlaceFound found) {
+    final target = LatLng(found.latitude, found.longitude);
+    _controller?.animateCamera(CameraUpdate.newLatLngZoom(target, 17));
+    _resolved = (
+      aliasId: found.aliasId,
+      lat: found.latitude,
+      lng: found.longitude,
+    );
+    setState(() {
+      _selectedAnchor = (
+        lat: found.latitude,
+        lng: found.longitude,
+        address: found.label,
+      );
+      _center = target;
+      _pickedAddress = found.label;
+      _isSearching = false;
+      _searchController.text = found.label;
+    });
+    final corrected = found.correctedTo;
+    if (corrected != null) {
+      showAppSnackBar(context, context.l10n.placeCorrectedTo(corrected));
+    }
+  }
+
+  Future<void> _askDidYouMean(PlaceDidYouMean suggestion, String query) async {
+    final l10n = context.l10n;
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.didYouMeanTitle),
+        content: Text(l10n.didYouMeanMessage(suggestion.text)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.answerNo),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.answerYes),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || yes == null) return;
+    await _resolve(
+      () => sl<PlacesRepository>().submit(
+        query,
+        aliasId: yes ? suggestion.aliasId : null,
+        forceGoogle: !yes,
+      ),
+      query,
+    );
   }
 
   Future<void> _reverseGeocodeCenter() async {
@@ -498,16 +537,16 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> with MapSty
     });
   }
 
-  /// The chosen suggestion's address, if the pin is still on that place
-  /// (within a few meters — the camera may settle a hair off).
+  /// The chosen place's name, if the pin is still on that place (within a few
+  /// meters — the camera may settle a hair off).
   String? _selectedSuggestionAddressAt(LatLng target) {
-    final suggestion = _selectedSuggestion;
-    if (suggestion == null) return null;
+    final anchor = _selectedAnchor;
+    if (anchor == null) return null;
     const tolerance = 0.0001;
     final isSamePlace =
-        (suggestion.latitude - target.latitude).abs() < tolerance &&
-        (suggestion.longitude - target.longitude).abs() < tolerance;
-    return isSamePlace ? suggestion.description : null;
+        (anchor.lat - target.latitude).abs() < tolerance &&
+        (anchor.lng - target.longitude).abs() < tolerance;
+    return isSamePlace ? anchor.address : null;
   }
 
   /// [silent] is the automatic try on opening: it never shows a message, and
@@ -551,6 +590,7 @@ class _CircularIconButton extends StatelessWidget {
 
   /// `null` disables the button (e.g. while [isLoading]).
   final VoidCallback? onTap;
+
   /// Defaults to the theme's primary text color.
   final Color? iconColor;
   final double padding;
@@ -587,7 +627,11 @@ class _CircularIconButton extends StatelessWidget {
                     color: iconColor ?? context.colors.textPrimary,
                   ),
                 )
-              : Icon(icon, color: iconColor ?? context.colors.textPrimary, size: 25),
+              : Icon(
+                  icon,
+                  color: iconColor ?? context.colors.textPrimary,
+                  size: 25,
+                ),
         ),
       ),
     );

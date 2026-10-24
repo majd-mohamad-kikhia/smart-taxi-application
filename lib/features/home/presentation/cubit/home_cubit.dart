@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/account_block/account_block_cubit.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/services/current_location_service.dart';
 import '../../../../core/session/session_cubit.dart';
+import '../../data/models/pending_booking_model.dart';
 import '../../data/models/ride_booking_options_model.dart';
 import '../../data/repositories/places_repository.dart';
 import '../../data/repositories/ride_request_repository.dart';
@@ -232,18 +234,77 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  /// Order flow step 2 — creates the ride with the chosen vehicle type.
+  /// Order flow step 2 — the customer pressed Request. The route fare is
+  /// asked once (with the real route line); when it differs from the fare they
+  /// saw by more than 15 % they confirm it first ([confirmPendingBooking]).
+  /// A route fare that cannot be had never blocks the ride: it is created
+  /// without it, from the estimate.
   Future<void> chooseVehicle(RideBookingOptionsModel options) async {
     final from = state.fromLocation;
     final to = state.toLocation;
     if (from == null || to == null || isClosed) return;
 
     emit(state.copyWith(isBooking: true, clearError: true));
+    final key = _newIdempotencyKey();
+    final shown = state.quote?.vehicleTypes
+        .where((t) => t.vehicleTypeId == options.vehicleTypeId)
+        .firstOrNull
+        ?.price;
+    final quote = await _repository.routeQuote(
+      pickup: from,
+      dropoff: to,
+      idempotencyKey: key,
+      vehicleTypeId: options.vehicleTypeId,
+      fareShown: shown,
+    );
+    if (isClosed) return;
+    if (quote != null && quote.route.length >= 2) {
+      emit(state.copyWith(routeLine: quote.route));
+    }
+    if (quote != null && quote.needsReconfirm) {
+      emit(
+        state.copyWith(
+          isBooking: false,
+          pendingBooking: PendingBookingModel(
+            options: options,
+            idempotencyKey: key,
+            fare: quote.fare,
+          ),
+        ),
+      );
+      return;
+    }
+    await _createRide(options, quote == null ? null : key);
+  }
+
+  /// The customer accepted the final fare: creates the ride with the quoted
+  /// fare.
+  Future<void> confirmPendingBooking() async {
+    final pending = state.pendingBooking;
+    if (pending == null || isClosed) return;
+    emit(state.copyWith(isBooking: true, clearPendingBooking: true));
+    await _createRide(pending.options, pending.idempotencyKey);
+  }
+
+  /// The customer declined the final fare: nothing is created.
+  void declinePendingBooking() {
+    if (isClosed || state.pendingBooking == null) return;
+    emit(state.copyWith(clearPendingBooking: true, clearRouteLine: true));
+  }
+
+  Future<void> _createRide(
+    RideBookingOptionsModel options,
+    String? idempotencyKey,
+  ) async {
+    final from = state.fromLocation;
+    final to = state.toLocation;
+    if (from == null || to == null || isClosed) return;
     try {
       final ride = await _repository.chooseVehicle(
         options: options,
         pickup: from,
         dropoff: to,
+        idempotencyKey: idempotencyKey,
       );
       if (isClosed) return;
       emit(state.copyWith(isBooking: false, activeRide: ride));
@@ -251,6 +312,16 @@ class HomeCubit extends Cubit<HomeState> {
       if (isClosed) return;
       emit(state.copyWith(isBooking: false, errorMessage: _errorFor(e)));
     }
+  }
+
+  /// One key per attempt (8–64 characters): the route fare and the order that
+  /// follows share it, and a network retry with it never asks Google twice.
+  static String _newIdempotencyKey() {
+    final random = Random.secure();
+    return List.generate(
+      32,
+      (_) => random.nextInt(16).toRadixString(16),
+    ).join();
   }
 
   /// Resets the order flow once `RideTrackingScreen` has ended the ride
@@ -263,6 +334,7 @@ class HomeCubit extends Cubit<HomeState> {
         clearActiveRide: true,
         clearQuote: true,
         clearLocations: true,
+        clearRouteLine: true,
       ),
     );
     unawaited(setDefaultPickup());

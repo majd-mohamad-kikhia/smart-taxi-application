@@ -1,5 +1,6 @@
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
+// Keep it the same as `ApiClient`'s base address.
 const String _socketUrl = 'https://smart-taxi.ma-core.net';
 
 /// Creates a Socket.IO client authenticated with [accessToken] (the same

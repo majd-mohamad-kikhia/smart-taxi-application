@@ -15,8 +15,22 @@ String formatPrice(num value) =>
 /// An API price (new pounds) with the same price in old pounds after it:
 /// "300 new SYP (30,000 old)".
 String formatSyp(AppLocalizations l10n, num value) => l10n.priceSypNewOld(
-      formatPrice(value),
-      formatPrice(value * oldPoundsPerNewPound),
+  formatPrice(value),
+  formatPrice(value * oldPoundsPerNewPound),
+);
+
+/// An API price as the figure and the currency only: "300 SYP" (in Arabic
+/// "300 ل.س"), with no word for which pound. For a screen that shows the
+/// price once and says nothing else about the money.
+String formatPlainSyp(AppLocalizations l10n, num value) =>
+    l10n.priceSyp(_signedNumber(value));
+
+/// [formatPlainSyp] with the same price in old pounds after it:
+/// "300 SYP (30,000 old)".
+String formatPlainSypAndOld(AppLocalizations l10n, num value) =>
+    l10n.priceSypAndOld(
+      _signedNumber(value),
+      _signedNumber(value * oldPoundsPerNewPound),
     );
 
 /// An API price in new pounds only, with its currency: "300 new SYP".
@@ -35,9 +49,9 @@ String formatSignedPrice(
   num value, {
   bool showPlus = false,
 }) => l10n.priceSypNewOld(
-      _signedNumber(value, showPlus: showPlus),
-      _signedNumber(value * oldPoundsPerNewPound, showPlus: showPlus),
-    );
+  _signedNumber(value, showPlus: showPlus),
+  _signedNumber(value * oldPoundsPerNewPound, showPlus: showPlus),
+);
 
 final String _minusSign = String.fromCharCode(0x2212);
 final String _ltrIsolateStart = String.fromCharCode(0x2066);

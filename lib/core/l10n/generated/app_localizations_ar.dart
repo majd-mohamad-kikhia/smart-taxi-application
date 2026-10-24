@@ -161,6 +161,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get priceSypNewCurrency => 'ل.س جديدة';
 
   @override
+  String priceSypAndOld(String amount, String oldAmount) {
+    return '$amount ل.س ($oldAmount قديمة)';
+  }
+
+  @override
   String get phoneNumber => 'رقم الجوال';
 
   @override
@@ -1548,7 +1553,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'لم نجد أماكن مطابقة. جرّب اسم الشارع أو المنطقة، أو حرّك الدبوس على الخريطة.';
 
   @override
-  String get searchMinChars => 'اكتب 3 أحرف على الأقل ثم اضغط بحث';
+  String get searchMinChars => 'اكتب حرفين على الأقل ثم اضغط بحث';
 
   @override
   String get locationAtPin => 'المكان تحت الدبوس';
@@ -2237,4 +2242,44 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get onboardingCallCenterSubtitle =>
       'فريقنا متاح على مدار الساعة لطلب مشوارك عبر الهاتف أو الواتساب والإجابة عن كل استفساراتك.';
+
+  @override
+  String get pinLabelNeutral => 'موقع محدد على الخريطة';
+
+  @override
+  String get placesNotFoundMovePin =>
+      'لم نجد المكان، حرّك الخريطة وضع الدبوس بنفسك';
+
+  @override
+  String get didYouMeanTitle => 'هل تقصد؟';
+
+  @override
+  String didYouMeanMessage(String place) {
+    return 'هل تقصد: $place؟';
+  }
+
+  @override
+  String get answerYes => 'نعم';
+
+  @override
+  String get answerNo => 'لا';
+
+  @override
+  String placeCorrectedTo(String place) {
+    return 'تم التصحيح إلى $place';
+  }
+
+  @override
+  String get fareReconfirmTitle => 'تأكيد السعر';
+
+  @override
+  String fareReconfirmMessage(String fare) {
+    return 'السعر النهائي للمشوار: $fare. هل تريد المتابعة؟';
+  }
+
+  @override
+  String get offerCongratsTitle => 'مبروك!';
+
+  @override
+  String get offerCongratsMessage => 'لقد ربحت معنا العرض الترويجي';
 }

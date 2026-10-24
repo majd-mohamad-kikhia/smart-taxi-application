@@ -117,6 +117,27 @@
     }
   },
   "priceSypNewCurrency": "new SYP",
+  "priceSyp": "{amount} SYP",
+  "@priceSyp": {
+    "description": "A price in Syrian pounds, with no word for which pound: the figure and the currency.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "priceSypAndOld": "{amount} SYP ({oldAmount} old)",
+  "@priceSypAndOld": {
+    "description": "The plain price, with the same price in old pounds (x100) after it.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "oldAmount": {
+        "type": "String"
+      }
+    }
+  },
   "phoneNumber": "Phone number",
   "password": "Password",
   "showPassword": "Show password",
@@ -783,7 +804,7 @@
   "notificationsEmpty": "No notifications",
   "errPlacesSearch": "Search is unavailable right now, please try again",
   "placesNoResults": "No places found. Try the street or area name, or move the pin on the map.",
-  "searchMinChars": "Type at least 3 letters, then tap search",
+  "searchMinChars": "Type at least 2 letters, then tap search",
   "locationAtPin": "The spot under the pin",
   "locationResolving": "Finding the address...",
   "locationUnresolved": "No address found for this spot. Move the pin and try again.",
@@ -1258,5 +1279,37 @@
   "onboardingRideOptionsSubtitle": "Economy, comfort or family size. Pick the car that fits you.",
   "onboardingCallCenterTag": "Call center",
   "onboardingCallCenterTitle": "The best call center, at your service",
-  "onboardingCallCenterSubtitle": "Our team is here 24/7 to book your ride by phone or WhatsApp and answer anything you ask."
+  "onboardingCallCenterSubtitle": "Our team is here 24/7 to book your ride by phone or WhatsApp and answer anything you ask.",
+  "pinLabelNeutral": "Location selected on the map",
+  "placesNotFoundMovePin": "We couldn't find that place. Move the map and place the pin yourself.",
+  "didYouMeanTitle": "Did you mean?",
+  "didYouMeanMessage": "Did you mean: {place}?",
+  "@didYouMeanMessage": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "answerYes": "Yes",
+  "answerNo": "No",
+  "placeCorrectedTo": "Corrected to {place}",
+  "@placeCorrectedTo": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "fareReconfirmTitle": "Confirm the fare",
+  "fareReconfirmMessage": "The final fare for this ride is {fare}. Continue?",
+  "@fareReconfirmMessage": {
+    "placeholders": {
+      "fare": {
+        "type": "String"
+      }
+    }
+  },
+  "offerCongratsTitle": "Congratulations!",
+  "offerCongratsMessage": "You won the promotional offer with us"
 }

@@ -17,7 +17,6 @@ import '../../data/datasources/customer_ride_socket_service.dart';
 import '../../data/models/ride_driver_model.dart';
 import '../../data/models/ride_location_model.dart';
 import '../../data/models/ride_vehicle_model.dart';
-import '../../../../core/services/google_routes_service.dart';
 import '../../data/models/tracked_ride_model.dart';
 import 'ride_tracking_state.dart';
 
@@ -28,6 +27,7 @@ typedef RideTrackingCubitArgs = ({
   RideModel initialRide,
   PickedLocationModel pickup,
   PickedLocationModel dropoff,
+  List<RoutePointModel> plannedRoute,
 });
 
 /// Drives the ride-tracking screen: connects a dedicated
@@ -47,7 +47,6 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
   final CustomerRideSocketService _socketService;
   final TripRouteTracker _routeTracker;
   final AccountBlockCubit _accountBlock;
-  final GoogleRoutesService? _plannedRoutes;
   Timer? _cancelAnswerTimer;
   RideRouteLeg _trackedLeg = RideRouteLeg.none;
 
@@ -58,44 +57,24 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
     required RideModel initialRide,
     required PickedLocationModel pickup,
     required PickedLocationModel dropoff,
-    GoogleRoutesService? plannedRoutes,
-  }) : _plannedRoutes = plannedRoutes,
-       super(RideTrackingState.initial(
-          ride: TrackedRideModel.fromRideModel(initialRide),
-          pickup: pickup,
-          dropoff: dropoff,
-        ));
-
-  /// Loads the road from pickup to dropoff once (Google Routes), so the map
-  /// shows the real way instead of a straight line from the first moment.
-  Future<void> _loadPlannedRoute() async {
-    final service = _plannedRoutes;
-    if (service == null) return;
-    final from = state.pickup, to = state.dropoff;
-    try {
-      final route = await service.computeRoute(
-        fromLat: from.latitude,
-        fromLng: from.longitude,
-        toLat: to.latitude,
-        toLng: to.longitude,
-      );
-      if (!isClosed && route.points.length >= 2) {
-        emit(state.copyWith(plannedRoute: route.points));
-        return;
-      }
-    } catch (e) {
-      debugPrint('RideTrackingCubit: Google route failed: $e');
-    }
-  }
+    List<RoutePointModel> plannedRoute = const [],
+  }) : super(
+         RideTrackingState.initial(
+           ride: TrackedRideModel.fromRideModel(initialRide),
+           pickup: pickup,
+           dropoff: dropoff,
+         ).copyWith(plannedRoute: plannedRoute),
+       );
 
   void connect() {
-    unawaited(_loadPlannedRoute());
     final token = ApiClient.authToken;
     if (token == null) {
-      emit(state.copyWith(
-        connectionStatus: RideTrackingConnectionStatus.error,
-        connectionError: AppStrings.current.errLoginRequired,
-      ));
+      emit(
+        state.copyWith(
+          connectionStatus: RideTrackingConnectionStatus.error,
+          connectionError: AppStrings.current.errLoginRequired,
+        ),
+      );
       return;
     }
 
@@ -103,23 +82,31 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
       accessToken: token,
       onConnect: () {
         if (!isClosed) {
-          emit(state.copyWith(
-            connectionStatus: RideTrackingConnectionStatus.connected,
-            clearConnectionError: true,
-          ));
+          emit(
+            state.copyWith(
+              connectionStatus: RideTrackingConnectionStatus.connected,
+              clearConnectionError: true,
+            ),
+          );
         }
       },
       onDisconnect: () {
         if (!isClosed) {
-          emit(state.copyWith(connectionStatus: RideTrackingConnectionStatus.connecting));
+          emit(
+            state.copyWith(
+              connectionStatus: RideTrackingConnectionStatus.connecting,
+            ),
+          );
         }
       },
       onConnectError: (_) {
         if (!isClosed) {
-          emit(state.copyWith(
-            connectionStatus: RideTrackingConnectionStatus.error,
-            connectionError: AppStrings.current.errServerUnreachable,
-          ));
+          emit(
+            state.copyWith(
+              connectionStatus: RideTrackingConnectionStatus.error,
+              connectionError: AppStrings.current.errServerUnreachable,
+            ),
+          );
         }
       },
       onRideAccepted: _applySnapshot,
@@ -159,7 +146,9 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
       RideDriverModel? driver = state.driver;
       if (driverJson != null) {
         try {
-          driver = RideDriverModel.fromJson(Map<String, dynamic>.from(driverJson));
+          driver = RideDriverModel.fromJson(
+            Map<String, dynamic>.from(driverJson),
+          );
         } catch (e) {
           debugPrint('RideTrackingCubit: failed to parse driver payload: $e');
         }
@@ -168,7 +157,9 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
       RideVehicleModel? vehicle = state.vehicle;
       if (vehicleJson != null) {
         try {
-          vehicle = RideVehicleModel.fromJson(Map<String, dynamic>.from(vehicleJson));
+          vehicle = RideVehicleModel.fromJson(
+            Map<String, dynamic>.from(vehicleJson),
+          );
         } catch (e) {
           debugPrint('RideTrackingCubit: failed to parse vehicle payload: $e');
         }
@@ -179,7 +170,14 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
           : state.driverLocation;
 
       if (!isClosed) {
-        emit(state.copyWith(ride: ride, driver: driver, vehicle: vehicle, driverLocation: location));
+        emit(
+          state.copyWith(
+            ride: ride,
+            driver: driver,
+            vehicle: vehicle,
+            driverLocation: location,
+          ),
+        );
         unawaited(_updateRoute());
       }
     } catch (e) {
@@ -193,10 +191,15 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
       if (isClosed) return;
       final location = RideLocationModel.fromJson(data);
       if (state.isInProgress) {
-        emit(state.copyWith(
-          driverLocation: location,
-          drivenPath: [...state.drivenPath, RoutePointModel(location.lat, location.lng)],
-        ));
+        emit(
+          state.copyWith(
+            driverLocation: location,
+            drivenPath: [
+              ...state.drivenPath,
+              RoutePointModel(location.lat, location.lng),
+            ],
+          ),
+        );
       } else {
         emit(state.copyWith(driverLocation: location));
       }
@@ -223,26 +226,38 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
       if (updatedRide.status == 'completed') {
         // Not an exit yet: the customer still has to pay the driver, and the
         // screen closes on `customer:ride_paid` (see [_handleRidePaid]).
-        final finalPrice = (data['final_price'] as num?)?.toDouble() ?? updatedRide.price ?? 0;
-        emit(state.copyWith(
-          ride: updatedRide,
-          finalPrice: finalPrice,
-          canRate: data['can_rate'] == true,
-          fare: RideFareBreakdownModel.fromParent(data, fallbackFinalPrice: finalPrice),
-        ));
+        final finalPrice =
+            (data['final_price'] as num?)?.toDouble() ?? updatedRide.price ?? 0;
+        emit(
+          state.copyWith(
+            ride: updatedRide,
+            finalPrice: finalPrice,
+            canRate: data['can_rate'] == true,
+            fare: RideFareBreakdownModel.fromParent(
+              data,
+              fallbackFinalPrice: finalPrice,
+            ),
+          ),
+        );
         unawaited(_updateRoute());
       } else if (updatedRide.status == 'cancelled') {
         if (state.isCancelling) {
           // Our own cancel: closing now would drop the socket before its
           // answer, which carries the cancel penalty.
           emit(state.copyWith(ride: updatedRide));
-          _cancelAnswerTimer ??= Timer(_cancelAnswerWait, _exitWithoutCancelAnswer);
+          _cancelAnswerTimer ??= Timer(
+            _cancelAnswerWait,
+            _exitWithoutCancelAnswer,
+          );
           return;
         }
-        emit(state.copyWith(
-          ride: updatedRide,
-          exitReason: state.exitReason ?? RideTrackingExitReason.cancelledByServer,
-        ));
+        emit(
+          state.copyWith(
+            ride: updatedRide,
+            exitReason:
+                state.exitReason ?? RideTrackingExitReason.cancelledByServer,
+          ),
+        );
       } else {
         emit(state.copyWith(ride: updatedRide));
         unawaited(_updateRoute());
@@ -271,7 +286,8 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
     try {
       final rideId = (data['ride_id'] as num?)?.toInt();
       if (rideId != null && rideId != state.ride.id) return;
-      if (!isClosed) emit(state.copyWith(exitReason: RideTrackingExitReason.completed));
+      if (!isClosed)
+        emit(state.copyWith(exitReason: RideTrackingExitReason.completed));
     } catch (e) {
       debugPrint('RideTrackingCubit: failed to apply ride paid: $e');
     }
@@ -292,15 +308,22 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
         // The time of the old leg is wrong for the new one. The way to the
         // pickup means nothing once the driver is there; the trip's own
         // route stays on the map until the screen closes.
-        emit(state.copyWith(clearEta: true, clearRoute: previous == RideRouteLeg.toPickup));
+        emit(
+          state.copyWith(
+            clearEta: true,
+            clearRoute: previous == RideRouteLeg.toPickup,
+          ),
+        );
       }
       if (leg == RideRouteLeg.none) return;
 
       final isTrip = leg == RideRouteLeg.toDropoff;
       final target = isTrip ? state.dropoff : state.pickup;
       // A trip that just started has no fix yet: it starts at the pickup.
-      final carLat = state.driverLocation?.lat ?? (isTrip ? state.pickup.latitude : null);
-      final carLng = state.driverLocation?.lng ?? (isTrip ? state.pickup.longitude : null);
+      final carLat =
+          state.driverLocation?.lat ?? (isTrip ? state.pickup.latitude : null);
+      final carLng =
+          state.driverLocation?.lng ?? (isTrip ? state.pickup.longitude : null);
       if (carLat == null || carLng == null) return;
 
       final snapshot = await _routeTracker.update(
@@ -313,15 +336,17 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
       if (isClosed || leg != state.routeLeg) return;
 
       final progress = snapshot.progress;
-      emit(state.copyWith(
-        routePoints: snapshot.line.isEmpty ? null : snapshot.line,
-        eta: progress == null
-            ? null
-            : TripEtaModel.fromRemaining(
-                meters: progress.remainingMeters,
-                seconds: progress.remainingSeconds,
-              ),
-      ));
+      emit(
+        state.copyWith(
+          routePoints: snapshot.line.isEmpty ? null : snapshot.line,
+          eta: progress == null
+              ? null
+              : TripEtaModel.fromRemaining(
+                  meters: progress.remainingMeters,
+                  seconds: progress.remainingSeconds,
+                ),
+        ),
+      );
     } catch (e) {
       debugPrint('RideTrackingCubit: failed to update the route: $e');
     }
@@ -345,17 +370,22 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
         _cancelAnswerTimer?.cancel();
         _cancelAnswerTimer = null;
         if (!ok && state.ride.status != 'cancelled') {
-          emit(state.copyWith(
-            isCancelling: false,
-            cancelError: error ?? AppStrings.current.errUnexpected,
-          ));
+          emit(
+            state.copyWith(
+              isCancelling: false,
+              cancelError: error ?? AppStrings.current.errUnexpected,
+            ),
+          );
           return;
         }
         // The screen closes first, so the penalty dialog opens above home.
-        emit(state.copyWith(
-          isCancelling: false,
-          exitReason: state.exitReason ?? RideTrackingExitReason.cancelledByUser,
-        ));
+        emit(
+          state.copyWith(
+            isCancelling: false,
+            exitReason:
+                state.exitReason ?? RideTrackingExitReason.cancelledByUser,
+          ),
+        );
         final penalty = CancelPenaltyModel.fromRide(ride);
         if (penalty != null) _accountBlock.applyCancelPenalty(penalty);
       },
@@ -367,10 +397,12 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
   void _exitWithoutCancelAnswer() {
     _cancelAnswerTimer = null;
     if (isClosed || state.exitReason != null) return;
-    emit(state.copyWith(
-      isCancelling: false,
-      exitReason: RideTrackingExitReason.cancelledByUser,
-    ));
+    emit(
+      state.copyWith(
+        isCancelling: false,
+        exitReason: RideTrackingExitReason.cancelledByUser,
+      ),
+    );
     _accountBlock.refresh();
   }
 

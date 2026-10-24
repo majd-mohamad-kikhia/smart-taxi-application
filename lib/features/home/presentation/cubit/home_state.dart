@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_model.dart';
+import '../../../../core/models/route_point_model.dart';
+import '../../data/models/pending_booking_model.dart';
 import '../../data/models/ride_quote_model.dart';
 
 /// Part of the day the greeting is for — the text itself is resolved in the
@@ -13,8 +15,8 @@ enum GreetingPeriod {
   static GreetingPeriod fromHour(int hour) => hour < 12
       ? GreetingPeriod.morning
       : hour < 17
-          ? GreetingPeriod.afternoon
-          : GreetingPeriod.evening;
+      ? GreetingPeriod.afternoon
+      : GreetingPeriod.evening;
 }
 
 class HomeState extends Equatable {
@@ -31,6 +33,14 @@ class HomeState extends Equatable {
 
   /// Step 2 in flight — creating the ride with the chosen vehicle.
   final bool isBooking;
+
+  /// The final fare differs from the one shown: waiting for the customer to
+  /// accept it before the ride is created.
+  final PendingBookingModel? pendingBooking;
+
+  /// The real road line of the order, from the route fare the customer just
+  /// confirmed; empty until then. Drawn, never saved.
+  final List<RoutePointModel> routeLine;
 
   /// The created ride. While this is set the screen shows "Cancel request"
   /// instead of "Search".
@@ -56,6 +66,8 @@ class HomeState extends Equatable {
     required this.isSearching,
     this.quote,
     required this.isBooking,
+    this.pendingBooking,
+    this.routeLine = const [],
     this.activeRide,
     required this.isCancelling,
     this.errorMessage,
@@ -96,6 +108,8 @@ class HomeState extends Equatable {
     bool? isSearching,
     RideQuoteModel? quote,
     bool? isBooking,
+    PendingBookingModel? pendingBooking,
+    List<RoutePointModel>? routeLine,
     RideModel? activeRide,
     bool? isCancelling,
     String? errorMessage,
@@ -105,6 +119,8 @@ class HomeState extends Equatable {
     bool clearError = false,
     bool clearQuote = false,
     bool clearActiveRide = false,
+    bool clearPendingBooking = false,
+    bool clearRouteLine = false,
     bool clearLocations = false,
   }) {
     return HomeState(
@@ -115,6 +131,10 @@ class HomeState extends Equatable {
       isSearching: isSearching ?? this.isSearching,
       quote: clearQuote ? null : (quote ?? this.quote),
       isBooking: isBooking ?? this.isBooking,
+      pendingBooking: clearPendingBooking
+          ? null
+          : (pendingBooking ?? this.pendingBooking),
+      routeLine: clearRouteLine ? const [] : (routeLine ?? this.routeLine),
       activeRide: clearActiveRide ? null : (activeRide ?? this.activeRide),
       isCancelling: isCancelling ?? this.isCancelling,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
@@ -126,18 +146,20 @@ class HomeState extends Equatable {
 
   @override
   List<Object?> get props => [
-        greeting,
-        userName,
-        fromLocation,
-        toLocation,
-        isSearching,
-        quote,
-        isBooking,
-        activeRide,
-        isCancelling,
-        errorMessage,
-        isLocating,
-        userLocation,
-        locateCount,
-      ];
+    greeting,
+    userName,
+    fromLocation,
+    toLocation,
+    isSearching,
+    quote,
+    isBooking,
+    pendingBooking,
+    routeLine,
+    activeRide,
+    isCancelling,
+    errorMessage,
+    isLocating,
+    userLocation,
+    locateCount,
+  ];
 }

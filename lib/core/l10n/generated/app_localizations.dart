@@ -326,7 +326,7 @@ abstract class AppLocalizations {
   /// **'{minutes} minutes'**
   String durationMinutes(String minutes);
 
-  /// No description provided for @priceSyp.
+  /// A price in Syrian pounds, with no word for which pound: the figure and the currency.
   ///
   /// In en, this message translates to:
   /// **'{amount} SYP'**
@@ -355,6 +355,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'new SYP'**
   String get priceSypNewCurrency;
+
+  /// The plain price, with the same price in old pounds (x100) after it.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} SYP ({oldAmount} old)'**
+  String priceSypAndOld(String amount, String oldAmount);
 
   /// No description provided for @phoneNumber.
   ///
@@ -2946,7 +2952,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchMinChars.
   ///
   /// In en, this message translates to:
-  /// **'Type at least 3 letters, then tap search'**
+  /// **'Type at least 2 letters, then tap search'**
   String get searchMinChars;
 
   /// No description provided for @locationAtPin.
@@ -4070,6 +4076,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Our team is here 24/7 to book your ride by phone or WhatsApp and answer anything you ask.'**
   String get onboardingCallCenterSubtitle;
+
+  /// No description provided for @pinLabelNeutral.
+  ///
+  /// In en, this message translates to:
+  /// **'Location selected on the map'**
+  String get pinLabelNeutral;
+
+  /// No description provided for @placesNotFoundMovePin.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that place. Move the map and place the pin yourself.'**
+  String get placesNotFoundMovePin;
+
+  /// No description provided for @didYouMeanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Did you mean?'**
+  String get didYouMeanTitle;
+
+  /// No description provided for @didYouMeanMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Did you mean: {place}?'**
+  String didYouMeanMessage(String place);
+
+  /// No description provided for @answerYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get answerYes;
+
+  /// No description provided for @answerNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get answerNo;
+
+  /// No description provided for @placeCorrectedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Corrected to {place}'**
+  String placeCorrectedTo(String place);
+
+  /// No description provided for @fareReconfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the fare'**
+  String get fareReconfirmTitle;
+
+  /// No description provided for @fareReconfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The final fare for this ride is {fare}. Continue?'**
+  String fareReconfirmMessage(String fare);
+
+  /// No description provided for @offerCongratsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Congratulations!'**
+  String get offerCongratsTitle;
+
+  /// No description provided for @offerCongratsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You won the promotional offer with us'**
+  String get offerCongratsMessage;
 }
 
 class _AppLocalizationsDelegate

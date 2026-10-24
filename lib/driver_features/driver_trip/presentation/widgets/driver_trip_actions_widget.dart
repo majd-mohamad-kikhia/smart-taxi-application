@@ -54,53 +54,53 @@ class DriverTripActionsWidget extends StatelessWidget {
 
     final children = switch (status) {
       DriverTripStatus.accepted => [
-          const CallCustomerButtonWidget(),
-          const SizedBox(height: AppConstants.paddingM),
-          const ShareRideInfoButtonWidget(),
-          const SizedBox(height: AppConstants.paddingM),
-          AuthPrimaryButtonWidget(
-            label: l10n.driverReportArrival,
-            isLoading: false,
-            onPressed: _isBusy ? null : cubit.markArrived,
-          ),
-          const SizedBox(height: AppConstants.paddingM),
-          Row(
-            children: [
-              Expanded(child: _cancelButton(context)),
-              const SizedBox(width: AppConstants.paddingL),
-              Expanded(
-                child: AppNeutralButtonWidget(
-                  label: l10n.driverStartedTheTrip,
-                  onPressed: _isBusy ? null : () => _start(context, cubit),
-                ),
-              ),
-            ],
-          ),
-        ],
-      DriverTripStatus.arrived => [
-          const CallCustomerButtonWidget(),
-          const SizedBox(height: AppConstants.paddingM),
-          AuthPrimaryButtonWidget(
-            label: l10n.driverStartedTheTrip,
-            isLoading: false,
-            onPressed: _isBusy ? null : () => _start(context, cubit),
-          ),
-          const SizedBox(height: AppConstants.paddingM),
-          _cancelButton(context),
-        ],
-      DriverTripStatus.inProgress => [
-          if (isFinishQueued) ...[
-            WarningNoticeWidget(message: l10n.tripFinishQueued),
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: TextButton(
-                onPressed: _isBusy ? null : cubit.finishRide,
-                child: Text(l10n.retry),
+        const CallCustomerButtonWidget(),
+        const SizedBox(height: AppConstants.paddingM),
+        const ShareRideInfoButtonWidget(),
+        const SizedBox(height: AppConstants.paddingM),
+        AuthPrimaryButtonWidget(
+          label: l10n.driverReportArrival,
+          isLoading: false,
+          onPressed: _isBusy ? null : cubit.markArrived,
+        ),
+        const SizedBox(height: AppConstants.paddingM),
+        Row(
+          children: [
+            Expanded(child: _cancelButton(context)),
+            const SizedBox(width: AppConstants.paddingL),
+            Expanded(
+              child: AppNeutralButtonWidget(
+                label: l10n.driverStartedTheTrip,
+                onPressed: _isBusy ? null : () => _start(context, cubit),
               ),
             ),
           ],
-          _inProgressRow(context, cubit),
+        ),
+      ],
+      DriverTripStatus.arrived => [
+        const CallCustomerButtonWidget(),
+        const SizedBox(height: AppConstants.paddingM),
+        AuthPrimaryButtonWidget(
+          label: l10n.driverStartedTheTrip,
+          isLoading: false,
+          onPressed: _isBusy ? null : () => _start(context, cubit),
+        ),
+        const SizedBox(height: AppConstants.paddingM),
+        _cancelButton(context),
+      ],
+      DriverTripStatus.inProgress => [
+        if (isFinishQueued) ...[
+          WarningNoticeWidget(message: l10n.tripFinishQueued),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton(
+              onPressed: _isBusy ? null : cubit.finishRide,
+              child: Text(l10n.retry),
+            ),
+          ),
         ],
+        _inProgressRow(context, cubit),
+      ],
       // The fare dialog is on screen; nothing left to do here.
       DriverTripStatus.completed => const <Widget>[],
     };
@@ -134,7 +134,9 @@ class DriverTripActionsWidget extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         backgroundColor: context.colors.errorSurface,
         foregroundColor: context.colors.errorText,
-        disabledBackgroundColor: context.colors.errorSurface.withValues(alpha: 0.5),
+        disabledBackgroundColor: context.colors.errorSurface.withValues(
+          alpha: 0.5,
+        ),
         padding: const EdgeInsets.symmetric(
           horizontal: AppConstants.paddingM,
           vertical: 14,
@@ -155,16 +157,12 @@ class DriverTripActionsWidget extends StatelessWidget {
             onPressed: _isBusy ? null : () => _confirmFinish(context, cubit),
           )
         : AuthPrimaryButtonWidget(
-            // Shares the row with another button: no room for the arrow.
-            showArrow: false,
             label: l10n.driverFinishTrip,
             isLoading: false,
             onPressed: _isBusy ? null : () => _confirmFinish(context, cubit),
           );
     final pauseOrResume = isPaused
         ? AuthPrimaryButtonWidget(
-            // Shares the row with another button: no room for the arrow.
-            showArrow: false,
             label: l10n.driverResumeTrip,
             isLoading: false,
             onPressed: _isBusy ? null : cubit.resumeTrip,

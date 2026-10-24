@@ -10,6 +10,10 @@ import 'saved_address_form_state.dart';
 /// `POST /saved-addresses`, an edit sends only what changed through
 /// `PUT /saved-addresses/{id}`; either way the shared
 /// [SavedAddressesCubit] gets the result so every screen shows it.
+///
+/// The address text of the pin is never saved: it may come from Google. What
+/// is saved is the customer's name for the place, the coordinates and their
+/// note.
 class SavedAddressFormCubit extends Cubit<SavedAddressFormState> {
   final SavedAddressesRepository _repository;
   final SavedAddressesCubit _savedAddresses;
@@ -31,9 +35,13 @@ class SavedAddressFormCubit extends Cubit<SavedAddressFormState> {
   Future<void> save({String? label}) async {
     final location = state.location;
     if (isClosed || state.isSaving || location == null) return;
-    final trimmedLabel = type == SavedAddressType.other ? _textOrNull(label) : null;
+    final trimmedLabel = type == SavedAddressType.other
+        ? _textOrNull(label)
+        : null;
 
-    emit(state.copyWith(status: SavedAddressFormStatus.saving, clearErrors: true));
+    emit(
+      state.copyWith(status: SavedAddressFormStatus.saving, clearErrors: true),
+    );
     try {
       final current = existing;
       if (current == null) {
@@ -42,15 +50,16 @@ class SavedAddressFormCubit extends Cubit<SavedAddressFormState> {
           label: trimmedLabel,
           lat: location.latitude,
           lng: location.longitude,
-          address: _textOrNull(location.address),
           addressDetails: _textOrNull(location.addressDetails),
         );
         _savedAddresses.upsert(result.address);
         if (!isClosed) {
-          emit(state.copyWith(
-            status: SavedAddressFormStatus.saved,
-            replaced: result.replaced,
-          ));
+          emit(
+            state.copyWith(
+              status: SavedAddressFormStatus.saved,
+              replaced: result.replaced,
+            ),
+          );
         }
         return;
       }
@@ -62,11 +71,13 @@ class SavedAddressFormCubit extends Cubit<SavedAddressFormState> {
       if (!isClosed) emit(state.copyWith(status: SavedAddressFormStatus.saved));
     } on ApiException catch (e) {
       if (isClosed) return;
-      emit(state.copyWith(
-        status: SavedAddressFormStatus.editing,
-        errorMessage: e.message,
-        fieldErrors: e.fieldErrors,
-      ));
+      emit(
+        state.copyWith(
+          status: SavedAddressFormStatus.editing,
+          errorMessage: e.message,
+          fieldErrors: e.fieldErrors,
+        ),
+      );
     }
   }
 
@@ -75,16 +86,16 @@ class SavedAddressFormCubit extends Cubit<SavedAddressFormState> {
     PickedLocationModel location,
     String? label,
   ) {
-    final address = _textOrNull(location.address);
     final details = _textOrNull(location.addressDetails);
     return {
-      if (location.latitude != current.lat || location.longitude != current.lng) ...{
+      if (location.latitude != current.lat ||
+          location.longitude != current.lng) ...{
         'lat': location.latitude,
         'lng': location.longitude,
       },
-      if (address != current.address) 'address': address,
       if (details != current.addressDetails) 'address_details': details,
-      if (type == SavedAddressType.other && label != current.label) 'label': label,
+      if (type == SavedAddressType.other && label != current.label)
+        'label': label,
     };
   }
 

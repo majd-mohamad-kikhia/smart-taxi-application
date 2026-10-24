@@ -49,7 +49,9 @@ class VehicleTypeQuoteModel extends Equatable {
           ? ((json['estimated_price'] ?? json['price']) as num?)?.toDouble()
           : null,
       stopsFeeTotal: (json['stops_fee_total'] as num?)?.toDouble() ?? 0,
-      locationFee: available ? (json['location_fee'] as num?)?.toDouble() ?? 0 : 0,
+      locationFee: available
+          ? (json['location_fee'] as num?)?.toDouble() ?? 0
+          : 0,
     );
   }
 

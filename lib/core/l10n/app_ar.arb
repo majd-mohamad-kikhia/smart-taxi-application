@@ -43,6 +43,8 @@
   "priceSypNew": "{amount} ل.س جديدة",
   "priceSypOld": "{amount} ل.س قديمة",
   "priceSypNewCurrency": "ل.س جديدة",
+  "priceSyp": "{amount} ل.س",
+  "priceSypAndOld": "{amount} ل.س ({oldAmount} قديمة)",
   "phoneNumber": "رقم الجوال",
   "password": "كلمة المرور",
   "showPassword": "إظهار كلمة المرور",
@@ -454,7 +456,7 @@
   "notificationsEmpty": "لا توجد إشعارات",
   "errPlacesSearch": "تعذر البحث حالياً، حاول مرة أخرى",
   "placesNoResults": "لم نجد أماكن مطابقة. جرّب اسم الشارع أو المنطقة، أو حرّك الدبوس على الخريطة.",
-  "searchMinChars": "اكتب 3 أحرف على الأقل ثم اضغط بحث",
+  "searchMinChars": "اكتب حرفين على الأقل ثم اضغط بحث",
   "locationAtPin": "المكان تحت الدبوس",
   "locationResolving": "جارٍ تحديد العنوان...",
   "locationUnresolved": "لم نتمكن من تحديد عنوان لهذه النقطة. حرّك الدبوس وحاول مرة أخرى.",
@@ -660,5 +662,37 @@
   "onboardingRideOptionsSubtitle": "اقتصادية أو مريحة أو عائلية، اختر السيارة التي تناسبك.",
   "onboardingCallCenterTag": "مركز الاتصال",
   "onboardingCallCenterTitle": "أفضل مركز اتصال في خدمتك",
-  "onboardingCallCenterSubtitle": "فريقنا متاح على مدار الساعة لطلب مشوارك عبر الهاتف أو الواتساب والإجابة عن كل استفساراتك."
+  "onboardingCallCenterSubtitle": "فريقنا متاح على مدار الساعة لطلب مشوارك عبر الهاتف أو الواتساب والإجابة عن كل استفساراتك.",
+  "pinLabelNeutral": "موقع محدد على الخريطة",
+  "placesNotFoundMovePin": "لم نجد المكان، حرّك الخريطة وضع الدبوس بنفسك",
+  "didYouMeanTitle": "هل تقصد؟",
+  "didYouMeanMessage": "هل تقصد: {place}؟",
+  "@didYouMeanMessage": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "answerYes": "نعم",
+  "answerNo": "لا",
+  "placeCorrectedTo": "تم التصحيح إلى {place}",
+  "@placeCorrectedTo": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "fareReconfirmTitle": "تأكيد السعر",
+  "fareReconfirmMessage": "السعر النهائي للمشوار: {fare}. هل تريد المتابعة؟",
+  "@fareReconfirmMessage": {
+    "placeholders": {
+      "fare": {
+        "type": "String"
+      }
+    }
+  },
+  "offerCongratsTitle": "مبروك!",
+  "offerCongratsMessage": "لقد ربحت معنا العرض الترويجي"
 }

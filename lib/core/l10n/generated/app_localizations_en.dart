@@ -162,6 +162,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get priceSypNewCurrency => 'new SYP';
 
   @override
+  String priceSypAndOld(String amount, String oldAmount) {
+    return '$amount SYP ($oldAmount old)';
+  }
+
+  @override
   String get phoneNumber => 'Phone number';
 
   @override
@@ -1570,7 +1575,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'No places found. Try the street or area name, or move the pin on the map.';
 
   @override
-  String get searchMinChars => 'Type at least 3 letters, then tap search';
+  String get searchMinChars => 'Type at least 2 letters, then tap search';
 
   @override
   String get locationAtPin => 'The spot under the pin';
@@ -2255,4 +2260,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingCallCenterSubtitle =>
       'Our team is here 24/7 to book your ride by phone or WhatsApp and answer anything you ask.';
+
+  @override
+  String get pinLabelNeutral => 'Location selected on the map';
+
+  @override
+  String get placesNotFoundMovePin =>
+      'We couldn\'t find that place. Move the map and place the pin yourself.';
+
+  @override
+  String get didYouMeanTitle => 'Did you mean?';
+
+  @override
+  String didYouMeanMessage(String place) {
+    return 'Did you mean: $place?';
+  }
+
+  @override
+  String get answerYes => 'Yes';
+
+  @override
+  String get answerNo => 'No';
+
+  @override
+  String placeCorrectedTo(String place) {
+    return 'Corrected to $place';
+  }
+
+  @override
+  String get fareReconfirmTitle => 'Confirm the fare';
+
+  @override
+  String fareReconfirmMessage(String fare) {
+    return 'The final fare for this ride is $fare. Continue?';
+  }
+
+  @override
+  String get offerCongratsTitle => 'Congratulations!';
+
+  @override
+  String get offerCongratsMessage => 'You won the promotional offer with us';
 }

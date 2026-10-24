@@ -29,6 +29,7 @@ import '../../features/trips/presentation/screens/ride_details_screen.dart';
 import '../models/order_offer_model.dart';
 import '../models/picked_location_model.dart';
 import '../models/ride_model.dart';
+import '../models/route_point_model.dart';
 import '../saved_addresses/data/models/saved_address_model.dart';
 import '../saved_addresses/data/models/saved_place_preset.dart';
 import 'main_wrapper_screen.dart';
@@ -42,10 +43,15 @@ class RideTrackingRouteArgs {
   final PickedLocationModel pickup;
   final PickedLocationModel dropoff;
 
+  /// The road line of the order (from the route fare the customer confirmed);
+  /// empty when there is none, and the map then draws a straight line.
+  final List<RoutePointModel> plannedRoute;
+
   const RideTrackingRouteArgs({
     required this.initialRide,
     required this.pickup,
     required this.dropoff,
+    this.plannedRoute = const [],
   });
 }
 
@@ -84,7 +90,11 @@ class SavedAddressFormRouteArgs {
   final SavedAddressModel? existing;
   final SavedPlacePreset? preset;
 
-  const SavedAddressFormRouteArgs({required this.type, this.existing, this.preset});
+  const SavedAddressFormRouteArgs({
+    required this.type,
+    this.existing,
+    this.preset,
+  });
 }
 
 class AppRouter {
@@ -191,6 +201,7 @@ class AppRouter {
             initialRide: args.initialRide,
             pickup: args.pickup,
             dropoff: args.dropoff,
+            plannedRoute: args.plannedRoute,
           ),
         );
       case rideDetails:
@@ -238,7 +249,10 @@ class AppRouter {
 
   /// Keeps [settings] on the route so code can find a screen in the stack
   /// by name (e.g. the deep-link handler looking for role selection).
-  static MaterialPageRoute<T> _buildRoute<T>(RouteSettings settings, Widget page) {
+  static MaterialPageRoute<T> _buildRoute<T>(
+    RouteSettings settings,
+    Widget page,
+  ) {
     return MaterialPageRoute<T>(builder: (_) => page, settings: settings);
   }
 }

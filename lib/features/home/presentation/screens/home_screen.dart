@@ -10,6 +10,8 @@ import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/account_block_model.dart';
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/saved_addresses/presentation/cubit/saved_addresses_cubit.dart';
+import '../../../../core/utils/format_price.dart';
+import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/account_blocked_widget.dart';
 import '../../../../core/widgets/app_brand_bar_widget.dart';
@@ -21,8 +23,6 @@ import '../cubit/map_pick_state.dart';
 import '../cubit/quote_route_cubit.dart';
 import '../widgets/home_bottom_panel_widget.dart';
 import '../widgets/home_map_widget.dart';
-import '../widgets/map_pick_panel_widget.dart';
-import '../widgets/map_pick_search_widget.dart';
 import '../widgets/trip_too_long_dialog_widget.dart';
 import '../widgets/vehicle_type_sheet_widget.dart';
 
@@ -42,13 +42,16 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<HomeCubit>(create: (_) => sl<HomeCubit>()
+        BlocProvider<HomeCubit>(
+          create: (_) => sl<HomeCubit>()
             ..initialize()
             ..restoreActiveRide()
             ..setDefaultPickup(),
         ),
         BlocProvider<MapPickCubit>(create: (_) => sl<MapPickCubit>()),
-        BlocProvider<SavedAddressesCubit>.value(value: sl<SavedAddressesCubit>()),
+        BlocProvider<SavedAddressesCubit>.value(
+          value: sl<SavedAddressesCubit>(),
+        ),
       ],
       child: _ResetOnSignal(signal: resetSignal, child: const _HomeView()),
     );
@@ -95,8 +98,10 @@ class _OrderingBlockSelector extends StatelessWidget {
           BlocSelector<AccountBlockCubit, AccountBlockState, AccountBlockModel>(
             bloc: sl<AccountBlockCubit>(),
             selector: (state) => state.block,
-            builder: (context, block) =>
-                builder(context, block.isBlocked && !hasActiveRide ? block : null),
+            builder: (context, block) => builder(
+              context,
+              block.isBlocked && !hasActiveRide ? block : null,
+            ),
           ),
     );
   }
@@ -152,6 +157,30 @@ class _HomeView extends StatelessWidget {
       ),
       body: MultiBlocListener(
         listeners: [
+          // The final fare is more than 15 % away from the one shown: the
+          // customer accepts it before the ride is created.
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.pendingBooking == null &&
+                current.pendingBooking != null,
+            listener: (context, state) =>
+                _confirmFare(context, state.pendingBooking!.fare),
+          ),
+          // The server suggests another place for the search.
+          BlocListener<MapPickCubit, MapPickState>(
+            listenWhen: (previous, current) =>
+                previous.didYouMean == null && current.didYouMean != null,
+            listener: (context, state) =>
+                _askDidYouMean(context, state.didYouMean!),
+          ),
+          BlocListener<MapPickCubit, MapPickState>(
+            listenWhen: (previous, current) =>
+                previous.correctedTo == null && current.correctedTo != null,
+            listener: (context, state) => showAppSnackBar(
+              context,
+              context.l10n.placeCorrectedTo(state.correctedTo!),
+            ),
+          ),
           // A fresh quote is the signal to let the customer pick a vehicle.
           BlocListener<HomeCubit, HomeState>(
             listenWhen: (previous, current) =>
@@ -200,7 +229,9 @@ class _HomeView extends StatelessWidget {
                           if (block != null)
                             Positioned.fill(
                               child: ColoredBox(
-                                color: context.colors.backgroundGray.withValues(alpha: 0.6),
+                                color: context.colors.backgroundGray.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                             ),
                         ],
@@ -211,7 +242,9 @@ class _HomeView extends StatelessWidget {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+                    constraints: const BoxConstraints(
+                      maxWidth: _maxContentWidth,
+                    ),
                     child: SingleChildScrollView(
                       // Only the panel itself takes touches: the empty space
                       // around it (beside the GPS button) lets the map drag.
@@ -221,7 +254,8 @@ class _HomeView extends StatelessWidget {
                         AppConstants.paddingL,
                         AppConstants.paddingL,
                         AppConstants.paddingL,
-                        AppConstants.paddingL + MediaQuery.paddingOf(context).bottom,
+                        AppConstants.paddingL +
+                            MediaQuery.paddingOf(context).bottom,
                       ),
                       // While ordering is blocked there are no From / To
                       // controls at all: the blocked panel stands in for them.
@@ -229,14 +263,14 @@ class _HomeView extends StatelessWidget {
                         builder: (context, block) => block != null
                             ? AccountBlockedWidget(
                                 block: block,
-                                message: context.l10n.accountBlockedCustomerMessage,
+                                message:
+                                    context.l10n.accountBlockedCustomerMessage,
                                 contactApp: ContactUsApp.customer,
                               )
-                            : isPicking
-                            ? const _HideWhileDragging(child: _PickPanel())
-                            : HomeBottomPanelWidget(
-                                onPickFrom: () => _enterPick(context, PickTarget.from),
-                                onPickTo: () => _enterPick(context, PickTarget.to),
+                            // Fades away while the map is dragged (only a pin
+                            // being placed drags it).
+                            : const _HideWhileDragging(
+                                child: HomeBottomPanelWidget(),
                               ),
                       ),
                     ),
@@ -266,9 +300,7 @@ class _HomeView extends StatelessWidget {
       backgroundColor: context.colors.neutralSurface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(28),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (_) => BlocProvider<QuoteRouteCubit>(
         create: (_) => sl<QuoteRouteCubit>()
@@ -277,6 +309,7 @@ class _HomeView extends StatelessWidget {
             fromLng: pickup.longitude,
             toLat: dropoff.latitude,
             toLng: dropoff.longitude,
+            route: quote.route,
           ),
         child: VehicleTypeSheetWidget(
           quote: quote,
@@ -288,6 +321,64 @@ class _HomeView extends StatelessWidget {
     if (options != null) await cubit.chooseVehicle(options);
   }
 
+  Future<void> _confirmFare(BuildContext context, double fare) async {
+    final l10n = context.l10n;
+    final cubit = context.read<HomeCubit>();
+    final yes = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.fareReconfirmTitle),
+        content: Text(l10n.fareReconfirmMessage(formatSyp(l10n, fare))),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.answerYes),
+          ),
+        ],
+      ),
+    );
+    if (yes ?? false) {
+      await cubit.confirmPendingBooking();
+    } else {
+      cubit.declinePendingBooking();
+    }
+  }
+
+  Future<void> _askDidYouMean(
+    BuildContext context,
+    DidYouMeanPrompt prompt,
+  ) async {
+    final l10n = context.l10n;
+    final cubit = context.read<MapPickCubit>();
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.didYouMeanTitle),
+        content: Text(l10n.didYouMeanMessage(prompt.text)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.answerNo),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.answerYes),
+          ),
+        ],
+      ),
+    );
+    if (yes == null) {
+      cubit.dismissDidYouMean();
+      return;
+    }
+    await cubit.answerDidYouMean(yes: yes);
+  }
+
   Future<void> _openTracking(BuildContext context, HomeState state) async {
     final ride = state.activeRide;
     final pickup = state.fromLocation;
@@ -297,70 +388,13 @@ class _HomeView extends StatelessWidget {
     final cubit = context.read<HomeCubit>();
     await Navigator.of(context).pushNamed(
       AppRouter.rideTracking,
-      arguments: RideTrackingRouteArgs(initialRide: ride, pickup: pickup, dropoff: dropoff),
+      arguments: RideTrackingRouteArgs(
+        initialRide: ride,
+        pickup: pickup,
+        dropoff: dropoff,
+        plannedRoute: state.routeLine,
+      ),
     );
     cubit.resetAfterRideEnded();
-  }
-}
-
-/// Starts placing [target] on the home map, from where it already is if it
-/// was picked before.
-void _enterPick(BuildContext context, PickTarget target) {
-  final home = context.read<HomeCubit>().state;
-  context.read<MapPickCubit>().enter(
-    target,
-    initial: target == PickTarget.from ? home.fromLocation : home.toLocation,
-  );
-}
-
-/// Place search with the GPS button, the address under the pin and the
-/// confirm button.
-class _PickPanel extends StatelessWidget {
-  const _PickPanel();
-
-  @override
-  Widget build(BuildContext context) {
-    final home = context.read<HomeCubit>().state;
-    final target = context.read<MapPickCubit>().state.target;
-    final current = target == PickTarget.from ? home.fromLocation : home.toLocation;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // The GPS button only moves the map: the pin decides the point, not
-        // the GPS.
-        BlocSelector<HomeCubit, HomeState, bool>(
-          selector: (state) => state.isLocating,
-          builder: (context, isLocating) => MapPickSearchWidget(
-            isLocating: isLocating,
-            onLocate: () => context.read<HomeCubit>().locateMe(setPickup: false),
-          ),
-        ),
-        const SizedBox(height: AppConstants.paddingS),
-        BlocSelector<HomeCubit, HomeState, String?>(
-          selector: (state) => state.errorMessage,
-          builder: (context, error) => MapPickPanelWidget(
-            initialDetails: current?.addressDetails,
-            errorMessage: error,
-            onConfirm: (details) => _confirm(context, details),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _confirm(BuildContext context, String details) async {
-    FocusScope.of(context).unfocus();
-    final pick = context.read<MapPickCubit>();
-    final home = context.read<HomeCubit>();
-    final target = pick.state.target;
-    // A pin whose naming was put off is named here, so this may take a moment.
-    final picked = await pick.confirm(details: details);
-    if (picked == null || target == null) return;
-    if (target == PickTarget.from) {
-      home.setFromLocation(picked);
-    } else {
-      home.setToLocation(picked);
-    }
   }
 }

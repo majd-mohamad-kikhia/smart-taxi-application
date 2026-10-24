@@ -3,13 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/core/l10n/generated/app_localizations.dart';
 import 'package:mshoar/core/models/picked_location_model.dart';
-import 'package:mshoar/core/models/route_point_model.dart';
-import 'package:mshoar/core/services/google_routes_service.dart';
-import 'package:mshoar/core/services/planned_route_loader.dart';
+import 'package:mshoar/core/widgets/marquee_text_widget.dart';
 import 'package:mshoar/features/home/data/models/ride_booking_options_model.dart';
 import 'package:mshoar/features/home/data/models/ride_quote_model.dart';
 import 'package:mshoar/features/home/data/models/vehicle_type_quote_model.dart';
 import 'package:mshoar/features/home/presentation/cubit/quote_route_cubit.dart';
+import 'package:mshoar/features/home/presentation/widgets/vehicle_request_button_widget.dart';
 import 'package:mshoar/features/home/presentation/widgets/vehicle_type_sheet_widget.dart';
 
 RideQuoteModel _quote(List<VehicleTypeQuoteModel> types) => RideQuoteModel(
@@ -51,22 +50,13 @@ const _off = VehicleTypeQuoteModel(
   stopsFeeTotal: 0,
 );
 
-/// Hands back no route, so the sheet's map never reaches the network.
-class _NoRouteLoader extends PlannedRouteLoader {
-  _NoRouteLoader()
-    : super(
-        GoogleRoutesService(
-          credentials: () async => throw StateError('offline'),
-        ),
-      );
-
-  @override
-  Future<List<RoutePointModel>> load({
-    required double fromLat,
-    required double fromLng,
-    required double toLat,
-    required double toLng,
-  }) async => const [];
+/// Lets [duration] pass in small steps, frame by frame like a device, for a
+/// screen that never settles (a name that keeps sliding).
+Future<void> pumpFor(WidgetTester tester, Duration duration) async {
+  const step = Duration(milliseconds: 50);
+  for (var elapsed = Duration.zero; elapsed < duration; elapsed += step) {
+    await tester.pump(step);
+  }
 }
 
 void main() {
@@ -77,6 +67,9 @@ void main() {
     RideQuoteModel quote, {
     Size size = const Size(800, 1800),
     Locale locale = const Locale('en'),
+    // A long name slides forever, so a test that has one cannot wait for the
+    // screen to settle; it lets a fixed time pass instead.
+    bool settle = true,
   }) async {
     result = null;
     tester.view.physicalSize = size;
@@ -96,7 +89,7 @@ void main() {
                     context: context,
                     isScrollControlled: true,
                     builder: (_) => BlocProvider<QuoteRouteCubit>(
-                      create: (_) => QuoteRouteCubit(_NoRouteLoader()),
+                      create: (_) => QuoteRouteCubit(),
                       child: VehicleTypeSheetWidget(
                         quote: quote,
                         pickup: _pickup,
@@ -113,22 +106,59 @@ void main() {
       ),
     );
     await tester.tap(find.text('open'));
-    await tester.pumpAndSettle();
+    if (settle) {
+      await tester.pumpAndSettle();
+    } else {
+      await pumpFor(tester, const Duration(seconds: 2));
+    }
   }
 
+  testWidgets('with the offer on, the pop-up comes first and closes', (
+    tester,
+  ) async {
+    final offered = RideQuoteModel.fromJson({
+      'distance_km': 8.7,
+      'offer': {'active': true},
+      'vehicle_types': [
+        {
+          'vehicle_type_id': 4,
+          'name': 'VIP',
+          'available': true,
+          'estimated_price': 500,
+        },
+      ],
+    });
+    expect(offered.hasOffer, isTrue);
+
+    // The pop-up's stars twinkle forever, so the screen never settles.
+    await open(tester, offered, settle: false);
+
+    expect(find.text('Congratulations!'), findsOneWidget);
+    expect(find.text('You won the promotional offer with us'), findsOneWidget);
+    await tester.tap(find.text('Continue'));
+    await pumpFor(tester, const Duration(seconds: 1));
+    expect(find.text('Congratulations!'), findsNothing);
+    expect(find.text('VIP'), findsOneWidget);
+  });
+
+  testWidgets('with the offer off there is no pop-up', (tester) async {
+    await open(tester, _quote([_vip, _van]));
+
+    expect(find.text('Congratulations!'), findsNothing);
+  });
+
   testWidgets(
-    'shows the title, the trip, the distance and every car with its price',
+    'shows the title, the trip, the distance and every available car',
     (tester) async {
       await open(tester, _quote([_vip, _van, _off]));
 
       // The title, and the request button while nothing is chosen yet.
       expect(find.text('Choose vehicle type'), findsNWidgets(2));
-      expect(find.text('Pickup street'), findsOneWidget);
-      expect(find.text('Drop-off street'), findsOneWidget);
       expect(find.textContaining('8.7'), findsOneWidget);
       expect(find.text('VIP'), findsOneWidget);
       expect(find.text('van'), findsOneWidget);
-      expect(find.text('public'), findsOneWidget);
+      // A car that is not available is not listed.
+      expect(find.text('public'), findsNothing);
       expect(find.text('Top-tier fleet'), findsOneWidget);
     },
   );
@@ -193,11 +223,12 @@ void main() {
       // would only test the price figure.
       size: const Size(640, 1400),
       locale: const Locale('ar'),
+      settle: false,
     );
     expect(tester.takeException(), isNull);
 
     await tester.tap(find.byIcon(Icons.info_outline_rounded).first);
-    await tester.pumpAndSettle();
+    await pumpFor(tester, const Duration(seconds: 2));
     expect(find.text('Smart Taxi ... Smart Life'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -223,6 +254,120 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('the info icon sits on the description line, under the name', (
+    tester,
+  ) async {
+    await open(tester, _quote([_vip, _van]));
+
+    final name = tester.getCenter(find.text('VIP'));
+    final description = tester.getCenter(find.text('Top-tier fleet'));
+    final icon = tester.getCenter(
+      find.byIcon(Icons.info_outline_rounded).first,
+    );
+
+    expect(
+      icon.dy,
+      closeTo(description.dy, 6),
+      reason: 'beside the description',
+    );
+    expect(icon.dy, greaterThan(name.dy), reason: 'not beside the name');
+  });
+
+  testWidgets('a car with no description still has its info icon', (
+    tester,
+  ) async {
+    await open(tester, _quote([_van]));
+
+    expect(find.byTooltip('About this car'), findsOneWidget);
+  });
+
+  group('the price', () {
+    testWidgets('is the figure and the currency, not "new"', (tester) async {
+      await open(tester, _quote([_vip, _van]));
+
+      expect(find.text('500 SYP'), findsOneWidget);
+      expect(find.text('320 SYP'), findsOneWidget);
+      expect(find.textContaining('new SYP'), findsNothing);
+      // The old pounds stay on their own line under it.
+      expect(find.text('50,000 old SYP'), findsOneWidget);
+    });
+
+    testWidgets('in Arabic it is ل.س alone, without "جديدة"', (tester) async {
+      await open(tester, _quote([_vip, _van]), locale: const Locale('ar'));
+
+      expect(find.text('500 ل.س'), findsOneWidget);
+      expect(find.textContaining('جديدة'), findsNothing);
+      expect(find.text('50,000 ل.س قديمة'), findsOneWidget);
+    });
+
+    testWidgets('the request button says it the same way', (tester) async {
+      await open(tester, _quote([_vip, _van]));
+      await tester.tap(find.text('VIP'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Request VIP · 500 SYP'), findsOneWidget);
+      expect(find.textContaining('new SYP'), findsNothing);
+    });
+  });
+
+  group('a long car name', () {
+    const longName =
+        'Platinum family VIP with extra luggage space for large groups';
+    const long = VehicleTypeQuoteModel(
+      vehicleTypeId: 12,
+      name: longName,
+      available: true,
+      price: 900,
+      stopsFeeTotal: 0,
+    );
+
+    testWidgets('slides to be read in full, a short one does not', (
+      tester,
+    ) async {
+      await open(tester, _quote([long, _van]), settle: false);
+
+      // The whole name is in the card, and it moves.
+      expect(find.text(longName), findsOneWidget);
+      final slides = find.descendant(
+        of: find.byType(MarqueeTextWidget),
+        matching: find.byType(Transform),
+      );
+      expect(slides, findsOneWidget, reason: 'only the long name slides');
+
+      final before = tester
+          .widget<Transform>(slides)
+          .transform
+          .getTranslation()
+          .x;
+      await pumpFor(tester, const Duration(seconds: 6));
+      final after = tester
+          .widget<Transform>(slides)
+          .transform
+          .getTranslation()
+          .x;
+      expect(after, isNot(before));
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  testWidgets('the request button is text only: no arrow, no icon', (
+    tester,
+  ) async {
+    await open(tester, _quote([_vip, _van]));
+    await tester.tap(find.text('VIP'));
+    await tester.pumpAndSettle();
+
+    final button = find.byType(VehicleRequestButtonWidget);
+    expect(
+      find.descendant(of: button, matching: find.textContaining('Request VIP')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: button, matching: find.byType(Icon)),
+      findsNothing,
+    );
+  });
+
   testWidgets('requesting pops the chosen car and the note', (tester) async {
     await open(tester, _quote([_vip, _van]));
     await tester.tap(find.text('van'));
@@ -230,7 +375,7 @@ void main() {
     await tester.enterText(find.byType(TextField), '  two suitcases ');
     await tester.pump();
 
-    await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+    await tester.tap(find.byType(VehicleRequestButtonWidget));
     await tester.pumpAndSettle();
 
     expect(result?.vehicleTypeId, 3);
@@ -241,26 +386,25 @@ void main() {
     await open(tester, _quote([_van, _off]));
     expect(find.textContaining('Request van ·'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+    await tester.tap(find.byType(VehicleRequestButtonWidget));
     await tester.pumpAndSettle();
     expect(result?.vehicleTypeId, 3);
   });
 
-  testWidgets('an unavailable car cannot be chosen', (tester) async {
+  testWidgets('an unavailable car is not listed, so it cannot be chosen', (
+    tester,
+  ) async {
     await open(tester, _quote([_vip, _off]));
-    await tester.tap(find.text('public'));
-    await tester.pumpAndSettle();
-    // Only the single choosable VIP is selected; tapping the unavailable
-    // car changes nothing.
+
+    expect(find.text('public'), findsNothing);
     expect(find.textContaining('Request VIP ·'), findsOneWidget);
-    expect(find.textContaining('Request public'), findsNothing);
   });
 
   testWidgets('with no car available it says so and can be closed', (
     tester,
   ) async {
     await open(tester, _quote([_off]));
-    expect(find.byIcon(Icons.arrow_forward_rounded), findsNothing);
+    expect(find.byType(VehicleRequestButtonWidget), findsNothing);
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
     expect(find.text('public'), findsNothing);

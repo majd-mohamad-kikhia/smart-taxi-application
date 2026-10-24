@@ -1,4 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import '../../../../core/geo/geo_exception.dart';
+import '../../../../core/geo/geo_models.dart';
+import '../../../../core/geo/geo_remote_data_source.dart';
 import '../../../../core/models/account_block_model.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_model.dart';
@@ -28,7 +32,35 @@ class RideRequestException implements Exception {
 class RideRequestRepository {
   final RideRequestRemoteDataSource _remoteDataSource;
 
-  const RideRequestRepository(this._remoteDataSource);
+  final GeoRemoteDataSource _geo;
+
+  const RideRequestRepository(this._remoteDataSource, this._geo);
+
+  /// The fare of the route, once, when the customer presses Request: with the
+  /// real route line. Returns null when the server cannot give it (the ride is
+  /// never blocked by this). [fareShown] is the fare the customer saw.
+  Future<GeoRouteQuoteModel?> routeQuote({
+    required PickedLocationModel pickup,
+    required PickedLocationModel dropoff,
+    required String idempotencyKey,
+    required int vehicleTypeId,
+    double? fareShown,
+  }) async {
+    try {
+      return await _geo.routeQuote(
+        fromLat: pickup.latitude,
+        fromLng: pickup.longitude,
+        toLat: dropoff.latitude,
+        toLng: dropoff.longitude,
+        idempotencyKey: idempotencyKey,
+        vehicleTypeId: vehicleTypeId,
+        fareEst: fareShown,
+      );
+    } on GeoException catch (e) {
+      debugPrint('RideRequestRepository: route quote unavailable: $e');
+      return null;
+    }
+  }
 
   /// Order flow step 1 — validates the two pins and returns distance,
   /// ETA and a price per vehicle type. Creates nothing.
@@ -52,12 +84,14 @@ class RideRequestRepository {
     required RideBookingOptionsModel options,
     required PickedLocationModel pickup,
     required PickedLocationModel dropoff,
+    String? idempotencyKey,
   }) async {
     try {
       return await _remoteDataSource.chooseVehicle(
         options: options,
         pickup: pickup,
         dropoff: dropoff,
+        idempotencyKey: idempotencyKey,
       );
     } on DioException catch (e) {
       throw _mapDioException(e);
@@ -94,7 +128,8 @@ class RideRequestRepository {
       return RideRequestException(AppStrings.current.errServerUnreachable);
     }
     final errors = error.rawErrors;
-    if (error.statusCode == StatusCode.forbidden && errors?['reason_code'] != null) {
+    if (error.statusCode == StatusCode.forbidden &&
+        errors?['reason_code'] != null) {
       final block = AccountBlockModel.fromOrderRefusal(errors!);
       return RideRequestException(block.message ?? error.message, block: block);
     }

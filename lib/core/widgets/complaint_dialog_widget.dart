@@ -113,7 +113,10 @@ class _ComplaintFormWidgetState extends State<_ComplaintFormWidget> {
                 const SizedBox(height: 4),
                 Text(
                   state.errorMessage ?? l10n.complaintSendFailed,
-                  style: TextStyle(fontSize: 13, color: context.colors.errorText),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: context.colors.errorText,
+                  ),
                 ),
               ],
               const SizedBox(height: 12),
@@ -130,7 +133,6 @@ class _ComplaintFormWidgetState extends State<_ComplaintFormWidget> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: AuthPrimaryButtonWidget(
-                      showArrow: false,
                       label: l10n.send,
                       isLoading: isSubmitting,
                       onPressed: () => _submit(context),
