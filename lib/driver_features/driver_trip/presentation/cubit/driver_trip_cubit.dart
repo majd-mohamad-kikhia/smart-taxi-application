@@ -419,18 +419,31 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     ));
   }
 
+  /// The change the driver leaves in the customer's wallet instead of
+  /// giving it back in cash; 0 clears the choice.
+  void setWalletCredit(double amount) {
+    if (isClosed || state.isPaid || state.isConfirmingPayment) return;
+    emit(state.copyWith(walletCredit: amount < 0 ? 0 : amount));
+  }
+
   /// completed + unpaid → paid. The driver taps this once the customer has
-  /// paid cash; the server splits the money and deducts the commission.
+  /// paid cash; the server splits the money and deducts the commission, and
+  /// puts the chosen change ([DriverTripState.walletCredit]) into the
+  /// customer's wallet.
   Future<void> confirmPayment() async {
     if (isClosed ||
         state.status != DriverTripStatus.completed ||
         state.isConfirmingPayment ||
+        !state.isWalletCreditValid ||
         state.isPaid) {
       return;
     }
     emit(state.copyWith(isConfirmingPayment: true, clearError: true));
     try {
-      final payment = await _repository.confirmPayment(state.order.rideId);
+      final payment = await _repository.confirmPayment(
+        state.order.rideId,
+        walletCredit: state.walletCredit,
+      );
       if (!isClosed) {
         emit(state.copyWith(isConfirmingPayment: false, isPaid: true, payment: payment));
       }

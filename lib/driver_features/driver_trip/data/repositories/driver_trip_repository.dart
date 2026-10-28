@@ -82,8 +82,12 @@ class DriverTripRepository {
     () => _remoteDataSource.fetchFinishedActiveRide().timeout(finishTimeout),
   );
 
-  Future<DriverTripPaymentModel?> confirmPayment(int rideId) =>
-      _guard(() => _remoteDataSource.confirmPayment(rideId));
+  Future<DriverTripPaymentModel?> confirmPayment(
+    int rideId, {
+    double walletCredit = 0,
+  }) => _guard(
+    () => _remoteDataSource.confirmPayment(rideId, walletCredit: walletCredit),
+  );
 
   Future<void> cancelRide({
     required int rideId,

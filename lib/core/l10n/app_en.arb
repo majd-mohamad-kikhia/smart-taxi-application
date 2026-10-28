@@ -1314,5 +1314,82 @@
     }
   },
   "offerCongratsTitle": "Congratulations!",
-  "offerCongratsMessage": "You won the promotional offer with us"
+  "offerCongratsMessage": "You won the promotional offer with us",
+  "walletTitle": "My wallet",
+  "navWallet": "Wallet",
+  "walletBalanceTitle": "Wallet balance",
+  "walletOnlyForRides": "Wallet credit only reduces the price of your rides. It can't be spent anywhere else.",
+  "walletEmpty": "No wallet activity yet",
+  "walletTxDriverChange": "Change from ride #{rideId}",
+  "@walletTxDriverChange": {
+    "placeholders": {
+      "rideId": {
+        "type": "int"
+      }
+    }
+  },
+  "walletTxDriverChangeNoRide": "Change from a ride",
+  "walletTxRidePayment": "Paid part of ride #{rideId}",
+  "@walletTxRidePayment": {
+    "placeholders": {
+      "rideId": {
+        "type": "int"
+      }
+    }
+  },
+  "walletTxRidePaymentNoRide": "Paid part of a ride",
+  "walletTxAdjustment": "Correction by the manager",
+  "walletTxOther": "Wallet movement",
+  "walletFromYourWallet": "{amount} from your wallet",
+  "@walletFromYourWallet": {
+    "description": "Under a car's price: how much of it the customer's wallet covers.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "walletCreditAdded": "{amount} was added to your wallet",
+  "@walletCreditAdded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rideAmountToPay": "To pay",
+  "fareWalletUsed": "Paid from your wallet",
+  "fareAmountDue": "Paid in cash",
+  "fareWalletCredit": "Change added to your wallet",
+  "fareWalletPaid": "{amount} paid from the customer's wallet",
+  "@fareWalletPaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentWalletCreditAdded": "{amount} added to the customer's wallet",
+  "@paymentWalletCreditAdded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "walletChangeButton": "Add change to the customer's wallet",
+  "walletChangeCancel": "Don't add change",
+  "walletChangeOther": "Other",
+  "walletChangeCustomLabel": "Amount (up to {max})",
+  "@walletChangeCustomLabel": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "walletChangeWalletHint": "You keep this cash, and it will be taken off the customer's next ride. It is deducted from your wallet balance.",
+  "txCustomerWalletPayment": "Customer wallet payment",
+  "txCustomerChange": "Change added to customer wallet",
+  "txOther": "Wallet movement"
 }

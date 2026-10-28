@@ -9,6 +9,7 @@ import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
+import '../../../../core/models/ride_wallet_model.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/models/trip_eta_model.dart';
@@ -237,6 +238,10 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
               data,
               fallbackFinalPrice: finalPrice,
             ),
+            // The wallet may have covered part of the price: the customer
+            // pays `amount_due` in cash, not the full fare.
+            wallet:
+                RideWalletModel.tryParse(data, fallbackPrice: finalPrice),
           ),
         );
         unawaited(_updateRoute());
@@ -286,8 +291,15 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
     try {
       final rideId = (data['ride_id'] as num?)?.toInt();
       if (rideId != null && rideId != state.ride.id) return;
-      if (!isClosed)
-        emit(state.copyWith(exitReason: RideTrackingExitReason.completed));
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            exitReason: RideTrackingExitReason.completed,
+            walletCreditAdded:
+                (data['wallet_credit_added'] as num?)?.toDouble() ?? 0,
+          ),
+        );
+      }
     } catch (e) {
       debugPrint('RideTrackingCubit: failed to apply ride paid: $e');
     }

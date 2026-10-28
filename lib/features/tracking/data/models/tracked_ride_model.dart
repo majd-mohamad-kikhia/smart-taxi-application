@@ -3,6 +3,7 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
+import '../../../../core/models/ride_wallet_model.dart';
 
 /// The `ride` object as pushed by `customer:ride_accepted` /
 /// `customer:active_ride` / `customer:ride_status` (see docs/socket.md).
@@ -30,6 +31,10 @@ class TrackedRideModel extends Equatable {
   /// until the server sends one.
   final RidePauseModel? pause;
 
+  /// What the customer's wallet covers and the cash left to pay. Null when
+  /// the server did not send it (an order just placed, an old server).
+  final RideWalletModel? wallet;
+
   const TrackedRideModel({
     required this.id,
     this.driverId,
@@ -43,6 +48,7 @@ class TrackedRideModel extends Equatable {
     this.waiting,
     this.waitingFee = 0,
     this.pause,
+    this.wallet,
   });
 
   factory TrackedRideModel.fromRideModel(RideModel ride) {
@@ -71,6 +77,7 @@ class TrackedRideModel extends Equatable {
       waiting: RideWaitingModel.fromParent(json),
       waitingFee: (json['waiting_fee'] as num?)?.toDouble() ?? 0,
       pause: RidePauseModel.fromParent(json),
+      wallet: RideWalletModel.tryParse(json),
     );
   }
 
@@ -83,6 +90,7 @@ class TrackedRideModel extends Equatable {
     RideWaitingModel? waiting,
     double? waitingFee,
     RidePauseModel? pause,
+    RideWalletModel? wallet,
   }) {
     return TrackedRideModel(
       id: id,
@@ -97,6 +105,7 @@ class TrackedRideModel extends Equatable {
       waiting: waiting ?? this.waiting,
       waitingFee: waitingFee ?? this.waitingFee,
       pause: pause ?? this.pause,
+      wallet: wallet ?? this.wallet,
     );
   }
 
@@ -116,6 +125,7 @@ class TrackedRideModel extends Equatable {
       waiting: waiting,
       waitingFee: waitingFee,
       pause: pause,
+      wallet: wallet,
     );
   }
 
@@ -146,5 +156,6 @@ class TrackedRideModel extends Equatable {
         waiting,
         waitingFee,
         pause,
+        wallet,
       ];
 }

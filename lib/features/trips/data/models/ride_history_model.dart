@@ -3,6 +3,7 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_model.dart';
+import '../../../../core/models/ride_wallet_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/ride_rating/data/models/ride_rating_model.dart';
 
@@ -144,6 +145,13 @@ class RideHistoryModel extends Equatable {
   /// The path the driver actually drove, in time order (detail only).
   final List<RoutePointModel> route;
 
+  /// What the customer's wallet paid of the price and the cash that was
+  /// due; null when the server sent neither.
+  final RideWalletModel? wallet;
+
+  /// The change the driver left in the customer's wallet on this ride.
+  final double walletCredit;
+
   const RideHistoryModel({
     required this.id,
     required this.status,
@@ -187,6 +195,8 @@ class RideHistoryModel extends Equatable {
     this.canRate = false,
     this.rating,
     this.route = const [],
+    this.wallet,
+    this.walletCredit = 0,
   });
 
   factory RideHistoryModel.fromJson(Map<String, dynamic> json) {
@@ -246,6 +256,8 @@ class RideHistoryModel extends Equatable {
       canRate: json['can_rate'] == true,
       rating: RideRatingModel.tryParse(json['rating']),
       route: route,
+      wallet: RideWalletModel.tryParse(json),
+      walletCredit: (json['wallet_credit'] as num?)?.toDouble() ?? 0,
     );
   }
 
@@ -293,6 +305,8 @@ class RideHistoryModel extends Equatable {
         canRate: false,
         rating: rating,
         route: route,
+        wallet: wallet,
+        walletCredit: walletCredit,
       );
 
   bool get isCompleted => status == RideStatus.completed;
@@ -394,6 +408,8 @@ class RideHistoryModel extends Equatable {
         stops,
         hasRoute,
         route,
+        wallet,
+        walletCredit,
       ];
 }
 

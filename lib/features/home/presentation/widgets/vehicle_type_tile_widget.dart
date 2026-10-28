@@ -49,6 +49,10 @@ class VehicleTypeTileWidget extends StatelessWidget {
         ? l10n.notAvailableNow
         : (price == null ? l10n.priceUnavailable : null);
     final radius = BorderRadius.circular(_radius);
+    final hasWalletDiscount =
+        price != null &&
+        vehicleType.hasWalletDiscount &&
+        vehicleType.priceAfterWallet != null;
 
     return Semantics(
       button: true,
@@ -155,6 +159,15 @@ class VehicleTypeTileWidget extends StatelessWidget {
                                   ),
                           ),
                         ],
+                        if (hasWalletDiscount && statusText == null) ...[
+                          const SizedBox(height: AppConstants.paddingXS),
+                          _FeeChip(
+                            selected: selected,
+                            text: l10n.walletFromYourWallet(
+                              formatPlainSyp(l10n, vehicleType.walletUsed),
+                            ),
+                          ),
+                        ],
                         if (statusText != null) ...[
                           const SizedBox(height: AppConstants.paddingXS),
                           Row(
@@ -182,16 +195,37 @@ class VehicleTypeTileWidget extends StatelessWidget {
                   ),
                   if (price != null) ...[
                     const SizedBox(width: AppConstants.paddingS),
-                    PriceTextWidget(
-                      price: price!,
-                      plain: true,
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: isChoosable
-                            ? colors.textPrimary
-                            : colors.textSecondary,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // The wallet covers part of it: the cash to pay is
+                        // the price, the full price struck through above.
+                        if (hasWalletDiscount)
+                          Text(
+                            formatPlainSyp(l10n, price!),
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colors.textSecondary,
+                              decoration: TextDecoration.lineThrough,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
+                          ),
+                        PriceTextWidget(
+                          price: hasWalletDiscount
+                              ? vehicleType.priceAfterWallet!
+                              : price!,
+                          plain: true,
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: isChoosable
+                                ? colors.textPrimary
+                                : colors.textSecondary,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ],

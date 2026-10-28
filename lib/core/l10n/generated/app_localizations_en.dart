@@ -2311,4 +2311,98 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get offerCongratsMessage => 'You won the promotional offer with us';
+
+  @override
+  String get walletTitle => 'My wallet';
+
+  @override
+  String get walletBalanceTitle => 'Wallet balance';
+
+  @override
+  String get walletOnlyForRides =>
+      'Wallet credit only reduces the price of your rides. It can\'t be spent anywhere else.';
+
+  @override
+  String get walletEmpty => 'No wallet activity yet';
+
+  @override
+  String walletTxDriverChange(int rideId) {
+    return 'Change from ride #$rideId';
+  }
+
+  @override
+  String get walletTxDriverChangeNoRide => 'Change from a ride';
+
+  @override
+  String walletTxRidePayment(int rideId) {
+    return 'Paid part of ride #$rideId';
+  }
+
+  @override
+  String get walletTxRidePaymentNoRide => 'Paid part of a ride';
+
+  @override
+  String get walletTxAdjustment => 'Correction by the manager';
+
+  @override
+  String get walletTxOther => 'Wallet movement';
+
+  @override
+  String walletFromYourWallet(String amount) {
+    return '$amount from your wallet';
+  }
+
+  @override
+  String walletCreditAdded(String amount) {
+    return '$amount was added to your wallet';
+  }
+
+  @override
+  String get rideAmountToPay => 'To pay';
+
+  @override
+  String get fareWalletUsed => 'Paid from your wallet';
+
+  @override
+  String get fareAmountDue => 'Paid in cash';
+
+  @override
+  String get fareWalletCredit => 'Change added to your wallet';
+
+  @override
+  String fareWalletPaid(String amount) {
+    return '$amount paid from the customer\'s wallet';
+  }
+
+  @override
+  String paymentWalletCreditAdded(String amount) {
+    return '$amount added to the customer\'s wallet';
+  }
+
+  @override
+  String get walletChangeButton => 'Add change to the customer\'s wallet';
+
+  @override
+  String get walletChangeCancel => 'Don\'t add change';
+
+  @override
+  String get walletChangeOther => 'Other';
+
+  @override
+  String walletChangeCustomLabel(String max) {
+    return 'Amount (up to $max)';
+  }
+
+  @override
+  String get walletChangeWalletHint =>
+      'You keep this cash, and it will be taken off the customer\'s next ride. It is deducted from your wallet balance.';
+
+  @override
+  String get txCustomerWalletPayment => 'Customer wallet payment';
+
+  @override
+  String get txCustomerChange => 'Change added to customer wallet';
+
+  @override
+  String get txOther => 'Wallet movement';
 }

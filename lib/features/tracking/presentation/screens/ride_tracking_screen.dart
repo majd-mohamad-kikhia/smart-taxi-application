@@ -10,6 +10,8 @@ import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/models/ride_model.dart';
+import '../../../../core/models/ride_wallet_model.dart';
+import '../../../../core/utils/format_price.dart';
 import '../../../../core/models/trip_eta_model.dart';
 import '../../../../core/ride_rating/presentation/cubit/ride_rating_cubit.dart';
 import '../../../../core/ride_rating/presentation/widgets/ride_rating_dialog_widget.dart';
@@ -81,16 +83,31 @@ void _showPaymentDue(
   BuildContext context,
   double? amount,
   RideFareBreakdownModel? fare,
+  RideWalletModel? wallet,
 ) {
   showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (_) => PopScope(
       canPop: false,
-      child: RidePaymentDueDialogWidget(amount: amount, fare: fare),
+      child: RidePaymentDueDialogWidget(
+        amount: amount,
+        fare: fare,
+        wallet: wallet,
+      ),
     ),
   );
 }
+
+/// The closing message after the trip is paid: [message], and when the
+/// driver left change, that it went into the customer's wallet.
+String _withWalletCredit(
+  AppLocalizations l10n,
+  String message,
+  double walletCreditAdded,
+) => walletCreditAdded > 0
+    ? '$message\n${l10n.walletCreditAdded(formatPlainSyp(l10n, walletCreditAdded))}'
+    : message;
 
 /// The trip is paid and the customer can rate the driver: ask for the
 /// rating (they may skip), then leave the screen with the usual message.
@@ -98,6 +115,7 @@ Future<void> _rateThenLeave(
   BuildContext context,
   int rideId, {
   RideRatingDriverInfo? driver,
+  double walletCreditAdded = 0,
 }) async {
   final navigator = Navigator.of(context);
   final messenger = ScaffoldMessenger.of(context);
@@ -111,7 +129,11 @@ Future<void> _rateThenLeave(
   navigator.pop();
   showAppSnackBarOn(
     messenger,
-    outcome?.rating != null ? l10n.rateThanks : l10n.tripCompletedSuccess,
+    _withWalletCredit(
+      l10n,
+      outcome?.rating != null ? l10n.rateThanks : l10n.tripCompletedSuccess,
+      walletCreditAdded,
+    ),
     type: AppSnackBarType.success,
   );
 }
@@ -146,8 +168,11 @@ class _RideTrackingView extends StatelessWidget {
             if (state.exitReason == null) {
               _showPaymentDue(
                 context,
-                state.finalPrice ?? state.ride.price,
+                state.paymentWallet?.amountDue ??
+                    state.finalPrice ??
+                    state.ride.price,
                 state.fare,
+                state.paymentWallet,
               );
               return;
             }
@@ -163,6 +188,7 @@ class _RideTrackingView extends StatelessWidget {
               _rateThenLeave(
                 context,
                 state.ride.id,
+                walletCreditAdded: state.walletCreditAdded,
                 driver: driver == null
                     ? null
                     : RideRatingDriverInfo(
@@ -181,7 +207,11 @@ class _RideTrackingView extends StatelessWidget {
             showAppSnackBar(
               context,
               isSuccess
-                  ? context.l10n.tripCompletedSuccess
+                  ? _withWalletCredit(
+                      context.l10n,
+                      context.l10n.tripCompletedSuccess,
+                      state.walletCreditAdded,
+                    )
                   : context.l10n.tripCancelled,
               type: isSuccess ? AppSnackBarType.success : AppSnackBarType.error,
             );

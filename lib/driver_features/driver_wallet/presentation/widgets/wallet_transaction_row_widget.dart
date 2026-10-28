@@ -23,6 +23,10 @@ class WalletTransactionRowWidget extends StatelessWidget {
     WalletTransactionType.penalty => Icons.remove_circle_outline_rounded,
     WalletTransactionType.compensation => Icons.healing_rounded,
     WalletTransactionType.reward => Icons.card_giftcard_rounded,
+    WalletTransactionType.customerWalletPayment =>
+      Icons.account_balance_wallet_outlined,
+    WalletTransactionType.customerChange => Icons.savings_outlined,
+    WalletTransactionType.unknown => Icons.swap_horiz_rounded,
   };
 
   @override
@@ -31,7 +35,7 @@ class WalletTransactionRowWidget extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final magnitude = transaction.amount.abs();
     final isZero = magnitude == 0;
-    final isDebit = transaction.type.isDebit;
+    final isDebit = transaction.isDebit;
 
     final amountColor = isZero
         ? context.colors.textSecondary

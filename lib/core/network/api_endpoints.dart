@@ -45,6 +45,9 @@ class ApiEndpoints {
   String get customerNotificationsReadAll =>
       '/api/customer/notifications/read-all';
 
+  // ─── Customer Wallet ───────────────────────────────────────
+  String get customerWallet => '/api/customer/wallet';
+
   // ─── Customer Rides ────────────────────────────────────────
   String get customerRides => '/api/customer/rides';
   String get customerRideLocations => '/api/customer/rides/locations';

@@ -4160,6 +4160,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You won the promotional offer with us'**
   String get offerCongratsMessage;
+
+  /// No description provided for @walletTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My wallet'**
+  String get walletTitle;
+
+  /// No description provided for @walletBalanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet balance'**
+  String get walletBalanceTitle;
+
+  /// No description provided for @walletOnlyForRides.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet credit only reduces the price of your rides. It can\'t be spent anywhere else.'**
+  String get walletOnlyForRides;
+
+  /// No description provided for @walletEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallet activity yet'**
+  String get walletEmpty;
+
+  /// No description provided for @walletTxDriverChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change from ride #{rideId}'**
+  String walletTxDriverChange(int rideId);
+
+  /// No description provided for @walletTxDriverChangeNoRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Change from a ride'**
+  String get walletTxDriverChangeNoRide;
+
+  /// No description provided for @walletTxRidePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid part of ride #{rideId}'**
+  String walletTxRidePayment(int rideId);
+
+  /// No description provided for @walletTxRidePaymentNoRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid part of a ride'**
+  String get walletTxRidePaymentNoRide;
+
+  /// No description provided for @walletTxAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Correction by the manager'**
+  String get walletTxAdjustment;
+
+  /// No description provided for @walletTxOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet movement'**
+  String get walletTxOther;
+
+  /// Under a car's price: how much of it the customer's wallet covers.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} from your wallet'**
+  String walletFromYourWallet(String amount);
+
+  /// No description provided for @walletCreditAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} was added to your wallet'**
+  String walletCreditAdded(String amount);
+
+  /// No description provided for @rideAmountToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'To pay'**
+  String get rideAmountToPay;
+
+  /// No description provided for @fareWalletUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid from your wallet'**
+  String get fareWalletUsed;
+
+  /// No description provided for @fareAmountDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid in cash'**
+  String get fareAmountDue;
+
+  /// No description provided for @fareWalletCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change added to your wallet'**
+  String get fareWalletCredit;
+
+  /// No description provided for @fareWalletPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} paid from the customer\'s wallet'**
+  String fareWalletPaid(String amount);
+
+  /// No description provided for @paymentWalletCreditAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} added to the customer\'s wallet'**
+  String paymentWalletCreditAdded(String amount);
+
+  /// No description provided for @walletChangeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add change to the customer\'s wallet'**
+  String get walletChangeButton;
+
+  /// No description provided for @walletChangeCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t add change'**
+  String get walletChangeCancel;
+
+  /// No description provided for @walletChangeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get walletChangeOther;
+
+  /// No description provided for @walletChangeCustomLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (up to {max})'**
+  String walletChangeCustomLabel(String max);
+
+  /// No description provided for @walletChangeWalletHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You keep this cash, and it will be taken off the customer\'s next ride. It is deducted from your wallet balance.'**
+  String get walletChangeWalletHint;
+
+  /// No description provided for @txCustomerWalletPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer wallet payment'**
+  String get txCustomerWalletPayment;
+
+  /// No description provided for @txCustomerChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change added to customer wallet'**
+  String get txCustomerChange;
+
+  /// No description provided for @txOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet movement'**
+  String get txOther;
 }
 
 class _AppLocalizationsDelegate

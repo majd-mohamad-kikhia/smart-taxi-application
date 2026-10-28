@@ -201,7 +201,9 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
                   valueListenable: _selectedId,
                   builder: (context, selectedId, _) {
                     final selected = _selected(selectedId);
-                    final price = selected?.price;
+                    // With the wallet covering part of it, the button states
+                    // the cash the customer will pay.
+                    final price = selected?.payablePrice;
                     return VehicleRequestButtonWidget(
                       label: selected == null || price == null
                           ? l10n.pickVehicleType

@@ -2293,4 +2293,98 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get offerCongratsMessage => 'لقد ربحت معنا العرض الترويجي';
+
+  @override
+  String get walletTitle => 'محفظتي';
+
+  @override
+  String get walletBalanceTitle => 'رصيد المحفظة';
+
+  @override
+  String get walletOnlyForRides =>
+      'رصيد المحفظة يخفّض سعر رحلاتك فقط، ولا يمكن صرفه في أي مكان آخر.';
+
+  @override
+  String get walletEmpty => 'لا توجد حركات في المحفظة بعد';
+
+  @override
+  String walletTxDriverChange(int rideId) {
+    return 'باقي من الرحلة #$rideId';
+  }
+
+  @override
+  String get walletTxDriverChangeNoRide => 'باقي من رحلة';
+
+  @override
+  String walletTxRidePayment(int rideId) {
+    return 'دفع جزء من الرحلة #$rideId';
+  }
+
+  @override
+  String get walletTxRidePaymentNoRide => 'دفع جزء من رحلة';
+
+  @override
+  String get walletTxAdjustment => 'تعديل من المدير';
+
+  @override
+  String get walletTxOther => 'حركة في المحفظة';
+
+  @override
+  String walletFromYourWallet(String amount) {
+    return '$amount من محفظتك';
+  }
+
+  @override
+  String walletCreditAdded(String amount) {
+    return 'تمت إضافة $amount إلى محفظتك';
+  }
+
+  @override
+  String get rideAmountToPay => 'المطلوب دفعه';
+
+  @override
+  String get fareWalletUsed => 'مدفوع من محفظتك';
+
+  @override
+  String get fareAmountDue => 'مدفوع نقداً';
+
+  @override
+  String get fareWalletCredit => 'باقي أُضيف إلى محفظتك';
+
+  @override
+  String fareWalletPaid(String amount) {
+    return '$amount مدفوعة من محفظة الزبون';
+  }
+
+  @override
+  String paymentWalletCreditAdded(String amount) {
+    return 'تمت إضافة $amount إلى محفظة الزبون';
+  }
+
+  @override
+  String get walletChangeButton => 'أضف الباقي إلى محفظة الزبون';
+
+  @override
+  String get walletChangeCancel => 'لا تُضف باقي';
+
+  @override
+  String get walletChangeOther => 'مبلغ آخر';
+
+  @override
+  String walletChangeCustomLabel(String max) {
+    return 'المبلغ (حتى $max)';
+  }
+
+  @override
+  String get walletChangeWalletHint =>
+      'يبقى هذا المبلغ معك، ويُخصم من رحلة الزبون القادمة. ويُخصم من رصيد محفظتك.';
+
+  @override
+  String get txCustomerWalletPayment => 'دفع من محفظة الزبون';
+
+  @override
+  String get txCustomerChange => 'باقي أُضيف إلى محفظة الزبون';
+
+  @override
+  String get txOther => 'حركة في المحفظة';
 }

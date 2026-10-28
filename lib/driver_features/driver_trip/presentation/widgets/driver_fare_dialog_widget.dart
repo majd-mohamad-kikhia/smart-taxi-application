@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/theme/app_palette.dart';
+import '../../../../core/utils/format_price.dart';
 import '../../../../core/widgets/price_text_widget.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_dialog_layout_widget.dart';
@@ -11,6 +13,7 @@ import '../../data/models/driver_trip_fare_model.dart';
 import '../../data/models/driver_trip_payment_model.dart';
 import '../cubit/driver_trip_cubit.dart';
 import '../cubit/driver_trip_state.dart';
+import 'driver_wallet_change_widget.dart';
 import 'ride_bill_button_widget.dart';
 
 /// Shown to the driver once a ride is finished. First what to collect from
@@ -46,6 +49,7 @@ class _DriverFareDialogWidgetState extends State<DriverFareDialogWidget> {
         buildWhen: (previous, current) =>
             previous.isPaid != current.isPaid ||
             previous.isConfirmingPayment != current.isConfirmingPayment ||
+            previous.isWalletCreditValid != current.isWalletCreditValid ||
             previous.errorMessage != current.errorMessage,
         builder: (context, state) {
           final fare = state.fare!;
@@ -77,7 +81,7 @@ class _DriverFareDialogWidgetState extends State<DriverFareDialogWidget> {
                       ? l10n.done
                       : (state.errorMessage != null ? l10n.retry : l10n.paymentReceived),
                   isLoading: state.isConfirmingPayment,
-                  onPressed: _leaving
+                  onPressed: _leaving || !state.isWalletCreditValid
                       ? null
                       : isPaid
                       ? _done
@@ -92,7 +96,9 @@ class _DriverFareDialogWidgetState extends State<DriverFareDialogWidget> {
   }
 }
 
-/// What to collect from the customer: the final price only, with no lines.
+/// What to collect from the customer: the cash due (the final price less
+/// what the customer's wallet covered), with that wallet part under it, and
+/// the way to leave the change in the customer's wallet.
 class _FareDetails extends StatelessWidget {
   final DriverTripFareModel fare;
 
@@ -100,14 +106,35 @@ class _FareDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _HeadlineAmount(
-      label: context.l10n.fareCollectFromCustomer,
-      amount: fare.finalPrice,
+    final l10n = context.l10n;
+    final wallet = fare.wallet;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _HeadlineAmount(
+          label: l10n.fareCollectFromCustomer,
+          amount: wallet.amountDue,
+        ),
+        if (wallet.isWalletUsed) ...[
+          const SizedBox(height: AppConstants.paddingS),
+          Text(
+            l10n.fareWalletPaid(formatPlainSyp(l10n, wallet.walletUsed)),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: context.colors.primaryContent,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+        const SizedBox(height: AppConstants.paddingM),
+        const DriverWalletChangeWidget(),
+      ],
     );
   }
 }
 
-/// After "Payment received": the total paid, nothing else.
+/// After "Payment received": the cash paid, and the change left in the
+/// customer's wallet when the driver chose to.
 class _PaymentDetails extends StatelessWidget {
   final DriverTripPaymentModel? payment;
   final DriverTripFareModel fare;
@@ -116,9 +143,27 @@ class _PaymentDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _HeadlineAmount(
-      label: context.l10n.paymentTotalPaid,
-      amount: payment?.totalPaid ?? fare.finalPrice,
+    final l10n = context.l10n;
+    final credit = payment?.walletCreditAdded ?? 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _HeadlineAmount(
+          label: l10n.paymentTotalPaid,
+          amount: payment?.totalPaid ?? fare.wallet.amountDue,
+        ),
+        if (credit > 0) ...[
+          const SizedBox(height: AppConstants.paddingS),
+          Text(
+            l10n.paymentWalletCreditAdded(formatPlainSyp(l10n, credit)),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: context.colors.primaryContent,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

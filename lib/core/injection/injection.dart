@@ -131,6 +131,9 @@ import '../../features/home/data/repositories/ride_request_repository.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/home/presentation/cubit/map_pick_cubit.dart';
 import '../../features/home/presentation/cubit/quote_route_cubit.dart';
+import '../../features/wallet/data/datasources/customer_wallet_remote_data_source.dart';
+import '../../features/wallet/data/repositories/customer_wallet_repository.dart';
+import '../../features/wallet/presentation/cubit/customer_wallet_cubit.dart';
 import '../../features/notifications/data/datasources/notifications_remote_data_source.dart';
 import '../../features/notifications/data/repositories/notifications_repository.dart';
 import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
@@ -839,6 +842,18 @@ void setupInjection() {
   );
   sl.registerFactory<EditProfileCubit>(
     () => EditProfileCubit(sl<ProfileRepository>(), sl<SessionCubit>()),
+  );
+
+  // ─── Customer Wallet Feature ────────────────────────────────
+  sl.registerLazySingleton<CustomerWalletRemoteDataSource>(
+    () =>
+        CustomerWalletRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+  );
+  sl.registerLazySingleton<CustomerWalletRepository>(
+    () => CustomerWalletRepository(sl<CustomerWalletRemoteDataSource>()),
+  );
+  sl.registerFactory<CustomerWalletCubit>(
+    () => CustomerWalletCubit(sl<CustomerWalletRepository>()),
   );
 
   // ─── Notifications Feature ──────────────────────────────────

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
+import '../../../../core/models/ride_wallet_model.dart';
 
 /// The server's final fare for a finished ride — the `ride.fare` object
 /// returned by `POST /api/driver/rides/{id}/finish` (or the
@@ -20,6 +21,11 @@ class DriverTripFareModel extends Equatable {
   /// from the total, waiting fee included.
   final RideFareBreakdownModel breakdown;
 
+  /// How the customer's wallet covered the price: [finalPrice] stays the full
+  /// fare (the commission and the earning follow it), while the cash to
+  /// collect is `wallet.amountDue`.
+  final RideWalletModel wallet;
+
   const DriverTripFareModel({
     required this.finalPrice,
     required this.estimatedPrice,
@@ -29,6 +35,7 @@ class DriverTripFareModel extends Equatable {
     required this.adminCommissionAmount,
     required this.driverEarningAmount,
     required this.breakdown,
+    required this.wallet,
   });
 
   /// Parses the finished ride. Uses `ride['fare']` when the server sends
@@ -56,6 +63,12 @@ class DriverTripFareModel extends Equatable {
         fallbackFinalPrice: finalPrice,
         fallbackPassengersCount: OrderOfferModel.countOrNull(ride['passengers_count']),
       ),
+      // The wallet values come inside `fare` and on the ride itself; an old
+      // server sends neither, and the whole price is then due.
+      wallet:
+          RideWalletModel.tryParse(Map<String, dynamic>.from(fare)) ??
+          RideWalletModel.tryParse(ride, fallbackPrice: finalPrice) ??
+          RideWalletModel(amountDue: finalPrice),
     );
   }
 
@@ -69,5 +82,6 @@ class DriverTripFareModel extends Equatable {
     adminCommissionAmount,
     driverEarningAmount,
     breakdown,
+    wallet,
   ];
 }

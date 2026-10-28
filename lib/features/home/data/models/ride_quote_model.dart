@@ -38,6 +38,9 @@ class RideQuoteModel extends Equatable {
   /// shows it from the dashboard. Prices are never touched by it.
   final bool hasOffer;
 
+  /// The customer's wallet balance at quote time (`wallet.balance`).
+  final double walletBalance;
+
   const RideQuoteModel({
     required this.distanceKm,
     required this.estimatedDurationMin,
@@ -47,6 +50,7 @@ class RideQuoteModel extends Equatable {
     this.locationFeeName,
     this.route = const [],
     this.hasOffer = false,
+    this.walletBalance = 0,
   });
 
   factory RideQuoteModel.fromJson(Map<String, dynamic> json) {
@@ -56,7 +60,11 @@ class RideQuoteModel extends Equatable {
     final area = json['location_fee'];
     final areaName = area is Map ? area['name'] : null;
     final polyline = json['route_polyline'];
+    final wallet = json['wallet'];
     return RideQuoteModel(
+      walletBalance: wallet is Map
+          ? (wallet['balance'] as num?)?.toDouble() ?? 0
+          : 0,
       hasOffer: json['offer'] is Map,
       route: polyline is String && polyline.isNotEmpty
           ? PolylineDecoder.decode(polyline)
@@ -88,5 +96,6 @@ class RideQuoteModel extends Equatable {
     locationFeeName,
     route,
     hasOffer,
+    walletBalance,
   ];
 }

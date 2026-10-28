@@ -12,12 +12,16 @@ class PendingBookingModel extends Equatable {
   /// The server's final fare, shown as it came.
   final double fare;
 
+  /// The part of [fare] the customer's wallet would cover; 0 when none.
+  final double walletUsed;
+
   const PendingBookingModel({
     required this.options,
     required this.idempotencyKey,
     required this.fare,
+    this.walletUsed = 0,
   });
 
   @override
-  List<Object?> get props => [options, idempotencyKey, fare];
+  List<Object?> get props => [options, idempotencyKey, fare, walletUsed];
 }

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
+import '../../../../core/models/ride_wallet_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/models/trip_eta_model.dart';
 import '../../data/models/ride_driver_model.dart';
@@ -59,6 +60,14 @@ class RideTrackingState extends Equatable {
 
   /// The bill lines (distance, stops, waiting…) from the `completed` event.
   final RideFareBreakdownModel? fare;
+
+  /// From the `completed` event: how much of [finalPrice] the wallet paid
+  /// and the cash left to give the driver.
+  final RideWalletModel? wallet;
+
+  /// From `customer:ride_paid`: the change the driver left in the wallet
+  /// (`wallet_credit_added`); 0 when none.
+  final double walletCreditAdded;
   final bool isCancelling;
 
   /// The `completed` event said the customer can rate this driver
@@ -85,6 +94,8 @@ class RideTrackingState extends Equatable {
     this.drivenPath = const [],
     this.finalPrice,
     this.fare,
+    this.wallet,
+    this.walletCreditAdded = 0,
     required this.isCancelling,
     this.canRate = false,
     this.cancelError,
@@ -119,6 +130,10 @@ class RideTrackingState extends Equatable {
   /// Only the live map is shown: while driving, and while paying at the end.
   bool get showsLiveMap => isInProgress || isAwaitingPayment;
 
+  /// The wallet split to show on the payment dialog: the completed event's,
+  /// else the ride's own (a screen reopened on an unpaid ride).
+  RideWalletModel? get paymentWallet => wallet ?? ride.wallet;
+
   /// What the road line and the arrival time currently measure.
   RideRouteLeg get routeLeg {
     if (isInProgress) return RideRouteLeg.toDropoff;
@@ -142,6 +157,8 @@ class RideTrackingState extends Equatable {
     List<RoutePointModel>? drivenPath,
     double? finalPrice,
     RideFareBreakdownModel? fare,
+    RideWalletModel? wallet,
+    double? walletCreditAdded,
     bool? isCancelling,
     bool? canRate,
     String? cancelError,
@@ -164,6 +181,8 @@ class RideTrackingState extends Equatable {
       drivenPath: drivenPath ?? this.drivenPath,
       finalPrice: finalPrice ?? this.finalPrice,
       fare: fare ?? this.fare,
+      wallet: wallet ?? this.wallet,
+      walletCreditAdded: walletCreditAdded ?? this.walletCreditAdded,
       isCancelling: isCancelling ?? this.isCancelling,
       canRate: canRate ?? this.canRate,
       cancelError: clearCancelError ? null : (cancelError ?? this.cancelError),
@@ -188,6 +207,8 @@ class RideTrackingState extends Equatable {
         drivenPath,
         finalPrice,
         fare,
+        wallet,
+        walletCreditAdded,
         isCancelling,
         cancelError,
         exitReason,

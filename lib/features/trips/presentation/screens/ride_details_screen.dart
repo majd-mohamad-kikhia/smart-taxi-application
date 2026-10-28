@@ -366,6 +366,33 @@ class _Fare extends StatelessWidget {
               label: l10n.fareWaiting,
               value: money(ride.waitingFee),
             ),
+          if (ride.wallet?.isWalletUsed ?? false) ...[
+            const Divider(height: AppConstants.paddingXXL),
+            BillRowWidget(
+              label: l10n.fareWalletUsed,
+              value: formatSignedPrice(l10n, -ride.wallet!.walletUsed),
+            ),
+            BillRowWidget(
+              label: l10n.fareAmountDue,
+              value: money(ride.wallet!.amountDue),
+            ),
+            if (ride.wallet!.note != null)
+              Text(
+                ride.wallet!.note!.textFor(
+                  Localizations.localeOf(context).languageCode,
+                ),
+                style: textTheme.bodySmall?.copyWith(
+                  color: context.colors.textSecondary,
+                ),
+              ),
+          ],
+          if (ride.walletCredit > 0) ...[
+            const Divider(height: AppConstants.paddingXXL),
+            BillRowWidget(
+              label: l10n.fareWalletCredit,
+              value: money(ride.walletCredit),
+            ),
+          ],
           const Divider(height: AppConstants.paddingXXL),
           _PaymentStatus(ride: ride),
         ] else if (ride.passengersFee > 0) ...[

@@ -71,6 +71,10 @@ class DriverTripState extends Equatable {
   final bool isPaid;
   final DriverTripPaymentModel? payment;
 
+  /// The change the driver chose to leave in the customer's wallet, sent
+  /// with "Payment received". 0 when he gives the change in cash.
+  final double walletCredit;
+
   /// How many times the office edited this trip while it was open; each
   /// increase tells the driver once.
   final int detailsUpdateCount;
@@ -98,6 +102,7 @@ class DriverTripState extends Equatable {
     this.isConfirmingPayment = false,
     this.isPaid = false,
     this.payment,
+    this.walletCredit = 0,
     this.detailsUpdateCount = 0,
   });
 
@@ -122,6 +127,13 @@ class DriverTripState extends Equatable {
   /// maximum isn't sent to the driver app, so the server rejects a number
   /// above it with a 422.
   static const maxPickablePassengers = 8;
+
+  /// The most change a driver can leave in a customer's wallet from the app
+  /// (the server itself accepts up to 100000).
+  static const maxWalletCredit = 45.0;
+
+  /// The chosen change is something the server accepts.
+  bool get isWalletCreditValid => walletCredit >= 0 && walletCredit <= maxWalletCredit;
 
   bool get isBusy => isUpdating || isCancelling;
 
@@ -159,6 +171,7 @@ class DriverTripState extends Equatable {
     bool? isConfirmingPayment,
     bool? isPaid,
     DriverTripPaymentModel? payment,
+    double? walletCredit,
     int? detailsUpdateCount,
     bool clearError = false,
   }) {
@@ -185,6 +198,7 @@ class DriverTripState extends Equatable {
       isConfirmingPayment: isConfirmingPayment ?? this.isConfirmingPayment,
       isPaid: isPaid ?? this.isPaid,
       payment: payment ?? this.payment,
+      walletCredit: walletCredit ?? this.walletCredit,
       detailsUpdateCount: detailsUpdateCount ?? this.detailsUpdateCount,
     );
   }
@@ -213,6 +227,7 @@ class DriverTripState extends Equatable {
     isConfirmingPayment,
     isPaid,
     payment,
+    walletCredit,
     detailsUpdateCount,
   ];
 }

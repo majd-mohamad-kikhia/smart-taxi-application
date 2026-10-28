@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
+import '../../../../core/models/ride_wallet_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_icon_tile_widget.dart';
@@ -24,13 +25,26 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
   /// Bill lines (distance, stops, waiting…), when the server sent them.
   final RideFareBreakdownModel? fare;
 
-  const RidePaymentDueDialogWidget({super.key, this.amount, this.fare});
+  /// Set when the customer's wallet covered part of the price: [amount] is
+  /// then the cash left to pay, and the server's note says what was taken.
+  final RideWalletModel? wallet;
+
+  const RidePaymentDueDialogWidget({
+    super.key,
+    this.amount,
+    this.fare,
+    this.wallet,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final amount = this.amount;
+    final isWalletUsed = wallet?.isWalletUsed ?? false;
+    final walletNote = wallet?.note?.textFor(
+      Localizations.localeOf(context).languageCode,
+    );
 
     return Semantics(
       scopesRoute: true,
@@ -98,7 +112,7 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        l10n.fareTotal,
+                        isWalletUsed ? l10n.rideAmountToPay : l10n.fareTotal,
                         style: textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w800,
                           color: context.colors.primaryContent,
@@ -115,6 +129,17 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (walletNote != null) ...[
+                        const SizedBox(height: AppConstants.paddingXS),
+                        Text(
+                          walletNote,
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: context.colors.primaryContent,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

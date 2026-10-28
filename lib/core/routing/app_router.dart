@@ -18,8 +18,7 @@ import '../../features/auth/presentation/screens/role_selection_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/home/presentation/screens/location_picker_screen.dart';
-import '../../features/notifications/presentation/screens/notifications_screen.dart';
-import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/saved_addresses/presentation/screens/saved_address_form_screen.dart';
 import '../../features/saved_addresses/presentation/screens/saved_addresses_screen.dart';
 import '../../features/settings/presentation/screens/edit_profile_screen.dart';
@@ -120,8 +119,7 @@ class AppRouter {
   static const String rideDetails = '/trips/details';
   static const String settings = '/settings';
   static const String editProfile = '/settings/edit-profile';
-  static const String notifications = '/notifications';
-  static const String locationPicker = '/location-picker';
+  static const String notifications = '/notifications';  static const String locationPicker = '/location-picker';
   static const String savedAddresses = '/settings/saved-addresses';
   static const String savedAddressForm = '/settings/saved-addresses/form';
 
@@ -214,8 +212,7 @@ class AppRouter {
       case editProfile:
         return _buildRoute(settings, const EditProfileScreen());
       case notifications:
-        return _buildRoute(settings, const NotificationsScreen());
-      case locationPicker:
+        return _buildRoute(settings, const NotificationsScreen());      case locationPicker:
         final args = settings.arguments! as LocationPickerRouteArgs;
         return _buildRoute(
           settings,

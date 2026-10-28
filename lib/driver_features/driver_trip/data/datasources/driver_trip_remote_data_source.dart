@@ -123,9 +123,17 @@ class DriverTripRemoteDataSource {
   /// and the server deducts the manager's commission from the driver's
   /// wallet. Works once per ride (a second call is a 409). Returns null if
   /// the reply carries no `payment` block — the confirm itself still
-  /// succeeded.
-  Future<DriverTripPaymentModel?> confirmPayment(int rideId) async {
-    final response = await _dio.post(_endpoints.driverRideConfirmPayment(rideId));
+  /// succeeded. [walletCredit] is the change the driver keeps as credit in
+  /// the customer's wallet (0 to 100000); it is left out of the request when
+  /// there is none.
+  Future<DriverTripPaymentModel?> confirmPayment(
+    int rideId, {
+    double walletCredit = 0,
+  }) async {
+    final response = await _dio.post(
+      _endpoints.driverRideConfirmPayment(rideId),
+      data: walletCredit > 0 ? {'wallet_credit': walletCredit} : null,
+    );
     final body = Map<String, dynamic>.from(response.data as Map);
     final data = body['data'];
     final ride = data is Map && data['ride'] is Map ? data['ride'] : data;

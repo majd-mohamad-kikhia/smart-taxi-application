@@ -269,6 +269,7 @@ class HomeCubit extends Cubit<HomeState> {
             options: options,
             idempotencyKey: key,
             fare: quote.fare,
+            walletUsed: quote.walletUsed,
           ),
         ),
       );

@@ -106,23 +106,33 @@ class GeoRouteQuoteModel extends Equatable {
   /// Only with `method: routes`; empty otherwise. Drawn, never saved.
   final List<RoutePointModel> route;
 
+  /// How much of [fare] the customer's wallet would cover (`wallet_used` of
+  /// the asked car in `fares[]`); 0 when the wallet is empty. An estimate:
+  /// the final price at the end of the trip decides.
+  final double walletUsed;
+
   const GeoRouteQuoteModel({
     required this.fare,
     required this.needsReconfirm,
     this.route = const [],
+    this.walletUsed = 0,
   });
 
   factory GeoRouteQuoteModel.fromJson(Map<String, dynamic> json) {
     final polyline = json['polyline'] as String?;
+    final fares = json['fares'];
+    final firstFare = fares is List && fares.isNotEmpty ? fares.first : null;
+    final walletSource = firstFare is Map ? firstFare : json;
     return GeoRouteQuoteModel(
       fare: (json['fare'] as num).toDouble(),
       needsReconfirm: json['needs_reconfirm'] as bool? ?? false,
       route: polyline == null || polyline.isEmpty
           ? const []
           : PolylineDecoder.decode(polyline),
+      walletUsed: (walletSource['wallet_used'] as num?)?.toDouble() ?? 0,
     );
   }
 
   @override
-  List<Object?> get props => [fare, needsReconfirm, route];
+  List<Object?> get props => [fare, needsReconfirm, route, walletUsed];
 }

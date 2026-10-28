@@ -164,7 +164,11 @@ class _HomeView extends StatelessWidget {
                 previous.pendingBooking == null &&
                 current.pendingBooking != null,
             listener: (context, state) =>
-                _confirmFare(context, state.pendingBooking!.fare),
+                _confirmFare(
+                  context,
+                  state.pendingBooking!.fare,
+                  state.pendingBooking!.walletUsed,
+                ),
           ),
           // The server suggests another place for the search.
           BlocListener<MapPickCubit, MapPickState>(
@@ -321,7 +325,11 @@ class _HomeView extends StatelessWidget {
     if (options != null) await cubit.chooseVehicle(options);
   }
 
-  Future<void> _confirmFare(BuildContext context, double fare) async {
+  Future<void> _confirmFare(
+    BuildContext context,
+    double fare,
+    double walletUsed,
+  ) async {
     final l10n = context.l10n;
     final cubit = context.read<HomeCubit>();
     final yes = await showDialog<bool>(
@@ -329,7 +337,13 @@ class _HomeView extends StatelessWidget {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: Text(l10n.fareReconfirmTitle),
-        content: Text(l10n.fareReconfirmMessage(formatSyp(l10n, fare))),
+        content: Text(
+          [
+            l10n.fareReconfirmMessage(formatSyp(l10n, fare)),
+            if (walletUsed > 0)
+              l10n.walletFromYourWallet(formatSyp(l10n, walletUsed)),
+          ].join('\n'),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),

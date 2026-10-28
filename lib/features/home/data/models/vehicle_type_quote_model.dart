@@ -26,6 +26,15 @@ class VehicleTypeQuoteModel extends Equatable {
   /// inside [price]. 0 when the car has none here. Shown, never added.
   final double locationFee;
 
+  /// How much of [price] the customer's wallet would cover (an estimate: the
+  /// final price at the end of the trip decides). 0 when the wallet is empty
+  /// or the type has no price.
+  final double walletUsed;
+
+  /// [price] minus [walletUsed]: the cash the customer would pay. Null when
+  /// the type has no price.
+  final double? priceAfterWallet;
+
   const VehicleTypeQuoteModel({
     required this.vehicleTypeId,
     required this.name,
@@ -35,19 +44,30 @@ class VehicleTypeQuoteModel extends Equatable {
     this.price,
     required this.stopsFeeTotal,
     this.locationFee = 0,
+    this.walletUsed = 0,
+    this.priceAfterWallet,
   });
 
   factory VehicleTypeQuoteModel.fromJson(Map<String, dynamic> json) {
     final available = json['available'] as bool? ?? false;
+    final price = available
+        ? ((json['estimated_price'] ?? json['price']) as num?)?.toDouble()
+        : null;
+    final walletUsed = price == null
+        ? 0.0
+        : ((json['wallet_used'] as num?)?.toDouble() ?? 0);
     return VehicleTypeQuoteModel(
       vehicleTypeId: json['vehicle_type_id'] as int,
       name: json['name'] as String,
       description: json['description'] as String?,
       imageUrl: _textOrNull(json['image_url']),
       available: available,
-      price: available
-          ? ((json['estimated_price'] ?? json['price']) as num?)?.toDouble()
-          : null,
+      price: price,
+      walletUsed: walletUsed,
+      priceAfterWallet: price == null
+          ? null
+          : ((json['price_after_wallet'] as num?)?.toDouble() ??
+                (price - walletUsed).clamp(0, double.infinity).toDouble()),
       stopsFeeTotal: (json['stops_fee_total'] as num?)?.toDouble() ?? 0,
       locationFee: available
           ? (json['location_fee'] as num?)?.toDouble() ?? 0
@@ -65,7 +85,16 @@ class VehicleTypeQuoteModel extends Equatable {
     price,
     stopsFeeTotal,
     locationFee,
+    walletUsed,
+    priceAfterWallet,
   ];
+
+  /// The wallet covers part of the price.
+  bool get hasWalletDiscount => price != null && walletUsed > 0;
+
+  /// What the customer pays in cash: the price after the wallet, or the
+  /// whole [price] when the wallet covers nothing.
+  double? get payablePrice => hasWalletDiscount ? priceAfterWallet : price;
 
   static String? _textOrNull(Object? value) {
     if (value is! String) return null;
