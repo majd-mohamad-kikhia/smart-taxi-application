@@ -4,6 +4,10 @@ import android.app.NotificationManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.Ringtone
+import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -60,6 +64,17 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "smart_taxi/ringtone")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "start" -> result.success(startLoudRingtone())
+                    "stop" -> {
+                        stopLoudRingtone()
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "smart_taxi/google_api")
             .setMethodCallHandler { call, result ->
                 if (call.method == "identity") {
@@ -68,6 +83,59 @@ class MainActivity : FlutterActivity() {
                     result.notImplemented()
                 }
             }
+    }
+
+    private var ringtone: Ringtone? = null
+    private var savedAlarmVolume: Int? = null
+
+    /**
+     * Rings the phone's own call ringtone in a loop at full volume, like an
+     * incoming call. It plays on the alarm stream so a silent or quiet phone
+     * still rings; the stream's volume is raised to the maximum and put back
+     * by [stopLoudRingtone]. False when the ringtone could not start.
+     */
+    private fun startLoudRingtone(): Boolean = try {
+        stopLoudRingtone()
+        val audio = getSystemService(AudioManager::class.java)
+        try {
+            savedAlarmVolume = audio.getStreamVolume(AudioManager.STREAM_ALARM)
+            audio.setStreamVolume(
+                AudioManager.STREAM_ALARM,
+                audio.getStreamMaxVolume(AudioManager.STREAM_ALARM),
+                0,
+            )
+        } catch (_: SecurityException) {
+            // Do-not-disturb can refuse a volume change; ring at the current one.
+            savedAlarmVolume = null
+        }
+        val uri = RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_RINGTONE)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+        val tone = RingtoneManager.getRingtone(this, uri)
+        tone.audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ALARM)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            tone.isLooping = true
+            tone.volume = 1.0f
+        }
+        tone.play()
+        ringtone = tone
+        true
+    } catch (_: RuntimeException) {
+        false
+    }
+
+    private fun stopLoudRingtone() {
+        ringtone?.stop()
+        ringtone = null
+        savedAlarmVolume?.let {
+            try {
+                getSystemService(AudioManager::class.java).setStreamVolume(AudioManager.STREAM_ALARM, it, 0)
+            } catch (_: SecurityException) {
+            }
+        }
+        savedAlarmVolume = null
     }
 
     /** Android 14+ can take the right to use full-screen notifications away; before it, it is always there. */
@@ -120,6 +188,7 @@ class MainActivity : FlutterActivity() {
 
     /** The app was closed for good: its floating bubble must not outlive it. */
     override fun onDestroy() {
+        stopLoudRingtone()
         if (isFinishing) FloatingBubble.hide()
         super.onDestroy()
     }

@@ -19,7 +19,7 @@ import 'driver_presence_state.dart';
 /// injection.dart) sharing that same [DriverSocketService] instance, and
 /// resets itself whenever [DriverPresenceCubit] goes offline.
 ///
-/// A ride that was not on the list yet sounds [NewOrderAlert] for 10 s. The
+/// A ride that was not on the list yet sounds [NewOrderAlert] for the driver's whole turn on it (25 s). The
 /// alert stops early once the driver taps accept, the list empties, or the
 /// driver goes offline.
 class DriverOrdersCubit extends Cubit<DriverOrdersState> {

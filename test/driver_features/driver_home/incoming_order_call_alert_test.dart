@@ -27,7 +27,7 @@ class _FakeNotifications extends Fake implements LocalNotificationService {
     required String title,
     required String body,
     String? payload,
-    Duration timeout = const Duration(seconds: 10),
+    Duration timeout = const Duration(seconds: 25),
     bool fullScreenIntent = true,
   }) async {
     if (failShow) throw StateError('no notification permission');
@@ -74,7 +74,7 @@ class _Recording implements NewOrderAlert {
   Future<void> stop() async => stops++;
 }
 
-final _order = OrderOfferModel.fromJson({
+final _orderJson = <String, dynamic>{
   'ride_id': 42,
   'vehicle_type_id': 2,
   'pickup_lat': 35.5,
@@ -86,9 +86,44 @@ final _order = OrderOfferModel.fromJson({
   'estimated_price': 240,
   'requested_at': '2026-10-11T10:00:00Z',
   'distance_to_pickup_km': 1.2,
-});
+};
+
+final _order = OrderOfferModel.fromJson(_orderJson);
 
 void main() {
+  group('AudioNewOrderAlert.ringDuration', () {
+    final now = DateTime.utc(2026, 1, 1, 12);
+    OrderOfferModel offer(Map<String, dynamic> extra) =>
+        OrderOfferModel.fromJson({..._orderJson, ...extra});
+
+    test('lasts what is left of the driver\'s turn', () {
+      final order = offer({
+        'expires_at': now.add(const Duration(seconds: 17)).toIso8601String(),
+        'expires_in_seconds': 25,
+      });
+      expect(
+        AudioNewOrderAlert.ringDuration(order, now: now),
+        const Duration(seconds: 17),
+      );
+    });
+
+    test('is the whole turn when its end is already past on this clock', () {
+      final order = offer({
+        'expires_at': now.subtract(const Duration(seconds: 5)).toIso8601String(),
+        'expires_in_seconds': 25,
+      });
+      expect(
+        AudioNewOrderAlert.ringDuration(order, now: now),
+        const Duration(seconds: 25),
+      );
+    });
+
+    test('is 25 s when the server gives no turn', () {
+      expect(AudioNewOrderAlert.ringDuration(null), const Duration(seconds: 25));
+      expect(AudioNewOrderAlert.ringDuration(_order), const Duration(seconds: 25));
+    });
+  });
+
   late _FakeNotifications notifications;
   late _FakeTakeoverStore takeoverStore;
   late _FakeTakeover takeover;
@@ -138,7 +173,7 @@ void main() {
 
       final call = notifications.shown.single;
       expect(call.payload, '42');
-      expect(call.timeout, const Duration(seconds: 10));
+      expect(call.timeout, const Duration(seconds: 25));
       expect(call.body, contains('240'));
       expect(call.body, contains('1.2'));
     },

@@ -10,7 +10,6 @@ import '../../../../core/widgets/warning_notice_widget.dart';
 import '../cubit/driver_trip_cubit.dart';
 import '../cubit/driver_trip_state.dart';
 import 'call_customer_button_widget.dart';
-import 'passengers_count_dialog_widget.dart';
 import 'share_ride_info_button_widget.dart';
 
 /// Action buttons for the active ride, driven by [DriverTripStatus]. Each
@@ -35,6 +34,10 @@ class DriverTripActionsWidget extends StatelessWidget {
   final bool isPaused;
   final VoidCallback? onCancel;
 
+  /// While driving to the customer, with the map in its navigation view:
+  /// only "I've arrived" is shown, so nothing covers the map.
+  final bool arrivedOnly;
+
   const DriverTripActionsWidget({
     super.key,
     required this.status,
@@ -43,6 +46,7 @@ class DriverTripActionsWidget extends StatelessWidget {
     this.isFinishQueued = false,
     this.isPaused = false,
     this.onCancel,
+    this.arrivedOnly = false,
   });
 
   bool get _isBusy => isUpdating || isCancelling;
@@ -53,6 +57,13 @@ class DriverTripActionsWidget extends StatelessWidget {
     final l10n = context.l10n;
 
     final children = switch (status) {
+      DriverTripStatus.accepted when arrivedOnly => [
+        AuthPrimaryButtonWidget(
+          label: l10n.driverReportArrival,
+          isLoading: false,
+          onPressed: _isBusy ? null : cubit.markArrived,
+        ),
+      ],
       DriverTripStatus.accepted => [
         const CallCustomerButtonWidget(),
         const SizedBox(height: AppConstants.paddingM),
@@ -186,16 +197,10 @@ class DriverTripActionsWidget extends StatelessWidget {
     );
   }
 
-  /// A customer app order asks how many got in first; an office order
-  /// already shows the reception's number and starts straight away.
-  Future<void> _start(BuildContext context, DriverTripCubit cubit) async {
-    if (!cubit.state.needsPassengersCount) return cubit.startRide();
-    return showPassengersCountDialog(
-      context: context,
-      max: DriverTripState.maxPickablePassengers,
-      onConfirm: (count) => cubit.startRide(passengersCount: count),
-    );
-  }
+  /// Starts the trip straight away: the number of passengers is no longer
+  /// asked, since it does not change the price.
+  Future<void> _start(BuildContext context, DriverTripCubit cubit) =>
+      cubit.startRide();
 
   Future<void> _confirmFinish(BuildContext context, DriverTripCubit cubit) {
     final l10n = context.l10n;

@@ -49,10 +49,13 @@ class VehicleTypeTileWidget extends StatelessWidget {
         ? l10n.notAvailableNow
         : (price == null ? l10n.priceUnavailable : null);
     final radius = BorderRadius.circular(_radius);
-    final hasWalletDiscount =
-        price != null &&
+    final hasWalletDiscount = price != null &&
         vehicleType.hasWalletDiscount &&
         vehicleType.priceAfterWallet != null;
+    final hasCouponDiscount = price != null &&
+        vehicleType.hasCouponDiscount &&
+        vehicleType.priceAfterWallet != null;
+    final hasDiscount = hasWalletDiscount || hasCouponDiscount;
 
     return Semantics(
       button: true,
@@ -159,6 +162,16 @@ class VehicleTypeTileWidget extends StatelessWidget {
                                   ),
                           ),
                         ],
+                        if (hasCouponDiscount && statusText == null) ...[
+                          const SizedBox(height: AppConstants.paddingXS),
+                          _FeeChip(
+                            selected: selected,
+                            text: l10n.couponTag(
+                              vehicleType.couponCode ?? '',
+                              formatPlainSyp(l10n, vehicleType.couponDiscount),
+                            ),
+                          ),
+                        ],
                         if (hasWalletDiscount && statusText == null) ...[
                           const SizedBox(height: AppConstants.paddingXS),
                           _FeeChip(
@@ -201,7 +214,7 @@ class VehicleTypeTileWidget extends StatelessWidget {
                       children: [
                         // The wallet covers part of it: the cash to pay is
                         // the price, the full price struck through above.
-                        if (hasWalletDiscount)
+                        if (hasDiscount)
                           Text(
                             formatPlainSyp(l10n, price!),
                             style: textTheme.bodySmall?.copyWith(
@@ -213,7 +226,7 @@ class VehicleTypeTileWidget extends StatelessWidget {
                             ),
                           ),
                         PriceTextWidget(
-                          price: hasWalletDiscount
+                          price: hasDiscount
                               ? vehicleType.priceAfterWallet!
                               : price!,
                           plain: true,

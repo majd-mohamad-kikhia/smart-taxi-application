@@ -60,7 +60,7 @@ class IncomingOrderCallAlert implements NewOrderAlert {
                 l10n.distanceKm(order.distanceToPickupKm.toStringAsFixed(1)),
               ),
         payload: order == null ? null : '${order.rideId}',
-        timeout: AudioNewOrderAlert.duration,
+        timeout: AudioNewOrderAlert.ringDuration(order),
       );
       // The full-screen notification only takes over a locked or idle
       // screen; with another app in use the app is pulled to the front.

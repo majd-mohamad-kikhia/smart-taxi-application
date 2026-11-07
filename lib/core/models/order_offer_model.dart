@@ -12,6 +12,12 @@ import 'pickup_eta_model.dart';
 class OrderOfferModel extends Equatable {
   final int rideId;
   final int vehicleTypeId;
+
+  /// The name of the car type the customer asked for, as the manager wrote it
+  /// ("اقتصادي", "سياحية عامة"…) — the type of the order, not of the driver's
+  /// own car. Null when the server sends none (the type was deleted): then
+  /// nothing is shown, never the id.
+  final String? vehicleTypeName;
   final double pickupLat;
   final double pickupLng;
   final String pickupAddress;
@@ -67,6 +73,7 @@ class OrderOfferModel extends Equatable {
     required this.priceIsEstimate,
     required this.requestedAt,
     required this.distanceToPickupKm,
+    this.vehicleTypeName,
     this.pickupAddressDetails,
     this.dropoffAddressDetails,
     this.note,
@@ -81,6 +88,7 @@ class OrderOfferModel extends Equatable {
     return OrderOfferModel(
       rideId: json['ride_id'] as int,
       vehicleTypeId: json['vehicle_type_id'] as int,
+      vehicleTypeName: textOrNull(json['vehicle_type_name']),
       pickupLat: (json['pickup_lat'] as num).toDouble(),
       pickupLng: (json['pickup_lng'] as num).toDouble(),
       pickupAddress: json['pickup_address'] as String? ?? '',
@@ -128,6 +136,7 @@ class OrderOfferModel extends Equatable {
     return OrderOfferModel(
       rideId: rideId,
       vehicleTypeId: (json['vehicle_type_id'] as num?)?.toInt() ?? vehicleTypeId,
+      vehicleTypeName: textOr('vehicle_type_name', vehicleTypeName),
       pickupLat: numOr('pickup_lat', pickupLat),
       pickupLng: numOr('pickup_lng', pickupLng),
       pickupAddress: textOr('pickup_address', pickupAddress) ?? '',
@@ -158,6 +167,7 @@ class OrderOfferModel extends Equatable {
   OrderOfferModel withPickupEta(PickupEtaModel? eta) => OrderOfferModel(
     rideId: rideId,
     vehicleTypeId: vehicleTypeId,
+    vehicleTypeName: vehicleTypeName,
     pickupLat: pickupLat,
     pickupLng: pickupLng,
     pickupAddress: pickupAddress,
@@ -208,6 +218,7 @@ class OrderOfferModel extends Equatable {
   List<Object?> get props => [
         rideId,
         vehicleTypeId,
+        vehicleTypeName,
         pickupLat,
         pickupLng,
         pickupAddress,

@@ -123,6 +123,12 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get distanceFromYouToCustomer => 'من موقعك إلى موقع العميل';
+
+  @override
+  String get distanceFromPickupToDropoff => 'من موقع العميل إلى الوجهة';
+
+  @override
   String distanceKmToPickup(String value) {
     return '$value كم حتى الانطلاق';
   }
@@ -2387,4 +2393,86 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get txOther => 'حركة في المحفظة';
+
+  @override
+  String couponTag(String code, String amount) {
+    return 'كوبون $code −$amount';
+  }
+
+  @override
+  String get couponsTitle => 'كوبوناتي';
+
+  @override
+  String get couponsEmpty => 'لا يوجد لديك كوبونات';
+
+  @override
+  String get couponsOpen => 'كوبوناتي';
+
+  @override
+  String get couponCodeHint => 'هل لديك رمز كوبون؟';
+
+  @override
+  String get couponRedeemButton => 'إضافة';
+
+  @override
+  String get couponAdded => 'تمت إضافة الكوبون';
+
+  @override
+  String get couponInvalid => 'هذا الرمز غير صالح';
+
+  @override
+  String get couponAlreadyHave => 'لديك هذا الكوبون بالفعل';
+
+  @override
+  String get couponNoLongerAvailable => 'هذا الكوبون لم يعد متاحاً';
+
+  @override
+  String get couponOfferEnded => 'انتهى هذا العرض';
+
+  @override
+  String get couponTooManyTries => 'محاولات كثيرة، حاول لاحقاً';
+
+  @override
+  String get couponCodeCopied => 'تم نسخ الرمز';
+
+  @override
+  String couponValidUntil(String date) {
+    return 'صالح حتى $date';
+  }
+
+  @override
+  String couponUsesLeft(int count) {
+    return 'تبقّى $count رحلات';
+  }
+
+  @override
+  String couponMinFare(String amount) {
+    return 'للرحلات التي تتجاوز $amount';
+  }
+
+  @override
+  String get couponStateUsed => 'مستخدم';
+
+  @override
+  String get couponStateExpired => 'منتهي';
+
+  @override
+  String get couponStateEnded => 'انتهى العرض';
+
+  @override
+  String get fareCouponDiscount => 'خصم الكوبون';
+
+  @override
+  String get txCouponPayment => 'كوبون دفعته الشركة';
+
+  @override
+  String get driverCollectFromCustomer => 'استلم من الزبون';
+
+  @override
+  String driverCouponPaidByCompany(String code, String amount) {
+    return 'كوبون $code −$amount: تدفعه الشركة';
+  }
+
+  @override
+  String get offerCongratsName => '(ديمة دالاتي)';
 }

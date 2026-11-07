@@ -8,7 +8,9 @@ import '../../../../core/widgets/auth_primary_button_widget.dart';
 import '../../../../core/widgets/meta_item_widget.dart';
 import '../../../../core/widgets/passengers_fee_meta_widget.dart';
 import '../../../../core/widgets/ride_note_widget.dart';
+import 'order_distances_widget.dart';
 import 'order_offer_countdown_widget.dart';
+import 'vehicle_type_badge_widget.dart';
 
 /// A single ride offer on the driver home screen. [isAccepting] shows a
 /// spinner in place of the button's label; [enabled] disables the button
@@ -46,17 +48,19 @@ class DriverOrderCardWidget extends StatelessWidget {
               expiresAt: order.expiresAt!,
               totalSeconds: order.offerSeconds ?? AppConstants.orderOfferSeconds,
             ),
-          Row(
-            children: [
-              _PricePill(price: order.estimatedPrice, isEstimate: order.priceIsEstimate),
-              const Spacer(),
-              Icon(Icons.social_distance_rounded, size: 16, color: context.colors.textTertiary),
-              const SizedBox(width: 4),
-              Text(
-                context.l10n.distanceKmToPickup(order.distanceToPickupKm.toStringAsFixed(1)),
-                style: TextStyle(fontSize: 12, color: context.colors.textTertiary),
+          if (order.vehicleTypeName != null) ...[
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: VehicleTypeBadgeWidget(
+                name: order.vehicleTypeName!,
+                typeId: order.vehicleTypeId,
               ),
-            ],
+            ),
+            const SizedBox(height: 10),
+          ],
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: _PricePill(price: order.estimatedPrice, isEstimate: order.priceIsEstimate),
           ),
           const SizedBox(height: 14),
           _LocationRow(
@@ -66,7 +70,7 @@ class DriverOrderCardWidget extends StatelessWidget {
             details: order.pickupAddressDetails,
           ),
           Padding(
-            padding: EdgeInsetsDirectional.only(start: 9),
+            padding: EdgeInsetsDirectional.only(start: 10),
             child: SizedBox(
               height: 16,
               child: VerticalDivider(width: 1, thickness: 1.5, color: context.colors.borderLight),
@@ -83,21 +87,24 @@ class DriverOrderCardWidget extends StatelessWidget {
             RideNoteWidget(note: order.note!, maxLines: 3),
           ],
           const SizedBox(height: 14),
+          OrderDistancesWidget(
+            toPickupKm: order.distanceToPickupKm,
+            tripKm: order.distanceKm,
+          ),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 12,
             runSpacing: 4,
             children: [
               MetaItemWidget(
-                icon: Icons.route_outlined,
-                label: context.l10n.distanceKm(order.distanceKm.toStringAsFixed(1)),
-              ),
-              MetaItemWidget(
                 icon: Icons.schedule_rounded,
+                prominent: true,
                 label: context.l10n.durationMinutesShort('${order.estimatedDurationMin}'),
               ),
               if (order.passengersCount != null)
                 MetaItemWidget(
                   icon: Icons.groups_rounded,
+                  prominent: true,
                   label: context.l10n.passengersCount(order.passengersCount!),
                 ),
               if (order.passengersFee > 0) PassengersFeeMetaWidget(fee: order.passengersFee),
@@ -165,7 +172,7 @@ class _LocationRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: iconColor),
+        Icon(icon, size: 20, color: iconColor),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -173,14 +180,14 @@ class _LocationRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
               if (details != null)
                 Text(
                   details!,
-                  style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
+                  style: TextStyle(fontSize: 14, color: context.colors.textSecondary),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -13,6 +13,8 @@ import 'core/injection/injection.dart';
 import 'core/l10n/generated/app_localizations.dart';
 import 'core/localization/l10n_context_extension.dart';
 import 'core/localization/locale_cubit.dart';
+import 'core/map_provider/map_provider_refresher_widget.dart';
+import 'core/map_provider/map_provider_service.dart';
 import 'core/routing/app_router.dart';
 import 'core/services/push_notification_service.dart';
 import 'core/theme/app_colors.dart';
@@ -53,7 +55,6 @@ Future<void> main() async {
   await _start(splash);
 }
 
-/// Everything the app needs before its first real screen: settings, Firebase,
 /// the saved session and the version check.
 Future<void> _start(SplashSignal splash) async {
   await dotenv.load(fileName: '.env');
@@ -62,6 +63,9 @@ Future<void> _start(SplashSignal splash) async {
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   setupInjection();
+
+  // Which map to draw is asked now; the splash covers the wait.
+  unawaited(sl<MapProviderService>().refresh());
 
   // Restore the saved language before the first frame.
   await sl<LocaleCubit>().load();
@@ -121,6 +125,10 @@ Future<void> _launch(String initialRoute, SplashSignal splash) async {
   // The splash video plays to its end (or until it is tapped); a safety
   // limit keeps a stuck video from holding the app back.
   await splash.finished.timeout(const Duration(seconds: 15), onTimeout: () {});
+  await sl<MapProviderService>().pending.timeout(
+    const Duration(seconds: 3),
+    onTimeout: () {},
+  );
 
   switch (versionCubit.state) {
     case AppVersionForceUpdate(:final info):
@@ -191,8 +199,11 @@ class MshoarApp extends StatelessWidget {
                       value: AppTheme.overlayStyleFor(
                         Theme.of(context).brightness,
                       ),
-                      child: AppVersionGateWidget(
-                        child: child ?? const SizedBox.shrink(),
+                      child: MapProviderRefresherWidget(
+                        service: sl<MapProviderService>(),
+                        child: AppVersionGateWidget(
+                          child: child ?? const SizedBox.shrink(),
+                        ),
                       ),
                     ),
                 onGenerateTitle: (context) => context.l10n.appName,

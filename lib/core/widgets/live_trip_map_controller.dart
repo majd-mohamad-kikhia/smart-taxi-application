@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'app_map/app_map_controller.dart';
 import 'map_controls_widget.dart';
 
 /// How the camera looks at the trip.
@@ -34,7 +35,7 @@ class LiveTripMapController extends ChangeNotifier {
   /// The angled look is only useful close to the road; it starts at least this close.
   static const double _angledMinZoom = 17;
 
-  GoogleMapController? _map;
+  AppMapController? _map;
   LatLng? _car;
   double _carBearing = 0;
   double _zoom = 15;
@@ -46,7 +47,7 @@ class LiveTripMapController extends ChangeNotifier {
   TripMapView get view => _view;
 
   /// Set by the map when it is created and as the car moves.
-  void attach(GoogleMapController map) => _map = map;
+  void attach(AppMapController map) => _map = map;
 
   void updateCar(LatLng? car, [double bearing = 0]) {
     _car = car;

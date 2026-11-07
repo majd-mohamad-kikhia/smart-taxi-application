@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/widgets/app_map/app_map_widget.dart';
+import '../../../../core/widgets/app_map/app_map_controller.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
@@ -53,7 +55,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen>
     text: widget.initialLocation?.addressDetails ?? '',
   );
 
-  GoogleMapController? _controller;
+  AppMapController? _controller;
   late LatLng _center;
 
   /// Where the customer actually is (not where the map is looking) — what
@@ -158,7 +160,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen>
       backgroundColor: context.colors.backgroundGray,
       body: Stack(
         children: [
-          GoogleMap(
+          AppMapWidget(
             style: mapStyle,
             initialCameraPosition: CameraPosition(target: _center, zoom: 15),
             myLocationEnabled: false,

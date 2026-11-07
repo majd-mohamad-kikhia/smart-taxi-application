@@ -131,8 +131,8 @@ class LocalNotificationService {
         ),
         iOS: const DarwinNotificationDetails(
           presentAlert: true,
-          presentSound: true,
-          sound: _iosSound,
+          // The app itself loops the ring while the order is on offer.
+          presentSound: false,
           interruptionLevel: InterruptionLevel.timeSensitive,
         ),
       ),

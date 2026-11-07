@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'app_map/app_map_widget.dart';
+import 'app_map/app_map_controller.dart';
 import '../models/route_point_model.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_map_style.dart';
@@ -24,6 +26,14 @@ class LiveTripMapWidget extends StatefulWidget {
   final List<RoutePointModel> routePoints;
   final List<RoutePointModel> drivenPath;
 
+  /// Hue of the destination pin (red by default; green for a pickup point).
+  final double destinationHue;
+
+  /// Draws a dashed straight line from the car to the destination while the
+  /// road route has not loaded (or could not be fetched), so a path is on the
+  /// map from the first fix.
+  final bool straightLineFallback;
+
   /// Lets the screen zoom and move the view with its own buttons. The
   /// caller owns and disposes it; without one the map just follows the car.
   final LiveTripMapController? controller;
@@ -36,6 +46,8 @@ class LiveTripMapWidget extends StatefulWidget {
     required this.destinationLng,
     this.routePoints = const [],
     this.drivenPath = const [],
+    this.destinationHue = BitmapDescriptor.hueRed,
+    this.straightLineFallback = false,
     this.controller,
   });
 
@@ -45,7 +57,7 @@ class LiveTripMapWidget extends StatefulWidget {
 
 class _LiveTripMapWidgetState extends State<LiveTripMapWidget>
     with MapStyleMixin {
-  GoogleMapController? _mapController;
+  AppMapController? _mapController;
   BitmapDescriptor? _taxiIcon;
   final _heading = CarHeadingTracker();
   bool _hasFitted = false;
@@ -180,7 +192,7 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget>
     Polyline? plannedLine, {
     required bool locked,
   }) {
-    return GoogleMap(
+    return AppMapWidget(
       style: mapStyle,
       buildingsEnabled: !locked,
       scrollGesturesEnabled: !locked,
@@ -203,6 +215,16 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget>
       },
       polylines: {
         ?plannedLine,
+        if (plannedLine == null && widget.straightLineFallback && car != null)
+          Polyline(
+            polylineId: const PolylineId('straight_to_destination'),
+            points: [car, _destination],
+            color: AppColors.mapRoutePlanned,
+            width: 4,
+            patterns: [PatternItem.dash(18), PatternItem.gap(10)],
+            startCap: Cap.roundCap,
+            endCap: Cap.roundCap,
+          ),
         if (widget.drivenPath.length >= 2)
           _line('driven_path', widget.drivenPath, AppColors.mapRouteDriven, 2),
       },
@@ -210,7 +232,7 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget>
         Marker(
           markerId: const MarkerId('destination'),
           position: _destination,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          icon: BitmapDescriptor.defaultMarkerWithHue(widget.destinationHue),
         ),
         if (car != null && taxiIcon != null)
           Marker(

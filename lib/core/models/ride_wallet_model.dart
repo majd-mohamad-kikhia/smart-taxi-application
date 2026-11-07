@@ -29,10 +29,10 @@ class WalletNoteModel extends Equatable {
   List<Object?> get props => [ar, en];
 }
 
-/// How a ride's price splits between the customer's wallet and cash:
-/// `amount_due = price - wallet_used`. The fare, the commission and the
-/// driver's earning always follow the full price — only the cash to collect
-/// shrinks.
+/// How a ride's price splits between a coupon, the customer's wallet and
+/// cash: `amount_due = price - coupon_discount - wallet_used`. The fare, the
+/// commission and the driver's earning always follow the full price — only
+/// the cash to collect shrinks.
 class RideWalletModel extends Equatable {
   /// Taken from the customer's wallet when the trip finished; 0 before then.
   final double walletUsed;
@@ -41,11 +41,25 @@ class RideWalletModel extends Equatable {
   final double amountDue;
   final WalletNoteModel? note;
 
+  /// Taken off by a coupon when the trip finished; 0 when none was used.
+  final double couponDiscount;
+  final String? couponCode;
+  final WalletNoteModel? couponNote;
+
   const RideWalletModel({
     this.walletUsed = 0,
     required this.amountDue,
     this.note,
+    this.couponDiscount = 0,
+    this.couponCode,
+    this.couponNote,
   });
+
+  /// A coupon took part of the price off.
+  bool get isCouponUsed => couponDiscount > 0;
+
+  /// The cash due is lower than the price (wallet and/or coupon).
+  bool get hasDiscount => isWalletUsed || isCouponUsed;
 
   /// Part of the price was covered by the wallet.
   bool get isWalletUsed => walletUsed > 0;
@@ -59,20 +73,37 @@ class RideWalletModel extends Equatable {
     double? fallbackPrice,
   }) {
     final walletUsed = (json['wallet_used'] as num?)?.toDouble() ?? 0;
+    final couponDiscount = (json['coupon_discount'] as num?)?.toDouble() ?? 0;
+    final couponCode = json['coupon_code'];
     final dueFromServer = (json['amount_due'] as num?)?.toDouble();
     final due =
         dueFromServer ??
         (fallbackPrice == null
             ? null
-            : (fallbackPrice - walletUsed).clamp(0, double.infinity));
+            : (fallbackPrice - walletUsed - couponDiscount).clamp(
+                0,
+                double.infinity,
+              ));
     if (due == null) return null;
     return RideWalletModel(
       walletUsed: walletUsed,
       amountDue: due.toDouble(),
       note: WalletNoteModel.tryParse(json['wallet_note']),
+      couponDiscount: couponDiscount,
+      couponCode: couponCode is String && couponCode.isNotEmpty
+          ? couponCode
+          : null,
+      couponNote: WalletNoteModel.tryParse(json['coupon_note']),
     );
   }
 
   @override
-  List<Object?> get props => [walletUsed, amountDue, note];
+  List<Object?> get props => [
+    walletUsed,
+    amountDue,
+    note,
+    couponDiscount,
+    couponCode,
+    couponNote,
+  ];
 }

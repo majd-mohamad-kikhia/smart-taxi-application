@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/widgets/app_map/app_map_widget.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -43,7 +44,7 @@ class _RideRouteMapWidgetState extends State<RideRouteMapWidget> with MapStyleMi
         // in, so a light default map never flashes.
         child: !mapStyleReady
             ? ColoredBox(color: context.colors.backgroundMuted)
-            : GoogleMap(
+            : AppMapWidget(
                 style: mapStyle,
                 initialCameraPosition: CameraPosition(
                   target: points.first,

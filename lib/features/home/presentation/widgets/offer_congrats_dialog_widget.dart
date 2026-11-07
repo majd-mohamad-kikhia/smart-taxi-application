@@ -110,6 +110,15 @@ class _OfferCongratsDialogWidgetState extends State<OfferCongratsDialogWidget>
                         color: colors.textPrimary,
                       ),
                     ),
+                    const SizedBox(height: AppConstants.paddingXS),
+                    Text(
+                      l10n.offerCongratsName,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: colors.primaryContent,
+                      ),
+                    ),
                     const SizedBox(height: AppConstants.paddingXL),
                     AuthPrimaryButtonWidget(
                       label: l10n.continueLabel,

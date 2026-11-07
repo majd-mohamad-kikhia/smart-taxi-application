@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/widgets/app_map/app_map_widget.dart';
+import '../../../../core/widgets/app_map/app_map_controller.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -40,7 +42,7 @@ class RideTrackingMapWidget extends StatefulWidget {
 }
 
 class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> with MapStyleMixin {
-  GoogleMapController? _mapController;
+  AppMapController? _mapController;
   BitmapDescriptor? _taxiIcon;
   final _heading = CarHeadingTracker();
 
@@ -157,7 +159,7 @@ class _RideTrackingMapWidgetState extends State<RideTrackingMapWidget> with MapS
     final taxiIcon = _taxiIcon;
     final roadLine = _roadLine;
 
-    return GoogleMap(
+    return AppMapWidget(
       style: mapStyle,
       initialCameraPosition: CameraPosition(target: driverPoint ?? pickupPoint, zoom: 14),
       myLocationEnabled: false,

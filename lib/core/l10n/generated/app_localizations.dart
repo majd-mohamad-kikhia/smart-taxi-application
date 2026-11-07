@@ -308,6 +308,18 @@ abstract class AppLocalizations {
   /// **'{value} km'**
   String distanceKm(String value);
 
+  /// No description provided for @distanceFromYouToCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'From your location to the customer\'s location'**
+  String get distanceFromYouToCustomer;
+
+  /// No description provided for @distanceFromPickupToDropoff.
+  ///
+  /// In en, this message translates to:
+  /// **'From the customer\'s location to the destination'**
+  String get distanceFromPickupToDropoff;
+
   /// No description provided for @distanceKmToPickup.
   ///
   /// In en, this message translates to:
@@ -4316,6 +4328,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wallet movement'**
   String get txOther;
+
+  /// No description provided for @couponTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon {code} −{amount}'**
+  String couponTag(String code, String amount);
+
+  /// No description provided for @couponsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My coupons'**
+  String get couponsTitle;
+
+  /// No description provided for @couponsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no coupons'**
+  String get couponsEmpty;
+
+  /// No description provided for @couponsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'My coupons'**
+  String get couponsOpen;
+
+  /// No description provided for @couponCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Have a coupon code?'**
+  String get couponCodeHint;
+
+  /// No description provided for @couponRedeemButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get couponRedeemButton;
+
+  /// No description provided for @couponAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon added'**
+  String get couponAdded;
+
+  /// No description provided for @couponInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This code is not valid'**
+  String get couponInvalid;
+
+  /// No description provided for @couponAlreadyHave.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have this coupon'**
+  String get couponAlreadyHave;
+
+  /// No description provided for @couponNoLongerAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This coupon is no longer available'**
+  String get couponNoLongerAvailable;
+
+  /// No description provided for @couponOfferEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'This offer has ended'**
+  String get couponOfferEnded;
+
+  /// No description provided for @couponTooManyTries.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries, try again later'**
+  String get couponTooManyTries;
+
+  /// No description provided for @couponCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied'**
+  String get couponCodeCopied;
+
+  /// No description provided for @couponValidUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid until {date}'**
+  String couponValidUntil(String date);
+
+  /// No description provided for @couponUsesLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} rides left'**
+  String couponUsesLeft(int count);
+
+  /// No description provided for @couponMinFare.
+  ///
+  /// In en, this message translates to:
+  /// **'For rides above {amount}'**
+  String couponMinFare(String amount);
+
+  /// No description provided for @couponStateUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get couponStateUsed;
+
+  /// No description provided for @couponStateExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get couponStateExpired;
+
+  /// No description provided for @couponStateEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer ended'**
+  String get couponStateEnded;
+
+  /// No description provided for @fareCouponDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon discount'**
+  String get fareCouponDiscount;
+
+  /// No description provided for @txCouponPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon paid by the company'**
+  String get txCouponPayment;
+
+  /// No description provided for @driverCollectFromCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect from the customer'**
+  String get driverCollectFromCustomer;
+
+  /// No description provided for @driverCouponPaidByCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon {code} −{amount}: paid by the company'**
+  String driverCouponPaidByCompany(String code, String amount);
+
+  /// No description provided for @offerCongratsName.
+  ///
+  /// In en, this message translates to:
+  /// **'(ديمة دالاتي)'**
+  String get offerCongratsName;
 }
 
 class _AppLocalizationsDelegate

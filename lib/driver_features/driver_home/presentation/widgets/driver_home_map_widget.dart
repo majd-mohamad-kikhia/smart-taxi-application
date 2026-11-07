@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/widgets/app_map/app_map_widget.dart';
+import '../../../../core/widgets/app_map/app_map_controller.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
@@ -48,7 +50,7 @@ class _DriverHomeMapWidgetState extends State<DriverHomeMapWidget>
     AppConstants.defaultMapLng,
   );
 
-  GoogleMapController? _controller;
+  AppMapController? _controller;
   BitmapDescriptor? _taxiIcon;
   final _heading = CarHeadingTracker();
 
@@ -210,7 +212,7 @@ class _DriverHomeMapWidgetState extends State<DriverHomeMapWidget>
         mapState.routeRideId == order.rideId &&
         mapState.orderRoute.length >= 2;
 
-    return GoogleMap(
+    return AppMapWidget(
       style: mapStyle,
       padding: EdgeInsets.only(
         top: widget.topInset,

@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/widgets/app_map/app_map_widget.dart';
+import '../../../../core/widgets/app_map/app_map_controller.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -43,7 +45,7 @@ class _RouteMapWidgetState extends State<RouteMapWidget> with MapStyleMixin {
     AppConstants.defaultMapLng,
   );
 
-  GoogleMapController? _controller;
+  AppMapController? _controller;
   BitmapDescriptor? _taxiIcon;
   final _heading = CarHeadingTracker();
 
@@ -129,7 +131,7 @@ class _RouteMapWidgetState extends State<RouteMapWidget> with MapStyleMixin {
     final taxiIcon = _taxiIcon;
     final path = [for (final p in widget.path) LatLng(p.lat, p.lng)];
 
-    return GoogleMap(
+    return AppMapWidget(
       style: mapStyle,
       initialCameraPosition: CameraPosition(
         target: car ?? (path.isNotEmpty ? path.last : _fallbackCenter),

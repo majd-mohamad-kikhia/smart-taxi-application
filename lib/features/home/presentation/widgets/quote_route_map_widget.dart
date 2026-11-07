@@ -4,6 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/widgets/app_map/app_map_widget.dart';
+import '../../../../core/widgets/app_map/app_map_controller.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/picked_location_model.dart';
@@ -36,7 +38,7 @@ class _QuoteRouteMapWidgetState extends State<QuoteRouteMapWidget>
     with MapStyleMixin {
   static const _framePadding = 56.0;
 
-  GoogleMapController? _controller;
+  AppMapController? _controller;
 
   LatLng get _pickup => LatLng(widget.pickup.latitude, widget.pickup.longitude);
   LatLng get _dropoff =>
@@ -137,7 +139,7 @@ class _QuoteRouteMapWidgetState extends State<QuoteRouteMapWidget>
       listenWhen: (previous, current) => previous.points != current.points,
       listener: (context, state) => _fit(state.points),
       buildWhen: (previous, current) => previous.points != current.points,
-      builder: (context, state) => GoogleMap(
+      builder: (context, state) => AppMapWidget(
         style: mapStyle,
         initialCameraPosition: CameraPosition(target: _pickup, zoom: 13),
         markers: _markers,

@@ -26,6 +26,7 @@ class WalletTransactionRowWidget extends StatelessWidget {
     WalletTransactionType.customerWalletPayment =>
       Icons.account_balance_wallet_outlined,
     WalletTransactionType.customerChange => Icons.savings_outlined,
+    WalletTransactionType.couponPayment => Icons.local_offer_outlined,
     WalletTransactionType.unknown => Icons.swap_horiz_rounded,
   };
 

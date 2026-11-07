@@ -115,6 +115,20 @@ class _FareDetails extends StatelessWidget {
           label: l10n.fareCollectFromCustomer,
           amount: wallet.amountDue,
         ),
+        if (wallet.isCouponUsed && wallet.couponCode != null) ...[
+          const SizedBox(height: AppConstants.paddingS),
+          Text(
+            l10n.driverCouponPaidByCompany(
+              wallet.couponCode!,
+              formatPlainSyp(l10n, wallet.couponDiscount),
+            ),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: context.colors.primaryContent,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
         if (wallet.isWalletUsed) ...[
           const SizedBox(height: AppConstants.paddingS),
           Text(

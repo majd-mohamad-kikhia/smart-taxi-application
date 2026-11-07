@@ -131,6 +131,8 @@ import '../../features/home/data/repositories/ride_request_repository.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/home/presentation/cubit/map_pick_cubit.dart';
 import '../../features/home/presentation/cubit/quote_route_cubit.dart';
+import '../map_provider/map_provider_remote_data_source.dart';
+import '../map_provider/map_provider_service.dart';
 import '../../features/wallet/data/datasources/customer_wallet_remote_data_source.dart';
 import '../../features/wallet/data/repositories/customer_wallet_repository.dart';
 import '../../features/wallet/presentation/cubit/customer_wallet_cubit.dart';
@@ -842,6 +844,14 @@ void setupInjection() {
   );
   sl.registerFactory<EditProfileCubit>(
     () => EditProfileCubit(sl<ProfileRepository>(), sl<SessionCubit>()),
+  );
+
+  // ─── Map provider (Google / OSM) ────────────────────────────
+  sl.registerLazySingleton<MapProviderRemoteDataSource>(
+    () => MapProviderRemoteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+  );
+  sl.registerLazySingleton<MapProviderService>(
+    () => MapProviderService(sl<MapProviderRemoteDataSource>()),
   );
 
   // ─── Customer Wallet Feature ────────────────────────────────

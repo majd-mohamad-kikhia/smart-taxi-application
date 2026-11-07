@@ -16,6 +16,9 @@ class DriverTripPaymentModel extends Equatable {
   /// collected that much less cash.
   final double walletUsed;
 
+  /// The part of the fare a coupon covered (paid by the company).
+  final double couponDiscount;
+
   /// The change the driver left in the customer's wallet; 0 when none.
   final double walletCreditAdded;
 
@@ -26,6 +29,7 @@ class DriverTripPaymentModel extends Equatable {
     required this.commissionRate,
     required this.walletBalanceAfter,
     this.walletUsed = 0,
+    this.couponDiscount = 0,
     this.walletCreditAdded = 0,
   });
 
@@ -38,6 +42,7 @@ class DriverTripPaymentModel extends Equatable {
       commissionRate: number('commission_rate'),
       walletBalanceAfter: number('wallet_balance_after'),
       walletUsed: number('wallet_used'),
+      couponDiscount: number('coupon_discount'),
       walletCreditAdded: number('wallet_credit_added'),
     );
   }
@@ -50,6 +55,7 @@ class DriverTripPaymentModel extends Equatable {
     commissionRate,
     walletBalanceAfter,
     walletUsed,
+    couponDiscount,
     walletCreditAdded,
   ];
 }

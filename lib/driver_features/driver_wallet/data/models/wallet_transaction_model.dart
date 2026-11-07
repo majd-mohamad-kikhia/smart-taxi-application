@@ -19,6 +19,10 @@ enum WalletTransactionType {
   /// wallet: that cash comes off the driver's wallet.
   customerChange,
 
+  /// A customer's coupon took part of a fare off, so the driver collected
+  /// less cash: the company pays that part into the driver's wallet.
+  couponPayment,
+
   /// A type this app version does not know yet; shown with a generic label
   /// and the sign of its amount.
   unknown;
@@ -31,6 +35,7 @@ enum WalletTransactionType {
     'reward' => WalletTransactionType.reward,
     'customer_wallet_payment' => WalletTransactionType.customerWalletPayment,
     'customer_change' => WalletTransactionType.customerChange,
+    'coupon_payment' => WalletTransactionType.couponPayment,
     _ => WalletTransactionType.unknown,
   };
 
@@ -42,6 +47,7 @@ enum WalletTransactionType {
     WalletTransactionType.reward => 'reward',
     WalletTransactionType.customerWalletPayment => 'customer_wallet_payment',
     WalletTransactionType.customerChange => 'customer_change',
+    WalletTransactionType.couponPayment => 'coupon_payment',
     WalletTransactionType.unknown => 'unknown',
   };
 
@@ -53,6 +59,7 @@ enum WalletTransactionType {
     WalletTransactionType.reward => l10n.txReward,
     WalletTransactionType.customerWalletPayment => l10n.txCustomerWalletPayment,
     WalletTransactionType.customerChange => l10n.txCustomerChange,
+    WalletTransactionType.couponPayment => l10n.txCouponPayment,
     WalletTransactionType.unknown => l10n.txOther,
   };
 

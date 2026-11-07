@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' show BitmapDescriptor;
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
 import '../../../../core/models/order_offer_model.dart';
@@ -20,7 +21,6 @@ import '../../data/models/ride_cancellation_model.dart';
 import '../cubit/driver_trip_cubit.dart';
 import '../cubit/driver_trip_state.dart';
 import '../widgets/driver_fare_dialog_widget.dart';
-import '../widgets/driver_pickup_map_widget.dart';
 import '../widgets/driver_trip_actions_widget.dart';
 /// The driver's active-ride screen right after accepting an order: a map
 /// centered on the pickup point, plus the trip actions: optional arrived,
@@ -139,18 +139,7 @@ class _DriverTripViewState extends State<_DriverTripView> {
               if (state.status == DriverTripStatus.inProgress) {
                 return _InProgressView(state: state);
               }
-              return Stack(
-                children: [
-                  DriverPickupMapWidget(
-                    pickupLat: state.order.pickupLat,
-                    pickupLng: state.order.pickupLng,
-                    driverLat: state.carLat,
-                    driverLng: state.carLng,
-                    route: state.pickupRoute,
-                  ),
-                  _BottomPanel(state: state),
-                ],
-              );
+              return _PickupView(state: state);
             },
           ),
         ),
@@ -278,50 +267,142 @@ class _InProgressViewState extends State<_InProgressView> {
   }
 }
 
+/// Driving to the customer: the same live map as during the ride (the taxi
+/// following the driver, the road to the pickup, zoom / view / recenter
+/// buttons) with the trip actions under it.
+class _PickupView extends StatefulWidget {
+  final DriverTripState state;
+
+  const _PickupView({required this.state});
+
+  @override
+  State<_PickupView> createState() => _PickupViewState();
+}
+
+class _PickupViewState extends State<_PickupView> {
+  final _mapController = LiveTripMapController();
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = widget.state;
+    return Stack(
+      children: [
+        LiveTripMapWidget(
+          carLat: state.carLat,
+          carLng: state.carLng,
+          destinationLat: state.order.pickupLat,
+          destinationLng: state.order.pickupLng,
+          destinationHue: BitmapDescriptor.hueGreen,
+          routePoints: state.pickupRoute,
+          straightLineFallback: true,
+          controller: _mapController,
+        ),
+        // The navigation view hides the order details, so the map has room:
+        // only "I've arrived" stays under the buttons.
+        ListenableBuilder(
+          listenable: _mapController,
+          builder: (context, _) => _BottomPanel(
+            state: state,
+            compact: _mapController.view == TripMapView.angled,
+            header: MapControlsWidget(
+              onZoomIn: _mapController.zoomIn,
+              onZoomOut: _mapController.zoomOut,
+              onNudge: _mapController.nudge,
+              onZoomInHold: _mapController.zoomInHeld,
+              onZoomOutHold: _mapController.zoomOutHeld,
+              onNudgeHold: _mapController.nudgeHeld,
+              showArrows: _mapController.view == TripMapView.topDown,
+              view: _mapController.view,
+              onViewChanged: _mapController.setView,
+              onRecenter: _mapController.isFollowing
+                  ? null
+                  : _mapController.recenter,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _BottomPanel extends StatelessWidget {
   final DriverTripState state;
 
-  const _BottomPanel({required this.state});
+  /// Shown right above the panel (the map's buttons).
+  final Widget? header;
+
+  /// Only the "I've arrived" button, no order details (see [_PickupView]).
+  final bool compact;
+
+  const _BottomPanel({
+    required this.state,
+    this.header,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: context.colors.backgroundWhite,
-            borderRadius: BorderRadius.circular(AppConstants.radiusXL),
-            border: Border.all(color: context.colors.borderLight),
-            boxShadow: [
-              BoxShadow(
-                color: context.colors.shadowMedium,
-                blurRadius: 12,
-                offset: const Offset(0, -2),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (header != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: header,
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              OrderRouteDetailsWidget(order: state.order),
-              if (state.status == DriverTripStatus.arrived && state.waiting != null) ...[
-                const SizedBox(height: 12),
-                RideWaitingTimerWidget(waiting: state.waiting!),
-              ],
-              const SizedBox(height: 16),
-              DriverTripActionsWidget(
-                status: state.status,
-                isUpdating: state.isUpdating,
-                isCancelling: state.isCancelling,
-                onCancel: () => _showCancelDialog(context),
-              ),
-            ],
-          ),
+            _panel(context),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _panel(BuildContext context) {
+    final onlyArrived = compact && state.status == DriverTripStatus.accepted;
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.colors.backgroundWhite,
+        borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+        border: Border.all(color: context.colors.borderLight),
+        boxShadow: [
+          BoxShadow(
+            color: context.colors.shadowMedium,
+            blurRadius: 12,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!onlyArrived) ...[
+            OrderRouteDetailsWidget(order: state.order),
+            if (state.status == DriverTripStatus.arrived && state.waiting != null) ...[
+              const SizedBox(height: 12),
+              RideWaitingTimerWidget(waiting: state.waiting!),
+            ],
+            const SizedBox(height: 16),
+          ],
+          DriverTripActionsWidget(
+            status: state.status,
+            isUpdating: state.isUpdating,
+            isCancelling: state.isCancelling,
+            arrivedOnly: onlyArrived,
+            onCancel: () => _showCancelDialog(context),
+          ),
+        ],
       ),
     );
   }

@@ -56,6 +56,8 @@
       }
     }
   },
+  "distanceFromYouToCustomer": "From your location to the customer's location",
+  "distanceFromPickupToDropoff": "From the customer's location to the destination",
   "distanceKmToPickup": "{value} km to pickup",
   "@distanceKmToPickup": {
     "placeholders": {
@@ -1391,5 +1393,34 @@
   "walletChangeWalletHint": "You keep this cash, and it will be taken off the customer's next ride. It is deducted from your wallet balance.",
   "txCustomerWalletPayment": "Customer wallet payment",
   "txCustomerChange": "Change added to customer wallet",
-  "txOther": "Wallet movement"
+  "txOther": "Wallet movement",
+  "couponTag": "Coupon {code} −{amount}",
+  "@couponTag": {"placeholders": {"code": {"type": "String"}, "amount": {"type": "String"}}},
+  "couponsTitle": "My coupons",
+  "couponsEmpty": "You have no coupons",
+  "couponsOpen": "My coupons",
+  "couponCodeHint": "Have a coupon code?",
+  "couponRedeemButton": "Add",
+  "couponAdded": "Coupon added",
+  "couponInvalid": "This code is not valid",
+  "couponAlreadyHave": "You already have this coupon",
+  "couponNoLongerAvailable": "This coupon is no longer available",
+  "couponOfferEnded": "This offer has ended",
+  "couponTooManyTries": "Too many tries, try again later",
+  "couponCodeCopied": "Code copied",
+  "couponValidUntil": "Valid until {date}",
+  "@couponValidUntil": {"placeholders": {"date": {"type": "String"}}},
+  "couponUsesLeft": "{count} rides left",
+  "@couponUsesLeft": {"placeholders": {"count": {"type": "int"}}},
+  "couponMinFare": "For rides above {amount}",
+  "@couponMinFare": {"placeholders": {"amount": {"type": "String"}}},
+  "couponStateUsed": "Used",
+  "couponStateExpired": "Expired",
+  "couponStateEnded": "Offer ended",
+  "fareCouponDiscount": "Coupon discount",
+  "txCouponPayment": "Coupon paid by the company",
+  "driverCollectFromCustomer": "Collect from the customer",
+  "driverCouponPaidByCompany": "Coupon {code} −{amount}: paid by the company",
+  "@driverCouponPaidByCompany": {"placeholders": {"code": {"type": "String"}, "amount": {"type": "String"}}},
+  "offerCongratsName": "(ديمة دالاتي)"
 }

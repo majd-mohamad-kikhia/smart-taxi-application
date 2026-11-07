@@ -111,11 +111,16 @@ class GeoRouteQuoteModel extends Equatable {
   /// the final price at the end of the trip decides.
   final double walletUsed;
 
+  /// How much of [fare] a coupon would take off (`coupon_discount` of the
+  /// asked car); 0 when none applies. An estimate, like [walletUsed].
+  final double couponDiscount;
+
   const GeoRouteQuoteModel({
     required this.fare,
     required this.needsReconfirm,
     this.route = const [],
     this.walletUsed = 0,
+    this.couponDiscount = 0,
   });
 
   factory GeoRouteQuoteModel.fromJson(Map<String, dynamic> json) {
@@ -130,9 +135,17 @@ class GeoRouteQuoteModel extends Equatable {
           ? const []
           : PolylineDecoder.decode(polyline),
       walletUsed: (walletSource['wallet_used'] as num?)?.toDouble() ?? 0,
+      couponDiscount:
+          (walletSource['coupon_discount'] as num?)?.toDouble() ?? 0,
     );
   }
 
   @override
-  List<Object?> get props => [fare, needsReconfirm, route, walletUsed];
+  List<Object?> get props => [
+    fare,
+    needsReconfirm,
+    route,
+    walletUsed,
+    couponDiscount,
+  ];
 }

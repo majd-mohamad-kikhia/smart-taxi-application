@@ -41,10 +41,10 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final amount = this.amount;
-    final isWalletUsed = wallet?.isWalletUsed ?? false;
-    final walletNote = wallet?.note?.textFor(
-      Localizations.localeOf(context).languageCode,
-    );
+    final isDiscounted = wallet?.hasDiscount ?? false;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final couponNote = wallet?.couponNote?.textFor(languageCode);
+    final walletNote = wallet?.note?.textFor(languageCode);
 
     return Semantics(
       scopesRoute: true,
@@ -112,7 +112,7 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        isWalletUsed ? l10n.rideAmountToPay : l10n.fareTotal,
+                        isDiscounted ? l10n.rideAmountToPay : l10n.fareTotal,
                         style: textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w800,
                           color: context.colors.primaryContent,
@@ -129,6 +129,17 @@ class RidePaymentDueDialogWidget extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (couponNote != null) ...[
+                        const SizedBox(height: AppConstants.paddingXS),
+                        Text(
+                          couponNote,
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: context.colors.primaryContent,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                       if (walletNote != null) ...[
                         const SizedBox(height: AppConstants.paddingXS),
                         Text(

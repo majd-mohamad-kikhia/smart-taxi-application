@@ -17,6 +17,7 @@ class ApiEndpoints {
 
   // ─── App version (public) ──────────────────────────────────
   String get appVersionCheck => '/api/app/version-check';
+  String get appMapProvider => '/api/app/map-provider';
 
   // ─── Geo v2 (Google Maps behind our server) ───────────────
   String get geoSuggest => '/api/v2/geo/suggest';
@@ -47,6 +48,8 @@ class ApiEndpoints {
 
   // ─── Customer Wallet ───────────────────────────────────────
   String get customerWallet => '/api/customer/wallet';
+
+  // ─── Customer Coupons ──────────────────────────────────────
 
   // ─── Customer Rides ────────────────────────────────────────
   String get customerRides => '/api/customer/rides';

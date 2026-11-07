@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/widgets/app_map/app_map_widget.dart';
+import '../../../../core/widgets/app_map/app_map_controller.dart';
 import '../../../../core/theme/app_map_style.dart';
 
 /// A still map with the order's pickup (green) and drop-off (red) pins,
@@ -23,7 +25,7 @@ class SharedOrderMapWidget extends StatefulWidget {
 class _SharedOrderMapWidgetState extends State<SharedOrderMapWidget> with MapStyleMixin {
   static const _framePadding = 48.0;
 
-  GoogleMapController? _controller;
+  AppMapController? _controller;
 
   @override
   void didUpdateWidget(SharedOrderMapWidget oldWidget) {
@@ -56,7 +58,7 @@ class _SharedOrderMapWidgetState extends State<SharedOrderMapWidget> with MapSty
 
   @override
   Widget build(BuildContext context) {
-    return GoogleMap(
+    return AppMapWidget(
       style: mapStyle,
       initialCameraPosition: CameraPosition(target: widget.pickup, zoom: 13),
       onMapCreated: (controller) {

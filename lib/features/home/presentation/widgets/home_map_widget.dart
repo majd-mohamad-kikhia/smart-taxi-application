@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/widgets/app_map/app_map_widget.dart';
+import '../../../../core/widgets/app_map/app_map_controller.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/models/picked_location_model.dart';
 import '../../../../core/theme/app_map_style.dart';
@@ -27,7 +29,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget> with MapStyleMixin {
     AppConstants.defaultMapLng,
   );
 
-  GoogleMapController? _controller;
+  AppMapController? _controller;
 
   /// A move that was asked for before the map was created.
   ({LatLng target, double zoom})? _pendingMove;
@@ -89,7 +91,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget> with MapStyleMixin {
       ],
       child: Stack(
         children: [
-          GoogleMap(
+          AppMapWidget(
             style: mapStyle,
             initialCameraPosition: CameraPosition(
               target: _initialTarget,

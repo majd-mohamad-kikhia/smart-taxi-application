@@ -124,6 +124,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get distanceFromYouToCustomer =>
+      'From your location to the customer\'s location';
+
+  @override
+  String get distanceFromPickupToDropoff =>
+      'From the customer\'s location to the destination';
+
+  @override
   String distanceKmToPickup(String value) {
     return '$value km to pickup';
   }
@@ -2405,4 +2413,86 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txOther => 'Wallet movement';
+
+  @override
+  String couponTag(String code, String amount) {
+    return 'Coupon $code −$amount';
+  }
+
+  @override
+  String get couponsTitle => 'My coupons';
+
+  @override
+  String get couponsEmpty => 'You have no coupons';
+
+  @override
+  String get couponsOpen => 'My coupons';
+
+  @override
+  String get couponCodeHint => 'Have a coupon code?';
+
+  @override
+  String get couponRedeemButton => 'Add';
+
+  @override
+  String get couponAdded => 'Coupon added';
+
+  @override
+  String get couponInvalid => 'This code is not valid';
+
+  @override
+  String get couponAlreadyHave => 'You already have this coupon';
+
+  @override
+  String get couponNoLongerAvailable => 'This coupon is no longer available';
+
+  @override
+  String get couponOfferEnded => 'This offer has ended';
+
+  @override
+  String get couponTooManyTries => 'Too many tries, try again later';
+
+  @override
+  String get couponCodeCopied => 'Code copied';
+
+  @override
+  String couponValidUntil(String date) {
+    return 'Valid until $date';
+  }
+
+  @override
+  String couponUsesLeft(int count) {
+    return '$count rides left';
+  }
+
+  @override
+  String couponMinFare(String amount) {
+    return 'For rides above $amount';
+  }
+
+  @override
+  String get couponStateUsed => 'Used';
+
+  @override
+  String get couponStateExpired => 'Expired';
+
+  @override
+  String get couponStateEnded => 'Offer ended';
+
+  @override
+  String get fareCouponDiscount => 'Coupon discount';
+
+  @override
+  String get txCouponPayment => 'Coupon paid by the company';
+
+  @override
+  String get driverCollectFromCustomer => 'Collect from the customer';
+
+  @override
+  String driverCouponPaidByCompany(String code, String amount) {
+    return 'Coupon $code −$amount: paid by the company';
+  }
+
+  @override
+  String get offerCongratsName => '(ديمة دالاتي)';
 }

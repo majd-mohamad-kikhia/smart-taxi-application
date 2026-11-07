@@ -31,7 +31,14 @@ class VehicleTypeQuoteModel extends Equatable {
   /// or the type has no price.
   final double walletUsed;
 
-  /// [price] minus [walletUsed]: the cash the customer would pay. Null when
+  /// How much of [price] a coupon would take off (an estimate: the coupon is
+  /// applied when the trip finishes). 0 when none applies.
+  final double couponDiscount;
+
+  /// The coupon behind [couponDiscount]; null when none applies.
+  final String? couponCode;
+
+  /// [price] minus the coupon and [walletUsed]: the cash the customer would pay. Null when
   /// the type has no price.
   final double? priceAfterWallet;
 
@@ -45,6 +52,8 @@ class VehicleTypeQuoteModel extends Equatable {
     required this.stopsFeeTotal,
     this.locationFee = 0,
     this.walletUsed = 0,
+    this.couponDiscount = 0,
+    this.couponCode,
     this.priceAfterWallet,
   });
 
@@ -56,6 +65,10 @@ class VehicleTypeQuoteModel extends Equatable {
     final walletUsed = price == null
         ? 0.0
         : ((json['wallet_used'] as num?)?.toDouble() ?? 0);
+    final couponDiscount = price == null
+        ? 0.0
+        : ((json['coupon_discount'] as num?)?.toDouble() ?? 0);
+    final couponCode = _textOrNull(json['coupon_code']);
     return VehicleTypeQuoteModel(
       vehicleTypeId: json['vehicle_type_id'] as int,
       name: json['name'] as String,
@@ -64,10 +77,16 @@ class VehicleTypeQuoteModel extends Equatable {
       available: available,
       price: price,
       walletUsed: walletUsed,
+      couponDiscount: couponDiscount,
+      couponCode: couponDiscount > 0 ? couponCode : null,
       priceAfterWallet: price == null
           ? null
-          : ((json['price_after_wallet'] as num?)?.toDouble() ??
-                (price - walletUsed).clamp(0, double.infinity).toDouble()),
+          : ((json['price_after_discounts'] ?? json['price_after_wallet'])
+                    as num?)
+                ?.toDouble() ??
+                (price - walletUsed - couponDiscount)
+                    .clamp(0, double.infinity)
+                    .toDouble(),
       stopsFeeTotal: (json['stops_fee_total'] as num?)?.toDouble() ?? 0,
       locationFee: available
           ? (json['location_fee'] as num?)?.toDouble() ?? 0
@@ -86,15 +105,23 @@ class VehicleTypeQuoteModel extends Equatable {
     stopsFeeTotal,
     locationFee,
     walletUsed,
+    couponDiscount,
+    couponCode,
     priceAfterWallet,
   ];
 
   /// The wallet covers part of the price.
   bool get hasWalletDiscount => price != null && walletUsed > 0;
 
-  /// What the customer pays in cash: the price after the wallet, or the
-  /// whole [price] when the wallet covers nothing.
-  double? get payablePrice => hasWalletDiscount ? priceAfterWallet : price;
+  /// A coupon takes part of the price off.
+  bool get hasCouponDiscount => price != null && couponDiscount > 0;
+
+  /// The wallet and/or a coupon lower the price.
+  bool get hasDiscount => hasWalletDiscount || hasCouponDiscount;
+
+  /// What the customer pays in cash: the price after the coupon and the
+  /// wallet, or the whole [price] when neither applies.
+  double? get payablePrice => hasDiscount ? priceAfterWallet : price;
 
   static String? _textOrNull(Object? value) {
     if (value is! String) return null;
