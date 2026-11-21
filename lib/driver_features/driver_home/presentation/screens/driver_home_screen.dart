@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import '../../../../core/contact_us/data/models/contact_number_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,7 +23,9 @@ import '../cubit/driver_presence_cubit.dart';
 import '../cubit/driver_presence_state.dart';
 import '../widgets/driver_home_map_widget.dart';
 import '../widgets/driver_low_wallet_notice_widget.dart';
+import '../widgets/driver_online_fab_widget.dart';
 import '../widgets/driver_online_toggle_widget.dart';
+import '../widgets/driver_presence_error_widget.dart';
 import '../widgets/driver_order_card_widget.dart';
 import '../widgets/driver_orders_panel_widget.dart';
 import '../widgets/driver_reconnecting_banner_widget.dart';
@@ -86,11 +90,23 @@ class DriverHomeScreen extends StatelessWidget {
   }
 }
 
-/// The map with the controls floating over it: the online control (and the
-/// low-wallet notice) at the top, the offers at the bottom. The map is told
-/// how much of it they cover, so the trip it frames stays in the open part.
+/// The map with the controls floating over it: the offers at the top (under
+/// the low-wallet notice and any connection error; when there are none, a
+/// short note says what the app is waiting for), and the online / offline
+/// button at the bottom. The map is told how much of it they cover, so the
+/// trip it frames stays in the open part.
+///
+/// Together they never cover more than [_maxCoveredShare] of the screen's
+/// height (the offer scrolls inside itself past that), so the driver always
+/// keeps a real piece of map to look at.
 class _MapLayout extends StatefulWidget {
   final double maxContentWidth;
+
+  /// The most of the screen's height the floating controls may cover.
+  static const double _maxCoveredShare = 0.55;
+
+  /// The least height the offer keeps, however tall the top controls grow.
+  static const double _minOfferShare = 0.25;
 
   const _MapLayout({required this.maxContentWidth});
 
@@ -102,61 +118,90 @@ class _MapLayoutState extends State<_MapLayout> {
   double _topInset = 0;
   double _bottomInset = 0;
 
+  /// Height of the notices above the offer (low wallet, connection error).
+  double _extrasHeight = 0;
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: DriverHomeMapWidget(
-            topInset: _topInset,
-            bottomInset: _bottomInset,
-          ),
-        ),
-        Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: widget.maxContentWidth),
-            child: SizeReporterWidget(
-              onSize: (size) => setState(() => _topInset = size.height),
-              child: const Padding(
-                padding: EdgeInsets.all(AppConstants.paddingL),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DriverLowWalletNoticeWidget(),
-                    DriverOnlineToggleWidget(enabled: true),
-                  ],
+    // Clear of the floating nav bar drawn over the map.
+    final bottomPadding =
+        AppConstants.paddingL + MediaQuery.paddingOf(context).bottom;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.maxHeight;
+        // What is left of the covered share once the notices above the offer
+        // and the floating button are counted.
+        final offerMaxHeight = math.max(
+          height * _MapLayout._minOfferShare,
+          height * _MapLayout._maxCoveredShare -
+              _extrasHeight -
+              _bottomInset -
+              2 * AppConstants.paddingS,
+        );
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: DriverHomeMapWidget(
+                topInset: _topInset,
+                bottomInset: _bottomInset,
+              ),
+            ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: widget.maxContentWidth),
+                child: SizeReporterWidget(
+                  onSize: (size) => setState(() => _topInset = size.height),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppConstants.paddingL,
+                      vertical: AppConstants.paddingS,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizeReporterWidget(
+                          onSize: (size) =>
+                              setState(() => _extrasHeight = size.height),
+                          child: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              DriverLowWalletNoticeWidget(),
+                              DriverPresenceErrorBannerWidget(),
+                            ],
+                          ),
+                        ),
+                        // Blocked drivers get no offers; the online button
+                        // stays so they can still go offline.
+                        AccountBlockGateWidget(
+                          blockedMessage:
+                              context.l10n.accountBlockedDriverMessage,
+                          contactApp: ContactUsApp.driver,
+                          child: DriverOrdersPanelWidget(
+                            maxHeight: offerMaxHeight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: widget.maxContentWidth),
-            child: SizeReporterWidget(
-              onSize: (size) => setState(() => _bottomInset = size.height),
-              child: Padding(
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizeReporterWidget(
+                onSize: (size) => setState(() => _bottomInset = size.height),
                 // Clear of the floating nav bar drawn over the map.
-                padding: EdgeInsets.fromLTRB(
-                  AppConstants.paddingL,
-                  0,
-                  AppConstants.paddingL,
-                  AppConstants.paddingL + MediaQuery.paddingOf(context).bottom,
-                ),
-                // Blocked drivers get no offers; the online control stays so
-                // they can still go offline.
-                child: AccountBlockGateWidget(
-                  blockedMessage: context.l10n.accountBlockedDriverMessage,
-                  contactApp: ContactUsApp.driver,
-                  child: const DriverOrdersPanelWidget(),
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: bottomPadding),
+                  child: const DriverOnlineFabWidget(),
                 ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
@@ -251,12 +296,15 @@ class _OrdersList extends StatelessWidget {
           children: [
             if (isReconnecting) const DriverReconnectingBannerWidget(),
             for (final order in ordersState.orders)
-              DriverOrderCardWidget(
-                key: ValueKey(order.rideId),
-                order: order,
-                isAccepting: ordersState.acceptingRideId == order.rideId,
-                enabled: ordersState.acceptingRideId == null,
-                onAccept: () => acceptDriverOrder(context, order),
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppConstants.paddingM),
+                child: DriverOrderCardWidget(
+                  key: ValueKey(order.rideId),
+                  order: order,
+                  isAccepting: ordersState.acceptingRideId == order.rideId,
+                  enabled: ordersState.acceptingRideId == null,
+                  onAccept: () => acceptDriverOrder(context, order),
+                ),
               ),
           ],
         );

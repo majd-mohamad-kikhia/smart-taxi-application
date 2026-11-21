@@ -790,9 +790,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'No connection. The trip will finish automatically as soon as you are back online.';
 
   @override
-  String orderOfferSecondsLeft(int seconds) {
-    return '$seconds s left';
-  }
+  String get orderOfferShowDetails => 'Details';
+
+  @override
+  String get orderOfferHideDetails => 'Hide details';
 
   @override
   String get driverAcceptTripFailed => 'Couldn\'t accept the trip';

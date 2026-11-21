@@ -34,14 +34,18 @@ Future<void> acceptDriverOrder(
   }
 }
 
-/// What sits at the bottom of the driver's map, by where the connection
+/// What sits at the top of the driver's map, by where the connection
 /// stands: while offers are on the list, the one being looked at (with
 /// previous / next arrows when there are several — the map shows the
 /// trip of the one in view); otherwise a short pill saying what the app is
 /// waiting for. A reconnect keeps the offers, with a warning that they may
 /// be stale, instead of hiding them mid-decision.
 class DriverOrdersPanelWidget extends StatelessWidget {
-  const DriverOrdersPanelWidget({super.key});
+  /// The tallest the offer (with its pager and banner) may grow; the screen
+  /// works it out from how much of the map must stay in view.
+  final double maxHeight;
+
+  const DriverOrdersPanelWidget({super.key, required this.maxHeight});
 
   @override
   Widget build(BuildContext context) {
@@ -70,38 +74,39 @@ class DriverOrdersPanelWidget extends StatelessWidget {
                 ),
               };
             }
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (presence.status == DriverPresenceStatus.connecting)
-                  const DriverReconnectingBannerWidget(),
-                if (orders.orders.length > 1)
-                  _OrderPager(
-                    index: orders.selectedIndex,
-                    count: orders.orders.length,
-                    onSelect: (i) => sl<DriverOrdersCubit>().selectOrder(
-                      orders.orders[i].rideId,
+            // Never taller than [maxHeight]: an opened card, a long note or
+            // a small screen scrolls inside the card instead of pushing the
+            // map away.
+            return ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: maxHeight),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (presence.status == DriverPresenceStatus.connecting)
+                    const DriverReconnectingBannerWidget(),
+                  if (orders.orders.length > 1)
+                    _OrderPager(
+                      index: orders.selectedIndex,
+                      count: orders.orders.length,
+                      onSelect: (i) => sl<DriverOrdersCubit>().selectOrder(
+                        orders.orders[i].rideId,
+                      ),
+                    ),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: DriverOrderCardWidget(
+                        // A new card for each offer: it starts closed.
+                        key: ValueKey(order.rideId),
+                        order: order,
+                        isAccepting: orders.acceptingRideId == order.rideId,
+                        enabled: orders.acceptingRideId == null,
+                        onAccept: () => acceptDriverOrder(context, order),
+                      ),
                     ),
                   ),
-                // A long note or a small screen scrolls inside the card
-                // instead of pushing the map away.
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.sizeOf(context).height * 0.5,
-                  ),
-                  child: SingleChildScrollView(
-                    child: DriverOrderCardWidget(
-                      // A new card for each offer: its countdown restarts.
-                      key: ValueKey(order.rideId),
-                      order: order,
-                      isAccepting: orders.acceptingRideId == order.rideId,
-                      enabled: orders.acceptingRideId == null,
-                      onAccept: () => acceptDriverOrder(context, order),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         );
@@ -162,7 +167,7 @@ class _OrderPager extends StatelessWidget {
   }
 }
 
-/// A short rounded note at the foot of the map: an icon and what the app is
+/// A short rounded note at the top of the map: an icon and what the app is
 /// waiting for.
 class _StatusPill extends StatelessWidget {
   final IconData icon;

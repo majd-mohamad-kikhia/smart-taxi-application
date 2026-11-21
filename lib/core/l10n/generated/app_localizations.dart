@@ -1508,11 +1508,17 @@ abstract class AppLocalizations {
   /// **'No connection. The trip will finish automatically as soon as you are back online.'**
   String get tripFinishQueued;
 
-  /// No description provided for @orderOfferSecondsLeft.
+  /// No description provided for @orderOfferShowDetails.
   ///
   /// In en, this message translates to:
-  /// **'{seconds} s left'**
-  String orderOfferSecondsLeft(int seconds);
+  /// **'Details'**
+  String get orderOfferShowDetails;
+
+  /// No description provided for @orderOfferHideDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide details'**
+  String get orderOfferHideDetails;
 
   /// No description provided for @driverAcceptTripFailed.
   ///

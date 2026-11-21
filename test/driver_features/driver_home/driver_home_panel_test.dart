@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
@@ -75,9 +76,14 @@ class _FakeRoutes extends Fake implements GoogleRoutesService {
   }) => Completer<DrivingRouteModel>().future;
 }
 
-Map<String, dynamic> _offer(int rideId, {String? note}) => {
+Map<String, dynamic> _offer(
+  int rideId, {
+  String? note,
+  String? vehicleTypeName,
+}) => {
   'ride_id': rideId,
   'vehicle_type_id': 2,
+  'vehicle_type_name': ?vehicleTypeName,
   'pickup_lat': 33.5 + rideId / 100,
   'pickup_lng': 36.3,
   'pickup_address': 'Pickup $rideId',
@@ -144,7 +150,11 @@ void main() {
     tester,
   ) async {
     await setUpCubits(DriverPresenceStatus.online);
-    await pump(tester, const DriverOrdersPanelWidget(), const Locale('en'));
+    await pump(
+      tester,
+      const DriverOrdersPanelWidget(maxHeight: 600),
+      const Locale('en'),
+    );
 
     expect(find.text('Waiting for new trip requests...'), findsOneWidget);
     expect(find.byType(Checkbox), findsNothing);
@@ -152,7 +162,11 @@ void main() {
 
   testWidgets('offline says to go online', (tester) async {
     await setUpCubits(DriverPresenceStatus.offline);
-    await pump(tester, const DriverOrdersPanelWidget(), const Locale('en'));
+    await pump(
+      tester,
+      const DriverOrdersPanelWidget(maxHeight: 600),
+      const Locale('en'),
+    );
 
     expect(find.text('Go online to see trip requests'), findsOneWidget);
   });
@@ -161,7 +175,7 @@ void main() {
     testWidgets('offers: the card in view, and the arrows move between them '
         '(${locale.languageCode})', (tester) async {
       await setUpCubits(DriverPresenceStatus.online);
-      await pump(tester, const DriverOrdersPanelWidget(), locale);
+      await pump(tester, const DriverOrdersPanelWidget(maxHeight: 600), locale);
       socket.offer!(_offer(1));
       socket.offer!(_offer(2, note: 'two suitcases'));
       await settle(tester);
@@ -182,9 +196,80 @@ void main() {
     });
   }
 
+  testWidgets('the card is short: the note waits behind "Details", and the '
+      'accept button and the distances are always in view', (tester) async {
+    await setUpCubits(DriverPresenceStatus.online);
+    await pump(
+      tester,
+      const DriverOrdersPanelWidget(maxHeight: 600),
+      const Locale('en'),
+    );
+    socket.offer!(_offer(1, note: 'two suitcases'));
+    await settle(tester);
+
+    expect(find.text('Accept trip'), findsOneWidget);
+    expect(find.text('0.8 km to pickup'), findsOneWidget);
+    expect(find.text('1.4 km'), findsOneWidget);
+    expect(find.text('two suitcases'), findsNothing);
+
+    await tester.tap(find.text('Details'));
+    await settle(tester);
+    expect(find.text('two suitcases'), findsOneWidget);
+
+    await tester.tap(find.text('Hide details'));
+    await settle(tester);
+    expect(find.text('two suitcases'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the car type badge shows its whole name, not "اقتصا..."', (
+    tester,
+  ) async {
+    await setUpCubits(DriverPresenceStatus.online);
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await pump(
+      tester,
+      const DriverOrdersPanelWidget(maxHeight: 600),
+      const Locale('ar'),
+    );
+    socket.offer!(_offer(1, vehicleTypeName: 'اقتصادي'));
+    await settle(tester);
+
+    final paragraph = tester.renderObject<RenderParagraph>(
+      find.text('اقتصادي'),
+    );
+    expect(paragraph.didExceedMaxLines, isFalse);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a tall card never outgrows the height it is given', (
+    tester,
+  ) async {
+    await setUpCubits(DriverPresenceStatus.online);
+    await pump(
+      tester,
+      const DriverOrdersPanelWidget(maxHeight: 200),
+      const Locale('en'),
+    );
+    socket.offer!(_offer(1, note: 'two suitcases'));
+    await settle(tester);
+
+    expect(
+      tester.getSize(find.byType(DriverOrdersPanelWidget)).height,
+      lessThanOrEqualTo(200),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('one offer has no pager', (tester) async {
     await setUpCubits(DriverPresenceStatus.online);
-    await pump(tester, const DriverOrdersPanelWidget(), const Locale('en'));
+    await pump(
+      tester,
+      const DriverOrdersPanelWidget(maxHeight: 600),
+      const Locale('en'),
+    );
     socket.offer!(_offer(1));
     await settle(tester);
 

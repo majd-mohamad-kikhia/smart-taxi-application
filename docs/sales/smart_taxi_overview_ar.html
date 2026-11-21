@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Smart Taxi — ملف تعريفي تقني</title>
+<style>
+@font-face { font-family: "Tajawal"; font-weight: 400; src: url("../../assets/fonts/Tajawal-Regular.ttf"); }
+@font-face { font-family: "Tajawal"; font-weight: 700; src: url("../../assets/fonts/Tajawal-Bold.ttf"); }
+
+:root {
+  --ink: #16201a;
+  --muted: #5b6660;
+  --line: #d9dfdb;
+  --wash: #f2f6f3;
+  --green: #0B6B3A;
+  --green-soft: #e3efe8;
+  --amber: #8a5a00;
+  --amber-soft: #fbf3e2;
+}
+
+@page {
+  size: A4;
+  margin: 18mm 18mm 17mm 18mm;
+  @bottom-left {
+    content: counter(page);
+    font-family: "Tajawal"; font-size: 8.5pt; color: #5b6660;
+  }
+  @bottom-right {
+    content: "Smart Taxi · ملف تعريفي تقني";
+    font-family: "Tajawal"; font-size: 8.5pt; color: #5b6660;
+  }
+}
+@page cover { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+
+html { direction: rtl; }
+body {
+  font-family: "Tajawal", sans-serif;
+  font-size: 10pt;
+  line-height: 1.62;
+  color: var(--ink);
+  margin: 0;
+}
+
+.code {
+  font-family: "DejaVu Sans Mono", monospace;
+  font-size: 8.4pt;
+  direction: ltr;
+  unicode-bidi: embed;
+  white-space: nowrap;
+  display: inline-block;
+  color: #24302a;
+}
+.en { direction: ltr; unicode-bidi: embed; display: inline-block; }
+
+/* ── Cover ───────────────────────────── */
+.cover {
+  page: cover;
+  height: 297mm;
+  box-sizing: border-box;
+  padding: 34mm 22mm 24mm;
+  background: #0f1712;
+  color: #eef3ef;
+  position: relative;
+}
+.cover .kicker { font-size: 10pt; color: #8fb9a0; letter-spacing: 0.02em; }
+.cover h1 {
+  font-size: 46pt; line-height: 1.1; margin: 10mm 0 4mm;
+  font-weight: 700; direction: ltr; text-align: right;
+}
+.cover .bar { width: 22mm; height: 3px; background: #1F9D55; margin: 0 0 8mm; }
+.cover .lead { font-size: 15pt; line-height: 1.7; max-width: 150mm; color: #dfe9e2; }
+.cover .method {
+  position: absolute; bottom: 24mm; right: 22mm; left: 22mm;
+  border-top: 1px solid #2c3d33; padding-top: 6mm;
+  font-size: 9.5pt; line-height: 1.8; color: #a9bcb0;
+}
+.cover .method b { color: #eef3ef; }
+.cover .code { color: #cfe3d6; }
+
+/* ── Headings & sections ─────────────── */
+section { page-break-before: always; }
+section.flowing { page-break-before: auto; margin-top: 10mm; }
+h2 {
+  font-size: 19pt; line-height: 1.3; margin: 0 0 2mm; font-weight: 700;
+}
+.section-no { color: var(--green); font-size: 10pt; font-weight: 700; margin-bottom: 1mm; }
+.section-lead { color: var(--muted); margin: 0 0 5mm; font-size: 10pt; }
+h3 {
+  font-size: 12pt; margin: 5mm 0 1.5mm; font-weight: 700;
+  page-break-after: avoid;
+}
+p { margin: 0 0 3mm; }
+ul { margin: 0 0 3mm; padding-right: 5mm; padding-left: 0; }
+li { margin-bottom: 0.8mm; }
+li::marker { color: var(--green); }
+
+/* ── Facts table ─────────────────────── */
+table { width: 100%; border-collapse: collapse; margin: 0 0 5mm; }
+.facts td { padding: 1.8mm 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.facts td:first-child { width: 34mm; color: var(--muted); font-size: 9.5pt; padding-left: 4mm; }
+
+/* ── Numbers grid ────────────────────── */
+.nums { table-layout: fixed; margin-top: 2mm; page-break-inside: avoid; }
+.nums td {
+  border: 1px solid var(--line); padding: 2.6mm 3.5mm 2mm; vertical-align: top;
+}
+.nums .n { font-size: 17pt; font-weight: 700; line-height: 1.1; direction: ltr; unicode-bidi: embed; display: block; text-align: right; }
+.nums .l { font-size: 9pt; color: var(--muted); line-height: 1.5; display: block; margin-top: 1.5mm; }
+
+/* ── Generic data table ──────────────── */
+.data th {
+  text-align: right; font-size: 9pt; color: var(--muted); font-weight: 700;
+  border-bottom: 1.5px solid var(--ink); padding: 2mm 2mm 2mm 3mm;
+}
+.data td { border-bottom: 1px solid var(--line); padding: 1.6mm 2mm 1.6mm 3mm; vertical-align: top; font-size: 9.5pt; }
+.data tr { page-break-inside: avoid; }
+.data .num { direction: ltr; unicode-bidi: embed; white-space: nowrap; }
+
+/* ── Callouts ────────────────────────── */
+.note {
+  background: var(--wash); border-right: 3px solid var(--green);
+  padding: 3.5mm 5mm; margin: 0 0 6mm; font-size: 9.8pt;
+}
+.note.warn { background: var(--amber-soft); border-right-color: #c98a12; }
+.note b { font-weight: 700; }
+.source { font-size: 8.6pt; color: var(--muted); margin-top: -2mm; margin-bottom: 5mm; }
+
+/* ── Lifecycle diagram ───────────────── */
+.flow { table-layout: fixed; margin: 4mm 0 2mm; }
+.flow td { text-align: center; vertical-align: middle; padding: 0; }
+.flow .st {
+  border: 1.5px solid var(--green); background: var(--green-soft);
+  padding: 2.5mm 1mm; font-size: 9.5pt; font-weight: 700; line-height: 1.35;
+}
+.flow .st small { display: block; font-weight: 400; color: var(--muted); font-size: 8pt; }
+.flow .arrow { color: var(--green); font-size: 13pt; width: 7mm; }
+.flow .cancel {
+  border: 1.5px dashed #b54a3a; color: #8e2f22; background: #fbefec;
+  padding: 2mm; font-size: 9.5pt; font-weight: 700;
+}
+
+/* ── Formula ─────────────────────────── */
+.formula {
+  border: 1px solid var(--line); padding: 4mm 5mm; margin: 2mm 0 5mm;
+  direction: ltr; text-align: left;
+  font-family: "DejaVu Sans Mono", monospace; font-size: 8.8pt; line-height: 1.9;
+}
+
+/* ── Architecture diagram ────────────── */
+.arch { table-layout: fixed; margin: 3mm 0 5mm; direction: ltr; }
+.arch td { text-align: center; vertical-align: middle; padding: 0; }
+.arch .box {
+  border: 1.5px solid var(--ink); padding: 3mm 1mm; font-size: 9pt; line-height: 1.4;
+}
+.arch .box small { display: block; color: var(--muted); font-size: 7.5pt; }
+.arch .box.hl { border-color: var(--green); background: var(--green-soft); }
+.arch .arrow { color: var(--muted); font-size: 12pt; width: 6mm; }
+
+.two { table-layout: fixed; }
+.two > tbody > tr > td { vertical-align: top; padding: 0; }
+.two > tbody > tr > td:first-child { padding-left: 6mm; }
+
+.tree {
+  font-family: "DejaVu Sans Mono", monospace; font-size: 8pt; line-height: 1.45;
+  direction: ltr; text-align: left; background: var(--wash);
+  padding: 4mm 5mm; margin: 0 0 5mm; white-space: pre;
+}
+
+.keep { page-break-inside: avoid; }
+.small { font-size: 9pt; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ═════════════ COVER ═════════════ -->
+<div class="cover">
+  <div class="kicker">ملف تعريفي تقني · نوفمبر 2026</div>
+  <h1>Smart Taxi</h1>
+  <div class="bar"></div>
+  <div class="lead">
+    تطبيق تاكسي لشركة تدير أسطول سيارات خاص بها: تطبيق للزبون وتطبيق للسائق في مشروع Flutter واحد، يعملان مع خادم ولوحة إدارة.
+  </div>
+
+  <div class="method">
+    <b>مصدر المعلومات في هذا الملف.</b>
+    كل وصف ورقم عن التطبيق مأخوذ من الكود المصدري كما هو في 18 نوفمبر 2026.
+    القسم الخاص بالخادم ولوحة الإدارة مأخوذ من ملف توثيق الـ API ‏(<span class="code">swagger.json</span>) الموجود في المستودع، لأن كودهما ليس في هذا المستودع.
+    لا يحتوي هذا الملف على أعداد مستخدمين أو أرقام مبيعات أو تقييمات، لأنها غير موجودة في الكود.
+  </div>
+</div>
+
+<!-- ═════════════ 1. AT A GLANCE ═════════════ -->
+<section>
+  <div class="section-no">01</div>
+  <h2>المنتج باختصار</h2>
+  <p class="section-lead">نظام طلب تاكسي لشركة توظّف سائقيها وتحدد قواعد العمل بنفسها، وليس سوقاً مفتوحاً للسائقين المستقلين.</p>
+
+  <table class="facts">
+    <tr><td>الفكرة</td><td>الزبون يطلب رحلة ويتابع السائق على الخريطة لحظة بلحظة. السائق يستقبل الطلبات وينفّذ الرحلة ويتابع محفظته. المدير يحدد الأسعار والعمولات والغرامات والمكافآت، ويستطيع إلغاء الرحلات وإيقاف الحسابات مؤقتاً.</td></tr>
+    <tr><td>التطبيق</td><td>تطبيق واحد بدورين. يختار المستخدم عند الدخول: زبون أو سائق. الجهاز الواحد يكون مسجّلاً بدور واحد في كل مرة.</td></tr>
+    <tr><td>التقنية</td><td>Flutter مع Dart 3 (من الإصدار <span class="code">3.11.4</span>)، إدارة الحالة بـ Cubit، الشبكة بـ Dio، الاتصال اللحظي بـ Socket.IO، الخرائط بـ Google Maps، الإشعارات بـ Firebase Cloud Messaging.</td></tr>
+    <tr><td>المنصات</td><td>Android هو المنصة المستهدفة (الحزمة <span class="code">com.ma.smarttaxi</span>). مشروع iOS موجود ومُعدّ، لكن لا توجد صفحة للتطبيق على App Store بعد. التطبيق بالوضع العمودي فقط.</td></tr>
+    <tr><td>اللغات</td><td>العربية (من اليمين لليسار) والإنجليزية. 702 نص مترجم في كل لغة، ويُبلَّغ الخادم بلغة المستخدم حتى تصل الإشعارات بلغته.</td></tr>
+    <tr><td>المظهر</td><td>فاتح وداكن. يتبع إعداد الهاتف إلى أن يختار المستخدم واحداً من الإعدادات. الخرائط تأخذ نمطاً داكناً في المظهر الداكن.</td></tr>
+    <tr><td>الدفع والعملة</td><td>نقداً للسائق، وللزبون محفظة يُضاف إليها الباقي الذي يتركه السائق. الأسعار بالليرة السورية الجديدة وبجانبها المبلغ بالقديمة (الجديدة = 100 قديمة).</td></tr>
+  </table>
+
+  <h3>بالأرقام</h3>
+  <table class="nums">
+    <tr>
+      <td><span class="n">518</span><span class="l">ملف Dart في <span class="code">lib/</span> (من دون الملفات المولّدة تلقائياً)</span></td>
+      <td><span class="n">≈ 50,700</span><span class="l">سطر، تشمل التعليقات والأسطر الفارغة</span></td>
+      <td><span class="n">35</span><span class="l">شاشة</span></td>
+    </tr>
+    <tr>
+      <td><span class="n">48</span><span class="l">Cubit لإدارة الحالة</span></td>
+      <td><span class="n">183</span><span class="l">ملف Widget منفصل لإعادة الاستخدام</span></td>
+      <td><span class="n">702 × 2</span><span class="l">نص مترجم (عربي وإنجليزي)</span></td>
+    </tr>
+    <tr>
+      <td><span class="n">55</span><span class="l">مسار API يستدعيه التطبيق</span></td>
+      <td><span class="n">20</span><span class="l">حدث Socket.IO (استقبال وإرسال)</span></td>
+      <td><span class="n">185</span><span class="l">نقطة API موثّقة في <span class="code">swagger.json</span></span></td>
+    </tr>
+    <tr>
+      <td><span class="n">9</span><span class="l">ميزات في جهة الزبون (مجلد لكل ميزة)</span></td>
+      <td><span class="n">10</span><span class="l">ميزات في جهة السائق (مجلد لكل ميزة)</span></td>
+      <td><span class="n">0</span><span class="l">ملاحظة من <span class="code">flutter analyze</span></span></td>
+    </tr>
+  </table>
+  <p class="source">طريقة العد: عُدّت الملفات والأسطر بالأوامر <span class="code">find</span> و<span class="code">wc</span>، والنصوص من ملفات <span class="code">.arb</span>، ونتيجة التحليل بتشغيل <span class="code">flutter analyze</span> في 18 نوفمبر 2026.</p>
+</section>
+
+<!-- ═════════════ 2. CUSTOMER ═════════════ -->
+<section>
+  <div class="section-no">02</div>
+  <h2>تطبيق الزبون</h2>
+  <p class="section-lead">أربعة تبويبات: إنشاء طلب، طلباتي، المحفظة، الإعدادات.</p>
+
+  <h3>البداية والحساب</h3>
+  <ul>
+    <li>صفحات تعريفية تظهر مرة واحدة عند أول تشغيل، ثم اختيار الدور (زبون أو سائق).</li>
+    <li>إنشاء حساب وتسجيل دخول. الموافقة على سياسة الخصوصية شرط لإنشاء الحساب.</li>
+    <li>تُحوَّل الأرقام العربية والفارسية في حقل الهاتف إلى أرقام لاتينية تلقائياً.</li>
+  </ul>
+
+  <h3>طلب رحلة</h3>
+  <ul>
+    <li>اختيار نقطة الانطلاق والوجهة بتحريك الدبوس على الخريطة أو بالبحث عن مكان، مع اختصارات للعناوين المحفوظة.</li>
+    <li>البحث عن الأماكن وتسمية موقع الدبوس يمرّان عبر خادم الشركة، ولا يستدعي الهاتف خدمات Google للبحث مباشرة. إذا وجد الخادم مكاناً أقرب لما كُتب يسأل الزبون: «هل تقصد…؟».</li>
+    <li>يعرض التطبيق السعر لكل نوع سيارة، ويمكن إضافة ملاحظة للسائق قبل الطلب.</li>
+    <li>الرحلات الأطول من 20 كم لا تُطلب من التطبيق. تظهر للزبون أرقام واتساب الإدارة ليطلب من خلالها.</li>
+    <li>عندما يفعّل المدير عرضاً ترويجياً تظهر نافذة تهنئة عند فتح الأسعار. النافذة لا تغيّر السعر.</li>
+  </ul>
+
+  <h3>متابعة الرحلة</h3>
+  <ul>
+    <li>قبول السائق وموقعه وتغيّر حالة الرحلة تصل لحظياً عبر Socket.IO.</li>
+    <li>خط الطريق والمسافة والوقت المتبقي من Google Routes API. يُطابَق كل موقع GPS على المسار داخل الهاتف، ولا يُطلب مسار جديد إلا إذا خرجت السيارة عن المسار أو مضى على المسار 3 دقائق، وبحد أقصى طلب واحد كل 15 ثانية. الهدف تقليل عدد الطلبات المدفوعة.</li>
+    <li>عدّاد الانتظار عند نقطة الانطلاق وعدّاد التوقف أثناء الرحلة يبدآن من الوقت الذي يرسله الخادم، فلا يتأثران بساعة الهاتف إن كانت خاطئة.</li>
+    <li>زر للاتصال بالسائق وزر «تواصل معنا». يمكن إلغاء الرحلة مع ذكر السبب قبل أن تبدأ.</li>
+    <li>عند نهاية الرحلة تظهر نافذة بالمبلغ المطلوب وتفاصيل الفاتورة، وتُغلق تلقائياً عندما يؤكد السائق استلام المبلغ.</li>
+  </ul>
+
+  <h3>بعد الرحلة</h3>
+  <ul>
+    <li>تقييم السائق من 1 إلى 5 نجوم مع تعليق اختياري، مرة واحدة لكل رحلة.</li>
+    <li>سجل الطلبات مقسّم إلى صفحات مع فلتر حسب الحالة. صفحة التفاصيل تعرض المسار الفعلي على الخريطة، والفاتورة، والأوقات.</li>
+    <li>المحفظة: الرصيد وسجل الحركات. أنواع الحركات: باقٍ تركه السائق (+)، دفع جزء من رحلة (−)، تعديل من المدير مع ملاحظته (±).</li>
+  </ul>
+
+  <h3>الإعدادات والإشعارات</h3>
+  <ul>
+    <li>تعديل البيانات الشخصية، العناوين المحفوظة، اللغة، المظهر، سياسة الخصوصية، تواصل معنا (هاتف وواتساب)، تقديم شكوى، حذف الحساب بعد إدخال كلمة المرور، تسجيل الخروج.</li>
+    <li>إشعارات Push عبر Firebase، وقائمة إشعارات داخل التطبيق مع عدد غير المقروء على أيقونة الجرس.</li>
+  </ul>
+</section>
+
+<!-- ═════════════ 3. DRIVER ═════════════ -->
+<section>
+  <div class="section-no">03</div>
+  <h2>تطبيق السائق</h2>
+  <p class="section-lead">أربعة تبويبات: الرئيسية، المحفظة، الملف الشخصي، الإعدادات.</p>
+
+  <h3>الحساب</h3>
+  <ul>
+    <li>يستطيع السائق إنشاء حساب من التطبيق مع صورة شخصية وصورة للسيارة (حتى 5 MB لكل صورة). يبقى الحساب بانتظار موافقة المدير، ويُرفض الدخول إلى أن تتم الموافقة. الحسابات المعلّقة أو الموقوفة أو المرفوضة تحصل على رسالة توضّح حالتها.</li>
+    <li>كل شاشات السائق محمية بفحص GPS: إذا أُطفئ الموقع تظهر نافذة لا يمكن إغلاقها حتى يُشغَّل من جديد.</li>
+  </ul>
+
+  <h3>استقبال الطلبات</h3>
+  <ul>
+    <li>زر «متصل / غير متصل». عند الاتصال يُرسل موقع السائق للخادم بشكل دوري.</li>
+    <li>عروض الطلبات تصل عبر Socket.IO على شكل موجات. كل عرض عليه عدّاد تنازلي مدته من الخادم (10 ثوانٍ إن لم يحدد الخادم غير ذلك)، مع صوت تنبيه يتكرر لمدة 10 ثوانٍ.</li>
+    <li>خيار على Android لفتح التطبيق تلقائياً عند وصول طلب جديد، وفقاعة عائمة تظهر عندما يكون التطبيق في الخلفية. كلاهما يحتاج موافقة السائق على صلاحيات النظام.</li>
+    <li>تنبيه على الشاشة الرئيسية عندما يقترب رصيد المحفظة من الحد الذي يرفض الخادم عنده قبول الطلبات.</li>
+    <li>شريط يوضّح أن الاتصال يُعاد، حتى لا يعتمد السائق على عروض قد تكون انتهت.</li>
+    <li>طلبات المكتب: موظف الاستقبال يرسل رابط الطلب على واتساب، فيفتح الرابط شاشة الطلب في التطبيق، وأول سائق يقبل يأخذ الطلب.</li>
+  </ul>
+
+  <h3>تنفيذ الرحلة</h3>
+  <ul>
+    <li>الخطوات: وصلت (اختياري، ويبدأ عدّاد الانتظار) ← بدء الرحلة ← إيقاف مؤقت / استئناف ← إنهاء ← نافذة بالمبلغ المطلوب وحصة السائق ← تأكيد استلام المبلغ.</li>
+    <li>قبل بدء رحلة طُلبت من التطبيق يُسأل السائق عن عدد الركاب.</li>
+    <li>إن لم يتوفر باقٍ مع السائق يستطيع إضافته لمحفظة الزبون (10، 20، 30، 40 أو مبلغ آخر ضمن حد أقصى).</li>
+    <li>الاتصال بالزبون، وإرسال اسم السائق وبيانات السيارة للزبون على واتساب، وإرسال فاتورة PDF للرحلة على واتساب (بخط يدعم العربية واللاتينية).</li>
+    <li>يُسجَّل مسار GPS أثناء الرحلة ويُحفظ على الجهاز، ثم يُرفع للخادم بعد الإنهاء. الرفع الفاشل يُعاد عند فتح التطبيق مرة أخرى.</li>
+    <li>إذا أُغلق التطبيق أثناء رحلة، يعيد التطبيق السائق إلى الرحلة نفسها عند فتحه. الشاشة تبقى مضاءة أثناء الرحلة.</li>
+    <li>إلغاء الرحلة من الإدارة أو من الزبون يصل عبر Socket.IO أو عبر إشعار Push، وكلاهما يغلق شاشة الرحلة.</li>
+  </ul>
+
+  <h3>المحفظة والتقييمات والإعدادات</h3>
+  <ul>
+    <li>تقرير مالي شهري: الأرباح، العمولات، المكافآت، الغرامات، التعويضات، صافي الدخل، الرصيد. مع صفحات تفصيلية للرحلات والأرباح والمكافآت والغرامات، والتنقل بين الأشهر.</li>
+    <li>صفحة التقييمات: المعدّل وقائمة التقييمات، وتنبيه فوري عند وصول تقييم جديد.</li>
+    <li>الملف الشخصي: البيانات وبطاقة السيارة، وتغيير الصورة الشخصية وصورة السيارة من الكاميرا أو المعرض.</li>
+    <li>الإعدادات: نطاق استقبال الطلبات من 1 إلى 10 كم، اللغة، المظهر، تواصل معنا، شكوى، سياسة الخصوصية، طلب حذف الحساب (يراجعه المدير ويمكن إلغاؤه)، تسجيل الخروج.</li>
+  </ul>
+</section>
+
+<!-- ═════════════ 4. TRIP & PRICING ═════════════ -->
+<section>
+  <div class="section-no">04</div>
+  <h2>دورة الرحلة والتسعير</h2>
+  <p class="section-lead">الخادم يقيس الوقت ويحسب كل الرسوم. التطبيقان يعرضان ما يرسله الخادم فقط.</p>
+
+  <h3>حالات الرحلة</h3>
+  <table class="flow">
+    <tr>
+      <td><div class="st">مطلوبة<small>1</small></div></td>
+      <td class="arrow">←</td>
+      <td><div class="st">مقبولة<small>2</small></div></td>
+      <td class="arrow">←</td>
+      <td><div class="st">وصل السائق<small>3 · اختيارية</small></div></td>
+      <td class="arrow">←</td>
+      <td><div class="st">جارية<small>4</small></div></td>
+      <td class="arrow">←</td>
+      <td><div class="st">مكتملة<small>5</small></div></td>
+    </tr>
+  </table>
+  <table class="flow" style="margin-top:0">
+    <tr><td><div class="cancel">ملغاة (6): من الزبون أو السائق أو المدير، قبل أن تكتمل الرحلة</div></td></tr>
+  </table>
+
+  <h3>مكوّنات السعر النهائي</h3>
+  <p>هكذا يقرأ التطبيق الفاتورة التي يرسلها الخادم عند انتهاء الرحلة:</p>
+  <div class="formula">final_price = base_fare + distance_fare + stops_fee_total<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ waiting_fee + pause_fee_total + passengers_fee + rounding</div>
+
+  <table class="data">
+    <tr><th style="width:38mm">البند</th><th>المعنى</th></tr>
+    <tr><td>الأجرة الأساسية والمسافة</td><td>بحسب نوع السيارة وشرائح السعر لكل كيلومتر التي يضبطها المدير.</td></tr>
+    <tr><td>رسوم التوقفات</td><td>مجموع رسوم التوقفات في الرحلة.</td></tr>
+    <tr><td>رسوم الانتظار</td><td>تبدأ عند ضغط السائق على «وصلت». عدد دقائق مجانية، ثم سعر لكل دقيقة.</td></tr>
+    <tr><td>رسوم التوقف المؤقت</td><td>توقف أثناء الرحلة بطلب الزبون. وقت مشمول، ثم رسوم.</td></tr>
+    <tr><td>رسوم الركاب</td><td>يضيفها المكتب لـ 5 أو 6 ركاب. قيمتها صفر في طلبات التطبيق.</td></tr>
+    <tr><td>التقريب</td><td>ما يضيفه تقريب السعر في الخادم أو ينقصه.</td></tr>
+  </table>
+
+  <h3>الدفع والعمولة</h3>
+  <p>يدفع الزبون نقداً للسائق، ويؤكد السائق الاستلام من التطبيق. بعد التأكيد يقسم الخادم المبلغ بين السائق والإدارة ويخصم العمولة من محفظة السائق. إن غطّت محفظة الزبون جزءاً من السعر، تعرض نافذة الدفع المبلغ النقدي المتبقي فقط.</p>
+
+  <h3>تحكّم الإدارة في التطبيقين</h3>
+  <ul>
+    <li><b>الإصدارات:</b> تحديث اختياري، تحديث إجباري، أو وضع صيانة برسالة ووقت عودة. يُفحص عند التشغيل وعند العودة للتطبيق وعندما يرسل الخادم حدث تغيّر الإصدار.</li>
+    <li><b>الإيقاف عن الرحلات:</b> يستطيع المدير إيقاف زبون أو سائق عن الرحلات حتى وقت محدد. يصل القرار لحظياً ويحلّ محلّ زر الطلب أو عروض الطلبات.</li>
+  </ul>
+</section>
+
+<!-- ═════════════ 5. ARCHITECTURE ═════════════ -->
+<section>
+  <div class="section-no">05</div>
+  <h2>البنية التقنية</h2>
+  <p class="section-lead">الكود مقسّم حسب الميزات. لكل ميزة طبقة بيانات وطبقة عرض، والميزات لا تستورد من بعضها.</p>
+
+  <table class="two"><tr>
+  <td style="width:52%">
+<div class="tree">lib/
+├── main.dart
+├── core/              shared, app-wide
+│   ├── network/       Dio, sockets, errors
+│   ├── injection/     get_it setup
+│   ├── routing/       routes, shells
+│   ├── l10n/          ar + en strings
+│   ├── theme/         light + dark
+│   └── widgets/       shared UI
+├── features/          customer side
+│   ├── auth/  home/  tracking/
+│   ├── trips/  wallet/  settings/
+│   └── notifications/  onboarding/ …
+└── driver_features/   driver side
+    ├── driver_home/  driver_trip/
+    ├── driver_wallet/  driver_auth/
+    └── driver_profile/  driver_settings/ …</div>
+  </td>
+  <td>
+    <p><b>داخل كل ميزة:</b></p>
+    <ul>
+      <li><span class="code">data/</span>: مصادر البيانات (Dio أو التخزين المحلي)، النماذج، والمستودعات.</li>
+      <li><span class="code">presentation/</span>: Cubit وحالته، الشاشات، والـ Widgets.</li>
+    </ul>
+    <p><b>في الكود:</b></p>
+    <ul>
+      <li>لا استدعاءات API داخل الواجهة أو الـ Cubit.</li>
+      <li>كل المسارات في ملف واحد، وكل التسجيلات في ملف حقن واحد.</li>
+      <li>الحالات غير قابلة للتعديل (Equatable).</li>
+    </ul>
+  </td>
+  </tr></table>
+
+  <h3>مسار البيانات</h3>
+  <table class="arch">
+    <tr>
+      <td><div class="box">Screen / Widget<small>BlocSelector</small></div></td>
+      <td class="arrow">→</td>
+      <td><div class="box hl">Cubit<small>immutable state</small></div></td>
+      <td class="arrow">→</td>
+      <td><div class="box">Repository<small>structured errors</small></div></td>
+      <td class="arrow">→</td>
+      <td><div class="box">DataSource<small>REST / socket / local</small></div></td>
+      <td class="arrow">→</td>
+      <td><div class="box hl">ApiClient (Dio)<small>token · errors · log</small></div></td>
+    </tr>
+  </table>
+
+  <table class="facts">
+    <tr><td>حقن الاعتماديات</td><td><span class="code">get_it</span> في ملف واحد: <span class="code">lib/core/injection/injection.dart</span>. الشاشات لا تُنشئ مستودعات أو خدمات بنفسها.</td></tr>
+    <tr><td>الأخطاء</td><td>كل خطأ من الشبكة يتحول إلى <span class="code">ApiException</span> برسالة مترجمة؛ لا يُعرض نص الخادم الإنجليزي كما هو، إلا رسالة «رصيد المحفظة غير كافٍ» لأن الخادم يكتبها بلغة السائق.</td></tr>
+    <tr><td>الجلسة</td><td>إذا لم يتمكن التطبيق من الوصول للخادم عند التشغيل، يبقى المستخدم مسجلاً. تسجيل الخروج التلقائي يحدث فقط عندما يرد الخادم بـ 401.</td></tr>
+  </table>
+
+  <h3>الاتصالات اللحظية (Socket.IO)</h3>
+  <table class="data">
+    <tr><th style="width:32mm">الاتصال</th><th style="width:34mm">مدته</th><th>ما ينقله</th></tr>
+    <tr><td>السائق</td><td>طوال فترة الاتصال</td><td>قائمة الطلبات، عروض جديدة، إزالة عرض، إلغاء رحلة، تقييم جديد، تحديثات طلبات المكتب. يرسل الموقع وقبول الطلب مع تأكيد من الخادم.</td></tr>
+    <tr><td>الزبون</td><td>شاشة تتبع الرحلة</td><td>قبول السائق، موقعه، حالة الرحلة، التوقف المؤقت، تأكيد الدفع. يرسل الإلغاء مع تأكيد من الخادم.</td></tr>
+    <tr><td>الحساب</td><td>ما دام المستخدم مسجلاً</td><td>الإيقاف عن الرحلات للزبون والسائق، وإشعار تغيّر إصدار التطبيق.</td></tr>
+  </table>
+</section>
+
+<!-- ═════════════ 6. BACKEND & DASHBOARD ═════════════ -->
+<section>
+  <div class="section-no">06</div>
+  <h2>الخادم ولوحة الإدارة</h2>
+  <p class="section-lead">ما يقدّمه الخادم كما هو موثّق في ملف الـ API.</p>
+
+  <div class="note warn">
+    <b>مصدر هذا القسم:</b> ملف <span class="code">lib/features/auth/data/swagger.json</span> (OpenAPI، ‏185 نقطة، 91 نموذج بيانات). كود الخادم وواجهة لوحة الإدارة ليسا في هذا المستودع ولم تتم مراجعتهما. يصف هذا القسم ما يعلن الـ API أنه يقدّمه، ولا يؤكد طريقة تنفيذه.
+  </div>
+
+  <table class="facts">
+    <tr><td>الحسابات والأدوار</td><td>زبون، سائق، مدير، وموظفون بأنواع: الاستقبال والموزّع. الدخول بـ JWT: رمز وصول قصير (15 دقيقة افتراضياً) ورمز تجديد (30 يوماً افتراضياً) يُخزَّن مشفّراً بالـ hash في قاعدة البيانات.</td></tr>
+    <tr><td>طلبات المكتب</td><td>الاستقبال يكتب طلباً من مكالمة أو رسالة واتساب، ويبحث عن الزبون برقم هاتفه، ويرى السعر لكل نوع سيارة. الموزّع يرى السائقين المتاحين ويرسل الطلب لأحدهم، أو يطلب من الاستقبال تعديل الطلب. يدعم الطلبات المجدولة وإشعارات للاستقبال بتغيّر حالة طلباته (16 نقطة).</td></tr>
+    <tr><td>التسعير</td><td>أنواع السيارات، شرائح سعر الكيلومتر لكل نوع، شرائح العمولة حسب مسافة الرحلة، رسوم الانتظار، رسوم التوقف، رسوم حسب الموقع، رسوم حسب عدد الركاب، وحاسبة تعرض سعر رحلة بطول معيّن حسب القواعد الحالية.</td></tr>
+    <tr><td>السائقون</td><td>تغيير الحالة، تحديد مالك السيارة (السائق أو الشركة)، غرامات، مكافآت، شحن المحفظة وسجلها، تغيير كلمة المرور، الموافقة على طلبات حذف الحساب أو رفضها، وتحليلات لكل سائق: وقت الاتصال، الوقت في الرحلات، عدد الرحلات والمبالغ.</td></tr>
+    <tr><td>الانضباط</td><td>قائمة بالسائقين والزبائن الذين ألغوا رحلات مقبولة أكثر من الحد، مع تفاصيل كل حالة، وإيقافهم عن الرحلات لعدد ساعات، أو رفع الإيقاف، أو تجاهل المخالفات.</td></tr>
+    <tr><td>الطلبات</td><td>قائمة كل الطلبات، تفاصيل الطلب مع التوقفات والمسار الفعلي، إنشاء طلب من الإدارة وإسناده لسائق، الإلغاء، وتسجيل طلب كمدفوع إن لم يؤكد السائق الدفع.</td></tr>
+    <tr><td>التواصل</td><td>إشعار لمستخدم واحد أو لكل الزبائن أو كل السائقين أو الجميع، إدارة الشكاوى، أرقام التواصل وترتيبها، سياسة الخصوصية والشروط باللغتين.</td></tr>
+    <tr><td>التشغيل</td><td>الإصدار الأحدث والأدنى لكل تطبيق وكل منصة، وتشغيل وضع الصيانة. سجل يومي للسيارات بمجاميع أسبوعية وشهرية، سجل الأعطال، وتقارير يرسلها الاستقبال للمدير مع صور.</td></tr>
+    <tr><td>المواقع (Geo v2)</td><td>اقتراحات أثناء الكتابة من دون استدعاء Google، تحويل النص إلى نقطة، تأكيد أو رفض النتيجة من المستخدم، تسمية الدبوس عبر Google Geocoding، وتقدير السعر وسعر المسار النهائي.</td></tr>
+  </table>
+
+  <h3>توزيع النقاط حسب المجموعة</h3>
+  <table class="data">
+    <thead><tr><th>المجموعة</th><th style="width:20mm">النقاط</th><th>المجموعة</th><th style="width:20mm">النقاط</th></tr></thead>
+    <tr><td>إدارة عامة (Admin)</td><td class="num">33</td><td>المحفظة والحساب والإعدادات للسائق</td><td class="num">10</td></tr>
+    <tr><td>طلبات المكتب</td><td class="num">16</td><td>ملف الزبون ورحلاته وعناوينه</td><td class="num">16</td></tr>
+    <tr><td>رحلات السائق</td><td class="num">12</td><td>المصادقة (زبون، سائق، إدارة، موظف)</td><td class="num">13</td></tr>
+    <tr><td>التسعير والرسوم</td><td class="num">16</td><td>تقارير الاستقبال</td><td class="num">8</td></tr>
+    <tr><td>الموظفون</td><td class="num">7</td><td>أرقام التواصل</td><td class="num">7</td></tr>
+    <tr><td>إنشاء طلب من الإدارة</td><td class="num">5</td><td>المواقع (Geo v2)</td><td class="num">6</td></tr>
+    <tr><td>الإيقاف بسبب الإلغاء</td><td class="num">5</td><td>الإشعارات (زبون وسائق)</td><td class="num">6</td></tr>
+    <tr><td>الأعطال</td><td class="num">5</td><td>سجل السيارات</td><td class="num">4</td></tr>
+    <tr><td>إصدارات التطبيق</td><td class="num">4</td><td>الخصوصية والشروط</td><td class="num">6</td></tr>
+    <tr><td>طلبات حذف حسابات السائقين</td><td class="num">3</td><td>تحليلات السائقين، الشكاوى، فحص الخادم</td><td class="num">3</td></tr>
+  </table>
+  <p class="source">المجموع 185. «التسعير والرسوم» يجمع ثلاث مجموعات: <span class="en">Admin Pricing (6)</span>، <span class="en">Location Fees (5)</span>، <span class="en">Passenger Fees (5)</span>. وسوم المجموعات من <span class="code">swagger.json</span> نفسه.</p>
+</section>
+
+<!-- ═════════════ 8. SERVICES & LIMITS ═════════════ -->
+<section>
+  <div class="section-no">07</div>
+  <h2>الخدمات الخارجية والملاحظات المعروفة</h2>
+  <p class="section-lead">ما يعتمد عليه التشغيل، وما يجب أن يعرفه المشتري قبل الاستلام.</p>
+
+  <h3>الخدمات التي يعتمد عليها التطبيق</h3>
+  <table class="data">
+    <tr><th style="width:42mm">الخدمة</th><th>الاستخدام</th><th style="width:40mm">ملاحظة</th></tr>
+    <tr><td>خادم Smart Taxi</td><td>REST وSocket.IO</td><td>العنوان مكتوب في الكود</td></tr>
+    <tr><td>Firebase Cloud Messaging</td><td>إشعارات Push للدورين</td><td>Firebase للإشعارات فقط</td></tr>
+    <tr><td>Google Maps SDK</td><td>كل الخرائط في التطبيق</td><td>يحتاج مفتاح Google</td></tr>
+    <tr><td>Google Routes API</td><td>خط الطريق والمسافة والوقت في تتبع الزبون</td><td>مدفوع لكل طلب</td></tr>
+    <tr><td>Google Geocoding</td><td>تسمية موقع الدبوس، من الخادم وليس من الهاتف</td><td>حسب swagger.json</td></tr>
+  </table>
+
+  <h3>ملاحظات معروفة</h3>
+  <table class="data">
+    <tr><th style="width:8mm">#</th><th>الملاحظة</th></tr>
+    <tr><td>1</td><td>تسجيل طلبات وردود HTTP مفعّل دائماً، حتى في نسخة الإصدار (<span class="code">api_client.dart</span>)، فتظهر محتوياتها في سجل الجهاز. يُفضّل ربطه بنسخة التطوير فقط.</td></tr>
+    <tr><td>2</td><td>عنوان الخادم مكتوب في ملفين: <span class="code">api_client.dart</span> و<span class="code">socket_client.dart</span>. تغيير الخادم يتطلب تعديل الاثنين.</td></tr>
+    <tr><td>3</td><td>ملف <span class="code">.env</span> يُضمَّن داخل التطبيق، فمفتاح Google الموجود فيه يمكن استخراجه من ملف التطبيق، كما هي الحال مع مفتاح الخرائط في Android.</td></tr>
+    <tr><td>4</td><td>8 مسارات يستدعيها التطبيق غير موثّقة في <span class="code">swagger.json</span>: محفظة الزبون، تقييم الرحلة، تقييمات السائق، ملف السائق، أنواع السيارات عند التسجيل، وثلاثة تقارير مالية للسائق (الرحلات، الأرباح، المكافآت).</td></tr>
+    <tr><td>5</td><td>لا يوجد ملف يوثّق أحداث Socket.IO. الكود يشير إلى <span class="code">docs/socket.md</span> لكنه غير موجود، والأحداث في هذا الملف مستخرجة من الكود.</td></tr>
+    <tr><td>6</td><td>لا توجد صفحة على App Store. رابط متجر iOS فارغ في الكود.</td></tr>
+    <tr><td>7</td><td>رقم الإصدار الظاهر أسفل الإعدادات (<span class="code">4.0.0</span>) يُعدَّل يدوياً، ولا يطابق رقم الإصدار في <span class="code">pubspec.yaml</span> (<span class="code">5.12.0+19</span>).</td></tr>
+    <tr><td>8</td><td>عند السائق تبويب «المسار» (عدّاد خاص على الجهاز) موجود في الكود لكنه مخفي من شريط التبويبات.</td></tr>
+    <tr><td>9</td><td>ملفات التوثيق الداخلية (README و<span class="code">PRODUCT.md</span> و<span class="code">DESIGN.md</span>) غير محدّثة ولا تطابق الكود الحالي. المرجع الصحيح هو الكود نفسه وملف <span class="code">swagger.json</span>.</td></tr>
+  </table>
+</section>
+
+<!-- ═════════════ 9. HANDOVER ═════════════ -->
+<section>
+  <div class="section-no">08</div>
+  <h2>محتوى المستودع والتسليم</h2>
+  <p class="section-lead">ما في المستودع، وما يُسلَّم بشكل منفصل.</p>
+
+  <h3>في المستودع</h3>
+  <table class="facts">
+    <tr><td>الكود</td><td>تطبيق Flutter كاملاً في <span class="code">lib/</span>، ومشروعا Android وiOS. في Android كود Kotlin ‏(427 سطراً) للفقاعة العائمة، وإظهار التطبيق فوق التطبيقات الأخرى عند وصول طلب، وإرسال الفاتورة لواتساب، وتعريف التطبيق لدى Google Routes API.</td></tr>
+    <tr><td>الموارد</td><td>الشعار وأيقونات التطبيق، فيديو شاشة البداية، صوت تنبيه الطلب، نمط الخريطة الداكن، خط Tajawal، صور الصفحات التعريفية (برخصة Unsplash).</td></tr>
+    <tr><td>التوثيق</td><td><span class="code">swagger.json</span> لعقد الـ API. توجد أيضاً ملفات README و<span class="code">PRODUCT.md</span> و<span class="code">DESIGN.md</span>، لكنها غير محدّثة.</td></tr>
+    <tr><td>إعداد Firebase</td><td>ملفات الإعداد لـ Android وiOS موجودة في المستودع.</td></tr>
+    <tr><td>سجل git</td><td>39 commit، من 27 سبتمبر 2026.</td></tr>
+  </table>
+
+  <h3>ليس في المستودع، ويُسلَّم بشكل منفصل</h3>
+  <table class="facts">
+    <tr><td>الخادم واللوحة</td><td>كود الخادم وواجهة لوحة الإدارة.</td></tr>
+    <tr><td>توقيع Android</td><td>ملف مفتاح التوقيع (keystore) وملف <span class="code">key.properties</span>. من دونهما لا يمكن نشر تحديث للتطبيق الحالي على Google Play.</td></tr>
+    <tr><td>مفاتيح Google</td><td>مفتاح الخرائط في <span class="code">.env</span> و<span class="code">android/local.properties</span> و<span class="code">ios/Flutter/Secrets.xcconfig</span>. هذه الملفات مستثناة من git عمداً.</td></tr>
+  </table>
+
+  <div class="note">
+    <b>لتشغيل النظام باسم جهة جديدة</b> تحتاج على الأقل: عنوان الخادم في الملفين المذكورين، مشروع Firebase جديد، مفتاح Google مفعّل عليه Maps وRoutes API، مفتاح توقيع، ومعرّف حزمة جديد إذا كان التطبيق سيُنشر كتطبيق منفصل.
+  </div>
+</section>
+
+</body>
+</html>

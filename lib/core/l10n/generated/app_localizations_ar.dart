@@ -771,9 +771,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا يوجد اتصال. ستُنهى الرحلة تلقائياً بمجرد عودة الاتصال.';
 
   @override
-  String orderOfferSecondsLeft(int seconds) {
-    return 'متبقّي $seconds ث';
-  }
+  String get orderOfferShowDetails => 'التفاصيل';
+
+  @override
+  String get orderOfferHideDetails => 'إخفاء التفاصيل';
 
   @override
   String get driverAcceptTripFailed => 'تعذر قبول الرحلة';

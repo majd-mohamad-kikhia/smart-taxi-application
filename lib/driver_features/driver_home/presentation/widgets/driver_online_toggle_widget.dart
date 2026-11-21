@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/injection/injection.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
@@ -9,12 +8,11 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_icon_tile_widget.dart';
 import '../../../../core/widgets/app_animated_dialog.dart';
 import '../../../../core/widgets/app_neutral_button_widget.dart';
-import '../../../../core/widgets/auth_error_banner_widget.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
-import '../../data/location_ticker.dart';
 import '../cubit/driver_orders_cubit.dart';
 import '../cubit/driver_presence_cubit.dart';
 import '../cubit/driver_presence_state.dart';
+import 'driver_presence_error_widget.dart';
 
 /// The driver's online/offline control for the live-location connection.
 /// [enabled] gates it on the driver's account being approved — see
@@ -70,7 +68,7 @@ class DriverOnlineToggleWidget extends StatelessWidget {
                         Semantics(
                           liveRegion: true,
                           child: Text(
-                            _title(context, state.status),
+                            driverPresenceTitle(context, state.status),
                             style: textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.w800,
                               color: isOnline
@@ -94,18 +92,10 @@ class DriverOnlineToggleWidget extends StatelessWidget {
               if (state.status == DriverPresenceStatus.error &&
                   state.errorMessage != null) ...[
                 const SizedBox(height: AppConstants.paddingM),
-                AuthErrorBannerWidget(message: state.errorMessage!),
-                if (state.locationFailureReason != null) ...[
-                  const SizedBox(height: AppConstants.paddingS),
-                  AppNeutralButtonWidget(
-                    label: l10n.openSettings,
-                    icon: Icons.settings_outlined,
-                    onPressed: () => state.locationFailureReason ==
-                            LocationFailureReason.serviceDisabled
-                        ? Geolocator.openLocationSettings()
-                        : Geolocator.openAppSettings(),
-                  ),
-                ],
+                DriverPresenceErrorWidget(
+                  message: state.errorMessage!,
+                  reason: state.locationFailureReason,
+                ),
               ] else if (!enabled) ...[
                 const SizedBox(height: AppConstants.paddingM),
                 Text(
@@ -130,7 +120,7 @@ class DriverOnlineToggleWidget extends StatelessWidget {
       DriverPresenceStatus.online || DriverPresenceStatus.connecting =>
         AppNeutralButtonWidget(
           label: l10n.presenceGoOffline,
-          onPressed: () => _goOffline(context, cubit),
+          onPressed: () => confirmDriverGoOffline(context, cubit),
         ),
       DriverPresenceStatus.offline || DriverPresenceStatus.error =>
         AuthPrimaryButtonWidget(
@@ -141,33 +131,38 @@ class DriverOnlineToggleWidget extends StatelessWidget {
     };
   }
 
-  /// With offers on screen, going offline makes them vanish — ask first.
-  Future<void> _goOffline(BuildContext context, DriverPresenceCubit cubit) {
-    if (sl<DriverOrdersCubit>().state.orders.isEmpty) {
-      cubit.goOffline();
-      return Future.value();
-    }
-    final l10n = context.l10n;
-    return showAppDialog<void>(
-      context: context,
-      title: l10n.goOfflineConfirmTitle,
-      message: l10n.goOfflineConfirmMessage,
-      icon: Icons.power_settings_new_rounded,
-      tone: AppDialogTone.warning,
-      confirmLabel: l10n.presenceGoOffline,
-      onConfirm: cubit.goOffline,
-    );
-  }
+}
 
-  String _title(BuildContext context, DriverPresenceStatus status) {
-    final l10n = context.l10n;
-    return switch (status) {
-      DriverPresenceStatus.online => l10n.presenceYouAreOnline,
-      DriverPresenceStatus.connecting => l10n.presenceConnecting,
-      DriverPresenceStatus.offline ||
-      DriverPresenceStatus.error => l10n.presenceYouAreOffline,
-    };
+/// With offers on screen, going offline makes them vanish — ask first.
+Future<void> confirmDriverGoOffline(
+  BuildContext context,
+  DriverPresenceCubit cubit,
+) {
+  if (sl<DriverOrdersCubit>().state.orders.isEmpty) {
+    cubit.goOffline();
+    return Future.value();
   }
+  final l10n = context.l10n;
+  return showAppDialog<void>(
+    context: context,
+    title: l10n.goOfflineConfirmTitle,
+    message: l10n.goOfflineConfirmMessage,
+    icon: Icons.power_settings_new_rounded,
+    tone: AppDialogTone.warning,
+    confirmLabel: l10n.presenceGoOffline,
+    onConfirm: cubit.goOffline,
+  );
+}
+
+/// The headline for the driver's connection status ("You're online"…).
+String driverPresenceTitle(BuildContext context, DriverPresenceStatus status) {
+  final l10n = context.l10n;
+  return switch (status) {
+    DriverPresenceStatus.online => l10n.presenceYouAreOnline,
+    DriverPresenceStatus.connecting => l10n.presenceConnecting,
+    DriverPresenceStatus.offline ||
+    DriverPresenceStatus.error => l10n.presenceYouAreOffline,
+  };
 }
 
 /// A rounded status tile with a car icon: green when online, amber while

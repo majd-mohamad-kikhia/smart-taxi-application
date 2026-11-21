@@ -381,14 +381,8 @@
     }
   },
   "tripFinishQueued": "No connection. The trip will finish automatically as soon as you are back online.",
-  "orderOfferSecondsLeft": "{seconds} s left",
-  "@orderOfferSecondsLeft": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
+  "orderOfferShowDetails": "Details",
+  "orderOfferHideDetails": "Hide details",
   "driverAcceptTripFailed": "Couldn't accept the trip",
   "driverGoOnlineHint": "Go online to see trip requests",
   "driverMapRecenter": "Back to my location",

@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>نظام تاكسي متكامل — جاهز للإطلاق باسمك</title>
+<style>
+@font-face { font-family: "Tajawal"; font-weight: 400; src: url("../../assets/fonts/Tajawal-Regular.ttf"); }
+@font-face { font-family: "Tajawal"; font-weight: 700; src: url("../../assets/fonts/Tajawal-Bold.ttf"); }
+
+/* Palette (blue)
+   ink #141C2B · muted #475467 / #5B6577 / #6B7487 · line #DDE4EF / #CBD5E3 · tint #F3F6FB
+   primary #1D4ED8 · on-dark accent #60A5FA / stroke #3B82F6
+   dark #0B1220 · dark line #22304A · on-dark text #E8EEF8 / #A9B8D0 / #93A4BF */
+
+@page { size: A4; margin: 0; }
+
+html { direction: rtl; }
+body {
+  font-family: "Tajawal", sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.6;
+  color: #141C2B;
+  margin: 0;
+}
+.code, .en {
+  font-family: "Tajawal", sans-serif;
+  direction: ltr; unicode-bidi: embed; display: inline-block; white-space: nowrap;
+}
+
+/* ── Page shell ─────────────────────── */
+.page {
+  width: 210mm; height: 297mm; box-sizing: border-box;
+  padding: 20mm 18mm 16mm;
+  position: relative; overflow: hidden;
+  page-break-after: always;
+}
+.page:last-child { page-break-after: auto; }
+.dark { background: #0B1220; color: #E8EEF8; }
+.tint { background: #F3F6FB; }
+
+.folio {
+  position: absolute; bottom: 9mm; left: 18mm; right: 18mm;
+  font-size: 8pt; color: #7B8496;
+}
+.folio .n { float: left; }
+.dark .folio { color: #6E7F9C; }
+
+.kicker { font-size: 9.5pt; font-weight: 700; color: #1D4ED8; letter-spacing: 0.02em; }
+.dark .kicker { color: #60A5FA; }
+h2 { font-size: 26pt; line-height: 1.25; margin: 2mm 0 4mm; font-weight: 700; }
+.lead { font-size: 12pt; line-height: 1.7; color: #475467; max-width: 160mm; margin: 0 0 9mm; }
+.dark .lead { color: #A9B8D0; }
+
+/* ── Cover ──────────────────────────── */
+.cover { padding: 0; }
+.cover .top { padding: 26mm 20mm 0; }
+.badge {
+  display: inline-block; font-size: 10pt; font-weight: 700; color: #60A5FA;
+  border: 1px solid #3B82F6; padding: 1.2mm 4mm;
+}
+.cover h1 {
+  font-size: 44pt; line-height: 1.2; margin: 20mm 0 7mm; font-weight: 700; color: #ffffff;
+}
+.cover h1 .g { color: #60A5FA; }
+.cover .sub { font-size: 14pt; line-height: 1.75; color: #C2CEE0; max-width: 150mm; }
+.perks { margin-top: 8mm; font-size: 11pt; color: #E8EEF8; }
+.perks span { display: inline-block; margin-left: 6mm; }
+.perks span::before { content: "✓"; color: #60A5FA; font-weight: 700; margin-left: 2mm; }
+.road { margin: 24mm 0 0; height: 1.4mm; width: 210mm; }
+.road td { background: #3B82F6; height: 1.4mm; padding: 0; }
+.road td.gap { background: transparent; }
+.pillars {
+  position: absolute; left: 20mm; bottom: 24mm; width: 170mm;
+  border-collapse: separate; border-spacing: 5mm 0; table-layout: fixed;
+}
+.pillar { border-top: 2px solid #3B82F6; padding-top: 4mm; vertical-align: top; }
+.pillar b { display: block; font-size: 13pt; color: #fff; margin-bottom: 1mm; }
+.pillar span { font-size: 9.5pt; color: #93A4BF; line-height: 1.55; }
+
+/* ── Three-part overview ───────────── */
+.trio { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5mm; margin-bottom: 11mm; }
+.trio .card { background: #fff; border: 1px solid #DDE4EF; padding: 6mm 5mm 5mm; }
+.trio .card .tag { font-size: 8.5pt; font-weight: 700; color: #1D4ED8; }
+.trio .card h3 { font-size: 15pt; margin: 1mm 0 2.5mm; line-height: 1.3; }
+.trio .card p { margin: 0; font-size: 10pt; color: #475467; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid #CBD5E3; border-bottom: 1px solid #CBD5E3; margin-bottom: 11mm; }
+.stat { padding: 5mm 4mm; border-left: 1px solid #CBD5E3; }
+.stat:last-child { border-left: none; }
+.stat b { display: block; font-size: 24pt; line-height: 1.1; color: #1D4ED8; direction: ltr; text-align: right; }
+.stat span { font-size: 9pt; color: #5B6577; }
+
+.callout { background: #0B1220; color: #E8EEF8; padding: 7mm 8mm; }
+.callout h3 { margin: 0 0 2mm; font-size: 14pt; color: #fff; }
+.callout p { margin: 0; font-size: 10.5pt; line-height: 1.75; color: #A9B8D0; }
+
+/* ── Feature grids ─────────────────── */
+.features { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm 10mm; margin-bottom: 10mm; }
+.feature { border-top: 2px solid #1D4ED8; padding-top: 3.5mm; }
+.feature h3 { font-size: 14pt; margin: 0 0 2mm; line-height: 1.35; }
+.feature p { margin: 0; font-size: 11pt; color: #475467; line-height: 1.7; }
+.dark .feature { border-top-color: #3B82F6; }
+.dark .feature h3 { color: #fff; }
+.dark .feature p { color: #A9B8D0; }
+.features.three { grid-template-columns: 1fr 1fr 1fr; gap: 8mm 7mm; }
+.features.three .feature h3 { font-size: 13pt; }
+.features.three .feature p { font-size: 10.5pt; }
+
+.extras { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; background: #0B1220; }
+.extras div { padding: 6mm 6mm; border-left: 1px solid #22304A; }
+.extras div:last-child { border-left: none; }
+.extras b { display: block; color: #fff; font-size: 11.5pt; margin-bottom: 1.5mm; }
+.extras span { color: #A9B8D0; font-size: 9.8pt; line-height: 1.6; display: block; }
+.extras-title { font-size: 9pt; font-weight: 700; color: #1D4ED8; margin-bottom: 2mm; }
+
+.stats.darkstats { border-color: #22304A; }
+.stats.darkstats .stat { border-left-color: #22304A; }
+.stats.darkstats .stat b { color: #60A5FA; }
+.stats.darkstats .stat span { color: #93A4BF; }
+
+.steps.dark-steps .step b { color: #fff; }
+.steps.dark-steps .step span { color: #A9B8D0; }
+.steps.dark-steps .num { background: #3B82F6; }
+
+/* ── Money page ────────────────────── */
+.fare { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2.5mm; margin: 2mm 0 3mm; }
+.fare div { background: #fff; border: 1px solid #DDE4EF; padding: 4mm 2mm; text-align: center; font-size: 9.5pt; font-weight: 700; line-height: 1.4; }
+.fare small { display: block; font-weight: 400; color: #6B7487; font-size: 8pt; margin-top: 1mm; }
+.fare-total { background: #1D4ED8; color: #fff; text-align: center; padding: 3.5mm; font-weight: 700; font-size: 11pt; margin-bottom: 10mm; }
+
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 2mm 0 10mm; }
+.step { padding: 0 0 0 4mm; }
+.step .num { display: block; width: 8mm; height: 8mm; line-height: 8.4mm; border-radius: 50%; background: #1D4ED8; color: #fff; text-align: center; font-weight: 700; font-size: 10pt; margin-bottom: 2mm; }
+.step b { display: block; font-size: 11pt; margin-bottom: 1mm; }
+.step span { font-size: 9.5pt; color: #475467; line-height: 1.55; display: block; }
+
+h4 { font-size: 13pt; margin: 0 0 3mm; }
+
+/* ── Tech page ─────────────────────── */
+.stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; margin-bottom: 9mm; }
+.stack div { border: 1px solid #22304A; padding: 3.5mm 4mm; }
+.stack b { display: block; color: #fff; font-size: 11pt; direction: ltr; text-align: right; }
+.stack span { font-size: 9pt; color: #93A4BF; }
+
+/* ── Handover page ─────────────────── */
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; }
+.list { margin: 0; padding: 0; list-style: none; }
+.list li { padding: 3.2mm 0; border-bottom: 1px solid #DDE4EF; font-size: 11pt; }
+.list li b { display: block; font-size: 12pt; }
+.list li span { color: #5B6577; font-size: 10pt; }
+
+.closing {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 66mm; box-sizing: border-box;
+  background: #0B1220; padding: 15mm 18mm 0;
+}
+.closing .slogan { font-size: 24pt; font-weight: 700; color: #fff; line-height: 1.3; }
+.closing .slogan .g { color: #60A5FA; }
+.closing .line { color: #C2CEE0; font-size: 12pt; margin-top: 3mm; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ COVER ═══════════ -->
+<div class="page dark cover">
+  <div class="top">
+    <div class="badge">جاهز للإطلاق باسمك</div>
+    <h1>نظام تاكسي متكامل<br><span class="g">لشركتك وأسطولك</span></h1>
+    <div class="sub">تطبيق للزبون، تطبيق للسائق، وخادم بلوحة إدارة تتحكم من خلالها بالأسعار والسائقين والطلبات.</div>
+    <div class="perks"><span>باسمك وشعارك</span><span>عربي وإنجليزي</span><span>الكود المصدري كاملاً</span></div>
+  </div>
+  <table class="road" cellspacing="0"><tr>
+    <td></td><td class="gap"></td><td></td><td class="gap"></td><td></td><td class="gap"></td><td></td><td class="gap"></td><td></td><td class="gap"></td><td></td><td class="gap"></td><td></td><td class="gap"></td><td></td><td class="gap"></td><td></td>
+  </tr></table>
+  <table class="pillars"><tr>
+    <td class="pillar"><b>تطبيق الزبون</b><span>طلب، سعر مسبق، تتبّع مباشر، محفظة</span></td>
+    <td class="pillar"><b>تطبيق السائق</b><span>عروض لحظية، تنفيذ الرحلة، أرباح شهرية</span></td>
+    <td class="pillar"><b>الإدارة</b><span>تسعير، مركز اتصال، متابعة السائقين</span></td>
+  </tr></table>
+</div>
+
+<!-- ═══════════ 1. OVERVIEW ═══════════ -->
+<div class="page tint">
+  <div class="kicker">النظام</div>
+  <h2>ثلاثة أجزاء تعمل كنظام واحد</h2>
+  <p class="lead">كل ما تحتاجه شركة تاكسي لتستقبل الطلبات من التطبيق ومن الهاتف، وتوزّعها على سائقيها، وتحاسبهم. من أول طلب حتى آخر ليرة.</p>
+
+  <div class="trio">
+    <div class="card">
+      <div class="tag">01 · للزبون</div>
+      <h3>يطلب ويعرف السعر مسبقاً</h3>
+      <p>يختار الانطلاق والوجهة، يرى السعر لكل نوع سيارة، ثم يتابع السائق على الخريطة حتى يصل.</p>
+    </div>
+    <div class="card">
+      <div class="tag">02 · للسائق</div>
+      <h3>يستقبل وينفّذ ويحاسَب</h3>
+      <p>تصله الطلبات لحظياً، ينفّذ الرحلة خطوة بخطوة، ويرى أرباحه وعمولاته وغراماته كل شهر.</p>
+    </div>
+    <div class="card">
+      <div class="tag">03 · للإدارة</div>
+      <h3>تضع القواعد وتوزّع الطلبات</h3>
+      <p>تحدد الأسعار والعمولات، توزّع طلبات المكالمات على السائقين، وتتابع كل سائق.</p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>35</b><span>شاشة في التطبيق</span></div>
+    <div class="stat"><b>2</b><span>لغتان كاملتان، 702 نص لكل لغة</span></div>
+    <div class="stat"><b>185</b><span>نقطة API موثّقة في الخادم</span></div>
+    <div class="stat"><b>20</b><span>حدثاً لحظياً بين التطبيق والخادم</span></div>
+  </div>
+
+  <div class="callout">
+    <h3>مصمَّم لشركة تملك أسطولها، وتضع قواعدها</h3>
+    <p>ليس سوقاً مفتوحاً للسائقين المستقلين. أنت من يحدد كم دقيقة انتظار مجانية وكم سعر الدقيقة بعدها، ونسبة العمولة حسب مسافة الرحلة، والمكافآت والغرامات. وتستطيع إلغاء أي رحلة، أو إيقاف زبون أو سائق عن الرحلات لعدد من الساعات.</p>
+  </div>
+
+  <div class="folio">نظام تاكسي متكامل<span class="n">2</span></div>
+</div>
+
+<!-- ═══════════ 2. CUSTOMER ═══════════ -->
+<div class="page">
+  <div class="kicker">تطبيق الزبون</div>
+  <h2>يعرف السعر قبل أن يطلب،<br>ويعرف أين السائق بعد أن يطلب</h2>
+  <p class="lead">أربعة تبويبات بسيطة: طلب جديد، طلباتي، المحفظة، الإعدادات.</p>
+
+  <div class="features">
+    <div class="feature"><h3>الطلب من الخريطة أو بالبحث</h3><p>يحدد الانطلاق والوجهة بتحريك الدبوس أو بكتابة اسم المكان، ويحفظ عناوينه المتكررة ليختارها بلمسة.</p></div>
+    <div class="feature"><h3>سعر لكل نوع سيارة</h3><p>قبل تأكيد الطلب يرى سعر كل نوع، ويستطيع ترك ملاحظة للسائق.</p></div>
+    <div class="feature"><h3>تتبّع مباشر</h3><p>يرى السائق يتحرك على الخريطة لحظة بلحظة، مع خط الطريق والمسافة والوقت المتبقي.</p></div>
+    <div class="feature"><h3>فاتورة واضحة عند الوصول</h3><p>يظهر المبلغ المطلوب مع تفاصيله: المسافة والتوقفات والانتظار. وتُغلق النافذة تلقائياً عندما يؤكد السائق الاستلام.</p></div>
+    <div class="feature"><h3>محفظة للباقي</h3><p>إذا لم يتوفر باقٍ مع السائق، يُضاف إلى محفظة الزبون ويغطي جزءاً من رحلته التالية.</p></div>
+    <div class="feature"><h3>تقييم وسجل كامل</h3><p>يقيّم السائق من 1 إلى 5 نجوم بعد الرحلة، ويرجع لأي رحلة سابقة ليرى مسارها الفعلي على الخريطة وفاتورتها.</p></div>
+    <div class="feature"><h3>تواصل في أي لحظة</h3><p>اتصال مباشر بالسائق أثناء الرحلة، وأرقام الإدارة على الهاتف والواتساب، وإرسال شكوى من التطبيق.</p></div>
+    <div class="feature"><h3>إشعارات</h3><p>إشعارات Push تصل بلغة الزبون، وقائمة إشعارات داخل التطبيق مع عدد غير المقروء.</p></div>
+  </div>
+
+  <div class="extras-title">وتفاصيل أخرى</div>
+  <div class="extras">
+    <div><b>رحلة طويلة؟</b><span>الرحلات الأطول من 20 كم تُحوَّل لأرقام واتساب الإدارة ليطلبها الزبون من هناك.</span></div>
+    <div><b>عروض ترويجية</b><span>عندما تفعّل الإدارة عرضاً، تظهر للزبون نافذة تهنئة عند فتح الأسعار.</span></div>
+    <div><b>إلغاء بسبب واضح</b><span>يستطيع الزبون إلغاء الطلب قبل بدء الرحلة، مع ذكر السبب.</span></div>
+  </div>
+
+  <div class="folio">نظام تاكسي متكامل<span class="n">3</span></div>
+</div>
+
+<!-- ═══════════ 3. DRIVER ═══════════ -->
+<div class="page">
+  <div class="kicker">تطبيق السائق</div>
+  <h2>كل ما يحتاجه السائق،<br>من العرض حتى استلام المبلغ</h2>
+  <p class="lead">أربعة تبويبات: الرئيسية، المحفظة، الملف الشخصي، الإعدادات.</p>
+
+  <div class="features">
+    <div class="feature"><h3>عروض لحظية</h3><p>يضغط «متصل» فتبدأ الطلبات بالوصول، لكل عرض عدّاد تنازلي وصوت تنبيه.</p></div>
+    <div class="feature"><h3>تنبيه حتى خارج التطبيق</h3><p>على Android يمكن أن يفتح التطبيق نفسه عند وصول طلب، وتظهر فقاعة عائمة عندما يكون التطبيق في الخلفية.</p></div>
+    <div class="feature"><h3>الرحلة خطوة بخطوة</h3><p>وصلت، بدء الرحلة، توقف مؤقت، إنهاء، ثم تأكيد استلام المبلغ. عدّاد الانتظار والتوقف يعمل تلقائياً.</p></div>
+    <div class="feature"><h3>فاتورة PDF على الواتساب</h3><p>يرسل للزبون عبر الواتساب اسمه وبيانات سيارته قبل الوصول، وفاتورة الرحلة بعد انتهائها.</p></div>
+    <div class="feature"><h3>الرحلة لا تضيع</h3><p>إذا أُغلق التطبيق أثناء رحلة يعود إليها عند فتحه. ومسار GPS يُحفظ على الجهاز، وإن فشل رفعه يُعاد المحاولة لاحقاً.</p></div>
+    <div class="feature"><h3>تقرير مالي شهري</h3><p>الأرباح، العمولات، المكافآت، الغرامات، التعويضات وصافي الدخل، مع تفاصيل كل رحلة.</p></div>
+    <div class="feature"><h3>طلبات المكتب عبر الواتساب</h3><p>يصل طلب المكتب للسائقين كرابط على الواتساب، يفتحه السائق في التطبيق مباشرة، وأول من يقبل يأخذه.</p></div>
+    <div class="feature"><h3>تسجيل من التطبيق</h3><p>ينشئ السائق حسابه مع صورته وصورة سيارته، ويبدأ العمل بعد موافقة الإدارة.</p></div>
+  </div>
+
+  <div class="extras-title">وتفاصيل أخرى</div>
+  <div class="extras">
+    <div><b>لا عمل بدون GPS</b><span>إذا أُطفئ الـ GPS تتوقف شاشات السائق حتى يعيد تشغيله.</span></div>
+    <div><b>نطاقه يختاره بنفسه</b><span>يحدد المسافة التي يستقبل منها الطلبات، من 1 إلى 10 كم.</span></div>
+    <div><b>تقييماته أمامه</b><span>يرى معدّله وكل تقييم، ويصله تنبيه فور وصول تقييم جديد.</span></div>
+  </div>
+
+  <div class="folio">نظام تاكسي متكامل<span class="n">4</span></div>
+</div>
+
+<!-- ═══════════ 4. ADMIN ═══════════ -->
+<div class="page dark">
+  <div class="kicker">الخادم ولوحة الإدارة</div>
+  <h2>أنت تضع القواعد،<br>والخادم يطبّقها على كل رحلة</h2>
+  <p class="lead">الطلبات لا تأتي من التطبيق فقط. فريق الاستقبال يُدخل طلبات المكالمات والواتساب، والموزّع يرسلها للسائق المتاح.</p>
+
+  <div class="features three">
+    <div class="feature"><h3>مركز الاتصال</h3><p>الاستقبال يبحث عن الزبون برقم هاتفه، يكتب الطلب ويرى السعر. الموزّع يرى السائقين المتاحين ويرسل الطلب. يدعم الطلبات المجدولة.</p></div>
+    <div class="feature"><h3>التسعير</h3><p>سعر الكيلومتر لكل نوع سيارة بشرائح، عمولة حسب مسافة الرحلة، رسوم انتظار وتوقف ومواقع وعدد ركاب، وحاسبة تعرض سعر أي مسافة.</p></div>
+    <div class="feature"><h3>السائقون</h3><p>حالة كل حساب، الغرامات والمكافآت، شحن المحفظة، وتحليل لكل سائق: وقت الاتصال، الوقت في الرحلات، عدد الرحلات والمبالغ.</p></div>
+    <div class="feature"><h3>الانضباط</h3><p>قائمة بمن يلغي الرحلات المقبولة أكثر من الحد، مع إمكانية إيقافه عن الرحلات لعدد من الساعات.</p></div>
+    <div class="feature"><h3>التواصل</h3><p>إشعار لشخص واحد أو لكل الزبائن أو كل السائقين، إدارة الشكاوى، أرقام التواصل، والخصوصية والشروط باللغتين.</p></div>
+    <div class="feature"><h3>التشغيل</h3><p>فرض تحديث أو تفعيل وضع الصيانة لكل تطبيق، سجل يومي للسيارات، سجل الأعطال، وتقارير الاستقبال للمدير.</p></div>
+  </div>
+
+  <h4 style="color:#fff">طلب المكالمة، من الهاتف إلى السائق</h4>
+  <div class="steps dark-steps">
+    <div class="step"><span class="num">1</span><b>الاستقبال</b><span>يكتب الطلب من مكالمة أو واتساب، ويرى السعر لكل نوع سيارة.</span></div>
+    <div class="step"><span class="num">2</span><b>الانتظار</b><span>لا يُعرض على السائقين مباشرة، بل يظهر فوراً عند كل الموزّعين.</span></div>
+    <div class="step"><span class="num">3</span><b>الموزّع</b><span>يختار سائقاً من المتاحين، أو يطلب من الاستقبال تعديل الطلب.</span></div>
+    <div class="step"><span class="num">4</span><b>السائق</b><span>يصبح الطلب رحلته مباشرة، ويصله إشعار بها.</span></div>
+  </div>
+
+  <div class="folio">نظام تاكسي متكامل · هذه الصفحة مبنية على توثيق الـ API ‏(<span class="code">swagger.json</span>)<span class="n">5</span></div>
+</div>
+
+<!-- ═══════════ 5. MONEY ═══════════ -->
+<div class="page tint">
+  <div class="kicker">المال</div>
+  <h2>كل ليرة مفصّلة، لكل الأطراف</h2>
+  <p class="lead">الخادم يقيس الوقت ويحسب كل الرسوم، والتطبيقان يعرضان النتيجة نفسها للزبون والسائق. لا يتأثر الحساب بساعة الهاتف.</p>
+
+  <h4>مكوّنات سعر الرحلة</h4>
+  <div class="fare">
+    <div>الأجرة الأساسية<small>حسب نوع السيارة</small></div>
+    <div>المسافة<small>بشرائح لكل كم</small></div>
+    <div>التوقفات<small>إن وُجدت</small></div>
+    <div>الانتظار<small>بعد الدقائق المجانية</small></div>
+    <div>التوقف المؤقت<small>أثناء الرحلة</small></div>
+    <div>الركاب<small>لطلبات المكتب</small></div>
+  </div>
+  <div class="fare-total">= السعر النهائي بعد تقريب الخادم، ويظهر للزبون مفصّلاً بنداً بنداً</div>
+
+  <h4>من استلام المبلغ إلى المحفظة</h4>
+  <div class="steps">
+    <div class="step"><span class="num">1</span><b>ينهي السائق الرحلة</b><span>يرى المبلغ المطلوب وحصته منه.</span></div>
+    <div class="step"><span class="num">2</span><b>يدفع الزبون نقداً</b><span>أو يغطي جزءاً من محفظته.</span></div>
+    <div class="step"><span class="num">3</span><b>يؤكد السائق الاستلام</b><span>وإن لم يتوفر باقٍ يضيفه لمحفظة الزبون.</span></div>
+    <div class="step"><span class="num">4</span><b>يقسم الخادم المبلغ</b><span>ويخصم العمولة من محفظة السائق.</span></div>
+  </div>
+
+  <div class="callout">
+    <h3>عمولتك تُخصم تلقائياً</h3>
+    <p>عندما يؤكد السائق استلام المبلغ، يخصم الخادم العمولة من محفظته مباشرة. وإذا نزل رصيده إلى حد يُضبط في الخادم، يُرفض قبوله لطلبات جديدة، ويظهر له تنبيه على الشاشة الرئيسية ليشحن محفظته. الأسعار تُعرض بالليرة السورية الجديدة وبجانبها القديمة.</p>
+  </div>
+
+  <div class="folio">نظام تاكسي متكامل<span class="n">6</span></div>
+</div>
+
+<!-- ═══════════ 6. TECH ═══════════ -->
+<div class="page dark">
+  <div class="kicker">التقنية</div>
+  <h2>كود مرتّب يستطيع فريقك<br>أن يكمل عليه</h2>
+  <p class="lead">تطبيق واحد بـ Flutter للزبون والسائق، مقسّم حسب الميزات، لكل ميزة طبقة بيانات وطبقة عرض.</p>
+
+  <div class="stack">
+    <div><b>Flutter</b><span>تطبيق واحد بدورين</span></div>
+    <div><b>Cubit</b><span>إدارة الحالة</span></div>
+    <div><b>Dio</b><span>كل طلبات الشبكة</span></div>
+    <div><b>Socket.IO</b><span>الطلبات والتتبّع اللحظي</span></div>
+    <div><b>Google Maps</b><span>الخرائط والمسارات</span></div>
+    <div><b>Firebase</b><span>الإشعارات</span></div>
+  </div>
+
+  <div class="stats darkstats">
+    <div class="stat"><b>518</b><span>ملف Dart</span></div>
+    <div class="stat"><b>≈ 50,700</b><span>سطر كود، مع التعليقات</span></div>
+    <div class="stat"><b>183</b><span>ملف Widget منفصل</span></div>
+    <div class="stat"><b>0</b><span>ملاحظات من <span class="code">flutter analyze</span></span></div>
+  </div>
+
+  <div class="features three">
+    <div class="feature"><h3>ميزات مستقلة</h3><p>كل ميزة في مجلد خاص بطبقة بيانات وطبقة عرض. ميزات الزبون التسع لا تستورد من بعضها إطلاقاً.</p></div>
+    <div class="feature"><h3>طبقات مفصولة</h3><p>لا توجد طلبات شبكة في الواجهة. كل مسارات الـ API في ملف واحد، وكل الاعتماديات تُسجَّل في ملف واحد.</p></div>
+    <div class="feature"><h3>أخطاء مفهومة</h3><p>كل خطأ من الخادم يتحول لرسالة مترجمة بلغة المستخدم، بدل النص التقني الإنجليزي.</p></div>
+    <div class="feature"><h3>عربي وإنجليزي كاملان</h3><p>702 نص في كل لغة، وتخطيط ينقلب تلقائياً بين اليمين واليسار.</p></div>
+    <div class="feature"><h3>فاتح وداكن</h3><p>يتبع إعداد الهاتف حتى يختار المستخدم، والخرائط تتحول للنمط الداكن معه.</p></div>
+    <div class="feature"><h3>جلسة لا تسقط بلا سبب</h3><p>إذا لم يصل التطبيق للخادم عند التشغيل يبقى المستخدم مسجلاً، ولا يخرج إلا إذا رفض الخادم جلسته.</p></div>
+  </div>
+
+  <div class="folio">نظام تاكسي متكامل<span class="n">7</span></div>
+</div>
+
+<!-- ═══════════ 7. HANDOVER ═══════════ -->
+<div class="page">
+  <div class="kicker">التسليم</div>
+  <h2>ما تستلمه، وما تحتاجه<br>لتطلق النظام باسمك</h2>
+  <p class="lead">الكود المصدري كاملاً، لتطلقه باسمك وتطوّره كما تريد.</p>
+
+  <div class="cols">
+    <div>
+      <h4>تستلم</h4>
+      <ul class="list">
+        <li><b>كود تطبيق Flutter كاملاً</b><span>الزبون والسائق في مشروع واحد، مع مشروعي Android وiOS.</span></li>
+        <li><b>الخادم ولوحة الإدارة</b><span>مع ملف توثيق الـ API ‏(<span class="code">swagger.json</span>، 185 نقطة).</span></li>
+        <li><b>الموارد</b><span>صوت تنبيه الطلب، نمط الخريطة الداكن، وخط Tajawal للعربية واللاتينية.</span></li>
+      </ul>
+    </div>
+    <div>
+      <h4>تجهّز لإطلاقه باسمك</h4>
+      <ul class="list">
+        <li><b>اسمك وشعارك</b><span>الأيقونات وشاشة البداية الأصلية تُولَّد من صورة شعار واحدة بأمرين، وفيديو البداية ملف واحد يُستبدل، والاسم يُغيَّر في ملفي الترجمة وإعدادات Android وiOS.</span></li>
+        <li><b>عنوان خادمك</b><span>يُكتب في ملفين داخل الكود.</span></li>
+        <li><b>مشروع Firebase ومفتاح Google</b><span>للإشعارات، ولـ Maps وRoutes API.</span></li>
+        <li><b>مفتاح توقيع واسم حزمة</b><span>لنشر التطبيق على Google Play باسمك.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="closing">
+    <div class="slogan">خدمة التاكسي الخاصة بك،<br><span class="g">باسمك أنت.</span></div>
+    <div class="line">تطبيق للزبون، تطبيق للسائق، وخادم بلوحة إدارة. ضع شعارك، اربط خادمك، وانطلق.</div>
+  </div>
+</div>
+
+</body>
+</html>

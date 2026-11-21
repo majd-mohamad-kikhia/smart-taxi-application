@@ -54,11 +54,6 @@ class AppConstants {
   /// authority, so change both together.
   static const double lowDriverWalletBalance = 200;
 
-  /// How long a driver has to accept an order offered to him (the server's
-  /// `DISPATCH.WAVE_SECONDS`). Only the countdown's fallback: the offer itself
-  /// says how long it lasts (`expires_in_seconds`).
-  static const int orderOfferSeconds = 10;
-
   static const double radiusSmall = 10.0;
   static const double radiusMedium = 14.0;
   static const double radiusLarge = 20.0;
