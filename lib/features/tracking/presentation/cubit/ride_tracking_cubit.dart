@@ -5,6 +5,7 @@ import '../../../../core/account_block/account_block_cubit.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/models/cancel_penalty_model.dart';
 import '../../../../core/models/picked_location_model.dart';
+import '../../../../core/models/planned_route_model.dart';
 import '../../../../core/models/ride_fare_breakdown_model.dart';
 import '../../../../core/models/ride_model.dart';
 import '../../../../core/models/ride_pause_model.dart';
@@ -14,6 +15,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/models/trip_eta_model.dart';
 import '../../../../core/services/trip_route_tracker.dart';
+import '../../../../core/utils/route_matcher.dart';
 import '../../data/datasources/customer_ride_socket_service.dart';
 import '../../data/models/ride_driver_model.dart';
 import '../../data/models/ride_location_model.dart';
@@ -49,7 +51,17 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
   final TripRouteTracker _routeTracker;
   final AccountBlockCubit _accountBlock;
   Timer? _cancelAnswerTimer;
+  Timer? _plannedRouteTimer;
   RideRouteLeg _trackedLeg = RideRouteLeg.none;
+
+  /// The trip's fixed road with its distance and time (`planned_route`):
+  /// only drawn and matched onto locally, never asked of Google or OSRM.
+  PlannedRouteModel? _planned;
+  bool _tripRouteSeeded = false;
+
+  /// Fetches the ride once more for a `planned_route` that was not ready at
+  /// creation (`GET /api/customer/rides/{id}`); null in tests.
+  final Future<PlannedRouteModel?> Function(int rideId)? _fetchPlannedRoute;
 
   RideTrackingCubit(
     this._socketService,
@@ -59,13 +71,38 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
     required PickedLocationModel pickup,
     required PickedLocationModel dropoff,
     List<RoutePointModel> plannedRoute = const [],
-  }) : super(
+    Future<PlannedRouteModel?> Function(int rideId)? fetchPlannedRoute,
+    Duration plannedRouteRetryDelay = const Duration(seconds: 3),
+  }) : _planned = initialRide.plannedRoute,
+       _fetchPlannedRoute = fetchPlannedRoute,
+       super(
          RideTrackingState.initial(
            ride: TrackedRideModel.fromRideModel(initialRide),
            pickup: pickup,
            dropoff: dropoff,
-         ).copyWith(plannedRoute: plannedRoute),
-       );
+         ).copyWith(
+           plannedRoute: initialRide.plannedRoute?.points ?? plannedRoute,
+         ),
+       ) {
+    // A new order whose road wasn't ready (and has no quote line either):
+    // ask once, a moment later. Not found then: a straight line is drawn.
+    if (state.plannedRoute.length < 2 && fetchPlannedRoute != null) {
+      _plannedRouteTimer = Timer(plannedRouteRetryDelay, _refetchPlannedRoute);
+    }
+  }
+
+  Future<void> _refetchPlannedRoute() async {
+    try {
+      final route = await _fetchPlannedRoute!(state.ride.id);
+      if (isClosed || route == null) return;
+      _planned = route;
+      _tripRouteSeeded = false;
+      emit(state.copyWith(plannedRoute: route.points));
+      await _updateRoute();
+    } catch (e) {
+      debugPrint('RideTrackingCubit: could not load the planned route: $e');
+    }
+  }
 
   void connect() {
     final token = ApiClient.authToken;
@@ -317,6 +354,7 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
         final previous = _trackedLeg;
         _trackedLeg = leg;
         _routeTracker.reset();
+        _tripRouteSeeded = false;
         // The time of the old leg is wrong for the new one. The way to the
         // pickup means nothing once the driver is there; the trip's own
         // route stays on the map until the screen closes.
@@ -336,14 +374,54 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
           state.driverLocation?.lat ?? (isTrip ? state.pickup.latitude : null);
       final carLng =
           state.driverLocation?.lng ?? (isTrip ? state.pickup.longitude : null);
-      if (carLat == null || carLng == null) return;
 
+      // The trip itself: the server's fixed road is drawn as it came (a
+      // straight line when there is none), and only matched onto locally for
+      // the arrival time. Nothing is ever asked of a routing service.
+      if (isTrip) {
+        final line = state.plannedRoute.length >= 2
+            ? state.plannedRoute
+            : [
+                RoutePointModel(state.pickup.latitude, state.pickup.longitude),
+                RoutePointModel(target.latitude, target.longitude),
+              ];
+        final fixed = _planned?.asDrivingRoute;
+        RouteProgress? progress;
+        if (fixed != null && carLat != null && carLng != null) {
+          if (!_tripRouteSeeded) {
+            _routeTracker.useRoute(fixed);
+            _tripRouteSeeded = true;
+          }
+          progress = (await _routeTracker.update(
+            carLat: carLat,
+            carLng: carLng,
+            targetLat: target.latitude,
+            targetLng: target.longitude,
+          )).progress;
+        }
+        if (isClosed || leg != state.routeLeg) return;
+        emit(
+          state.copyWith(
+            routePoints: line,
+            eta: progress == null
+                ? null
+                : TripEtaModel.fromRemaining(
+                    meters: progress.remainingMeters,
+                    seconds: progress.remainingSeconds,
+                  ),
+          ),
+        );
+        return;
+      }
+
+      // The driver's way to the pickup: asked for once, right after the
+      // accept, then only drawn (the tracker never asks again).
+      if (carLat == null || carLng == null) return;
       final snapshot = await _routeTracker.update(
         carLat: carLat,
         carLng: carLng,
         targetLat: target.latitude,
         targetLng: target.longitude,
-        keepLine: isTrip,
       );
       if (isClosed || leg != state.routeLeg) return;
 
@@ -421,6 +499,7 @@ class RideTrackingCubit extends Cubit<RideTrackingState> {
   @override
   Future<void> close() {
     _cancelAnswerTimer?.cancel();
+    _plannedRouteTimer?.cancel();
     _socketService.disconnect();
     return super.close();
   }

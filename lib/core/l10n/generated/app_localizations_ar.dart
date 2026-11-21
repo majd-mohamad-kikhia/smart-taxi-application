@@ -1885,6 +1885,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get callNotAvailable => 'الاتصال غير مدعوم على هذا الجهاز';
 
   @override
+  String get sosButton => 'الطوارئ';
+
+  @override
+  String get sosButtonHint => 'اتصل بخط الطوارئ';
+
+  @override
   String accountBlockedStrikes(int count, int limit) {
     return 'الإلغاءات: $count من $limit';
   }

@@ -6,8 +6,8 @@ import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/models/route_point_model.dart';
-import '../../../../core/services/planned_route_loader.dart';
 import '../../../../core/services/trip_route_tracker.dart';
+import '../../../../core/utils/stationary_fix_filter.dart';
 import '../../data/datasources/driver_trip_location_service.dart';
 import '../../data/datasources/open_trip_registry.dart';
 import '../../../../core/localization/app_strings.dart';
@@ -44,9 +44,14 @@ class DriverTripCubit extends Cubit<DriverTripState> {
 
   final DriverTripRepository _repository;
   final DriverTripLocationService _locationService;
-  final PlannedRouteLoader _routeLoader;
   final DriverTripRouteRepository _routeRepository;
   StreamSubscription<Position>? _positionSubscription;
+
+  /// Parked-car GPS wander is dropped, so the car doesn't walk on the map and
+  /// the driven distance doesn't grow while standing still (one filter for
+  /// the way to the pickup, one for the trip).
+  final StationaryFixFilter _pickupWander = StationaryFixFilter();
+  final StationaryFixFilter _tripWander = StationaryFixFilter();
 
   /// Draws the driver's road to the pickup while the trip hasn't started.
   final TripRouteTracker? _pickupRouteTracker;
@@ -87,7 +92,6 @@ class DriverTripCubit extends Cubit<DriverTripState> {
   DriverTripCubit(
     this._repository,
     this._locationService,
-    this._routeLoader,
     this._routeRepository,
     this._openTrips,
     Stream<Map<String, dynamic>> socketCancellations,
@@ -104,7 +108,7 @@ class DriverTripCubit extends Cubit<DriverTripState> {
            status: _initialStatus(resume),
            waiting: resume?.waiting,
            pause: resume?.pause,
-         ),
+         ).copyWith(routePoints: _routeOf(order)),
        ) {
     _openTrips.open(order.rideId);
     _cancellationSubscriptions = [
@@ -133,16 +137,28 @@ class DriverTripCubit extends Cubit<DriverTripState> {
         updated.pickupLng != current.pickupLng ||
         updated.dropoffLat != current.dropoffLat ||
         updated.dropoffLng != current.dropoffLng;
-    if (pointsMoved) _routeLoader.reset();
+    // The road changes only when a new `planned_route` arrives (or a moved
+    // point leaves the old one wrong: then a straight line until it does).
+    final routeChanged =
+        pointsMoved || updated.plannedRoute != current.plannedRoute;
     emit(state.copyWith(
       order: updated,
-      routePoints: pointsMoved ? const [] : null,
+      routePoints: routeChanged ? _routeOf(updated) : null,
       detailsUpdateCount:
           event.detailsUpdated ? state.detailsUpdateCount + 1 : null,
     ));
-    if (pointsMoved && state.status == DriverTripStatus.inProgress) {
-      _loadPlannedRoute();
-    }
+  }
+
+  /// The line drawn for the trip: the server's fixed road as it came, or a
+  /// straight line between the pickup and the drop-off when it has none. No
+  /// request is ever made for it.
+  static List<RoutePointModel> _routeOf(OrderOfferModel order) {
+    final planned = order.plannedRoute;
+    if (planned != null) return planned.points;
+    return [
+      RoutePointModel(order.pickupLat, order.pickupLng),
+      RoutePointModel(order.dropoffLat, order.dropoffLng),
+    ];
   }
 
   void _handleCancellation(Map<String, dynamic> json) {
@@ -186,7 +202,6 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     emit(state.copyWith(
       drivenPath: [for (final p in route) RoutePointModel(p.lat, p.lng)],
     ));
-    _loadPlannedRoute();
     _trackPosition();
   }
 
@@ -220,7 +235,9 @@ class DriverTripCubit extends Cubit<DriverTripState> {
       }
     }
 
-    _pickupSubscription = _locationService.positionStream().listen(follow);
+    _pickupSubscription = _locationService.positionStream().listen((position) {
+      if (_pickupWander.accept(position)) follow(position);
+    });
     final start = await _locationService.currentPosition() ??
         await _locationService.lastKnownPosition();
     if (start != null) unawaited(follow(start));
@@ -261,7 +278,6 @@ class DriverTripCubit extends Cubit<DriverTripState> {
         waiting: started.waiting,
         order: state.order.withPassengersCount(saved),
       ));
-      _loadPlannedRoute();
       _trackPosition();
     } on DriverTripException catch (e) {
       if (!isClosed) emit(state.copyWith(isUpdating: false, errorMessage: e.message));
@@ -493,10 +509,10 @@ class DriverTripCubit extends Cubit<DriverTripState> {
     // Subscribe first so no movement is missed while the start fix loads.
     _recordTimer = Timer.periodic(_recordInterval, (_) => _recordSample());
     _positionSubscription = _locationService.positionStream().listen((position) {
+      if (!_tripWander.accept(position)) return;
       if (position.accuracy <= _maxAccuracyMeters) _latestFix = position;
       _accumulateDistance(position);
       _updatePosition(position);
-      _loadPlannedRoute();
     });
 
     final start = await _locationService.currentPosition() ??
@@ -575,19 +591,6 @@ class DriverTripCubit extends Cubit<DriverTripState> {
   void _updatePosition(Position position) {
     if (isClosed) return;
     emit(state.copyWith(carLat: position.latitude, carLng: position.longitude));
-  }
-
-  /// Loads the planned pickup → dropoff route. Fixed once loaded; while it
-  /// isn't available yet the loader retries on later calls.
-  Future<void> _loadPlannedRoute() async {
-    final order = state.order;
-    final route = await _routeLoader.load(
-      fromLat: order.pickupLat,
-      fromLng: order.pickupLng,
-      toLat: order.dropoffLat,
-      toLng: order.dropoffLng,
-    );
-    if (!isClosed) emit(state.copyWith(routePoints: route));
   }
 
   @override

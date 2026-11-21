@@ -70,6 +70,8 @@ class _FakeRoutes extends Fake implements GoogleRoutesService {
     required double fromLng,
     required double toLat,
     required double toLng,
+    bool trafficAware = true,
+    Duration? reuseFor,
   }) => Completer<DrivingRouteModel>().future;
 }
 

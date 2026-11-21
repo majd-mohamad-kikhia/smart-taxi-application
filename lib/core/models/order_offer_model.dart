@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'pickup_eta_model.dart';
+import 'planned_route_model.dart';
 
 /// A ride available for the driver to accept — pushed over the
 /// `driver:orders_snapshot` / `driver:order_offer` socket events (see
@@ -58,6 +59,11 @@ class OrderOfferModel extends Equatable {
   /// Length of the driver's turn, in seconds; null when the server didn't say.
   final int? offerSeconds;
 
+  /// The trip's fixed road, once the server has sent it (with the accept, the
+  /// active ride or an office edit — never with an offer). Only drawn, never
+  /// asked for again.
+  final PlannedRouteModel? plannedRoute;
+
   const OrderOfferModel({
     required this.rideId,
     required this.vehicleTypeId,
@@ -82,6 +88,7 @@ class OrderOfferModel extends Equatable {
     this.pickupEta,
     this.expiresAt,
     this.offerSeconds,
+    this.plannedRoute,
   });
 
   factory OrderOfferModel.fromJson(Map<String, dynamic> json) {
@@ -108,6 +115,7 @@ class OrderOfferModel extends Equatable {
       passengersFee: feeOf(json),
       expiresAt: expiryOf(json),
       offerSeconds: countOrNull(json['expires_in_seconds']),
+      plannedRoute: PlannedRouteModel.tryParse(json['planned_route']),
     );
   }
 
@@ -118,10 +126,14 @@ class OrderOfferModel extends Equatable {
     final at = json['expires_at'];
     final seconds = countOrNull(json['expires_in_seconds']);
     final current = (now ?? DateTime.now()).toUtc();
-    final fromSeconds = seconds == null ? null : current.add(Duration(seconds: seconds));
+    final fromSeconds = seconds == null
+        ? null
+        : current.add(Duration(seconds: seconds));
     final fromDate = at is String ? DateTime.tryParse(at)?.toUtc() : null;
     if (fromDate == null) return fromSeconds;
-    if (fromSeconds != null && fromDate.isAfter(fromSeconds)) return fromSeconds;
+    if (fromSeconds != null && fromDate.isAfter(fromSeconds)) {
+      return fromSeconds;
+    }
     return fromDate;
   }
 
@@ -135,7 +147,8 @@ class OrderOfferModel extends Equatable {
         json.containsKey(key) ? textOrNull(json[key]) : fallback;
     return OrderOfferModel(
       rideId: rideId,
-      vehicleTypeId: (json['vehicle_type_id'] as num?)?.toInt() ?? vehicleTypeId,
+      vehicleTypeId:
+          (json['vehicle_type_id'] as num?)?.toInt() ?? vehicleTypeId,
       vehicleTypeName: textOr('vehicle_type_name', vehicleTypeName),
       pickupLat: numOr('pickup_lat', pickupLat),
       pickupLng: numOr('pickup_lng', pickupLng),
@@ -145,21 +158,35 @@ class OrderOfferModel extends Equatable {
       dropoffAddress: textOr('dropoff_address', dropoffAddress) ?? '',
       distanceKm: numOr('distance_km', distanceKm),
       estimatedDurationMin:
-          (json['estimated_duration_min'] as num?)?.toInt() ?? estimatedDurationMin,
+          (json['estimated_duration_min'] as num?)?.toInt() ??
+          estimatedDurationMin,
       estimatedPrice: numOr('estimated_price', estimatedPrice),
       priceIsEstimate: priceIsEstimate,
       requestedAt: requestedAt,
       distanceToPickupKm: distanceToPickupKm,
-      pickupAddressDetails: textOr('pickup_address_details', pickupAddressDetails),
-      dropoffAddressDetails: textOr('dropoff_address_details', dropoffAddressDetails),
+      pickupAddressDetails: textOr(
+        'pickup_address_details',
+        pickupAddressDetails,
+      ),
+      dropoffAddressDetails: textOr(
+        'dropoff_address_details',
+        dropoffAddressDetails,
+      ),
       note: textOr('note', note),
       passengersCount: json.containsKey('passengers_count')
           ? countOrNull(json['passengers_count'])
           : passengersCount,
-      passengersFee: json.containsKey('passengers_fee') ? feeOf(json) : passengersFee,
+      passengersFee: json.containsKey('passengers_fee')
+          ? feeOf(json)
+          : passengersFee,
       pickupEta: pickupEta,
       expiresAt: expiresAt,
       offerSeconds: offerSeconds,
+      // A new `planned_route` replaces the old line (the office moved a
+      // point); a payload without one keeps it.
+      plannedRoute: json.containsKey('planned_route')
+          ? PlannedRouteModel.tryParse(json['planned_route']) ?? plannedRoute
+          : plannedRoute,
     );
   }
 
@@ -188,7 +215,39 @@ class OrderOfferModel extends Equatable {
     pickupEta: eta,
     expiresAt: expiresAt,
     offerSeconds: offerSeconds,
+    plannedRoute: plannedRoute,
   );
+
+  /// The same ride with the road the server sent (kept as it is when null).
+  OrderOfferModel withPlannedRoute(PlannedRouteModel? route) {
+    if (route == null) return this;
+    return OrderOfferModel(
+      rideId: rideId,
+      vehicleTypeId: vehicleTypeId,
+      vehicleTypeName: vehicleTypeName,
+      pickupLat: pickupLat,
+      pickupLng: pickupLng,
+      pickupAddress: pickupAddress,
+      dropoffLat: dropoffLat,
+      dropoffLng: dropoffLng,
+      dropoffAddress: dropoffAddress,
+      distanceKm: distanceKm,
+      estimatedDurationMin: estimatedDurationMin,
+      estimatedPrice: estimatedPrice,
+      priceIsEstimate: priceIsEstimate,
+      requestedAt: requestedAt,
+      distanceToPickupKm: distanceToPickupKm,
+      pickupAddressDetails: pickupAddressDetails,
+      dropoffAddressDetails: dropoffAddressDetails,
+      note: note,
+      passengersCount: passengersCount,
+      passengersFee: passengersFee,
+      pickupEta: pickupEta,
+      expiresAt: expiresAt,
+      offerSeconds: offerSeconds,
+      plannedRoute: route,
+    );
+  }
 
   /// The same ride once the number of passengers is known.
   OrderOfferModel withPassengersCount(int? count) =>
@@ -216,28 +275,29 @@ class OrderOfferModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        rideId,
-        vehicleTypeId,
-        vehicleTypeName,
-        pickupLat,
-        pickupLng,
-        pickupAddress,
-        dropoffLat,
-        dropoffLng,
-        dropoffAddress,
-        distanceKm,
-        estimatedDurationMin,
-        estimatedPrice,
-        priceIsEstimate,
-        requestedAt,
-        distanceToPickupKm,
-        pickupAddressDetails,
-        dropoffAddressDetails,
-        note,
-        passengersCount,
-        passengersFee,
-        pickupEta,
-        expiresAt,
-        offerSeconds,
-      ];
+    rideId,
+    vehicleTypeId,
+    vehicleTypeName,
+    pickupLat,
+    pickupLng,
+    pickupAddress,
+    dropoffLat,
+    dropoffLng,
+    dropoffAddress,
+    distanceKm,
+    estimatedDurationMin,
+    estimatedPrice,
+    priceIsEstimate,
+    requestedAt,
+    distanceToPickupKm,
+    pickupAddressDetails,
+    dropoffAddressDetails,
+    note,
+    passengersCount,
+    passengersFee,
+    pickupEta,
+    expiresAt,
+    offerSeconds,
+    plannedRoute,
+  ];
 }

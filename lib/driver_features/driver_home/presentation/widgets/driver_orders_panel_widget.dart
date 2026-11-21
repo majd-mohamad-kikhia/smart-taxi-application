@@ -24,7 +24,11 @@ Future<void> acceptDriverOrder(
   if (result.ok && context.mounted) {
     await Navigator.of(context).pushNamed(
       AppRouter.driverTrip,
-      arguments: DriverTripRouteArgs(order: order.withPickupEta(result.eta)),
+      arguments: DriverTripRouteArgs(
+        order: order
+            .withPickupEta(result.eta)
+            .withPlannedRoute(result.plannedRoute),
+      ),
     );
     sl<DriverAuthCubit>().refreshWalletBalance();
   }

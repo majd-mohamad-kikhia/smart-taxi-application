@@ -113,7 +113,7 @@ import '../services/screen_awake_service.dart';
 import '../../driver_features/driver_auth/presentation/cubit/driver_signup_cubit.dart';
 import '../services/google_api_credentials_loader.dart';
 import '../services/google_routes_service.dart';
-import '../services/planned_route_loader.dart';
+import '../services/osm_routes_service.dart';
 import '../services/local_notification_service.dart';
 import '../services/push_notification_service.dart';
 import '../services/trip_route_tracker.dart';
@@ -152,6 +152,7 @@ import '../../features/settings/presentation/cubit/edit_profile_cubit.dart';
 import '../../features/settings/presentation/cubit/delete_account_cubit.dart';
 import '../../features/settings/presentation/cubit/settings_cubit.dart';
 import '../../features/tracking/data/datasources/customer_ride_socket_service.dart';
+import '../../features/tracking/data/datasources/ride_planned_route_data_source.dart';
 import '../../features/tracking/presentation/cubit/ride_tracking_cubit.dart';
 import '../../features/trips/data/datasources/trips_remote_data_source.dart';
 import '../../features/trips/data/repositories/trips_repository.dart';
@@ -310,9 +311,6 @@ void setupInjection() {
   );
 
   // ─── Core Services ──────────────────────────────────────────
-  sl.registerFactory<PlannedRouteLoader>(
-    () => PlannedRouteLoader(sl<GoogleRoutesService>()),
-  );
   // Every Google web API (Routes, Places, Geocoding) uses the
   // `GOOGLE_MAPS_API_KEY` from `.env`, which is loaded before injection is
   // set up (see main.dart).
@@ -325,8 +323,10 @@ void setupInjection() {
     () =>
         GoogleRoutesService(credentials: sl<GoogleApiCredentialsLoader>().load),
   );
+  sl.registerLazySingleton<OsmRoutesService>(() => OsmRoutesService());
+  // The driver's way to the customer comes from OpenStreetMap, not Google.
   sl.registerFactory<TripRouteTracker>(
-    () => TripRouteTracker(sl<GoogleRoutesService>()),
+    () => TripRouteTracker(sl<OsmRoutesService>()),
   );
   sl.registerLazySingleton<CurrentLocationService>(
     () => CurrentLocationService(),
@@ -581,7 +581,6 @@ void setupInjection() {
     (order, resume) => DriverTripCubit(
       sl<DriverTripRepository>(),
       sl<DriverTripLocationService>(),
-      sl<PlannedRouteLoader>(),
       sl<DriverTripRouteRepository>(),
       sl<OpenTripRegistry>(),
       sl<DriverSocketService>().rideCancelled,
@@ -793,6 +792,9 @@ void setupInjection() {
   sl.registerFactory<CustomerRideSocketService>(
     () => CustomerRideSocketService(),
   );
+  sl.registerLazySingleton<RidePlannedRouteDataSource>(
+    () => RidePlannedRouteDataSource(sl<ApiClient>().dio, sl<ApiEndpoints>()),
+  );
   sl.registerFactoryParam<RideTrackingCubit, RideTrackingCubitArgs, void>(
     (args, _) => RideTrackingCubit(
       sl<CustomerRideSocketService>(),
@@ -802,6 +804,7 @@ void setupInjection() {
       pickup: args.pickup,
       dropoff: args.dropoff,
       plannedRoute: args.plannedRoute,
+      fetchPlannedRoute: sl<RidePlannedRouteDataSource>().fetch,
     ),
   );
 

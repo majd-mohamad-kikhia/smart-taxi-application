@@ -18,6 +18,7 @@ import '../../../../core/ride_rating/presentation/widgets/ride_rating_dialog_wid
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/app_map_title_pill_widget.dart';
 import '../../../../core/widgets/app_sheet_handle_widget.dart';
+import '../../../../core/widgets/sos_button_widget.dart';
 import '../../../../core/widgets/app_snack_bar_widget.dart';
 import '../../../../core/widgets/cancel_reason_dialog_widget.dart';
 import '../../../../core/widgets/live_trip_map_widget.dart';
@@ -234,6 +235,15 @@ class _RideTrackingView extends StatelessWidget {
                       waitingFee: state.ride.waitingFee,
                       pause: state.ride.pause,
                       showPause: false,
+                    ),
+                  ),
+                  const Align(
+                    alignment: AlignmentDirectional.topEnd,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.all(12),
+                        child: SosButtonWidget(),
+                      ),
                     ),
                   ),
                   const IgnorePointer(

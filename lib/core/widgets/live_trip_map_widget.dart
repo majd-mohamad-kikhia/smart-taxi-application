@@ -109,6 +109,7 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget>
 
     if (!_hasFitted) {
       _hasFitted = true;
+      widget.controller?.ownMove();
       controller.animateCamera(
         CameraUpdate.newLatLngBounds(_boundsOf(car, _destination), 80),
       );
@@ -207,6 +208,7 @@ class _LiveTripMapWidgetState extends State<LiveTripMapWidget>
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
       mapToolbarEnabled: false,
+      onCameraMoveStarted: widget.controller?.cameraMoveStarted,
       onCameraMove: widget.controller?.cameraMoved,
       onMapCreated: (controller) {
         _mapController = controller;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../core/localization/app_strings.dart';
+import '../../../core/utils/stationary_fix_filter.dart';
 
 /// Why [LocationTicker.start] couldn't get a GPS fix.
 enum LocationFailureReason {
@@ -37,6 +38,10 @@ class LocationTicker {
   StreamSubscription<Position>? _positionSub;
   Timer? _heartbeat;
   Position? _lastPosition;
+
+  /// Drops the GPS wander of a parked car, so it neither moves on the map
+  /// nor is reported to the server as moving.
+  final StationaryFixFilter _wander = StationaryFixFilter();
   final StreamController<Position> _positions =
       StreamController<Position>.broadcast();
 
@@ -65,6 +70,7 @@ class LocationTicker {
       locationSettings: _locationSettings(),
     ).listen(
       (position) {
+        if (!_wander.accept(position)) return;
         _publish(position);
         onPosition(position);
       },
@@ -99,6 +105,7 @@ class LocationTicker {
     try {
       final known = await Geolocator.getLastKnownPosition();
       if (known != null && run == _run && _lastPosition == null) {
+        _wander.accept(known);
         _publish(known);
         _onPosition?.call(known);
       }
@@ -108,7 +115,7 @@ class LocationTicker {
           timeLimit: Duration(seconds: 15),
         ),
       );
-      if (run != _run) return;
+      if (run != _run || !_wander.accept(current)) return;
       _publish(current);
       _onPosition?.call(current);
     } catch (e) {
@@ -123,6 +130,7 @@ class LocationTicker {
     _heartbeat?.cancel();
     _heartbeat = null;
     _lastPosition = null;
+    _wander.reset();
     _onPosition = null;
   }
 

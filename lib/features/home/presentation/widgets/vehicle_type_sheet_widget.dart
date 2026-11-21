@@ -68,9 +68,10 @@ class _VehicleTypeSheetWidgetState extends State<VehicleTypeSheetWidget> {
       _selectedId.value = choosable.first.vehicleTypeId;
     }
     // The manager has the offer on: congratulate as the prices open.
-    if (widget.quote.hasOffer) {
+    final offer = widget.quote.offer;
+    if (offer != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) showOfferCongratsDialog(context);
+        if (mounted) showOfferCongratsDialog(context, offer);
       });
     }
   }

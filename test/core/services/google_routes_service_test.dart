@@ -11,6 +11,7 @@ class _FakeAdapter implements HttpClientAdapter {
   final int status;
   final Object body;
   RequestOptions? request;
+  int calls = 0;
 
   _FakeAdapter(this.body, {this.status = 200});
 
@@ -21,6 +22,7 @@ class _FakeAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     request = options;
+    calls++;
     return ResponseBody.fromString(
       jsonEncode(body),
       status,
@@ -38,6 +40,7 @@ GoogleRoutesService _service(
   _FakeAdapter adapter, {
   String apiKey = 'test-key',
   Map<String, String> appHeaders = const {},
+  DateTime Function()? now,
 }) {
   final dio = Dio(
     BaseOptions(
@@ -49,6 +52,7 @@ GoogleRoutesService _service(
     credentials: () async =>
         GoogleApiCredentials(apiKey: apiKey, appHeaders: appHeaders),
     dio: dio,
+    now: now,
   );
 }
 
@@ -238,5 +242,92 @@ void main() {
       _compute(_service(_FakeAdapter({'routes': <Object>[]}))),
       throwsA(isA<RouteException>()),
     );
+  });
+
+  group('fewer calls', () {
+    final okBody = {
+      'routes': [
+        {
+          'distanceMeters': 4100,
+          'duration': '780s',
+          'polyline': {'encodedPolyline': polyline},
+        },
+      ],
+    };
+
+    test('without live traffic it asks for the cheaper kind of road', () async {
+      final adapter = _FakeAdapter(okBody);
+      final service = _service(adapter);
+      await service.computeRoute(
+        fromLat: 35.5, fromLng: 35.8, toLat: 35.6, toLng: 35.9,
+        trafficAware: false,
+      );
+      expect(
+        (adapter.request!.data as Map)['routingPreference'],
+        'TRAFFIC_UNAWARE',
+      );
+      await service.computeRoute(
+        fromLat: 35.5, fromLng: 35.8, toLat: 35.6, toLng: 35.9,
+      );
+      expect((adapter.request!.data as Map)['routingPreference'], 'TRAFFIC_AWARE');
+    });
+
+    test('two identical requests at once make one call', () async {
+      final adapter = _FakeAdapter(okBody);
+      final service = _service(adapter);
+      final a = service.computeRoute(
+        fromLat: 35.5, fromLng: 35.8, toLat: 35.6, toLng: 35.9,
+      );
+      final b = service.computeRoute(
+        fromLat: 35.5, fromLng: 35.8, toLat: 35.6, toLng: 35.9,
+      );
+      await Future.wait([a, b]);
+      expect(adapter.calls, 1);
+    });
+
+    test('an answer is reused within reuseFor, and not after it', () async {
+      var now = DateTime(2026, 11, 9, 12);
+      final adapter = _FakeAdapter(okBody);
+      final service = _service(adapter, now: () => now);
+      Future<void> ask() => service.computeRoute(
+        fromLat: 35.5, fromLng: 35.8, toLat: 35.6, toLng: 35.9,
+        reuseFor: const Duration(minutes: 30),
+      );
+
+      await ask();
+      now = now.add(const Duration(minutes: 29));
+      await ask();
+      expect(adapter.calls, 1);
+
+      now = now.add(const Duration(minutes: 2));
+      await ask();
+      expect(adapter.calls, 2);
+    });
+
+    test('a call without reuseFor always asks again', () async {
+      final adapter = _FakeAdapter(okBody);
+      final service = _service(adapter);
+      for (var i = 0; i < 2; i++) {
+        await service.computeRoute(
+          fromLat: 35.5, fromLng: 35.8, toLat: 35.6, toLng: 35.9,
+        );
+      }
+      expect(adapter.calls, 2);
+    });
+
+    test('a failed call is not kept', () async {
+      final adapter = _FakeAdapter({'error': 'no'}, status: 403);
+      final service = _service(adapter);
+      for (var i = 0; i < 2; i++) {
+        await expectLater(
+          service.computeRoute(
+            fromLat: 35.5, fromLng: 35.8, toLat: 35.6, toLng: 35.9,
+            reuseFor: const Duration(minutes: 30),
+          ),
+          throwsA(isA<RouteException>()),
+        );
+      }
+      expect(adapter.calls, 2);
+    });
   });
 }

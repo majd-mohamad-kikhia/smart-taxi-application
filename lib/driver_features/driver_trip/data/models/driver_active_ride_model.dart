@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/models/order_offer_model.dart';
 import '../../../../core/models/pickup_eta_model.dart';
+import '../../../../core/models/planned_route_model.dart';
 import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
 import 'driver_trip_customer_model.dart';
@@ -81,6 +82,7 @@ class DriverActiveRideModel extends Equatable {
         passengersCount: OrderOfferModel.countOrNull(json['passengers_count']),
         passengersFee: OrderOfferModel.feeOf(json),
         pickupEta: PickupEtaModel.tryParse(json['eta']),
+        plannedRoute: PlannedRouteModel.tryParse(json['planned_route']),
       ),
       isArrived: status == 'arrived',
       isInProgress: status == 'in_progress',

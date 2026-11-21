@@ -38,6 +38,16 @@ class AppConstants {
   static const String googleRoutesBaseUrl = 'https://routes.googleapis.com';
   static const String googleRoutesComputePath = '/directions/v2:computeRoutes';
 
+  /// The OpenStreetMap router (OSRM) that draws the driver's way to the
+  /// customer. This is OSRM's public demo server: fine to start with, but it
+  /// is shared and has no uptime promise, so point this at your own OSRM
+  /// server for heavy use.
+  static const String osmRoutingBaseUrl = 'https://router.project-osrm.org';
+
+  /// The emergency line the SOS button dials during a trip (driver and
+  /// customer alike).
+  static const String sosPhoneNumber = '0989003300';
+
   /// A driver whose wallet is at or below this can't accept orders — the
   /// server refuses them (see `ApiException.isWalletTooLow`). Only used to
   /// warn the driver early on the home screen; the server's own limit is the

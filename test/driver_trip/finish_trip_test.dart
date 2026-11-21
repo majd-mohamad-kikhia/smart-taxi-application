@@ -4,8 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mshoar/core/localization/app_strings.dart';
 import 'package:mshoar/core/models/order_offer_model.dart';
-import 'package:mshoar/core/models/route_point_model.dart';
-import 'package:mshoar/core/services/planned_route_loader.dart';
 import 'package:mshoar/driver_features/driver_trip/data/datasources/driver_trip_location_service.dart';
 import 'package:mshoar/driver_features/driver_trip/data/datasources/driver_trip_remote_data_source.dart';
 import 'package:mshoar/driver_features/driver_trip/data/datasources/open_trip_registry.dart';
@@ -80,16 +78,6 @@ class _FakeLocation extends Fake implements DriverTripLocationService {
   Future<Position?> lastKnownPosition() async => null;
 }
 
-class _FakeRouteLoader extends Fake implements PlannedRouteLoader {
-  @override
-  Future<List<RoutePointModel>> load({
-    required double fromLat,
-    required double fromLng,
-    required double toLat,
-    required double toLng,
-  }) async => const [];
-}
-
 class _FakeRouteRepository extends Fake implements DriverTripRouteRepository {
   @override
   Future<void> finishAndUpload(int rideId, List points) async {}
@@ -112,7 +100,6 @@ DriverTripCubit _inProgressCubit(
   return DriverTripCubit(
     repository,
     location,
-    _FakeRouteLoader(),
     _FakeRouteRepository(),
     OpenTripRegistry(),
     const Stream.empty(),

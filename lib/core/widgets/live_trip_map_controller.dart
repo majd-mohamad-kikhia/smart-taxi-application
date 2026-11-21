@@ -16,8 +16,9 @@ enum TripMapView {
 /// Drives a [LiveTripMapWidget] from outside it, so its zoom and move buttons
 /// can sit anywhere on the screen (e.g. in the bottom panel).
 ///
-/// Moving the view with [nudge] stops the camera following the car
-/// ([isFollowing] turns false) until [recenter] is used. Zooming keeps it
+/// Moving the view with [nudge], or by dragging the map with a finger,
+/// stops the camera following the car ([isFollowing] turns false) until
+/// [recenter] is used. Zooming keeps it
 /// following. In the angled view the screen is locked on the car (the map
 /// widget turns off its gestures and 3D buildings). [setView] switches between the top-down and the angled look.
 /// Listeners are told when [isFollowing] or [view] changes.
@@ -32,6 +33,11 @@ class LiveTripMapController extends ChangeNotifier {
 
   static const double _angledTilt = 60;
 
+  /// A camera move that starts this soon after one of our own is taken as
+  /// ours (the map reports both the same way); a later one is the driver's
+  /// finger.
+  static const Duration _ownMoveWindow = Duration(milliseconds: 500);
+
   /// The angled look is only useful close to the road; it starts at least this close.
   static const double _angledMinZoom = 17;
 
@@ -41,6 +47,8 @@ class LiveTripMapController extends ChangeNotifier {
   double _zoom = 15;
   bool _following = true;
   TripMapView _view = TripMapView.topDown;
+  DateTime _lastOwnMove = DateTime.fromMillisecondsSinceEpoch(0);
+  bool _hasOwnMoved = false;
 
   bool get isFollowing => _following;
 
@@ -54,25 +62,56 @@ class LiveTripMapController extends ChangeNotifier {
     _carBearing = bearing;
   }
 
+  /// Says the camera is about to be moved by the app, so the move that
+  /// follows is not taken as the driver dragging the map.
+  void ownMove() {
+    _lastOwnMove = DateTime.now();
+    _hasOwnMoved = true;
+  }
+
+  /// The map says its camera started moving. When the app did not just move
+  /// it, the driver did: stop following the car so the map stays where he
+  /// put it (the recenter button brings it back).
+  void cameraMoveStarted() {
+    // A map reports its own set-up as a move too: nothing before our first.
+    if (!_hasOwnMoved) return;
+    if (DateTime.now().difference(_lastOwnMove) < _ownMoveWindow) return;
+    _setFollowing(false);
+  }
+
   /// The map reports its camera as it moves, so [follow] can keep the zoom.
   void cameraMoved(CameraPosition position) => _zoom = position.zoom;
 
-  void zoomIn() => _map?.animateCamera(CameraUpdate.zoomIn());
+  void zoomIn() {
+    ownMove();
+    _map?.animateCamera(CameraUpdate.zoomIn());
+  }
 
-  void zoomOut() => _map?.animateCamera(CameraUpdate.zoomOut());
+  void zoomOut() {
+    ownMove();
+    _map?.animateCamera(CameraUpdate.zoomOut());
+  }
 
   void nudge(MapNudge nudge) {
     final step = nudge.direction * _nudgeStep;
+    ownMove();
     _map?.animateCamera(CameraUpdate.scrollBy(step.dx, step.dy));
     _setFollowing(false);
   }
 
-  void zoomInHeld() => _map?.moveCamera(CameraUpdate.zoomBy(_heldZoomStep));
+  void zoomInHeld() {
+    ownMove();
+    _map?.moveCamera(CameraUpdate.zoomBy(_heldZoomStep));
+  }
 
-  void zoomOutHeld() => _map?.moveCamera(CameraUpdate.zoomBy(-_heldZoomStep));
+  void zoomOutHeld() {
+    ownMove();
+    _map?.moveCamera(CameraUpdate.zoomBy(-_heldZoomStep));
+  }
 
   void nudgeHeld(MapNudge nudge) {
     final step = nudge.direction * _heldNudgeStep;
+    ownMove();
     _map?.moveCamera(CameraUpdate.scrollBy(step.dx, step.dy));
   }
 
@@ -95,6 +134,7 @@ class LiveTripMapController extends ChangeNotifier {
     final map = _map;
     final car = _car;
     if (map == null || car == null) return;
+    ownMove();
     if (_view == TripMapView.topDown) {
       map.animateCamera(
         CameraUpdate.newCameraPosition(CameraPosition(target: car, zoom: _zoom)),

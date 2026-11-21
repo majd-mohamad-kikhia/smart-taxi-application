@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import '../models/driving_route_model.dart';
 import '../models/route_point_model.dart';
 import '../utils/route_matcher.dart';
-import 'google_routes_service.dart';
 import 'route_exception.dart';
+import 'routes_provider.dart';
 
 /// What the map shows for the leg being tracked.
 class TripRouteSnapshot {
@@ -12,66 +12,67 @@ class TripRouteSnapshot {
   final List<RoutePointModel> line;
 
   /// What is left of the route for the car's latest fix; null while there is
-  /// no route yet or the car is off it and a new one is still loading.
+  /// no route yet or the car has left it.
   final RouteProgress? progress;
 
   const TripRouteSnapshot({required this.line, required this.progress});
 }
 
-/// Follows a moving car on its way to a fixed target and keeps the road
-/// line and the remaining distance/time up to date at the lowest cost.
+/// Follows a moving car on its way to a fixed target: the road line drawn
+/// and the remaining distance/time, at the lowest cost.
 ///
-/// Calls to the routing service are rare: the route is fetched once, and
-/// every GPS fix after that is matched onto it locally ([RouteMatcher]). It
-/// is fetched again only when the car leaves the route (took another road),
-/// or when the route has aged enough for traffic to have changed — and never
-/// more often than [_minFetchGap], even after a failure. One request at a
-/// time. One instance per tracked trip.
+/// Every request to the routing service costs something, so the road of a leg is
+/// asked for **once** (the driver's way to the pickup, when the order is
+/// accepted) and then only drawn: every GPS fix is matched onto it locally
+/// ([RouteMatcher]). It is never fetched again when the car drifts off it,
+/// when it ages or while the car moves. A failed request is retried a few
+/// times with growing waits, then given up (the map draws a straight line).
+/// A road that is already known — the trip's `planned_route` — is handed in
+/// with [useRoute] and never fetched. One request at a time. One instance
+/// per tracked trip.
 class TripRouteTracker {
-  /// A route older than this is refreshed for current traffic…
-  static const Duration _staleAfter = Duration(minutes: 3);
+  /// First wait before a failed request is retried; it doubles each time.
+  static const Duration _retryGap = Duration(seconds: 30);
 
-  /// …unless the car is this close to the target (nothing left to change).
-  static const double _noRefreshBelowMeters = 1000;
+  /// A leg's road is asked for at most this many times in all.
+  static const int _maxAttempts = 3;
 
-  /// Minimum time between two requests (also the retry interval).
-  static const Duration _minFetchGap = Duration(seconds: 15);
-
-  final GoogleRoutesService _service;
+  final RoutesProvider _service;
   final DateTime Function() _now;
 
   DrivingRouteModel? _line;
   RouteMatcher? _matcher;
-  DateTime? _matcherFetchedAt;
   DateTime? _lastAttemptAt;
   bool _isFetching = false;
+  int _attempts = 0;
   int _generation = 0;
 
   TripRouteTracker(this._service, {DateTime Function()? now})
-      : _now = now ?? DateTime.now;
+    : _now = now ?? DateTime.now;
 
   /// Feeds the car's latest fix ([carLat], [carLng]) heading for
-  /// ([targetLat], [targetLng]).
-  ///
-  /// With [keepLine] the drawn line stays the first route fetched and only
-  /// the arrival estimate follows later routes (the planned line of a trip
-  /// in progress); otherwise the line is replaced by every new route (the
-  /// driver heading to the pickup).
-  ///
-  /// Completes at once unless this call is the one that fetches.
+  /// ([targetLat], [targetLng]). Asks the routing service only while the leg
+  /// has no road yet; completes at once otherwise.
   Future<TripRouteSnapshot> update({
     required double carLat,
     required double carLng,
     required double targetLat,
     required double targetLng,
-    bool keepLine = false,
   }) async {
-    var progress = _matcher?.match(carLat, carLng);
-    if (_needsFetch(progress)) {
-      await _fetch(carLat, carLng, targetLat, targetLng, keepLine);
-      progress = _matcher?.match(carLat, carLng);
+    if (_canFetch) {
+      await _fetch(carLat, carLng, targetLat, targetLng);
     }
-    return TripRouteSnapshot(line: _line?.points ?? const [], progress: progress);
+    return TripRouteSnapshot(
+      line: _line?.points ?? const [],
+      progress: _matcher?.match(carLat, carLng),
+    );
+  }
+
+  /// Uses a road that is already known, so nothing is fetched for this leg.
+  void useRoute(DrivingRouteModel route) {
+    _line = route;
+    _matcher = RouteMatcher(route);
+    _generation++;
   }
 
   /// Forgets the route — for when the leg changes. A request already in
@@ -79,21 +80,19 @@ class TripRouteTracker {
   void reset() {
     _line = null;
     _matcher = null;
-    _matcherFetchedAt = null;
     _lastAttemptAt = null;
+    _attempts = 0;
     _generation++;
   }
 
-  bool _needsFetch(RouteProgress? progress) {
-    if (_isFetching) return false;
+  bool get _canFetch {
+    if (_matcher != null || _isFetching || _attempts >= _maxAttempts) {
+      return false;
+    }
     final last = _lastAttemptAt;
-    if (last != null && _now().difference(last) < _minFetchGap) return false;
-    if (_matcher == null || progress == null) return true;
-
-    final fetchedAt = _matcherFetchedAt;
-    return fetchedAt != null &&
-        _now().difference(fetchedAt) > _staleAfter &&
-        progress.remainingMeters > _noRefreshBelowMeters;
+    if (last == null) return true;
+    final wait = _retryGap * (1 << (_attempts - 1).clamp(0, 10));
+    return _now().difference(last) >= wait;
   }
 
   Future<void> _fetch(
@@ -101,10 +100,10 @@ class TripRouteTracker {
     double fromLng,
     double toLat,
     double toLng,
-    bool keepLine,
   ) async {
     _isFetching = true;
     _lastAttemptAt = _now();
+    _attempts++;
     final generation = _generation;
     try {
       final route = await _service.computeRoute(
@@ -115,8 +114,7 @@ class TripRouteTracker {
       );
       if (generation != _generation) return;
       _matcher = RouteMatcher(route);
-      _matcherFetchedAt = _now();
-      if (!keepLine || _line == null) _line = route;
+      _line = route;
     } on RouteException catch (e) {
       debugPrint('TripRouteTracker: route request failed: $e');
     } finally {

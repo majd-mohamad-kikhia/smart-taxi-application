@@ -3,6 +3,7 @@ import '../../../../core/models/ride_pause_model.dart';
 import '../../../../core/models/route_point_model.dart';
 import '../../../../core/models/ride_waiting_model.dart';
 import '../../../../core/utils/polyline_decoder.dart';
+import 'offer_popup_model.dart';
 import 'vehicle_type_quote_model.dart';
 
 /// Result of `POST /api/customer/rides/locations` (order flow step 1):
@@ -34,9 +35,11 @@ class RideQuoteModel extends Equatable {
   /// memory only, never saved.
   final List<RoutePointModel> route;
 
-  /// The offer pop-up is on (`offer` is not null in the answer): the manager
-  /// shows it from the dashboard. Prices are never touched by it.
-  final bool hasOffer;
+  /// The offer pop-up, when the manager has it on (`offer` is not null in the
+  /// answer) — with the text and picture he set. Prices are never touched.
+  final OfferPopupModel? offer;
+
+  bool get hasOffer => offer != null;
 
   /// The customer's wallet balance at quote time (`wallet.balance`).
   final double walletBalance;
@@ -49,7 +52,7 @@ class RideQuoteModel extends Equatable {
     this.pauseFee,
     this.locationFeeName,
     this.route = const [],
-    this.hasOffer = false,
+    this.offer,
     this.walletBalance = 0,
   });
 
@@ -65,7 +68,7 @@ class RideQuoteModel extends Equatable {
       walletBalance: wallet is Map
           ? (wallet['balance'] as num?)?.toDouble() ?? 0
           : 0,
-      hasOffer: json['offer'] is Map,
+      offer: OfferPopupModel.tryParse(json['offer']),
       route: polyline is String && polyline.isNotEmpty
           ? PolylineDecoder.decode(polyline)
           : const [],
@@ -95,7 +98,7 @@ class RideQuoteModel extends Equatable {
     pauseFee,
     locationFeeName,
     route,
-    hasOffer,
+    offer,
     walletBalance,
   ];
 }

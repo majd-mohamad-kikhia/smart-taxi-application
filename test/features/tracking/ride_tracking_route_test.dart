@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mshoar/core/account_block/account_block_cubit.dart';
+import 'package:mshoar/core/models/driving_route_model.dart';
 import 'package:mshoar/core/models/picked_location_model.dart';
+import 'package:mshoar/core/models/planned_route_model.dart';
 import 'package:mshoar/core/models/ride_model.dart';
 import 'package:mshoar/core/models/route_point_model.dart';
 import 'package:mshoar/core/models/trip_eta_model.dart';
@@ -40,17 +42,21 @@ class _FakeSocket extends Fake implements CustomerRideSocketService {
 
 class _FakeAccountBlock extends Fake implements AccountBlockCubit {}
 
-typedef _Call = ({double carLat, double carLng, double targetLat, double targetLng, bool keepLine});
+typedef _Call = ({double carLat, double carLng, double targetLat, double targetLng});
 
 /// Always answers with the same road and "3 km / 10 min left".
 class _FakeRouteTracker extends Fake implements TripRouteTracker {
   static const line = [RoutePointModel(1, 1), RoutePointModel(2, 2)];
 
   final List<_Call> calls = [];
+  final List<DrivingRouteModel> usedRoutes = [];
   int resets = 0;
 
   @override
   void reset() => resets++;
+
+  @override
+  void useRoute(DrivingRouteModel route) => usedRoutes.add(route);
 
   @override
   Future<TripRouteSnapshot> update({
@@ -58,14 +64,12 @@ class _FakeRouteTracker extends Fake implements TripRouteTracker {
     required double carLng,
     required double targetLat,
     required double targetLng,
-    bool keepLine = false,
   }) async {
     calls.add((
       carLat: carLat,
       carLng: carLng,
       targetLat: targetLat,
       targetLng: targetLng,
-      keepLine: keepLine,
     ));
     return const TripRouteSnapshot(
       line: line,
@@ -142,7 +146,7 @@ void main() {
     await pumpEventQueue();
 
     expect(cubit.state.routeLeg, RideRouteLeg.toPickup);
-    expect(tracker.calls.last, (carLat: 5.0, carLng: 6.0, targetLat: 10.0, targetLng: 20.0, keepLine: false));
+    expect(tracker.calls.last, (carLat: 5.0, carLng: 6.0, targetLat: 10.0, targetLng: 20.0));
     expect(cubit.state.routePoints, _FakeRouteTracker.line);
     expect(cubit.state.eta, eta);
   });
@@ -161,19 +165,107 @@ void main() {
     expect(tracker.resets, greaterThanOrEqualTo(2));
   });
 
-  test('in progress: a fixed line and the time to the dropoff, starting at the pickup', () async {
+  const straight = [RoutePointModel(10, 20), RoutePointModel(30, 40)];
+
+  test('in progress without a planned route: a straight line, and no routing request', () async {
     socket.onRideAccepted(_accepted());
     socket.onRideStatus(_status(4, 'in_progress'));
+    socket.onDriverLocation(_tick(11, 21));
     await pumpEventQueue();
 
     expect(cubit.state.routeLeg, RideRouteLeg.toDropoff);
-    expect(tracker.calls.last, (carLat: 10.0, carLng: 20.0, targetLat: 30.0, targetLng: 40.0, keepLine: true));
-    expect(cubit.state.eta, eta);
+    expect(tracker.calls, isEmpty);
+    expect(tracker.usedRoutes, isEmpty);
+    expect(cubit.state.routePoints, straight);
+    expect(cubit.state.eta, isNull);
+    expect(cubit.state.drivenPath, hasLength(1));
+  });
 
+  test('in progress with a planned route: it is drawn as it came, the time is matched locally', () async {
+    await cubit.close();
+    tracker = _FakeRouteTracker();
+    socket = _FakeSocket();
+    final planned = PlannedRouteModel.tryParse({
+      'polyline': '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+      'distance_km': 4.65,
+      'duration_min': 9,
+    })!;
+    cubit = RideTrackingCubit(
+      socket,
+      tracker,
+      _FakeAccountBlock(),
+      initialRide: RideModel(
+        id: 122,
+        vehicleTypeId: 2,
+        priceIsEstimate: true,
+        statusId: 2,
+        status: 'accepted',
+        plannedRoute: planned,
+      ),
+      pickup: _pickup,
+      dropoff: _dropoff,
+    )..connect();
+
+    socket.onRideAccepted(_accepted());
+    socket.onRideStatus(_status(4, 'in_progress'));
     socket.onDriverLocation(_tick(11, 21));
     await pumpEventQueue();
-    expect(tracker.calls.last.carLat, 11.0);
-    expect(cubit.state.drivenPath, hasLength(1));
+
+    expect(cubit.state.routePoints, planned.points);
+    expect(tracker.usedRoutes, hasLength(1));
+    expect(tracker.usedRoutes.single.distanceMeters, 4650);
+    // Matched onto the known road: no request, only the local progress.
+    expect(cubit.state.eta, eta);
+  });
+
+  test('a ride whose road was not ready asks once, a moment later', () async {
+    await cubit.close();
+    final planned = PlannedRouteModel.tryParse({
+      'polyline': '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+    })!;
+    var asked = 0;
+    cubit = RideTrackingCubit(
+      _FakeSocket(),
+      _FakeRouteTracker(),
+      _FakeAccountBlock(),
+      initialRide: _ride,
+      pickup: _pickup,
+      dropoff: _dropoff,
+      fetchPlannedRoute: (id) async {
+        asked++;
+        expect(id, 122);
+        return planned;
+      },
+      plannedRouteRetryDelay: const Duration(milliseconds: 10),
+    );
+    expect(cubit.state.plannedRoute, isEmpty);
+
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+
+    expect(asked, 1);
+    expect(cubit.state.plannedRoute, planned.points);
+  });
+
+  test('a ride that already has its road is not fetched again', () async {
+    await cubit.close();
+    var asked = 0;
+    cubit = RideTrackingCubit(
+      _FakeSocket(),
+      _FakeRouteTracker(),
+      _FakeAccountBlock(),
+      initialRide: _ride,
+      pickup: _pickup,
+      dropoff: _dropoff,
+      plannedRoute: const [RoutePointModel(1, 1), RoutePointModel(2, 2)],
+      fetchPlannedRoute: (id) async {
+        asked++;
+        return null;
+      },
+      plannedRouteRetryDelay: const Duration(milliseconds: 10),
+    );
+
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+    expect(asked, 0);
   });
 
   test('completed: the time goes, the trip line stays under the payment dialog', () async {
@@ -185,7 +277,7 @@ void main() {
     await pumpEventQueue();
 
     expect(cubit.state.eta, isNull);
-    expect(cubit.state.routePoints, _FakeRouteTracker.line);
+    expect(cubit.state.routePoints, straight);
   });
 
   test('a tick that changes nothing visible does not emit again', () async {

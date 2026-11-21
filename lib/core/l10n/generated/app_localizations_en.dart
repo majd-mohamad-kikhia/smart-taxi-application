@@ -1908,6 +1908,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get callNotAvailable => 'Calls aren\'t supported on this device';
 
   @override
+  String get sosButton => 'SOS';
+
+  @override
+  String get sosButtonHint => 'Call the emergency line';
+
+  @override
   String accountBlockedStrikes(int count, int limit) {
     return 'Cancellations: $count of $limit';
   }

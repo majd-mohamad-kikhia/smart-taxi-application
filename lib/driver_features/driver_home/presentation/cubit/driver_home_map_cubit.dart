@@ -86,6 +86,10 @@ class DriverHomeMapCubit extends Cubit<DriverHomeMapState> {
         fromLng: order.pickupLng,
         toLat: order.dropoffLat,
         toLng: order.dropoffLng,
+        // Only the line is drawn: the cheaper call, and the same road is
+        // reused when the driver accepts and the trip screen asks for it.
+        trafficAware: false,
+        reuseFor: const Duration(minutes: 30),
       );
       _routeCache[order.rideId] = route.points;
       if (isClosed || _wantedRide != order.rideId) return;

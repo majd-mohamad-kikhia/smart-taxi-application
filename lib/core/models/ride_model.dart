@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'cancel_penalty_model.dart';
+import 'planned_route_model.dart';
 
 /// A ride order as returned by `POST /api/customer/rides/choose-vehicle`
 /// and `POST /api/customer/rides/{id}/cancel`.
@@ -30,6 +31,11 @@ class RideModel extends Equatable {
   /// accepted).
   final CancelPenaltyModel? cancelPenalty;
 
+  /// The trip's fixed road, worked out once by the server when the order is
+  /// created. Null when the server had none yet (it may arrive a few seconds
+  /// later with `GET /api/customer/rides/{id}`).
+  final PlannedRouteModel? plannedRoute;
+
   const RideModel({
     required this.id,
     required this.vehicleTypeId,
@@ -40,6 +46,7 @@ class RideModel extends Equatable {
     required this.status,
     this.scheduledAt,
     this.cancelPenalty,
+    this.plannedRoute,
   });
 
   factory RideModel.fromJson(Map<String, dynamic> json) {
@@ -54,6 +61,7 @@ class RideModel extends Equatable {
       status: json['status'] as String? ?? '',
       scheduledAt: json['scheduled_at'] as String?,
       cancelPenalty: CancelPenaltyModel.fromRide(json),
+      plannedRoute: PlannedRouteModel.tryParse(json['planned_route']),
     );
   }
 
@@ -71,5 +79,6 @@ class RideModel extends Equatable {
         status,
         scheduledAt,
         cancelPenalty,
+        plannedRoute,
       ];
 }

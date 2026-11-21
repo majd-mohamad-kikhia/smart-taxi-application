@@ -545,6 +545,8 @@
   "locationFeeIncludedFor": "يشمل رسم منطقة قدره {fee} ({area})",
   "whatsappNotAvailable": "واتساب غير متاح على هذا الجهاز",
   "callNotAvailable": "الاتصال غير مدعوم على هذا الجهاز",
+  "sosButton": "الطوارئ",
+  "sosButtonHint": "اتصل بخط الطوارئ",
   "accountBlockedStrikes": "الإلغاءات: {count} من {limit}",
   "savedAddressesTitle": "الأماكن المحفوظة",
   "savedAddressHome": "المنزل",

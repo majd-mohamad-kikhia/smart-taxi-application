@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/models/pickup_eta_model.dart';
+import '../../../../core/models/planned_route_model.dart';
 import '../../../../core/network/api_exception.dart';
 
 /// The server's answer to `driver:order_accept`.
@@ -27,12 +28,17 @@ class OrderAcceptResult extends Equatable {
   /// null when none was sent or the server couldn't work it out.
   final PickupEtaModel? eta;
 
+  /// The trip's fixed road (`planned_route` of the accepted ride), drawn for
+  /// the whole trip and never asked for again; null when the server sent none.
+  final PlannedRouteModel? plannedRoute;
+
   const OrderAcceptResult({
     required this.ok,
     this.message,
     this.walletTooLow = false,
     this.offerExpired = false,
     this.eta,
+    this.plannedRoute,
   });
 
   /// [ack] is the decoded ack: `{ok: true}`, or a refusal as
@@ -42,7 +48,11 @@ class OrderAcceptResult extends Equatable {
   factory OrderAcceptResult.fromAck(Object? ack) {
     if (ack is! Map) return const OrderAcceptResult(ok: false);
     if (ack['ok'] == true || ack['success'] == true) {
-      return OrderAcceptResult(ok: true, eta: _etaOf(ack));
+      return OrderAcceptResult(
+        ok: true,
+        eta: _etaOf(ack),
+        plannedRoute: _plannedRouteOf(ack),
+      );
     }
 
     final error = ack['error'];
@@ -86,9 +96,26 @@ class OrderAcceptResult extends Equatable {
     return null;
   }
 
+  /// `planned_route` sits in the accepted ride like `eta` does.
+  static PlannedRouteModel? _plannedRouteOf(Map ack) {
+    for (final holder in [ack['ride'], ack['data'], ack]) {
+      if (holder is Map && holder['planned_route'] != null) {
+        return PlannedRouteModel.tryParse(holder['planned_route']);
+      }
+    }
+    return null;
+  }
+
   static String? _text(Object? value) =>
       value is String && value.trim().isNotEmpty ? value : null;
 
   @override
-  List<Object?> get props => [ok, message, walletTooLow, offerExpired, eta];
+  List<Object?> get props => [
+    ok,
+    message,
+    walletTooLow,
+    offerExpired,
+    eta,
+    plannedRoute,
+  ];
 }

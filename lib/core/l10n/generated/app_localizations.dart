@@ -3495,6 +3495,18 @@ abstract class AppLocalizations {
   /// **'Calls aren\'t supported on this device'**
   String get callNotAvailable;
 
+  /// No description provided for @sosButton.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS'**
+  String get sosButton;
+
+  /// No description provided for @sosButtonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Call the emergency line'**
+  String get sosButtonHint;
+
   /// No description provided for @accountBlockedStrikes.
   ///
   /// In en, this message translates to:

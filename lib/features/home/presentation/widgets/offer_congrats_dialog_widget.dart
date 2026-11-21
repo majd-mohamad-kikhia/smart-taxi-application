@@ -2,13 +2,19 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/localization/l10n_context_extension.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/auth_primary_button_widget.dart';
+import '../../data/models/offer_popup_model.dart';
 
 /// Opens the "congratulations, you won" pop-up shown when the prices open
-/// while the manager has the offer on. It changes no price.
-Future<void> showOfferCongratsDialog(BuildContext context) {
+/// while the manager has the offer on. It changes no price. The text and the
+/// picture are the manager's ([offer]); a missing one keeps the app's own.
+Future<void> showOfferCongratsDialog(
+  BuildContext context,
+  OfferPopupModel offer,
+) {
   final reduceMotion = MediaQuery.disableAnimationsOf(context);
   return showGeneralDialog<void>(
     context: context,
@@ -21,7 +27,7 @@ Future<void> showOfferCongratsDialog(BuildContext context) {
     pageBuilder: (context, _, _) => Center(
       child: Padding(
         padding: const EdgeInsets.all(AppConstants.paddingL),
-        child: const OfferCongratsDialogWidget(),
+        child: OfferCongratsDialogWidget(offer: offer),
       ),
     ),
     transitionBuilder: (context, animation, _, child) => FadeTransition(
@@ -37,7 +43,9 @@ Future<void> showOfferCongratsDialog(BuildContext context) {
 /// A big celebration card: a glowing trophy among twinkling stars, "مبروك!",
 /// and "you won with us", with one button to carry on.
 class OfferCongratsDialogWidget extends StatefulWidget {
-  const OfferCongratsDialogWidget({super.key});
+  final OfferPopupModel offer;
+
+  const OfferCongratsDialogWidget({super.key, required this.offer});
 
   @override
   State<OfferCongratsDialogWidget> createState() =>
@@ -81,7 +89,10 @@ class _OfferCongratsDialogWidgetState extends State<OfferCongratsDialogWidget>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _Hero(twinkle: _twinkle),
+              _Banner(
+                imageUrl: widget.offer.imageUrl,
+                fallback: _Hero(twinkle: _twinkle),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   AppConstants.paddingXL,
@@ -112,7 +123,7 @@ class _OfferCongratsDialogWidgetState extends State<OfferCongratsDialogWidget>
                     ),
                     const SizedBox(height: AppConstants.paddingXS),
                     Text(
-                      l10n.offerCongratsName,
+                      widget.offer.text ?? l10n.offerCongratsName,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
@@ -223,6 +234,32 @@ class _Hero extends StatelessWidget {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+/// The manager's picture in a 16:9 frame on top of the card; the trophy
+/// banner while it loads, when it can't be loaded and when there is none.
+class _Banner extends StatelessWidget {
+  final String? imageUrl;
+  final Widget fallback;
+
+  const _Banner({required this.imageUrl, required this.fallback});
+
+  @override
+  Widget build(BuildContext context) {
+    final url = ApiClient.resolveMediaUrl(imageUrl);
+    if (url == null) return fallback;
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Image.network(
+        url,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        errorBuilder: (_, _, _) => fallback,
+        loadingBuilder: (_, child, progress) =>
+            progress == null ? child : fallback,
       ),
     );
   }

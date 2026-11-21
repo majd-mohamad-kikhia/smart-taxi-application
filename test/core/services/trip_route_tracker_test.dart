@@ -27,6 +27,8 @@ class _FakeService extends Fake implements GoogleRoutesService {
     required double fromLng,
     required double toLat,
     required double toLng,
+    bool trafficAware = true,
+    Duration? reuseFor,
   }) async {
     calls++;
     if (fail) throw const RouteException('down');
@@ -41,14 +43,8 @@ void main() {
   late DateTime now;
   late TripRouteTracker tracker;
 
-  Future<TripRouteSnapshot> update(double lat, {double lng = 36, bool keepLine = false}) {
-    return tracker.update(
-      carLat: lat,
-      carLng: lng,
-      targetLat: 35.03,
-      targetLng: 36,
-      keepLine: keepLine,
-    );
+  Future<TripRouteSnapshot> update(double lat, {double lng = 36}) {
+    return tracker.update(carLat: lat, carLng: lng, targetLat: 35.03, targetLng: 36);
   }
 
   setUp(() {
@@ -71,63 +67,72 @@ void main() {
     expect(identical(third.line, first.line), isTrue);
   });
 
-  test('a car that left the route gets a new route — but not within 15 s of the last', () async {
-    await update(35.00);
-
-    now = now.add(const Duration(seconds: 5));
-    final tooSoon = await update(35.015, lng: 36.02);
-    expect(tooSoon.progress, isNull);
-    expect(service.calls, 1);
-
-    now = now.add(const Duration(seconds: 11));
-    final rerouted = await update(35.015, lng: 36.02);
-    expect(service.calls, 2);
-    expect(rerouted.progress, isNotNull);
-  });
-
-  test('the drawn line is replaced by a new route unless it is kept', () async {
+  test('a car that leaves the route never gets a new one', () async {
     final first = await update(35.00);
-    now = now.add(const Duration(minutes: 4));
-    final replaced = await update(35.005);
-    expect(identical(replaced.line, first.line), isFalse);
 
-    tracker.reset();
-    final planned = await update(35.00, keepLine: true);
-    now = now.add(const Duration(minutes: 4));
-    final kept = await update(35.005, keepLine: true);
+    now = now.add(const Duration(minutes: 1));
+    final off = await update(35.015, lng: 36.02);
 
-    expect(service.calls, 4);
-    expect(identical(kept.line, planned.line), isTrue);
-    expect(kept.progress, isNotNull);
+    expect(service.calls, 1);
+    expect(off.progress, isNull);
+    expect(identical(off.line, first.line), isTrue);
   });
 
-  test('a stale route is refreshed for traffic, unless the car is nearly there', () async {
+  test('an old route is not refreshed for traffic either', () async {
     await update(35.00);
-
-    now = now.add(const Duration(minutes: 4));
+    now = now.add(const Duration(hours: 1));
     await update(35.01);
-    expect(service.calls, 2);
-
-    now = now.add(const Duration(minutes: 4));
-    await update(35.039); // the refreshed route now ends at 35.04
-    expect(service.calls, 2);
+    expect(service.calls, 1);
   });
 
-  test('a failed request is retried no sooner than 15 s later', () async {
+  test('a known road is used as it is and never fetched', () async {
+    tracker.useRoute(_roadFrom(35.00));
+    final snapshot = await update(35.015);
+
+    expect(service.calls, 0);
+    expect(snapshot.line, hasLength(4));
+    expect(snapshot.progress!.remainingMeters, closeTo(1500, 1));
+  });
+
+  test('a failed request is retried after 30 s, then 60 s, then given up', () async {
     service.fail = true;
     final failed = await update(35.00);
     expect(failed.line, isEmpty);
     expect(failed.progress, isNull);
 
-    now = now.add(const Duration(seconds: 5));
+    now = now.add(const Duration(seconds: 10));
     await update(35.00);
     expect(service.calls, 1);
 
-    service.fail = false;
-    now = now.add(const Duration(seconds: 11));
-    final retried = await update(35.00);
+    now = now.add(const Duration(seconds: 21));
+    await update(35.00); // 30 s after the first
     expect(service.calls, 2);
+
+    now = now.add(const Duration(seconds: 31));
+    await update(35.00);
+    expect(service.calls, 2);
+
+    now = now.add(const Duration(seconds: 30));
+    await update(35.00); // 60 s after the second
+    expect(service.calls, 3);
+
+    // Three attempts are all a leg gets.
+    now = now.add(const Duration(hours: 1));
+    await update(35.00);
+    expect(service.calls, 3);
+  });
+
+  test('a failure followed by an answer keeps that answer for good', () async {
+    service.fail = true;
+    await update(35.00);
+    service.fail = false;
+    now = now.add(const Duration(seconds: 31));
+    final retried = await update(35.00);
     expect(retried.line, isNotEmpty);
+
+    now = now.add(const Duration(hours: 1));
+    await update(35.01);
+    expect(service.calls, 2);
   });
 
   test('one request at a time, and a reset drops the one in flight', () async {
@@ -142,5 +147,12 @@ void main() {
 
     expect(dropped.line, isEmpty);
     expect(dropped.progress, isNull);
+  });
+
+  test('a reset starts the next leg afresh', () async {
+    await update(35.00);
+    tracker.reset();
+    await update(35.00);
+    expect(service.calls, 2);
   });
 }

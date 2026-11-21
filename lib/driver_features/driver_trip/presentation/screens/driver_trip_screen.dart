@@ -15,6 +15,7 @@ import '../../../../core/widgets/live_trip_map_widget.dart';
 import '../../../../core/widgets/map_controls_widget.dart';
 import '../../../../core/widgets/order_route_details_widget.dart';
 import '../../../../core/widgets/ride_waiting_timer_widget.dart';
+import '../../../../core/widgets/sos_button_widget.dart';
 import '../../../../core/widgets/trip_fees_overlay_widget.dart';
 import '../../data/models/driver_active_ride_model.dart';
 import '../../data/models/ride_cancellation_model.dart';
@@ -208,6 +209,15 @@ class _InProgressViewState extends State<_InProgressView> {
           child: TripFeesOverlayWidget(
             waitingFee: state.waiting?.fee ?? 0,
             pause: state.pause,
+          ),
+        ),
+        const Align(
+          alignment: AlignmentDirectional.topEnd,
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: SosButtonWidget(),
+            ),
           ),
         ),
         Align(
